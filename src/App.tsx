@@ -1,10 +1,11 @@
-import { useState } from 'react'
-import './App.css'
+import { useState } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Onboarding from './components/Onboarding';
+import './App.css';
 import app from './firebaseConfig';
 
-function App() {
+function Home() {
   const [count, setCount] = useState(0);
-
   // Simple check to ensure firebase is initialized
   console.log("Firebase App Initialized:", app.name);
 
@@ -27,7 +28,18 @@ function App() {
         </div>
       </main>
     </div>
-  )
+  );
 }
 
-export default App
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Onboarding />} />
+        <Route path="/home" element={<Home />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+export default App;

@@ -1,0 +1,194 @@
+/* Onboarding Container */
+.onboarding-container {
+  height: 100dvh; /* Use dynamic viewport height for mobile browsers */
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-primary);
+}
+
+/* Background Floating Elements */
+.background-elements {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* Allow clicks to pass through */
+  z-index: 1; /* Behind content but above wave if needed, or manageable */
+  overflow: hidden;
+}
+
+.floating-icon {
+  position: absolute;
+  filter: blur(1px); /* Slight blur for depth */
+}
+
+/* Orange Wave Background */
+.orange-wave {
+  position: absolute;
+  bottom: 0; /* Move to bottom instead of top-30% */
+  left: 0;
+  width: 100%;
+  z-index: 0;
+  transform: scaleY(1); /* Reduce scale */
+  opacity: 0.6; /* More subtle */
+  transition: all 0.8s ease-in-out;
+}
+
+/* Header Restored */
+.onboarding-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem 1rem 1rem 1rem; /* Top padding for status bar area */
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 20;
+}
+
+.brand-name {
+  font-family: 'Lilita One', cursive; /* Updated Font */
+  font-size: 2rem; /* Increased size for impact */
+  color: var(--brand-primary); /* Deep Blue */
+  letter-spacing: 1px;
+}
+
+/* Content Area */
+.onboarding-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  width: 100%;
+  padding: 5.5rem 2rem 3rem 2rem; /* Standard mobile bottom padding */
+  box-sizing: border-box;
+}
+
+.slide-container {
+  width: 100%;
+  height: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between; /* Distribute space evenly */
+}
+
+/* Image */
+.image-wrapper {
+  margin-top: 2rem; 
+  flex: 1; /* Allow image to take available space */
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1rem;
+  z-index: 2;
+}
+
+.slide-image {
+  max-height: 40vh; /* Limit height to fit */
+  width: auto;
+  max-width: 90%;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1));
+  transition: all 0.5s ease;
+}
+
+/* Spacer removed, using justify-content: space-between */
+.spacer-flex {
+  display: none;
+}
+
+/* Text Content */
+.text-content {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 1.5rem; /* Reduced to share space with dots */
+  z-index: 2;
+  flex: 0 0 auto;
+}
+
+.slide-title {
+  font-size: 2rem; /* Increased from 1.75rem */
+  font-weight: 800;
+  margin: 0 0 0.5rem 0;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.slide-subtitle {
+  font-size: 1.1rem; /* Increased from 1rem */
+  color: var(--text-secondary);
+  line-height: 1.5;
+  padding: 0 1rem;
+}
+
+/* Pagination Dots */
+.dots-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2rem;
+  z-index: 2;
+}
+
+.dot {
+  height: 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Action Area */
+.action-area {
+  margin-bottom: 0; /* Margin handled by parent padding */
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  z-index: 2;
+  flex: 0 0 auto;
+}
+
+.action-btn {
+  width: 60px; /* Reduced from 72px */
+  height: 60px;
+  border-radius: 20px; /* Adjusted radius */
+  background: var(--palette-primary); /* Deep Blue to match vectors */
+  color: white;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(74, 112, 169, 0.4); /* Deep Blue shadow */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+/* Ensure Icon is visible */
+.action-btn svg {
+  width: 28px;
+  height: 28px;
+  stroke: white;
+  min-width: 28px; /* Validate flex behavior */
+}
+
+.action-btn:hover {
+  transform: translateY(-3px) scale(1.05); /* Subtle hover */
+  box-shadow: 0 12px 25px rgba(74, 112, 169, 0.5);
+  background: var(--palette-primary);
+  filter: brightness(1.1);
+}
+
+.action-btn:active {
+  transform: scale(0.95);
+}
