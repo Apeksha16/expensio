@@ -40,7 +40,7 @@ const Onboarding = () => {
         if (currentSlide < slides.length - 1) {
             setCurrentSlide(curr => curr + 1);
         } else {
-            navigate('/home');
+            navigate('/login');
         }
     };
 

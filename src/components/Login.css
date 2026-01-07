@@ -1,0 +1,228 @@
+/* Shared Auth Styles */
+.auth-container {
+    height: 100vh;
+    width: 100vw;
+    background-color: var(--bg-primary);
+    display: flex;
+    justify-content: center;
+    align-items: flex-end; /* Align content to bottom */
+    padding: 0; /* Remove padding to let sheet touch edges */
+    box-sizing: border-box;
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-content {
+    width: 100%;
+    max-width: 100%; /* Full width for bottom sheet feel */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 10;
+    position: relative;
+    /* Glassmorphism Card Style */
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 2rem 1.5rem 3rem 1.5rem; /* Reduced padding */
+    border-radius: 40px 40px 0 0; /* Rounded top corners only */
+    box-shadow: 0 -10px 40px rgba(0,0,0,0.1);
+    border-top: 1px solid rgba(255, 255, 255, 0.5);
+    margin-bottom: 0;
+    min-height: 45vh; /* Standardized height for consistent look */
+    justify-content: flex-start;
+}
+
+/* Background Elements */
+.background-elements {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.floating-icon {
+  position: absolute;
+  filter: blur(1px);
+}
+
+.orange-wave {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 0;
+  opacity: 0.6;
+}
+
+.bottom-illustration {
+    position: absolute;
+    /* bottom is set via modifier classes */
+    right: -16%;
+    transform: none;
+    width: auto;
+    height: 60vh;
+    max-height: 600px;
+    z-index: 5;
+    filter: drop-shadow(-10px 10px 20px rgba(0,0,0,0.15));
+    pointer-events: none;
+}
+
+.bottom-illustration.login-variant {
+    bottom: 362px;
+}
+
+.bottom-illustration.signup-variant {
+    bottom: 419px;
+}
+
+/* Auth Header */
+.auth-header {
+    text-align: center;
+    margin-bottom: 1.5rem; /* Reduced spacing */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.auth-logo {
+    width: 70px;
+    height: auto;
+    margin-bottom: 1rem;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+}
+
+.auth-title {
+    font-family: 'Lilita One', cursive;
+    font-size: 2.2rem;
+    color: var(--palette-primary);
+    margin: 0 0 0.5rem 0;
+    letter-spacing: 0.5px;
+}
+
+.auth-subtitle {
+    font-family: 'Inter', sans-serif;
+    color: var(--palette-primary);
+    opacity: 0.8;
+    font-size: 1rem;
+    margin: 0;
+    font-weight: 500;
+}
+
+.auth-form {
+    width: 100%;
+    max-width: 400px; /* Constrain form width inside the sheet */
+    display: flex;
+    flex-direction: column;
+    gap: 1rem; /* Compact gap */
+}
+
+.input-group {
+    position: relative;
+    width: 100%;
+}
+
+.input-icon {
+    position: absolute;
+    left: 1.2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--palette-primary);
+    opacity: 0.6;
+    transition: all 0.3s ease;
+}
+
+.auth-input {
+    width: 100%;
+    padding: 1.1rem 1.1rem 1.1rem 3.5rem;
+    border-radius: 20px;
+    border: 1px solid transparent;
+    background: #FFFFFF;
+    font-size: 1rem;
+    font-family: 'Inter', sans-serif;
+    color: var(--palette-primary);
+    box-sizing: border-box;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+}
+
+.auth-input:focus {
+    outline: none;
+    background: #FFFFFF;
+    box-shadow: 0 10px 25px rgba(74, 112, 169, 0.15);
+    transform: translateY(-2px);
+}
+
+.auth-input::placeholder {
+    color: #9CA3AF;
+}
+
+.input-group:focus-within .input-icon {
+    opacity: 1;
+    color: var(--palette-accent);
+}
+
+.primary-block-button {
+    width: 100%;
+    padding: 1.1rem;
+    border-radius: 20px;
+    background: linear-gradient(135deg, var(--palette-primary) 0%, var(--palette-secondary) 100%);
+    color: white;
+    border: none;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 10px 25px rgba(74, 112, 169, 0.4);
+    letter-spacing: 0.5px;
+    margin-top: 0.5rem;
+}
+
+.primary-block-button:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 15px 30px rgba(74, 112, 169, 0.5);
+    filter: brightness(1.1);
+}
+
+.primary-block-button:active {
+    transform: scale(0.98);
+}
+
+.auth-link {
+    color: var(--palette-primary);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.auth-link:hover {
+    text-decoration: underline;
+}
+
+.auth-footer {
+    text-align: center;
+    margin-top: 1.2rem;
+    font-family: 'Inter', sans-serif;
+    color: var(--palette-primary);
+    font-weight: 500;
+    z-index: 10;
+    position: relative;
+    background: rgba(143, 171, 212, 0.2);
+    padding: 0.6rem 1.2rem; /* Reduced padding */
+    font-size: 0.9rem;    /* Reduced font size */
+    border-radius: 20px;
+    backdrop-filter: blur(4px);
+    display: inline-block;
+    align-self: center;
+    transition: all 0.3s ease;
+}
+
+.auth-footer:hover {
+    background: rgba(143, 171, 212, 0.3);
+    transform: translateY(-1px);
+}
