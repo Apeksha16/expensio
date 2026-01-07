@@ -1,0 +1,43 @@
+/* Splash Container - Light Theme matching Onboarding */
+.splash-container {
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--bg-primary); /* Cream Background */
+    overflow: hidden;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.splash-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem; /* Reduced space between logo and text */
+    z-index: 10;
+}
+
+.logo-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.splash-logo {
+    width: 200px; /* Increased size */
+    height: auto;
+    object-fit: contain;
+}
+
+.splash-brand {
+    font-family: 'Lilita One', cursive; /* Matching Onboarding Header */
+    font-size: 3rem; /* Increased size for impact */
+    font-weight: 400; /* Lilita One is bold by default */
+    color: var(--palette-primary); /* Deep Blue matching Onboarding */
+    letter-spacing: 1px;
+    margin: 0;
+    text-align: center;
+}

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Splash from './components/Splash';
 import Onboarding from './components/Onboarding';
 import './App.css';
 import app from './firebaseConfig';
@@ -35,7 +36,8 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Onboarding />} />
+        <Route path="/" element={<Splash />} />
+        <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/home" element={<Home />} />
       </Routes>
     </BrowserRouter>

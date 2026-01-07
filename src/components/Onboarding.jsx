@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, DollarSign, PieChart, Coins, TrendingUp, Wallet } from 'lucide-react';
-import logo from '../assets/logo.png';
+import logo from '../assets/logoOnboarding.png';
 // User Assets
 import vector1 from '../assets/vector1.png';
 import vector2 from '../assets/vector2.png';
@@ -85,6 +85,7 @@ const Onboarding = () => {
             </div>
             {/* Header */}
             <header className="onboarding-header">
+                <img src={logo} alt="Logo" className="header-logo" />
                 <span className="brand-name">eXpensio</span>
             </header>
 
