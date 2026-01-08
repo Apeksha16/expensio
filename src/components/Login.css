@@ -4,9 +4,11 @@
     height: 100dvh;
     display: flex;
     flex-direction: column;
-    background: #EFECE3; /* Cream Background */
+    background: #EFECE3;
+    /* Cream Background */
     position: relative;
-    overflow: hidden; /* Lock scroll */
+    overflow: hidden;
+    /* Lock scroll */
 }
 
 /* Background Gradients/Orbs */
@@ -48,29 +50,42 @@
 /* Top Section: Logo, Title, Image */
 .auth-top-section {
     flex: 1;
-    min-height: 0; /* Allow shrinking */
+    min-height: 0;
     display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding-bottom: 20px;
-    padding-top: 10px;
+    flex-direction: row;
+    /* Horizontal Layout as requested */
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0px;
+    position: relative;
 }
 
 .auth-header-top {
+    flex: 1;
+    /* Take equal space (50%) */
     text-align: center;
-    margin-bottom: 12px;
+    /* Align left */
+    margin-bottom: 0;
+    /* Removed margin as requested */
     display: flex;
     flex-direction: column;
     align-items: center;
-    flex-shrink: 0; /* Prevent header squashing */
+    /* Center logo and text within its half */
+    justify-content: center;
+    align-self: center;
+    /* Center vertically in top section */
+    flex-shrink: 0;
+    z-index: 2;
+    padding: 0 10px;
 }
 
 .auth-logo-top {
-    width: 48px;
-    height: 48px;
-    margin-top: 20px;
-    margin-bottom: 8px;
-    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05));
+    width: 120px;
+    /* Resize to 120px as requested */
+    height: 120px;
+    margin-bottom: 12px;
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.05));
+    object-fit: contain;
 }
 
 .auth-welcome-text {
@@ -81,22 +96,28 @@
     letter-spacing: -0.02em;
 }
 
-/* Dynamic height for image to fit available space, max 50vh */
+/* Dynamic height for image to fit available space */
 .auth-hero-image {
     flex: 1;
-    min-height: 160px; /* Ensure visibility */
+    /* Take equal space (50%) */
     display: flex;
-    align-items: center;
+    align-items: flex-end;
+    /* Push to bottom */
     justify-content: center;
-    width: 100%;
+    /* Center horizontally in its half */
+    height: 100%;
+    overflow: visible;
+    /* Allow slight overlap if needed */
 }
 
 .auth-hero-image img {
-    max-height: 45vh; /* Balanced max height */
-    height: 100%;
+    max-height: 95%;
+    /* Fill available space */
     width: 100%;
     object-fit: contain;
-    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1));
+    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.1));
+    margin-bottom: -2px;
+    /* Touch the card */
 }
 
 /* Bottom Sheet */
@@ -105,7 +126,7 @@
     width: 100%;
     border-radius: 32px 32px 0 0;
     padding: 40px 24px;
-    box-shadow: 0 -10px 40px rgba(0,0,0,0.05);
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.05);
     position: relative;
     z-index: 10;
     display: flex;
@@ -113,7 +134,7 @@
     gap: 24px;
     min-height: auto;
     /* Ensure it takes enough space but doesn't overflow weirdly */
-    padding-bottom: 40px; 
+    padding-bottom: 40px;
     flex-shrink: 0;
 }
 
@@ -144,11 +165,13 @@
     position: relative;
     display: flex;
     align-items: center;
-    background: #F8FAFC; /* Light Gray Input Background */
-    border: 1px solid #E2E8F0;
-    border-radius: 16px;
-    padding: 4px 16px;
-    transition: all 0.2s ease;
+    background: #FFFFFF;
+    /* Pure White input */
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: 20px;
+    padding: 6px 16px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
 }
 
 .input-wrapper:focus-within {
@@ -181,27 +204,27 @@
 
 .auth-button {
     width: 100%;
-    height: 56px; /* Fixed height to prevent collapse */
-    display: flex; /* Centering */
+    height: 60px;
+    /* Slightly taller for premium feel */
+    display: flex;
     align-items: center;
     justify-content: center;
-    background: #1E293B; /* Dark Slate Button or Brand Blue? User wireframe had "buttons and all" inside box. Lets stick to Dark Slate or Brand Blue. Brand Blue is #4A70A9. Dark Slate is chic. Login button was blue before. */
-    background: #4A70A9;
-    color: white;
+    background: #C4D1DE;
+    /* Muted Blue from image */
+    color: #4A70A9;
+    /* Darker blue text */
     border: none;
-    border-radius: 16px;
-    font-size: 1rem;
-    font-weight: 600;
-    letter-spacing: 0.02em;
+    border-radius: 18px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
     cursor: pointer;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 12px rgba(74, 112, 169, 0.3);
+    transition: all 0.3s ease;
 }
 
 .auth-button:hover:not(:disabled) {
-    background: #3B5D8F;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(74, 112, 169, 0.4);
+    background: #B9C6D2;
+    transform: translateY(-1px);
 }
 
 .auth-button:active:not(:disabled) {
@@ -246,21 +269,24 @@
     top: 50%;
     left: 50%;
     margin: -10px 0 0 -10px;
-    border: 2px solid rgba(255,255,255,0.3);
+    border: 2px solid rgba(255, 255, 255, 0.3);
     border-top-color: #fff;
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 /* Mobile First Responsive Design */
 
 /* Disable scrolling to fit viewport exactly */
 .auth-container {
-    overflow: hidden; /* No scroll as requested */
+    overflow: hidden;
+    /* No scroll as requested */
     padding-bottom: env(safe-area-inset-bottom);
 }
 
@@ -269,14 +295,16 @@
     .auth-welcome-text {
         font-size: 1.25rem;
     }
+
     .auth-logo-top {
         width: 40px;
         height: 40px;
         margin-bottom: 8px;
         margin-top: 10px;
     }
+
     .auth-bottom-sheet {
-        padding: 24px 16px; 
+        padding: 24px 16px;
     }
 }
 
@@ -295,7 +323,8 @@
         align-items: center;
         justify-content: center;
         padding: 40px;
-        overflow: hidden; /* Lock scroll on large screens if fits */
+        overflow: hidden;
+        /* Lock scroll on large screens if fits */
     }
 
     .auth-top-section {
@@ -310,21 +339,22 @@
     .auth-header-top {
         align-items: flex-start;
     }
-    
+
     .auth-bottom-sheet {
         max-width: 440px;
-        border-radius: 24px; /* Full card on desktop */
+        border-radius: 24px;
+        /* Full card on desktop */
         height: auto;
-        box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1);
+        box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
         padding: 48px 40px;
     }
-    
+
     .auth-hero-image {
         justify-content: flex-start;
         max-width: 100%;
         min-height: auto;
     }
-    
+
     .auth-hero-image img {
         max-height: 400px;
     }

@@ -138,15 +138,6 @@ const OTPVerification = () => {
                     <img src={eXpensioLogo} alt="eXpensio Logo" className="auth-logo-top" />
                     <h1 className="auth-welcome-text">Verification</h1>
                 </div>
-
-                <motion.div
-                    className="auth-hero-image"
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.2 }}
-                >
-                    <img src={loginPageIllustration} alt="OTP Illustration" />
-                </motion.div>
             </div>
 
             {/* Bottom Sheet */}
