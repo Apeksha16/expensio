@@ -2,19 +2,27 @@
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   line-height: 1.5;
   font-weight: 400;
+}
 
-  /* User Provided Final Palette */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+:root {
   --palette-primary: #4A70A9;   /* Deep Blue - Trust */
   --palette-secondary: #8FABD4; /* Soft Blue - Backgrounds */
   --palette-bg: #EFECE3;        /* Off-White - Cream */
   --palette-black: #000000;     /* Text/Icons */
   --palette-accent: #2BB0A6;    /* Teal - Actions/Highlights */
+  --palette-accent-dark: #239a91; /* Darker Teal for hover states */
   
   /* Theme Mapping */
   --bg-primary: var(--palette-bg);
+  --bg-gradient: linear-gradient(135deg, var(--palette-bg) 0%, #f8f6f0 100%);
   
   /* Use Teal for primary actions (buttons) */
   --accent-primary: var(--palette-accent);
+  --accent-hover: var(--palette-accent-dark);
   /* Use Deep/Soft Blue for branding/secondary elements */
   --brand-primary: var(--palette-primary);
   --brand-secondary: var(--palette-secondary);
@@ -22,11 +30,26 @@
   --text-primary: var(--palette-black);
   --text-secondary: var(--palette-primary); /* Use Deep Blue for subtitles vs Grey */
   --text-white: #FFFFFF;
+  --text-muted: rgba(74, 112, 169, 0.6);
   
-  /* Glassmorphism adjustments */
-  --glass-bg: rgba(255, 255, 255, 0.4);
-  --glass-border: rgba(255, 255, 255, 0.6);
+  /* Enhanced Glassmorphism */
+  --glass-bg: rgba(255, 255, 255, 0.95);
+  --glass-bg-light: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.8);
   --glass-shadow: rgba(74, 112, 169, 0.15);
+  --glass-shadow-heavy: rgba(74, 112, 169, 0.25);
+
+  /* Shadow System */
+  --shadow-sm: 0 2px 8px rgba(74, 112, 169, 0.08);
+  --shadow-md: 0 4px 16px rgba(74, 112, 169, 0.15);
+  --shadow-lg: 0 8px 24px rgba(74, 112, 169, 0.2);
+  --shadow-xl: 0 12px 32px rgba(74, 112, 169, 0.25);
+
+  /* Border Radius System */
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
+  --radius-xl: 32px;
 
   color-scheme: light;
   color: var(--text-primary);

@@ -1,27 +1,340 @@
-/* OTP Specific Styles */
+/* OTP Specific Styles - Mobile First */
 .otp-container {
     display: flex;
     justify-content: space-between;
     gap: 8px;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 0 0.25rem;
 }
 
 .otp-input {
     width: 45px;
-    height: 50px;
-    border-radius: 10px;
-    border: 2px solid rgba(0,0,0,0.1);
-    background: white;
+    height: 55px;
+    border-radius: 12px;
+    border: 1px solid #E2E8F0;
+    background: #F8FAFC;
     font-size: 1.5rem;
-    font-weight: 700;
+    font-weight: 600;
     text-align: center;
-    color: var(--palette-primary);
-    transition: all 0.3s ease;
+    color: #1E293B;
+    transition: all 0.2s ease;
 }
 
 .otp-input:focus {
     outline: none;
-    border-color: var(--palette-primary);
-    box-shadow: 0 4px 12px rgba(74, 112, 169, 0.2);
+    border-color: #4A70A9;
+    box-shadow: 0 0 0 4px rgba(74, 112, 169, 0.1);
     transform: translateY(-2px);
+    background: #FFFFFF;
+}
+
+.otp-input:focus-visible {
+    outline: none;
+}
+
+.otp-input.filled {
+    border-color: #4A70A9;
+    background: #FFFFFF;
+    color: #4A70A9;
+}
+
+/* OTP Info Text */
+.otp-info {
+    text-align: center;
+    margin-bottom: 1.25rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.otp-phone {
+    font-weight: 600;
+    color: var(--brand-primary);
+}
+
+/* Resend OTP */
+.resend-container {
+    text-align: center;
+    margin-top: 1.25rem;
+}
+
+.resend-text {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+}
+
+.resend-button {
+    background: none;
+    border: none;
+    color: var(--brand-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    text-decoration: underline;
+    transition: all 0.3s ease;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+}
+
+.resend-button:hover {
+    color: var(--brand-secondary);
+    text-decoration: none;
+    background: rgba(74, 112, 169, 0.05);
+}
+
+.resend-button:disabled {
+    color: var(--text-secondary);
+    opacity: 0.6;
+    cursor: not-allowed;
+    text-decoration: none;
+    background: none;
+}
+
+/* Timer */
+.timer {
+    color: var(--brand-primary);
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+/* Mobile First Responsive Design */
+
+/* Ensure container scrolls on small heights */
+.auth-container {
+    overflow-y: auto;
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Very Small Mobile (< 360px) */
+@media (max-width: 360px) {
+    .otp-input {
+        width: 36px;
+        height: 44px;
+        font-size: 1.2rem;
+    }
+    .resend-button {
+        padding: 0.25rem 0.5rem;
+    }
+}
+
+/* Standard Mobile Phones (376px - 414px) */
+@media (min-width: 376px) and (max-width: 414px) {
+    .otp-container {
+        gap: 7px;
+        padding: 0 0.1875rem;
+        margin-bottom: 1.375rem;
+    }
+    
+    .otp-input {
+        width: 40px;
+        height: 46px;
+        font-size: 1.25rem;
+        border-radius: 11px;
+    }
+    
+    .otp-info {
+        font-size: 0.875rem;
+        margin-bottom: 1.125rem;
+    }
+    
+    .resend-container {
+        margin-top: 1.125rem;
+    }
+    
+    .resend-text {
+        font-size: 0.825rem;
+    }
+    
+    .resend-button {
+        font-size: 0.875rem;
+        padding: 0.4375rem 0.875rem;
+    }
+    
+    .timer {
+        font-size: 0.825rem;
+    }
+}
+
+/* Large Mobile Phones (415px - 480px) */
+@media (min-width: 415px) and (max-width: 480px) {
+    .otp-container {
+        gap: 8px;
+        padding: 0 0.25rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .otp-input {
+        width: 42px;
+        height: 48px;
+        font-size: 1.3rem;
+        border-radius: 12px;
+    }
+    
+    .otp-info {
+        font-size: 0.9rem;
+        margin-bottom: 1.25rem;
+    }
+    
+    .resend-container {
+        margin-top: 1.25rem;
+    }
+}
+
+/* Small Tablets Portrait (481px - 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+    .otp-container {
+        gap: 10px;
+        padding: 0 0.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .otp-input {
+        width: 46px;
+        height: 52px;
+        font-size: 1.4rem;
+        border-radius: 14px;
+    }
+    
+    .otp-info {
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+        padding: 0 1rem;
+    }
+    
+    .resend-container {
+        margin-top: 1.5rem;
+    }
+    
+    .resend-text {
+        font-size: 0.9rem;
+    }
+    
+    .resend-button {
+        font-size: 0.95rem;
+        padding: 0.5rem 1rem;
+    }
+    
+    .timer {
+        font-size: 0.9rem;
+    }
+}
+
+/* Large Tablets Portrait (769px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .otp-container {
+        gap: 12px;
+        padding: 0 1rem;
+        margin-bottom: 2.5rem;
+    }
+    
+    .otp-input {
+        width: 50px;
+        height: 56px;
+        font-size: 1.5rem;
+        border-radius: 16px;
+    }
+    
+    .otp-info {
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+        padding: 0 1.5rem;
+    }
+    
+    .resend-container {
+        margin-top: 2rem;
+    }
+    
+    .resend-text {
+        font-size: 1rem;
+    }
+    
+    .resend-button {
+        font-size: 1rem;
+        padding: 0.625rem 1.25rem;
+    }
+    
+    .timer {
+        font-size: 1rem;
+    }
+}
+
+/* Tablets Landscape (1025px - 1366px) */
+@media (min-width: 1025px) and (max-width: 1366px) and (orientation: landscape) {
+    .otp-container {
+        gap: 10px;
+        padding: 0 0.75rem;
+        margin-bottom: 2rem;
+    }
+    
+    .otp-input {
+        width: 48px;
+        height: 54px;
+        font-size: 1.4rem;
+        border-radius: 15px;
+    }
+    
+    .otp-info {
+        font-size: 1rem;
+        margin-bottom: 1.75rem;
+        padding: 0 1rem;
+    }
+    
+    .resend-container {
+        margin-top: 1.75rem;
+    }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .otp-input {
+        min-height: 48px;
+        min-width: 44px;
+    }
+    
+    .resend-button {
+        min-height: 44px;
+        padding: 0.75rem 1rem;
+    }
+}
+
+/* High DPI Displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .otp-input {
+        border-width: 1.5px;
+    }
+    
+    .otp-input:focus {
+        border-width: 1.5px;
+    }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    .otp-input,
+    .resend-button {
+        transition: none;
+    }
+    
+    .otp-input:focus {
+        transform: none;
+    }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    .otp-input {
+        border-width: 3px;
+        background: rgba(255, 255, 255, 1);
+    }
+    
+    .otp-input:focus {
+        border-width: 3px;
+        box-shadow: 0 0 0 3px var(--accent-primary);
+    }
+    
+    .otp-input.filled {
+        background: rgba(43, 176, 166, 0.1);
+        border-width: 3px;
+    }
 }

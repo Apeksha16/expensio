@@ -1,0 +1,210 @@
+/* Add Transaction Styles */
+.add-container {
+    padding: 20px 20px 100px 20px;
+    background: radial-gradient(circle at top left, rgba(74, 112, 169, 0.05), transparent 40%);
+    min-height: 100vh;
+}
+
+/* Menu Step */
+.add-options {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.option-card {
+    flex: 1;
+    height: 160px; /* Taller cards */
+    background: white;
+    border-radius: 28px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid transparent;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    position: relative;
+    overflow: hidden;
+}
+
+.option-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(74, 112, 169, 0.15);
+}
+
+.option-card.income:hover {
+    border-color: var(--palette-accent);
+}
+
+.option-card.expense:hover {
+    border-color: var(--palette-primary);
+}
+
+.option-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #F3F4F6;
+    z-index: 2;
+}
+
+.option-card.income .option-icon {
+    background: rgba(43, 176, 166, 0.1);
+    color: var(--palette-accent);
+}
+
+.option-card.expense .option-icon {
+    background: rgba(74, 112, 169, 0.1);
+    color: var(--palette-primary);
+}
+
+.option-label {
+    font-weight: 700;
+    font-size: 1.1rem;
+    z-index: 2;
+}
+
+/* Decorative background icon */
+.option-card::after {
+    content: '';
+    position: absolute;
+    bottom: -20px;
+    right: -20px;
+    width: 100px;
+    height: 100px;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    opacity: 0.1;
+    transform: rotate(-15deg);
+    pointer-events: none;
+}
+
+/* Form Step */
+.form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+
+.input-label {
+    font-size: 0.95rem;
+    color: #64748B;
+    margin-bottom: 10px;
+    display: block;
+    font-weight: 600;
+}
+
+.form-input {
+    width: 100%;
+    padding: 18px 20px;
+    border-radius: 20px;
+    border: 2px solid transparent;
+    background: white;
+    font-size: 1.1rem;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    outline: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+}
+
+.form-input:focus {
+    background: white;
+    border-color: var(--palette-primary);
+    box-shadow: 0 8px 25px rgba(74, 112, 169, 0.12);
+    transform: translateY(-2px);
+}
+
+.amount-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.currency-symbol {
+    position: absolute;
+    right: 24px;
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: #9CA3AF;
+}
+
+/* Category Pills */
+.category-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.category-pill {
+    padding: 12px 20px;
+    border-radius: 16px;
+    background: white;
+    border: 1px solid transparent;
+    color: #64748B;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+
+.category-pill:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.category-pill.active {
+    background: var(--palette-primary);
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 8px 20px rgba(74, 112, 169, 0.3);
+}
+
+.category-pill.active.income {
+    background: var(--palette-accent);
+    box-shadow: 0 8px 20px rgba(43, 176, 166, 0.3);
+}
+
+/* Add Button Bottom */
+.submit-btn {
+    margin-top: 20px;
+    width: 100%;
+    padding: 20px;
+    border-radius: 24px;
+    background: var(--palette-primary);
+    color: white;
+    font-weight: 800;
+    font-size: 1.1rem;
+    border: none;
+    box-shadow: 0 15px 35px rgba(74, 112, 169, 0.3);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    letter-spacing: 0.5px;
+}
+
+.submit-btn:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(74, 112, 169, 0.4);
+}
+
+.submit-btn.income {
+    background: var(--palette-accent);
+    box-shadow: 0 15px 35px rgba(43, 176, 166, 0.3);
+}
+
+.submit-btn.income:hover {
+    box-shadow: 0 20px 40px rgba(43, 176, 166, 0.4);
+}
+
+.submit-btn:active {
+    transform: scale(0.98);
+}

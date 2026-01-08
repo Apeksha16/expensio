@@ -1,0 +1,105 @@
+.settings-container {
+    padding: 24px;
+    padding-bottom: 90px; /* Space for bottom nav */
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+    color: white;
+}
+
+.settings-content {
+    margin-top: 10px;
+}
+
+.settings-section {
+    margin-bottom: 24px;
+}
+
+.section-header {
+    font-size: 0.9rem;
+    color: #94A3B8;
+    margin-bottom: 12px;
+    padding-left: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+}
+
+.section-items {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+}
+
+.setting-item {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.setting-item:last-child {
+    border-bottom: none;
+}
+
+.setting-item:active {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.setting-icon-wrapper {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: rgba(43, 176, 166, 0.1);
+    color: #2BB0A6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 16px;
+}
+
+.setting-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.setting-label {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #F1F5F9;
+}
+
+.setting-value {
+    font-size: 0.85rem;
+    color: #94A3B8;
+    margin-top: 2px;
+}
+
+.setting-arrow {
+    color: #64748B;
+}
+
+.logout-btn {
+    width: 100%;
+    padding: 16px;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 16px;
+    color: #EF4444;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 32px;
+    cursor: pointer;
+    backdrop-filter: blur(5px);
+}
+
+.logout-btn:active {
+    background: rgba(239, 68, 68, 0.2);
+}
