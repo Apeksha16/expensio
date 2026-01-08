@@ -10,11 +10,13 @@ const Login = () => {
     const navigate = useNavigate();
     const [phoneNumber, setPhoneNumber] = useState('');
 
+    const [countryCode, setCountryCode] = useState('+91');
+
     const handleLogin = (e) => {
         e.preventDefault();
         // Here we would handle sending OTP logic
         if (phoneNumber.length >= 10) {
-            navigate('/verify-otp', { state: { phoneNumber, mode: 'login' } });
+            navigate('/verify-otp', { state: { phoneNumber: `${countryCode}${phoneNumber}`, mode: 'login' } });
         }
     };
 
@@ -116,17 +118,32 @@ const Login = () => {
                     initial="hidden"
                     animate="visible"
                 >
-                    <motion.div className="input-group" variants={itemVariants}>
-                        <Smartphone className="input-icon" size={20} />
-                        <motion.input
-                            type="tel"
-                            placeholder="Phone Number"
-                            value={phoneNumber}
-                            onChange={(e) => setPhoneNumber(e.target.value)}
-                            className="auth-input"
-                            required
-                            whileFocus={{ scale: 1.02 }}
-                        />
+                    <motion.div className="input-group phone-input-group" variants={itemVariants}>
+                        <div className="country-code-container">
+                            <select
+                                value={countryCode}
+                                onChange={(e) => setCountryCode(e.target.value)}
+                                className="country-code-select"
+                            >
+                                <option value="+91">IN +91</option>
+                                <option value="+1">US +1</option>
+                                <option value="+44">UK +44</option>
+                                <option value="+61">AU +61</option>
+                                <option value="+81">JP +81</option>
+                            </select>
+                        </div>
+                        <div className="phone-input-wrapper">
+                            <Smartphone className="input-icon" size={20} />
+                            <motion.input
+                                type="tel"
+                                placeholder="Phone Number"
+                                value={phoneNumber}
+                                onChange={(e) => setPhoneNumber(e.target.value)}
+                                className="auth-input"
+                                required
+                                whileFocus={{ scale: 1.02 }}
+                            />
+                        </div>
                     </motion.div>
 
                     <motion.button

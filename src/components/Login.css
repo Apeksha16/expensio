@@ -141,25 +141,65 @@
     width: 100%;
     padding: 1.1rem 1.1rem 1.1rem 3.5rem;
     border-radius: 20px;
-    border: 1px solid transparent;
-    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    background: #F8FAFC;
     font-size: 1rem;
     font-family: 'Inter', sans-serif;
     color: var(--palette-primary);
     box-sizing: border-box;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
 }
 
 .auth-input:focus {
     outline: none;
     background: #FFFFFF;
-    box-shadow: 0 10px 25px rgba(74, 112, 169, 0.15);
+    border-color: var(--palette-accent);
+    box-shadow: 0 0 0 4px rgba(74, 112, 169, 0.1);
     transform: translateY(-2px);
 }
 
 .auth-input::placeholder {
     color: #9CA3AF;
+}
+
+.phone-input-group {
+    display: flex;
+    gap: 0.8rem;
+}
+
+.country-code-container {
+    flex: 0 0 100px; /* Fixed width for country code */
+    position: relative;
+}
+
+.country-code-select {
+    width: 100%;
+    height: 100%;
+    padding: 0 0.5rem;
+    border-radius: 20px;
+    border: 1px solid #E2E8F0;
+    background: #F8FAFC;
+    font-size: 1rem;
+    font-family: 'Inter', sans-serif;
+    color: var(--palette-primary);
+    outline: none;
+    appearance: none; /* Remove default arrow if desired, or style it */
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+
+.country-code-select:focus {
+    background: #FFFFFF;
+    border-color: var(--palette-accent);
+    box-shadow: 0 0 0 4px rgba(74, 112, 169, 0.1);
+}
+
+.phone-input-wrapper {
+    flex: 1;
+    position: relative;
 }
 
 .input-group:focus-within .input-icon {
@@ -212,17 +252,14 @@
     font-weight: 500;
     z-index: 10;
     position: relative;
-    background: rgba(143, 171, 212, 0.2);
     padding: 0.6rem 1.2rem; /* Reduced padding */
     font-size: 0.9rem;    /* Reduced font size */
     border-radius: 20px;
-    backdrop-filter: blur(4px);
     display: inline-block;
     align-self: center;
     transition: all 0.3s ease;
 }
 
 .auth-footer:hover {
-    background: rgba(143, 171, 212, 0.3);
     transform: translateY(-1px);
 }
