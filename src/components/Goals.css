@@ -1,0 +1,208 @@
+/* Goals Screen Styles */
+.goals-container {
+    padding: 20px 20px 100px 20px;
+    background: radial-gradient(circle at top left, rgba(74, 112, 169, 0.05), transparent 40%);
+    min-height: 100vh;
+    font-family: 'Inter', sans-serif;
+}
+
+.goals-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.goal-card {
+    background: white;
+    border-radius: 20px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 2px solid transparent;
+}
+
+.goal-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 30px rgba(74, 112, 169, 0.1);
+    border-color: #4A70A9;
+}
+
+.goal-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 16px;
+    background: #F3F4F6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.goal-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.goal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.goal-title {
+    font-weight: 700;
+    color: #1E293B;
+    font-size: 1rem;
+}
+
+.goal-target {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #64748B;
+}
+
+.goal-progress-container {
+    width: 100%;
+    height: 8px;
+    background: #F1F5F9;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.goal-progress-bar {
+    height: 100%;
+    background: #4A70A9;
+    border-radius: 4px;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.goal-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: #94A3B8;
+    font-weight: 500;
+}
+
+.goal-saved {
+    color: #10B981;
+    font-weight: 600;
+}
+
+/* Modals */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    display: flex;
+    align-items: flex-end; /* Bottom sheet on mobile, center on desktop */
+}
+
+.modal-content {
+    width: 100%;
+    background: white;
+    border-radius: 24px 24px 0 0;
+    padding: 30px 24px 40px 24px;
+    box-shadow: 0 -10px 40px rgba(0,0,0,0.1);
+}
+
+@media (min-width: 768px) {
+    .modal-overlay {
+        align-items: center;
+        justify-content: center;
+    }
+    .modal-content {
+        width: 400px;
+        border-radius: 24px;
+    }
+}
+
+.modal-content h3 {
+    margin: 0 0 24px 0;
+    color: #1E293B;
+    font-size: 1.25rem;
+}
+
+.modal-input {
+    width: 100%;
+    padding: 16px;
+    background: #F8FAFC;
+    border: 1px solid transparent;
+    border-radius: 16px;
+    font-size: 1rem;
+    margin-bottom: 16px;
+    outline: none;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+
+.modal-input:focus {
+    background: white;
+    border-color: #4A70A9;
+    box-shadow: 0 0 0 4px rgba(74, 112, 169, 0.1);
+}
+
+.modal-input.large {
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    padding-left: 40px;
+}
+
+.input-wrapper {
+    position: relative;
+    margin-bottom: 24px;
+}
+
+.currency-prefix {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 2rem;
+    font-weight: 700;
+    color: #94A3B8;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.modal-btn {
+    flex: 1;
+    padding: 16px;
+    border-radius: 16px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+}
+
+.modal-btn.cancel {
+    background: #F1F5F9;
+    color: #64748B;
+}
+
+.modal-btn.save {
+    background: #4A70A9;
+    color: white;
+    box-shadow: 0 4px 12px rgba(74, 112, 169, 0.3);
+}
+
+.modal-btn:hover {
+    transform: translateY(-2px);
+}

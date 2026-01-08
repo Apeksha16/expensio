@@ -4,16 +4,17 @@ import { ChevronLeft, ChevronRight, Settings, Coffee, Car, ShoppingBag } from 'l
 import { useNavigate } from 'react-router-dom';
 import './Stats.css';
 
+import { useTransactions } from '../context/TransactionContext';
+import { getIcon } from '../utils/categoryIcons';
+
 const Stats = () => {
     const navigate = useNavigate();
+    const { transactions } = useTransactions();
     const [viewMode, setViewMode] = useState('spends'); // 'spends' | 'categories'
 
-    // Mock Data
-    const transactions = [
-        { id: 1, title: 'Food', amount: 200.00, vat: '1%', method: 'Google Pay', icon: Coffee },
-        { id: 2, title: 'Uber', amount: 18.00, vat: '0.8%', method: 'Cash', icon: Car },
-        { id: 3, title: 'Shopping', amount: 400.00, vat: '0.12%', method: 'Paytm', icon: ShoppingBag },
-    ];
+    // Filter only expenses for stats
+    const expenses = transactions.filter(t => t.type === 'expense');
+    const totalExpense = expenses.reduce((acc, curr) => acc + curr.amount, 0);
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -64,8 +65,8 @@ const Stats = () => {
                 <motion.div className="chart-container" variants={itemVariants}>
                     <div className="donut-outer">
                         <div className="donut-inner">
-                            <span className="chart-total">$1,600</span>
-                            <span className="chart-label">You have spent 60% of budget</span>
+                            <span className="chart-total">${totalExpense.toFixed(2)}</span>
+                            <span className="chart-label">Total Spends</span>
                         </div>
                     </div>
                 </motion.div>
@@ -89,23 +90,30 @@ const Stats = () => {
                 {/* List */}
                 <motion.div className="stats-list" variants={itemVariants}>
                     <div className="transactions-list">
-                        {transactions.map((tx) => (
-                            <div key={tx.id} className="transaction-item">
-                                <div className="transaction-icon">
-                                    <tx.icon size={24} />
-                                </div>
-                                <div className="transaction-details">
-                                    <div className="transaction-title">{tx.title}</div>
-                                    <div className="transaction-date">{tx.date}</div>
-                                </div>
-                                <div>
-                                    <div className="transaction-amount expense">-${tx.amount.toFixed(2)}</div>
-                                    <span className="transaction-type">
-                                        Vat {tx.vat} • {tx.method}
-                                    </span>
-                                </div>
-                            </div>
-                        ))}
+                        {expenses.length === 0 ? (
+                            <div style={{ textAlign: 'center', padding: 20, color: '#888' }}>No expenses yet</div>
+                        ) : (
+                            expenses.map((tx) => {
+                                const Icon = getIcon(tx.category);
+                                return (
+                                    <div key={tx.id} className="transaction-item">
+                                        <div className="transaction-icon">
+                                            <Icon size={24} />
+                                        </div>
+                                        <div className="transaction-details">
+                                            <div className="transaction-title">{tx.title}</div>
+                                            <div className="transaction-date">{tx.date}</div>
+                                        </div>
+                                        <div>
+                                            <div className="transaction-amount expense">-${tx.amount.toFixed(2)}</div>
+                                            <span className="transaction-type">
+                                                {tx.paymentMode || 'Cash'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                );
+                            })
+                        )}
                     </div>
                 </motion.div>
             </motion.div>

@@ -35,11 +35,11 @@
 }
 
 .option-card.income:hover {
-    border-color: var(--palette-accent);
+    border-color: #2BB0A6;
 }
 
 .option-card.expense:hover {
-    border-color: var(--palette-primary);
+    border-color: #4A70A9;
 }
 
 .option-icon {
@@ -55,12 +55,12 @@
 
 .option-card.income .option-icon {
     background: rgba(43, 176, 166, 0.1);
-    color: var(--palette-accent);
+    color: #2BB0A6;
 }
 
 .option-card.expense .option-icon {
     background: rgba(74, 112, 169, 0.1);
-    color: var(--palette-primary);
+    color: #4A70A9;
 }
 
 .option-label {
@@ -89,41 +89,70 @@
 .form-container {
     display: flex;
     flex-direction: column;
-    gap: 28px;
+    gap: 24px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .input-label {
     font-size: 0.95rem;
     color: #64748B;
-    margin-bottom: 10px;
     display: block;
     font-weight: 600;
 }
 
-.form-input {
-    width: 100%;
-    padding: 18px 20px;
-    border-radius: 20px;
-    border: 2px solid transparent;
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
     background: white;
-    font-size: 1.1rem;
-    font-family: inherit;
-    transition: all 0.2s ease;
-    outline: none;
+    border-radius: 20px;
+    padding: 6px 16px;
+    border: 2px solid transparent;
+    transition: all 0.2s;
     box-shadow: 0 4px 15px rgba(0,0,0,0.03);
 }
 
-.form-input:focus {
-    background: white;
-    border-color: var(--palette-primary);
+.input-wrapper:focus-within {
+    border-color: #4A70A9;
     box-shadow: 0 8px 25px rgba(74, 112, 169, 0.12);
     transform: translateY(-2px);
+}
+
+.input-icon {
+    color: #9CA3AF;
+    margin-right: 12px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 12px 0;
+    border: none;
+    background: transparent;
+    font-size: 1.1rem;
+    font-family: inherit;
+    outline: none;
+    color: #1E293B;
+}
+
+.form-input.textarea {
+    resize: none;
+    min-height: 80px;
+    padding-top: 12px;
 }
 
 .amount-input-wrapper {
     position: relative;
     display: flex;
     align-items: center;
+    background: white;
+    border-radius: 20px;
+    padding: 6px 16px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
 }
 
 .currency-symbol {
@@ -163,15 +192,45 @@
 }
 
 .category-pill.active {
-    background: var(--palette-primary);
+    background: #4A70A9;
     color: white;
     border-color: transparent;
     box-shadow: 0 8px 20px rgba(74, 112, 169, 0.3);
 }
 
 .category-pill.active.income {
-    background: var(--palette-accent);
+    background: #2BB0A6;
     box-shadow: 0 8px 20px rgba(43, 176, 166, 0.3);
+}
+
+/* Payment Modes */
+.payment-modes {
+    display: flex;
+    gap: 12px;
+}
+
+.mode-pill {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px;
+    background: white;
+    border-radius: 16px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #64748B;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 2px solid transparent;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+}
+
+.mode-pill.active {
+    background: #EEF2FF;
+    border-color: #4A70A9;
+    color: #4A70A9;
 }
 
 /* Add Button Bottom */
@@ -180,7 +239,7 @@
     width: 100%;
     padding: 20px;
     border-radius: 24px;
-    background: var(--palette-primary);
+    background: #4A70A9;
     color: white;
     font-weight: 800;
     font-size: 1.1rem;
@@ -197,7 +256,7 @@
 }
 
 .submit-btn.income {
-    background: var(--palette-accent);
+    background: #2BB0A6;
     box-shadow: 0 15px 35px rgba(43, 176, 166, 0.3);
 }
 

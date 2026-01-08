@@ -1,26 +1,26 @@
-import { Coffee, Car, ShoppingBag, Wallet, Film, Receipt, HeartPulse, Gift, TrendingUp, Zap } from 'lucide-react';
-
-export const CategoryIcons = {
-    // Expenses
-    'Food': Coffee,
-    'Transport': Car,
-    'Shopping': ShoppingBag,
-    'Health': HeartPulse,
-    'Bills': Receipt,
-    'Movie': Film,
-    
-    // Income
-    'Salary': Wallet,
-    'Rewards': Gift,
-    'Refund': Receipt,
-    'Gift': Gift,
-    'Investment': TrendingUp,
-    
-    // Default
-    'Other': Zap,
-    'Income': Wallet
-};
+import { 
+    Coffee, Car, ShoppingBag, Home, FileText, 
+    Smartphone, Wifi, HeartPulse, TrendingUp, 
+    GraduationCap, Wallet, MoreHorizontal, Film 
+} from 'lucide-react';
 
 export const getIcon = (category) => {
-    return CategoryIcons[category] || CategoryIcons['Other'];
+    switch (category) {
+        case 'Food': return Coffee;
+        case 'Travel': return Car;
+        case 'Transport': return Car;
+        case 'Shopping': return ShoppingBag;
+        case 'Rent': return Home;
+        case 'Bills': return FileText;
+        case 'Mobile Recharge': return Smartphone;
+        case 'Wifi': return Wifi;
+        case 'Medicines': return HeartPulse;
+        case 'Health': return HeartPulse;
+        case 'Investment': return TrendingUp;
+        case 'Education': return GraduationCap;
+        case 'Salary': return Wallet;
+        case 'Entertainment': return Film;
+        case 'Movie': return Film;
+        default: return MoreHorizontal;
+    }
 };

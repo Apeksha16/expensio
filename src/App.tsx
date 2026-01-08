@@ -10,6 +10,9 @@ import Dashboard from './components/Dashboard.jsx';
 import Stats from './components/Stats.jsx';
 import AddTransaction from './components/AddTransaction.jsx';
 import HistoryPage from './components/History.jsx';
+import Goals from './components/Goals.jsx';
+import Groups from './components/Groups.jsx';
+import Profile from './components/Profile.jsx';
 import Settings from './components/Settings.jsx';
 import './App.css';
 
@@ -29,6 +32,9 @@ function App() {
           <Route path="/stats" element={<Stats />} />
           <Route path="/add" element={<AddTransaction />} />
           <Route path="/history" element={<HistoryPage />} />
+          <Route path="/goals" element={<Goals />} />
+          <Route path="/groups" element={<Groups />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/settings" element={<Settings />} />
         </Route>
       </Routes>

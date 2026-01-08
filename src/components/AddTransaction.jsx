@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, Wallet, CreditCard, Plus, MoreHorizontal, Coffee, Car, ShoppingBag } from 'lucide-react';
+import { ChevronLeft, Wallet, CreditCard, Plus, MoreHorizontal, Calendar, FileText, Smartphone } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import './AddTransaction.css';
-
 import { useTransactions } from '../context/TransactionContext';
 import { getIcon } from '../utils/categoryIcons';
 
@@ -17,6 +16,9 @@ const AddTransaction = () => {
     const [amount, setAmount] = useState('');
     const [title, setTitle] = useState('');
     const [category, setCategory] = useState('');
+    const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+    const [note, setNote] = useState('');
+    const [paymentMode, setPaymentMode] = useState('Cash'); // Cash, Card, UPI
 
     const recentEntries = transactions.slice(0, 3);
 
@@ -27,17 +29,22 @@ const AddTransaction = () => {
         setAmount('');
         setTitle('');
         setCategory('');
+        setNote('');
+        setPaymentMode('Cash');
+        setDate(new Date().toISOString().split('T')[0]);
     };
 
     const handleSubmit = () => {
-        if (!amount || !title) return;
+        if (!amount || !title) return; // Add better validation msg later
 
         const newTx = {
             id: Date.now(),
             title,
             amount: parseFloat(amount),
             category: category || 'Other',
-            date: new Date().toISOString().split('T')[0],
+            date,
+            note,
+            paymentMode,
             type: txType
         };
 
@@ -46,8 +53,10 @@ const AddTransaction = () => {
     };
 
     const categories = txType === 'expense'
-        ? ['Food', 'Transport', 'Shopping', 'Health', 'Bills', 'Movie']
+        ? ['Food', 'Transport', 'Shopping', 'Health', 'Bills', 'Movie', 'Rent', 'Education']
         : ['Salary', 'Rewards', 'Refund', 'Gift', 'Investment'];
+
+    const paymentModes = ['Cash', 'Card', 'UPI'];
 
     return (
         <div className="add-container">
@@ -117,21 +126,21 @@ const AddTransaction = () => {
                         exit={{ opacity: 0, x: 20 }}
                         className="form-container"
                     >
-                        {/* Month Selector */}
-                        <div className="date-navigator" style={{ margin: 0 }}>
-                            <ChevronLeft size={20} className="nav-arrow" />
-                            <span className="current-month">Today</span>
-                            <ChevronRight size={20} className="nav-arrow" />
+                        <div className="form-group">
+                            <label className="input-label">Date</label>
+                            <div className="input-wrapper date-input">
+                                <Calendar size={18} className="input-icon" />
+                                <input
+                                    type="date"
+                                    className="form-input"
+                                    value={date}
+                                    onChange={(e) => setDate(e.target.value)}
+                                />
+                            </div>
                         </div>
 
-                        {/* Week Strip Mockup */}
-                        {/* Simplified for now, just static */}
-                        <div className="week-strip" style={{ marginBottom: 10 }}>
-                            {/* ... week strip content from before ... or kept static for now */}
-                        </div>
-
-                        <div>
-                            <label className="input-label">{txType === 'income' ? 'Income' : 'Expense'} Title</label>
+                        <div className="form-group">
+                            <label className="input-label">Title</label>
                             <input
                                 type="text"
                                 className="form-input"
@@ -141,7 +150,7 @@ const AddTransaction = () => {
                             />
                         </div>
 
-                        <div>
+                        <div className="form-group">
                             <label className="input-label">Amount</label>
                             <div className="amount-input-wrapper">
                                 <input
@@ -155,7 +164,7 @@ const AddTransaction = () => {
                             </div>
                         </div>
 
-                        <div>
+                        <div className="form-group">
                             <label className="input-label">Category</label>
                             <div className="category-grid">
                                 {categories.map(cat => {
@@ -171,9 +180,38 @@ const AddTransaction = () => {
                                         </div>
                                     );
                                 })}
-                                <div className="category-pill dashed">
-                                    <Plus size={14} />
-                                </div>
+                            </div>
+                        </div>
+
+                        <div className="form-group">
+                            <label className="input-label">Payment Mode</label>
+                            <div className="payment-modes">
+                                {paymentModes.map(mode => (
+                                    <div
+                                        key={mode}
+                                        className={`mode-pill ${paymentMode === mode ? 'active' : ''}`}
+                                        onClick={() => setPaymentMode(mode)}
+                                    >
+                                        {mode === 'Cash' && <Wallet size={14} />}
+                                        {mode === 'Card' && <CreditCard size={14} />}
+                                        {mode === 'UPI' && <Smartphone size={14} />}
+                                        {mode}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="form-group">
+                            <label className="input-label">Note (Optional)</label>
+                            <div className="input-wrapper">
+                                <FileText size={18} className="input-icon" />
+                                <textarea
+                                    className="form-input textarea"
+                                    placeholder="Add a note..."
+                                    rows={2}
+                                    value={note}
+                                    onChange={(e) => setNote(e.target.value)}
+                                />
                             </div>
                         </div>
 
@@ -186,22 +224,5 @@ const AddTransaction = () => {
         </div>
     );
 };
-
-// Helper for date nav
-const ChevronRight = ({ size, className }) => (
-    <svg
-        width={size}
-        height={size}
-        className={className}
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-    >
-        <polyline points="9 18 15 12 9 6"></polyline>
-    </svg>
-);
 
 export default AddTransaction;
