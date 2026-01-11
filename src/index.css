@@ -9,48 +9,24 @@
 }
 
 :root {
-  --palette-primary: #4A70A9;   /* Deep Blue - Trust */
-  --palette-secondary: #8FABD4; /* Soft Blue - Backgrounds */
-  --palette-bg: #EFECE3;        /* Off-White - Cream */
-  --palette-black: #000000;     /* Text/Icons */
-  --palette-accent: #2BB0A6;    /* Teal - Actions/Highlights */
-  --palette-accent-dark: #239a91; /* Darker Teal for hover states */
+  /* STRICT 3-COLOR PALETTE */
+  --palette-primary: #F97316;   /* Orange - Primary Action */
+  --palette-secondary: #7C3AED; /* Purple - Secondary Accent */
+  --palette-dark: #1E1E2D;      /* Dark - Text / Cards */
   
-  /* Theme Mapping */
-  --bg-primary: var(--palette-bg);
-  --bg-gradient: linear-gradient(135deg, var(--palette-bg) 0%, #f8f6f0 100%);
-  
-  /* Use Teal for primary actions (buttons) */
-  --accent-primary: var(--palette-accent);
-  --accent-hover: var(--palette-accent-dark);
-  /* Use Deep/Soft Blue for branding/secondary elements */
-  --brand-primary: var(--palette-primary);
-  --brand-secondary: var(--palette-secondary);
-  
-  --text-primary: var(--palette-black);
-  --text-secondary: var(--palette-primary); /* Use Deep Blue for subtitles vs Grey */
+  /* Derived/Utility Colors */
+  --bg-primary: #F8F9FD;        /* Clean White/Gray Background */
+  --text-primary: var(--palette-dark);
+  --text-secondary: #64748B;
   --text-white: #FFFFFF;
-  --text-muted: rgba(74, 112, 169, 0.6);
   
-  /* Enhanced Glassmorphism */
-  --glass-bg: rgba(255, 255, 255, 0.95);
-  --glass-bg-light: rgba(255, 255, 255, 0.8);
-  --glass-border: rgba(255, 255, 255, 0.8);
-  --glass-shadow: rgba(74, 112, 169, 0.15);
-  --glass-shadow-heavy: rgba(74, 112, 169, 0.25);
+  --accent-primary: var(--palette-primary);
+  --accent-secondary: var(--palette-secondary);
 
-  /* Shadow System */
-  --shadow-sm: 0 2px 8px rgba(74, 112, 169, 0.08);
-  --shadow-md: 0 4px 16px rgba(74, 112, 169, 0.15);
-  --shadow-lg: 0 8px 24px rgba(74, 112, 169, 0.2);
-  --shadow-xl: 0 12px 32px rgba(74, 112, 169, 0.25);
-
-  /* Border Radius System */
-  --radius-sm: 12px;
-  --radius-md: 16px;
-  --radius-lg: 20px;
-  --radius-xl: 32px;
-
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.05);
+  --shadow-md: 0 8px 24px rgba(0,0,0,0.08);
+  
   color-scheme: light;
   color: var(--text-primary);
   
@@ -73,36 +49,20 @@ body {
   overflow-x: hidden;
 }
 
-/* Glassmorphism Utilities */
-.glass-panel {
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
-  box-shadow: 0 8px 32px 0 var(--glass-shadow);
-  border-radius: 24px;
-}
-
 button {
   border-radius: 16px;
-  border: 1px solid transparent;
-  padding: 0.8em 1.5em;
-  font-size: 1em;
-  font-weight: 600;
+  border: none;
+  padding: 16px;
+  font-size: 16px;
+  font-weight: 700;
   font-family: inherit;
   background-color: var(--accent-primary);
   color: var(--text-white);
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 14px 0 rgba(74, 112, 169, 0.3);
-}
-
-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px 0 rgba(74, 112, 169, 0.5);
-  filter: brightness(1.1);
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px 0 rgba(249, 115, 22, 0.3);
 }
 
 button:active {
-  transform: translateY(0);
+  transform: scale(0.98);
 }

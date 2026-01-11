@@ -1,5 +1,5 @@
 import { Outlet, NavLink } from 'react-router-dom';
-import { Home, PieChart, Plus, Wallet, User } from 'lucide-react';
+import { Home, CreditCard, Plus, Calendar, User } from 'lucide-react';
 import './MainLayout.css';
 
 const MainLayout = () => {
@@ -18,10 +18,10 @@ const MainLayout = () => {
                 </NavLink>
 
                 <NavLink
-                    to="/stats"
+                    to="/history"
                     className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
                 >
-                    <PieChart size={24} className="nav-icon" />
+                    <CreditCard size={24} className="nav-icon" />
                 </NavLink>
 
                 <NavLink
@@ -32,10 +32,10 @@ const MainLayout = () => {
                 </NavLink>
 
                 <NavLink
-                    to="/history"
+                    to="/stats"
                     className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
                 >
-                    <Wallet size={24} className="nav-icon" />
+                    <Calendar size={24} className="nav-icon" />
                 </NavLink>
 
                 <NavLink

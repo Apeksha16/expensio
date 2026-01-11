@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import eXpensioLogo from '../assets/logoOnboarding.png';
-import loginPageIllustration from '../assets/loginPageIllustration.png';
+import loginIllustration from '../assets/logoOnboarding.png'; // Using Logo as requested
 import CountrySelector from './CountrySelector';
 import './Login.css';
 
@@ -16,7 +15,6 @@ const Login = () => {
         e.preventDefault();
         if (phoneNumber.length >= 10) {
             setIsLoading(true);
-            // Simulate API call delay
             setTimeout(() => {
                 setIsLoading(false);
                 navigate('/verify-otp', {
@@ -25,28 +23,40 @@ const Login = () => {
                         mode: 'login'
                     }
                 });
-            }, 1500);
+            }, 1000);
         }
     };
 
     return (
         <div className="auth-container">
-            {/* Top Section: Logo, Title, Image */}
-            <div className="auth-top-section">
-                <div className="auth-header-top">
-                    <img src={eXpensioLogo} alt="eXpensio Logo" className="auth-logo-top" />
-                    <h1 className="auth-welcome-text">Welcome Back</h1>
-                </div>
+            {/* Top Illustration Area */}
+            {/* Top Logo Area */}
+            <div className="auth-illustration-area">
+                <div className="floating-circle fc-1"></div>
+                <div className="floating-circle fc-2"></div>
+                <motion.div
+                    className="logo-container-large"
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ duration: 0.5 }}
+                >
+                    <img src={loginIllustration} alt="eXpensio Logo" className="auth-main-logo" />
+                </motion.div>
             </div>
 
-            {/* Bottom Sheet: Form */}
+            {/* Bottom Sheet */}
             <motion.div
                 className="auth-bottom-sheet"
                 initial={{ y: "100%" }}
                 animate={{ y: 0 }}
-                transition={{ type: "spring", stiffness: 100, damping: 20 }}
+                transition={{ type: "spring", damping: 25, stiffness: 120 }}
             >
-                <h2 className="sheet-title">Sign in to continue</h2>
+                <div className="sheet-handle"></div>
+
+                <div className="auth-header-section">
+                    <h1 className="auth-title">Welcome Back</h1>
+                    <p className="auth-subtitle">Login to manage your finances</p>
+                </div>
 
                 <form className="auth-form" onSubmit={handleLogin}>
                     <div className="input-group">
@@ -73,16 +83,16 @@ const Login = () => {
                     <motion.button
                         type="submit"
                         className={`auth-button ${isLoading ? 'loading' : ''}`}
-                        whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         disabled={phoneNumber.length < 10 || isLoading}
                     >
-                        {isLoading ? '' : 'SEND OTP'}
+                        {isLoading ? '' : 'Get OTP'}
                     </motion.button>
                 </form>
 
                 <div className="auth-footer">
-                    <p>Don't have an account? <Link to="/signup">Sign Up</Link></p>
+                    <span>New here?</span>
+                    <Link to="/signup" className="auth-link">Create Account</Link>
                 </div>
             </motion.div>
         </div>

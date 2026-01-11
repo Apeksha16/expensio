@@ -1,48 +1,28 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Bell, Users } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Bell, MoreHorizontal, ChevronDown } from 'lucide-react'; // Removing Users icon as per design
 import { useTransactions } from '../context/TransactionContext';
 import './Dashboard.css';
 
+// Quick helper for mock chart data
+const CHART_DATA = [
+    { label: 'Jan', value: 30 },
+    { label: 'Feb', value: 45 },
+    { label: 'Mar', value: 25 },
+    { label: 'Apr', value: 80, active: true, amount: '$2,972' },
+    { label: 'May', value: 50 },
+    { label: 'Jun', value: 40 },
+    { label: 'Jul', value: 60 },
+];
+
 const Dashboard = () => {
-    const navigate = useNavigate();
-    const { getBalance } = useTransactions();
-    const [timeFilter, setTimeFilter] = useState('month'); // 'week' | 'month' | '3month'
-
-    // Scroll tracking state for filters
-    const [scrollStates, setScrollStates] = useState({
-        left: false,
-        right: false
-    });
-
-    const filterRef = useRef(null);
-
-    const updateScrollState = () => {
-        if (filterRef.current) {
-            const { scrollLeft, scrollWidth, clientWidth } = filterRef.current;
-            setScrollStates({
-                left: scrollLeft > 10,
-                right: scrollLeft + clientWidth < scrollWidth - 10
-            });
-        }
-    };
-
-    useEffect(() => {
-        const fRef = filterRef.current;
-        if (fRef) {
-            fRef.addEventListener('scroll', updateScrollState);
-            updateScrollState();
-        }
-        window.addEventListener('resize', updateScrollState);
-
-        return () => {
-            if (fRef) fRef.removeEventListener('scroll', updateScrollState);
-            window.removeEventListener('resize', updateScrollState);
-        };
-    }, []);
-
+    const { getBalance, transactions } = useTransactions();
     const balance = getBalance();
+
+    // Get latest 3 transactions
+    const recentTransactions = [...transactions]
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .slice(0, 3);
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -61,54 +41,122 @@ const Dashboard = () => {
         <div className="dashboard-container">
             {/* Header */}
             <header className="dash-header">
-                <div className="user-text">
-                    <span className="greeting">Good Morning,</span>
-                    <h1 className="username">Apeksha Verma</h1>
+                <div className="header-left">
+                    <div className="user-avatar">
+                        {/* Placeholder for typical avatar or use an icon */}
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User" />
+                    </div>
                 </div>
-                <div style={{ display: 'flex', gap: '12px' }}>
-                    <div className="notification-btn" onClick={() => navigate('/groups')}>
-                        <Users size={24} color="#64748B" />
-                    </div>
-                    <div className="notification-btn">
-                        <Bell size={24} color="#64748B" />
-                        <div className="badge"></div>
-                    </div>
+                <h1 className="header-title">Home</h1>
+                <div className="notification-btn">
+                    <Bell size={20} color="#1E293B" />
+                    <div className="badge"></div>
                 </div>
             </header>
 
             <motion.div
-                className="main-content-dashboard"
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
             >
-                {/* Total Balance Hero Card */}
-                <motion.div className="hero-card" variants={itemVariants}>
-                    <div className="card-content">
-                        <span className="balance-label">Total Balance</span>
-                        <h2 className="balance-amount">${balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}</h2>
-                        <div className="card-wave"></div>
+                {/* Credit Card Hero */}
+                <motion.div className="credit-card" variants={itemVariants}>
+                    <div className="card-top">
+                        <div>
+                            <span className="balance-label">Total Balance</span>
+                            <h2 className="balance-amount">${balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}</h2>
+                        </div>
+                        <MoreHorizontal className="card-menu" color="white" />
+                    </div>
+
+                    <div className="card-bottom">
+                        <div className="card-number">
+                            2644 7545 3867 1965
+                        </div>
+                        <div className="card-logo">
+                            <div className="mastercard-circle mc-red"></div>
+                            <div className="mastercard-circle mc-yellow"></div>
+                        </div>
                     </div>
                 </motion.div>
 
-                {/* Simplified Time Filter Toggle with Dynamic Scroll Fades */}
-                <motion.div variants={itemVariants} className="filter-section">
-                    <div className={`scroll-wrapper ${scrollStates.left ? 'can-scroll-left' : ''} ${scrollStates.right ? 'can-scroll-right' : ''}`}>
-                        <div className="time-filter-row" ref={filterRef}>
-                            {[
-                                { id: 'week', label: 'This Week' },
-                                { id: 'month', label: 'This Month' },
-                                { id: '3month', label: '3 Month' }
-                            ].map((filter) => (
-                                <button
-                                    key={filter.id}
-                                    className={`time-filter-btn ${timeFilter === filter.id ? 'active' : ''}`}
-                                    onClick={() => setTimeFilter(filter.id)}
-                                >
-                                    {filter.label}
-                                </button>
+                {/* Analytics */}
+                <motion.div variants={itemVariants}>
+                    <div className="section-header">
+                        <h3 className="section-title">Analytics</h3>
+                        <button className="time-filter-dropdown">
+                            Year - 2022 <ChevronDown size={14} />
+                        </button>
+                    </div>
+
+                    <div className="chart-container">
+                        <div className="chart-bars">
+                            {CHART_DATA.map((item, index) => (
+                                <div key={index} className="chart-col">
+                                    <div className="bar-wrapper">
+                                        <div className="bar-bg">
+                                            <motion.div
+                                                className={`bar-fill ${item.active ? 'active' : ''}`}
+                                                initial={{ height: 0 }}
+                                                animate={{ height: `${item.value}%` }}
+                                                transition={{ duration: 0.8, delay: index * 0.1 }}
+                                            />
+                                        </div>
+                                        {item.active && (
+                                            <motion.div
+                                                className="bar-label-float"
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                delay={1}
+                                            >
+                                                {item.amount}
+                                            </motion.div>
+                                        )}
+                                    </div>
+                                    <span className={`month-label ${item.active ? 'active' : ''}`}>{item.label}</span>
+                                </div>
                             ))}
                         </div>
+                    </div>
+                </motion.div>
+
+                {/* Transactions */}
+                <motion.div variants={itemVariants}>
+                    <div className="section-header">
+                        <h3 className="section-title">Transactions</h3>
+                        <a href="/history" className="view-all">View All</a>
+                    </div>
+
+                    <div className="transaction-list">
+                        {recentTransactions.map((t) => (
+                            <div key={t.id} className="transaction-item">
+                                <div className="tx-left">
+                                    <div className="tx-icon">
+                                        {/* Simple dynamic icon based on category */}
+                                        <span style={{ fontSize: '20px' }}>
+                                            {t.category === 'Food' ? '🍔' :
+                                                t.category === 'Shopping' ? '🛍️' :
+                                                    t.category === 'Travel' ? '🚕' : '📄'}
+                                        </span>
+                                    </div>
+                                    <div className="tx-info">
+                                        <span className="tx-name">{t.note || t.category}</span>
+                                        <span className="tx-category">{t.paymentMode || 'Card'}</span>
+                                    </div>
+                                </div>
+                                <div className="tx-right">
+                                    <span className={`tx-amount ${t.type}`}>
+                                        ${parseFloat(t.amount).toFixed(0)}
+                                    </span>
+                                    <span className="tx-date">
+                                        {new Date(t.date).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                    </span>
+                                </div>
+                            </div>
+                        ))}
+                        {recentTransactions.length === 0 && (
+                            <div style={{ textAlign: 'center', color: '#94A3B8', padding: '20px' }}>No recent transactions</div>
+                        )}
                     </div>
                 </motion.div>
             </motion.div>

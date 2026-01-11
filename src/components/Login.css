@@ -1,150 +1,131 @@
-/* Global Auth Container */
+/* Login.css */
+/* Shared with SignUp */
+
+:root {
+  --auth-bg-gradient: #F8F9FD;
+  --sheet-bg: #FFFFFF;
+  --text-primary: var(--palette-dark);
+  --text-secondary: #64748B;
+  --accent-orange: var(--palette-primary);
+}
+
 .auth-container {
-    width: 100%;
-    height: 100dvh;
+    width: 100vw;
+    height: 100vh;
+    background: #1E1E2D; /* Dark Brand Color for the whole page background */
     display: flex;
     flex-direction: column;
-    background: #EFECE3;
-    /* Cream Background */
+    justify-content: flex-end; /* Align content to bottom */
     position: relative;
     overflow: hidden;
-    /* Lock scroll */
+    padding-top: calc(env(safe-area-inset-top) + 20px);
 }
 
-/* Background Gradients/Orbs */
-.auth-background {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1;
-    pointer-events: none;
-}
-
-.glow-orb {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(80px);
-    opacity: 0.3;
-}
-
-.glow-orb.one {
-    width: 300px;
-    height: 300px;
-    background: #4A70A9;
-    top: -100px;
-    right: -50px;
-    opacity: 0.15;
-}
-
-.glow-orb.two {
-    width: 250px;
-    height: 250px;
-    background: #FFFFFF;
-    bottom: 40%;
-    left: -50px;
-    opacity: 0.4;
-}
-
-/* Top Section: Logo, Title, Image */
-.auth-top-section {
+/* Background Decoration */
+.auth-illustration-area {
     flex: 1;
-    min-height: 0;
     display: flex;
-    flex-direction: row;
-    /* Horizontal Layout as requested */
-    align-items: flex-end;
-    justify-content: space-between;
-    padding: 0px;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding-bottom: 20px; /* Reduced padding */
+    background: transparent;
+}
+
+.logo-container-large {
+    background: white; /* White box for the logo */
+    width: 120px;
+    height: 120px;
+    border-radius: 30px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     position: relative;
 }
 
-.auth-header-top {
-    flex: 1;
-    /* Take equal space (50%) */
-    text-align: center;
-    /* Align left */
-    margin-bottom: 0;
-    /* Removed margin as requested */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    /* Center logo and text within its half */
-    justify-content: center;
-    align-self: center;
-    /* Center vertically in top section */
-    flex-shrink: 0;
-    z-index: 2;
-    padding: 0 10px;
+.auth-main-logo {
+    width: 60px; /* Smaller Logo */
+    height: 60px;
+    object-fit: contain;
 }
 
-.auth-logo-top {
+.floating-circle {
+    display: block; /* Re-enable blobs */
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(30px);
+    z-index: 1;
+}
+
+.fc-1 {
+    width: 140px;
+    height: 140px;
+    background: rgba(249, 115, 22, 0.3); /* Stronger Orange */
+    top: 50%;
+    left: 50%;
+    transform: translate(-120%, -50%); /* Position left of center */
+    animation: pulse 4s ease-in-out infinite;
+}
+
+.fc-2 {
     width: 120px;
-    /* Resize to 120px as requested */
     height: 120px;
-    margin-bottom: 12px;
-    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.05));
-    object-fit: contain;
+    background: rgba(124, 58, 237, 0.3); /* Stronger Purple */
+    top: 50%;
+    left: 50%;
+    transform: translate(20%, -20%); /* Position right of center */
+    animation: pulse 5s ease-in-out infinite reverse;
 }
 
-.auth-welcome-text {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #1E293B;
-    margin: 0;
-    letter-spacing: -0.02em;
-}
-
-/* Dynamic height for image to fit available space */
-.auth-hero-image {
-    flex: 1;
-    /* Take equal space (50%) */
-    display: flex;
-    align-items: flex-end;
-    /* Push to bottom */
-    justify-content: center;
-    /* Center horizontally in its half */
-    height: 100%;
-    overflow: visible;
-    /* Allow slight overlap if needed */
-}
-
-.auth-hero-image img {
-    max-height: 95%;
-    /* Fill available space */
-    width: 100%;
-    object-fit: contain;
-    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.1));
-    margin-bottom: -2px;
-    /* Touch the card */
+@keyframes pulse {
+    0%, 100% { transform: scale(1) translate(-120%, -50%); opacity: 0.6; }
+    50% { transform: scale(1.1) translate(-120%, -50%); opacity: 0.8; }
 }
 
 /* Bottom Sheet */
 .auth-bottom-sheet {
-    background: #FFFFFF;
+    background: var(--sheet-bg);
     width: 100%;
-    border-radius: 32px 32px 0 0;
-    padding: 40px 24px;
-    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.05);
-    position: relative;
-    z-index: 10;
+    border-top-left-radius: 32px;
+    border-top-right-radius: 32px;
+    padding: 32px 24px; /* Reduced padding */
+    box-shadow: 0 -10px 40px rgba(0,0,0,0.05);
     display: flex;
     flex-direction: column;
-    gap: 24px;
-    min-height: auto;
-    /* Ensure it takes enough space but doesn't overflow weirdly */
-    padding-bottom: 40px;
-    flex-shrink: 0;
+    align-items: center;
+    position: relative;
+    z-index: 10;
+    padding-bottom: calc(env(safe-area-inset-bottom) + 12px);
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.sheet-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #475569;
-    margin: 0;
+.sheet-handle {
+    width: 32px; /* Smaller handle */
+    height: 4px;
+    background: #E2E8F0;
+    border-radius: 2px;
+    margin-bottom: 20px;
+}
+
+.auth-header-section {
     text-align: center;
-    margin-bottom: 8px;
+    margin-bottom: 24px; /* Reduced margin */
+    width: 100%;
+}
+
+.auth-title {
+    font-size: 24px; /* Smaller Title (was 28) */
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+    letter-spacing: -0.5px;
+}
+
+.auth-subtitle {
+    font-size: 14px; /* Smaller subtitle (was 16) */
+    color: var(--text-secondary);
 }
 
 /* Form Styles */
@@ -152,49 +133,45 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 20px;
-}
-
-.input-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+    gap: 16px; /* Reduced gap */
 }
 
 .input-wrapper {
     position: relative;
     display: flex;
     align-items: center;
-    background: #FFFFFF;
-    /* Pure White input */
-    border: 1px solid rgba(226, 232, 240, 0.8);
-    border-radius: 20px;
-    padding: 6px 16px;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+    background: #F1F5F9;
+    border: 1px solid transparent;
+    border-radius: 14px; /* Slightly smaller radius */
+    padding: 2px 14px; /* Reduced padding */
+    transition: all 0.2s ease;
+    height: 50px; /* Fixed smaller height */
 }
 
 .input-wrapper:focus-within {
-    border-color: #4A70A9;
     background: #FFFFFF;
-    box-shadow: 0 0 0 4px rgba(74, 112, 169, 0.1);
+    border-color: var(--accent-orange);
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.08);
 }
 
 .country-selector-wrapper {
-    margin-right: 12px;
-    padding-right: 12px;
-    border-right: 1px solid #E2E8F0;
+    margin-right: 10px;
+    padding-right: 10px;
+    border-right: 1px solid #CBD5E1;
+    height: 20px;
+    display: flex;
+    align-items: center;
 }
 
 .auth-input {
     width: 100%;
     background: transparent;
     border: none;
-    padding: 16px 0;
-    font-size: 1rem;
-    color: #1E293B;
+    padding: 0;
+    height: 100%;
+    font-size: 14px; /* Smaller font (was 16) */
+    color: var(--text-primary);
     outline: none;
-    font-family: inherit;
     font-weight: 500;
 }
 
@@ -204,158 +181,56 @@
 
 .auth-button {
     width: 100%;
-    height: 60px;
-    /* Slightly taller for premium feel */
+    height: 48px; /* Smaller button (was 56) */
+    margin-top: 8px;
+    background: var(--accent-orange);
+    color: white;
+    border: none;
+    border-radius: 14px; /* Smaller radius */
+    font-size: 15px; /* Smaller font (was 16) */
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(249, 115, 22, 0.3);
+    transition: all 0.2s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #C4D1DE;
-    /* Muted Blue from image */
-    color: #4A70A9;
-    /* Darker blue text */
-    border: none;
-    border-radius: 18px;
-    font-size: 1.1rem;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    cursor: pointer;
-    transition: all 0.3s ease;
 }
 
-.auth-button:hover:not(:disabled) {
-    background: #B9C6D2;
-    transform: translateY(-1px);
-}
-
-.auth-button:active:not(:disabled) {
-    transform: translateY(0);
-}
-
-.auth-button:disabled {
-    background: #CBD5E1;
-    color: #94A3B8;
-    cursor: not-allowed;
-    box-shadow: none;
+.auth-button:active {
+    transform: scale(0.98);
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2);
 }
 
 .auth-footer {
+    margin-top: 24px;
+    font-size: 14px;
+    color: var(--text-secondary);
     text-align: center;
-    font-size: 0.9rem;
-    color: #64748B;
-    margin-top: 8px;
 }
 
-.auth-footer a {
-    color: #4A70A9;
+.auth-link {
+    color: var(--accent-orange);
+    font-weight: 600;
     text-decoration: none;
-    font-weight: 700;
     margin-left: 4px;
 }
 
-.auth-footer a:hover {
-    text-decoration: underline;
-}
-
-/* Loading State */
+/* Loading Spinner */
 .auth-button.loading {
     color: transparent;
 }
-
 .auth-button.loading::after {
     content: "";
     position: absolute;
-    width: 20px;
-    height: 20px;
-    top: 50%;
-    left: 50%;
-    margin: -10px 0 0 -10px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-top-color: #fff;
+    width: 24px;
+    height: 24px;
+    border: 3px solid rgba(255,255,255,0.3);
+    border-top-color: white;
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-/* Mobile First Responsive Design */
-
-/* Disable scrolling to fit viewport exactly */
-.auth-container {
-    overflow: hidden;
-    /* No scroll as requested */
-    padding-bottom: env(safe-area-inset-bottom);
-}
-
-/* Very Small Mobile (< 360px) */
-@media (max-width: 360px) {
-    .auth-welcome-text {
-        font-size: 1.25rem;
-    }
-
-    .auth-logo-top {
-        width: 40px;
-        height: 40px;
-        margin-bottom: 8px;
-        margin-top: 10px;
-    }
-
-    .auth-bottom-sheet {
-        padding: 24px 16px;
-    }
-}
-
-/* Tablets (Portrait) & Large Mobile - Keep Stacked Layout */
-@media (max-width: 1023px) {
-    .auth-container {
-        /* Ensure minimal height to prevent squashed layout */
-        min-height: 100dvh;
-    }
-}
-
-/* Desktop & Landscape Tablets (> 1024px) - Split Layout */
-@media (min-width: 1024px) {
-    .auth-container {
-        flex-direction: row;
-        align-items: center;
-        justify-content: center;
-        padding: 40px;
-        overflow: hidden;
-        /* Lock scroll on large screens if fits */
-    }
-
-    .auth-top-section {
-        max-width: 450px;
-        align-items: flex-start;
-        text-align: left;
-        padding-top: 0;
-        padding-right: 80px;
-        justify-content: center;
-    }
-
-    .auth-header-top {
-        align-items: flex-start;
-    }
-
-    .auth-bottom-sheet {
-        max-width: 440px;
-        border-radius: 24px;
-        /* Full card on desktop */
-        height: auto;
-        box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
-        padding: 48px 40px;
-    }
-
-    .auth-hero-image {
-        justify-content: flex-start;
-        max-width: 100%;
-        min-height: auto;
-    }
-
-    .auth-hero-image img {
-        max-height: 400px;
-    }
+    to { transform: rotate(360deg); }
 }

@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import eXpensioLogo from '../assets/logoOnboarding.png';
-import loginPageIllustration from '../assets/loginPageIllustration.png'; // Reusing illustration
+import loginIllustration from '../assets/logoOnboarding.png'; // Using Logo as requested
 import CountrySelector from './CountrySelector';
-import './Login.css'; // Reusing Auth styles
+import './Login.css';
 
 const SignUp = () => {
     const navigate = useNavigate();
@@ -18,7 +17,6 @@ const SignUp = () => {
     const handleChange = (e) => {
         const { name, value } = e.target;
         if (name === 'phoneNumber') {
-            // Only allow digits
             const cleanValue = value.replace(/\D/g, '');
             setFormData({ ...formData, [name]: cleanValue });
         } else {
@@ -34,7 +32,6 @@ const SignUp = () => {
         e.preventDefault();
         if (formData.phoneNumber.length >= 10 && formData.fullName.trim()) {
             setIsLoading(true);
-            // Simulate API call delay
             setTimeout(() => {
                 setIsLoading(false);
                 navigate('/verify-otp', {
@@ -44,18 +41,25 @@ const SignUp = () => {
                         fullName: formData.fullName.trim()
                     }
                 });
-            }, 1500);
+            }, 1000);
         }
     };
 
     return (
         <div className="auth-container">
-            {/* Top Section */}
-            <div className="auth-top-section">
-                <div className="auth-header-top">
-                    <img src={eXpensioLogo} alt="eXpensio Logo" className="auth-logo-top" />
-                    <h1 className="auth-welcome-text">Create Account</h1>
-                </div>
+            {/* Top Illustration Area */}
+            {/* Top Logo Area */}
+            <div className="auth-illustration-area">
+                <div className="floating-circle fc-1"></div>
+                <div className="floating-circle fc-2"></div>
+                <motion.div
+                    className="logo-container-large"
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ duration: 0.5 }}
+                >
+                    <img src={loginIllustration} alt="eXpensio Logo" className="auth-main-logo" />
+                </motion.div>
             </div>
 
             {/* Bottom Sheet */}
@@ -63,12 +67,16 @@ const SignUp = () => {
                 className="auth-bottom-sheet"
                 initial={{ y: "100%" }}
                 animate={{ y: 0 }}
-                transition={{ type: "spring", stiffness: 100, damping: 20 }}
+                transition={{ type: "spring", damping: 25, stiffness: 120 }}
             >
-                <h2 className="sheet-title">Sign up to get started</h2>
+                <div className="sheet-handle"></div>
+
+                <div className="auth-header-section">
+                    <h1 className="auth-title">Create Account</h1>
+                    <p className="auth-subtitle">Start your financial journey</p>
+                </div>
 
                 <form className="auth-form" onSubmit={handleSignUp}>
-                    {/* Full Name Input */}
                     <div className="input-group">
                         <div className="input-wrapper">
                             <input
@@ -78,15 +86,14 @@ const SignUp = () => {
                                 value={formData.fullName}
                                 onChange={handleChange}
                                 className="auth-input"
+                                style={{ paddingLeft: '8px' }}
                                 required
                                 minLength="2"
                                 maxLength="50"
-                                style={{ paddingLeft: '16px' }}
                             />
                         </div>
                     </div>
 
-                    {/* Phone Input with Country Selector */}
                     <div className="input-group">
                         <div className="input-wrapper">
                             <div className="country-selector-wrapper">
@@ -112,16 +119,16 @@ const SignUp = () => {
                     <motion.button
                         type="submit"
                         className={`auth-button ${isLoading ? 'loading' : ''}`}
-                        whileHover={{ scale: (formData.phoneNumber.length >= 10 && formData.fullName.trim()) ? 1.02 : 1 }}
-                        whileTap={{ scale: (formData.phoneNumber.length >= 10 && formData.fullName.trim()) ? 0.98 : 1 }}
+                        whileTap={{ scale: 0.98 }}
                         disabled={formData.phoneNumber.length < 10 || !formData.fullName.trim() || isLoading}
                     >
-                        {isLoading ? '' : 'SIGN UP'}
+                        {isLoading ? '' : 'Sign Up'}
                     </motion.button>
                 </form>
 
                 <div className="auth-footer">
-                    <p>Already have an account? <Link to="/login">Login</Link></p>
+                    <span>Already a member?</span>
+                    <Link to="/login" className="auth-link">Login</Link>
                 </div>
             </motion.div>
         </div>
