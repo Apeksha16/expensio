@@ -78,7 +78,9 @@ export default function Dashboard() {
                 {/* --- HEADER --- */}
                 <View className="flex-row justify-between items-center px-6 py-4">
                     <View className="w-12 h-12 bg-[#9F7AF9] rounded-2xl items-center justify-center overflow-hidden">
-                        <Ionicons name="person" size={24} color="#FFF" />
+                        <TouchableOpacity onPress={() => router.push('/profile')} className="w-full h-full items-center justify-center">
+                            <Ionicons name="person" size={24} color="#FFF" />
+                        </TouchableOpacity>
                     </View>
                     <Text className="text-xl font-bold text-[#1E1E2D]">Home</Text>
                     <TouchableOpacity className="w-12 h-12 bg-white rounded-2xl items-center justify-center shadow-sm">
