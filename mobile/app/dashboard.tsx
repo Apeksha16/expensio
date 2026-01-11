@@ -208,7 +208,10 @@ export default function Dashboard() {
                         <View className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-1" />
                     </TouchableOpacity>
 
-                    <TouchableOpacity className="items-center justify-center w-14 h-14">
+                    <TouchableOpacity
+                        className="items-center justify-center w-14 h-14"
+                        onPress={() => router.push('/expenses')}
+                    >
                         <Ionicons name="card-outline" size={26} color="#9CA3AF" />
                     </TouchableOpacity>
 
