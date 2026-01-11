@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -18,9 +18,43 @@ const WEEK_DAYS = [
 
 export default function Expenses() {
     const router = useRouter();
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+    const toggleMenu = () => {
+        setIsMenuOpen(!isMenuOpen);
+    };
+
+    const navigateTo = (path: any) => {
+        setIsMenuOpen(false);
+        router.push(path);
+    };
 
     return (
-        <View className="flex-1 bg-gray-50">
+        <View className="flex-1 bg-gray-50 relative">
+            {/* --- MENU OVERLAY --- */}
+            {isMenuOpen && (
+                <TouchableOpacity
+                    activeOpacity={1}
+                    onPress={() => setIsMenuOpen(false)}
+                    className="absolute top-0 bottom-0 left-0 right-0 bg-black/60 z-50 justify-end pb-[120px] px-6"
+                >
+                    <View className="bg-[#1E1E2D] rounded-[24px] p-4 space-y-2">
+                        <TouchableOpacity onPress={() => navigateTo('/add-expense')} className="flex-row items-center p-3 border-b border-white/10">
+                            <Ionicons name="wallet-outline" size={24} color="#9CA3AF" />
+                            <Text className="text-white ml-3 font-medium text-lg">Add Expense</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => navigateTo('/group-splits')} className="flex-row items-center p-3 border-b border-white/10">
+                            <Ionicons name="people-outline" size={24} color="#9CA3AF" />
+                            <Text className="text-white ml-3 font-medium text-lg">Group splits</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => navigateTo('/add-income')} className="flex-row items-center p-3">
+                            <Ionicons name="card-outline" size={24} color="#9CA3AF" />
+                            <Text className="text-white ml-3 font-medium text-lg">Add Income</Text>
+                        </TouchableOpacity>
+                    </View>
+                </TouchableOpacity>
+            )}
+
             <SafeAreaView className="flex-1" edges={['top', 'left', 'right']}>
 
                 {/* --- HEADER --- */}
@@ -172,10 +206,11 @@ export default function Expenses() {
                     </TouchableOpacity>
 
                     <TouchableOpacity
-                        className="w-16 h-16 bg-[#FF6A3D] rounded-full items-center justify-center shadow-lg shadow-orange-500/40 -mt-8"
+                        className={`w-16 h-16 rounded-full items-center justify-center shadow-lg -mt-8 ${isMenuOpen ? 'bg-[#1E1E2D] shadow-black/40' : 'bg-[#FF6A3D] shadow-orange-500/40'}`}
                         activeOpacity={0.8}
+                        onPress={toggleMenu}
                     >
-                        <Ionicons name="add" size={38} color="white" />
+                        <Ionicons name={isMenuOpen ? "close" : "add"} size={38} color="white" />
                     </TouchableOpacity>
 
                     <TouchableOpacity className="items-center justify-center w-14 h-14">

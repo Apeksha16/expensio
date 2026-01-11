@@ -28,20 +28,53 @@ const ANALYTICS_DATA = [
 
 export default function Dashboard() {
     const router = useRouter();
-    // Force re-render log
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+
     console.log("Dashboard Loaded: Purple/Orange Theme Active");
 
     // Chart Data calculations
     const income = 8429;
-    const spent = 3621; // Total is approx ~12000. 
-    // Income is ~70%, Spent ~30%
+    const spent = 3621;
     const incomeDash = CIRCUMFERENCE * 0.7;
     const spentDash = CIRCUMFERENCE * 0.3;
 
-    return (
-        <View className="flex-1 bg-gray-50">
-            <SafeAreaView className="flex-1" edges={['top', 'left', 'right']}>
+    const toggleMenu = () => {
+        setIsMenuOpen(!isMenuOpen);
+    };
 
+    const navigateTo = (path: any) => {
+        setIsMenuOpen(false);
+        router.push(path);
+    };
+
+    return (
+        <View className="flex-1 bg-gray-50 relative">
+
+            {/* --- MENU OVERLAY --- */}
+            {isMenuOpen && (
+                <TouchableOpacity
+                    activeOpacity={1}
+                    onPress={() => setIsMenuOpen(false)}
+                    className="absolute top-0 bottom-0 left-0 right-0 bg-black/60 z-50 justify-end pb-[120px] px-6"
+                >
+                    <View className="bg-[#1E1E2D] rounded-[24px] p-4 space-y-2">
+                        <TouchableOpacity onPress={() => navigateTo('/add-expense')} className="flex-row items-center p-3 border-b border-white/10">
+                            <Ionicons name="wallet-outline" size={24} color="#9CA3AF" />
+                            <Text className="text-white ml-3 font-medium text-lg">Add Expense</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => navigateTo('/group-splits')} className="flex-row items-center p-3 border-b border-white/10">
+                            <Ionicons name="people-outline" size={24} color="#9CA3AF" />
+                            <Text className="text-white ml-3 font-medium text-lg">Group splits</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => navigateTo('/add-income')} className="flex-row items-center p-3">
+                            <Ionicons name="card-outline" size={24} color="#9CA3AF" />
+                            <Text className="text-white ml-3 font-medium text-lg">Add Income</Text>
+                        </TouchableOpacity>
+                    </View>
+                </TouchableOpacity>
+            )}
+
+            <SafeAreaView className="flex-1" edges={['top', 'left', 'right']}>
                 {/* --- HEADER --- */}
                 <View className="flex-row justify-between items-center px-6 py-4">
                     <View className="w-12 h-12 bg-[#9F7AF9] rounded-2xl items-center justify-center overflow-hidden">
@@ -86,38 +119,9 @@ export default function Dashboard() {
                         <View className="items-center justify-center">
                             <Svg height="160" width="160" viewBox="0 0 180 180">
                                 <G rotation="-90" origin="90, 90">
-                                    {/* Background Circle */}
-                                    <Circle
-                                        cx="90"
-                                        cy="90"
-                                        r={RADIUS}
-                                        stroke="#F3F4F6"
-                                        strokeWidth={STROKE_WIDTH}
-                                        fill="transparent"
-                                    />
-                                    {/* Income Segment (Purple) */}
-                                    <Circle
-                                        cx="90"
-                                        cy="90"
-                                        r={RADIUS}
-                                        stroke="#7B4DFF"
-                                        strokeWidth={STROKE_WIDTH}
-                                        fill="transparent"
-                                        strokeDasharray={`${incomeDash} ${CIRCUMFERENCE}`}
-                                        strokeLinecap="round"
-                                    />
-                                    {/* Spent Segment (Orange) - Rotated to start after Purple */}
-                                    <Circle
-                                        cx="90"
-                                        cy="90"
-                                        r={RADIUS}
-                                        stroke="#FF6A3D"
-                                        strokeWidth={STROKE_WIDTH}
-                                        fill="transparent"
-                                        strokeDasharray={`${spentDash} ${CIRCUMFERENCE}`}
-                                        strokeDashoffset={-incomeDash} // Offset by income length
-                                        strokeLinecap="round"
-                                    />
+                                    <Circle cx="90" cy="90" r={RADIUS} stroke="#F3F4F6" strokeWidth={STROKE_WIDTH} fill="transparent" />
+                                    <Circle cx="90" cy="90" r={RADIUS} stroke="#7B4DFF" strokeWidth={STROKE_WIDTH} fill="transparent" strokeDasharray={`${incomeDash} ${CIRCUMFERENCE}`} strokeLinecap="round" />
+                                    <Circle cx="90" cy="90" r={RADIUS} stroke="#FF6A3D" strokeWidth={STROKE_WIDTH} fill="transparent" strokeDasharray={`${spentDash} ${CIRCUMFERENCE}`} strokeDashoffset={-incomeDash} strokeLinecap="round" />
                                 </G>
                             </Svg>
                         </View>
@@ -158,11 +162,7 @@ export default function Dashboard() {
                                                 {item.fullValue}
                                             </Text>
                                         )}
-                                        <Text
-                                            className={`mt-3 text-xs font-medium ${item.active ? 'text-[#8B5CF6]' : 'text-gray-400'}`}
-                                        >
-                                            {item.label}
-                                        </Text>
+                                        <Text className={`mt-3 text-xs font-medium ${item.active ? 'text-[#8B5CF6]' : 'text-gray-400'}`}>{item.label}</Text>
                                     </View>
                                 ))}
                             </View>
@@ -177,7 +177,6 @@ export default function Dashboard() {
                                 <Text className="text-gray-400 text-sm font-medium">View All</Text>
                             </TouchableOpacity>
                         </View>
-
                         <View className="gap-4">
                             {TRANSACTIONS.map((t) => (
                                 <View key={t.id} className="flex-row items-center justify-between bg-white p-4 rounded-[24px] shadow-sm">
@@ -198,11 +197,10 @@ export default function Dashboard() {
                             ))}
                         </View>
                     </View>
-
                 </ScrollView>
 
                 {/* --- CUSTOM BOTTOM NAVIGATION --- */}
-                <View className="absolute bottom-0 left-0 right-0 h-[100px] bg-white rounded-t-[40px] shadow-[0_-10px_40px_rgba(0,0,0,0.05)] flex-row justify-evenly items-center px-2 pb-4">
+                <View className="absolute bottom-0 left-0 right-0 h-[100px] bg-white rounded-t-[40px] shadow-[0_-10px_40px_rgba(0,0,0,0.05)] flex-row justify-evenly items-center px-2 pb-4 z-50">
                     <TouchableOpacity className="items-center justify-center w-14 h-14">
                         <Ionicons name="home" size={26} color="#FF6A3D" />
                         <View className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-1" />
@@ -216,18 +214,25 @@ export default function Dashboard() {
                     </TouchableOpacity>
 
                     <TouchableOpacity
-                        className="w-16 h-16 bg-[#FF6A3D] rounded-full items-center justify-center shadow-lg shadow-orange-500/40 -mt-8"
+                        className={`w-16 h-16 rounded-full items-center justify-center shadow-lg -mt-8 ${isMenuOpen ? 'bg-[#1E1E2D] shadow-black/40' : 'bg-[#FF6A3D] shadow-orange-500/40'}`}
                         activeOpacity={0.8}
+                        onPress={toggleMenu}
                     >
-                        <Ionicons name="add" size={38} color="white" />
+                        <Ionicons name={isMenuOpen ? "close" : "add"} size={38} color="white" />
                     </TouchableOpacity>
 
-                    <TouchableOpacity className="items-center justify-center w-14 h-14">
+                    <TouchableOpacity
+                        className="items-center justify-center w-14 h-14"
+                        onPress={() => router.push('/savings')}
+                    >
                         <Ionicons name="calendar-outline" size={26} color="#9CA3AF" />
                     </TouchableOpacity>
 
-                    <TouchableOpacity className="items-center justify-center w-14 h-14">
-                        <Ionicons name="settings-outline" size={26} color="#9CA3AF" />
+                    <TouchableOpacity
+                        className="items-center justify-center w-14 h-14"
+                        onPress={() => router.push('/friends')}
+                    >
+                        <Ionicons name="people-outline" size={26} color="#9CA3AF" />
                     </TouchableOpacity>
                 </View>
 
