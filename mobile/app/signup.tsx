@@ -24,7 +24,7 @@ export default function SignUp() {
             setTimeout(() => {
                 setIsLoading(false);
                 console.log('SignUp with:', formData);
-                router.push('/dashboard');
+                router.push('/verify-otp');
             }, 1000);
         }
     };

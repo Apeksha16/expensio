@@ -20,9 +20,9 @@ export default function Login() {
             setIsLoading(true);
             setTimeout(() => {
                 setIsLoading(false);
-                // Navigate to Dashboard or OTP
+                // Navigate to OTP
                 console.log('Login with:', countryCode, phoneNumber);
-                router.push('/dashboard');
+                router.push('/verify-otp');
             }, 1000);
         }
     };
