@@ -11,7 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-const ProfileScreen = ({ navigation }: { navigation: any }) => {
+const ProfileScreen = ({ navigation, onLogout }: { navigation: any; onLogout: () => void }) => {
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
@@ -110,7 +110,7 @@ const ProfileScreen = ({ navigation }: { navigation: any }) => {
                 </View>
 
                 {/* Logout Button */}
-                <TouchableOpacity style={styles.logoutButton}>
+                <TouchableOpacity style={styles.logoutButton} onPress={onLogout}>
                     <Icon name="log-out-outline" size={20} color="#EF4444" />
                     <Text style={styles.logoutText}>Log Out</Text>
                 </TouchableOpacity>

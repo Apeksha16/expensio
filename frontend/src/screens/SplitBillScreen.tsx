@@ -79,7 +79,10 @@ const SplitBillScreen = ({ navigation }: { navigation: any }) => {
                                 <Text style={styles.friendName}>{friend.name}</Text>
                                 <Text style={styles.friendStatus}>{friend.status}</Text>
                             </View>
-                            <TouchableOpacity style={styles.addButton}>
+                            <TouchableOpacity
+                                style={styles.addButton}
+                                onPress={() => navigation.navigate('AddTransaction', { friendName: friend.name })}
+                            >
                                 <Icon name="add" size={20} color="#1F2937" />
                             </TouchableOpacity>
                         </View>

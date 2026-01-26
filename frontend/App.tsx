@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -14,9 +15,12 @@ import ExpensesScreen from './src/screens/ExpensesScreen';
 import AddExpenseScreen from './src/screens/AddExpenseScreen';
 import SplitBillScreen from './src/screens/SplitBillScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
+import AddTransactionScreen from './src/screens/AddTransactionScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
+
+// ... (keep CustomTabBarButton and MainTabs as is) ...
 
 // Custom Tab Bar Button for FAB
 const CustomTabBarButton = ({ children, onPress }: any) => (
@@ -41,7 +45,7 @@ const CustomTabBarButton = ({ children, onPress }: any) => (
   </TouchableOpacity>
 );
 
-const MainTabs = () => {
+const MainTabs = ({ onLogout }: { onLogout: () => void }) => {
   return (
     <Tab.Navigator
       screenOptions={{
@@ -114,7 +118,7 @@ const MainTabs = () => {
       />
       <Tab.Screen
         name="Profile"
-        component={ProfileScreen}
+        children={(props) => <ProfileScreen {...props} onLogout={onLogout} />}
         options={{
           tabBarIcon: ({ focused }) => (
             <View style={{ alignItems: 'center', justifyContent: 'center' }}>
@@ -131,14 +135,62 @@ const MainTabs = () => {
 function App() {
   const [hasOnboarded, setHasOnboarded] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  // For demo, we might skip logic to show new screens
-  // But let's keep the flow: Login -> (User) -> Dash
+  // Check storage on app load
+  useEffect(() => {
+    const checkStorage = async () => {
+      try {
+        const storedUser = await AsyncStorage.getItem('user');
+        const storedOnboarding = await AsyncStorage.getItem('hasOnboarded');
+
+        if (storedUser) {
+          setUser(JSON.parse(storedUser));
+        }
+        if (storedOnboarding) {
+          setHasOnboarded(true); // Assuming 'true' string or existence logic
+        }
+      } catch (e) {
+        console.error('Failed to load storage', e);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkStorage();
+  }, []);
+
+  const handleLoginSuccess = async (userData: any) => {
+    setUser(userData);
+    await AsyncStorage.setItem('user', JSON.stringify(userData));
+    await AsyncStorage.setItem('hasOnboarded', 'true');
+  };
+
+  const handleOnboardingComplete = async () => {
+    setHasOnboarded(true);
+    await AsyncStorage.setItem('hasOnboarded', 'true');
+  };
+
+  const handleLogout = async () => {
+    setUser(null);
+    await AsyncStorage.removeItem('user');
+    // Optional: Keep onboarding state
+    // await AsyncStorage.removeItem('hasOnboarded'); 
+  };
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }}>
+        <ActivityIndicator size="large" color="#FF7043" />
+      </View>
+    );
+  }
 
   return (
     <SafeAreaProvider>
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
+
 
           {/* Authentication Flow */}
           {!user ? (
@@ -146,16 +198,25 @@ function App() {
               {/* Only show Onboarding if not done */}
               {!hasOnboarded && (
                 <Stack.Screen name="Onboarding">
-                  {(props) => <OnboardingScreen {...props} onComplete={() => setHasOnboarded(true)} />}
+                  {(props) => <OnboardingScreen {...props} onComplete={handleOnboardingComplete} />}
                 </Stack.Screen>
               )}
               <Stack.Screen name="Login">
-                {(props) => <LoginScreen {...props} onLoginSuccess={(userData) => setUser(userData)} />}
+                {(props) => <LoginScreen {...props} onLoginSuccess={handleLoginSuccess} />}
               </Stack.Screen>
             </>
           ) : (
             /* Main App Flow */
-            <Stack.Screen name="Main" component={MainTabs} />
+            <>
+              <Stack.Screen name="Main">
+                {() => <MainTabs onLogout={handleLogout} />}
+              </Stack.Screen>
+              <Stack.Screen
+                name="AddTransaction"
+                component={AddTransactionScreen}
+                options={{ presentation: 'modal' }}
+              />
+            </>
           )}
 
         </Stack.Navigator>
