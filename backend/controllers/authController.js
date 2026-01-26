@@ -78,8 +78,9 @@ exports.verifyOtp = async (req, res) => {
 };
 
 const { OAuth2Client } = require('google-auth-library');
-const GOOGLE_CLIENT_ID = '820921044814-tmgitqep6hp6qd44qrn1i3sh1790osov.apps.googleusercontent.com'; // From your frontend/error log
-const client = new OAuth2Client(GOOGLE_CLIENT_ID);
+const GOOGLE_CLIENT_ID_IOS = '820921044814-tmgitqep6hp6qd44qrn1i3sh1790osov.apps.googleusercontent.com';
+const GOOGLE_CLIENT_ID_WEB = '820921044814-8fdnvo1193aki6t29kv5lpcdfffr8g6j.apps.googleusercontent.com';
+const client = new OAuth2Client(GOOGLE_CLIENT_ID_WEB);
 
 exports.googleLogin = async (req, res) => {
     const { idToken } = req.body;
@@ -92,7 +93,7 @@ exports.googleLogin = async (req, res) => {
         console.log('Verifying Google Token via Google Auth Library...');
         const ticket = await client.verifyIdToken({
             idToken: idToken,
-            audience: GOOGLE_CLIENT_ID,
+            audience: [GOOGLE_CLIENT_ID_IOS, GOOGLE_CLIENT_ID_WEB],
         });
         const payload = ticket.getPayload();
         const { email, name, picture, sub: googleUid } = payload;

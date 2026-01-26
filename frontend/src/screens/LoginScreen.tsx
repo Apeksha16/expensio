@@ -20,6 +20,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { sendOtp, verifyOtp, googleLogin } from '../services/auth';
+import loginBackground from '../assets/login/login_background.png';
 
 const { width, height } = Dimensions.get('window');
 
@@ -91,7 +92,7 @@ const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
             const userInfo = user as any;
             const idToken = userInfo.idToken || userInfo.data?.idToken;
             if (!idToken) throw new Error('No ID Token found');
-            const data = await googleLogin(idToken);
+            const data = await googleLogin(idToken) as { user?: { email?: string } };
             onLoginSuccess(data.user || { email: 'Google User' });
         } catch (error) {
             console.error('Google Sign-In Error:', error);
@@ -125,7 +126,7 @@ const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
         }
         try {
             setLoading(true);
-            const data = await verifyOtp(email, otp);
+            const data = await verifyOtp(email, otp) as { token?: string };
             if (data && data.token) {
                 onLoginSuccess({ email });
             } else {
@@ -142,7 +143,7 @@ const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
         <View style={styles.container}>
             <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
             <ImageBackground
-                source={require('../assets/login/login_background.png')}
+                source={loginBackground}
                 style={styles.backgroundImage}
                 resizeMode="cover"
             >
@@ -247,7 +248,7 @@ const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
                 </KeyboardAvoidingView>
 
             </ImageBackground>
-        </View>
+        </View >
     );
 };
 
