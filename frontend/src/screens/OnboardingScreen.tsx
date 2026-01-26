@@ -12,8 +12,7 @@ import {
   Animated,
   Easing,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
-import RecommendsBadge from '../components/RecommendsBadge';
+
 
 const { width, height } = Dimensions.get('window');
 
@@ -23,24 +22,18 @@ const slides = [
     image: require('../assets/onboarding/image1.png'),
     title: 'Track every\npenny',
     subtitle: 'Monitor your daily spending and\nkeep your finances in check.',
-    backgroundColor: '#F9A8D4', // Pink/Rose
-    textColor: '#1F2937',
   },
   {
     id: '2',
     image: require('../assets/onboarding/image2.png'),
     title: 'Save for\nyour goals',
     subtitle: 'Set targets for what matters\nand watch your savings grow.',
-    backgroundColor: '#FDE047', // Yellow
-    textColor: '#1F2937',
   },
   {
     id: '3',
     image: require('../assets/onboarding/image3.png'),
     title: 'Split bills\nwith friends',
     subtitle: 'Seamlessly share expenses and\nsettle debts without stress.',
-    backgroundColor: '#67E8F9', // Cyan/Blue
-    textColor: '#1F2937',
   },
 ];
 
@@ -53,13 +46,11 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
   const ref = useRef<FlatList>(null);
 
   // Animations
-  const progressAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const translateAnim = useRef(new Animated.Value(20)).current;
 
   // Animate content on slide change
   useEffect(() => {
-    // Reset and start entrance animation
     fadeAnim.setValue(0);
     translateAnim.setValue(20);
 
@@ -75,11 +66,6 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
         easing: Easing.out(Easing.cubic),
         useNativeDriver: true,
       }),
-      Animated.timing(progressAnim, {
-        toValue: (currentSlideIndex + 1) / slides.length,
-        duration: 300,
-        useNativeDriver: false,
-      })
     ]).start();
   }, [currentSlideIndex]);
 
@@ -102,102 +88,86 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
     }
   };
 
-  const Slide = ({ item }: { item: any }) => {
+
+  const skipToSlide = (index: number) => {
+    const offset = index * width;
+    ref?.current?.scrollToOffset({ offset });
+    setCurrentSlideIndex(index);
+  };
+
+  const Slide = ({ item, index }: { item: any, index: number }) => {
+    const isTextFirst = index % 2 === 0;
+
+    const ImageSection = (
+      <View style={styles.imageContainer}>
+        <Animated.Image
+          source={item.image}
+          style={[
+            styles.image,
+            {
+              opacity: fadeAnim,
+              transform: [{ translateY: translateAnim }]
+            }
+          ]}
+          resizeMode="contain"
+        />
+      </View>
+    );
+
+    const TextSection = (
+      <View style={styles.textContainer}>
+        <Animated.Text style={[
+          styles.title,
+          {
+            opacity: fadeAnim,
+            transform: [{ translateY: translateAnim }]
+          }
+        ]}>
+          {item.title}
+        </Animated.Text>
+        <Animated.Text style={[
+          styles.subtitle,
+          {
+            opacity: fadeAnim,
+            transform: [{ translateY: translateAnim }]
+          }
+        ]}>
+          {item.subtitle}
+        </Animated.Text>
+      </View>
+    );
+
     return (
-      <View style={[styles.slide, { backgroundColor: item.backgroundColor }]}>
-        <SafeAreaView style={styles.safeArea}>
-          {/* Header with Brand and Skip */}
-          <View style={styles.header}>
-            <View style={styles.brandBadge}>
-              <Text style={styles.brandText}>D</Text>
-            </View>
-            <TouchableOpacity onPress={onComplete}>
-              <Text style={styles.skipText}>Skip</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Main Content */}
-          <View style={styles.contentContainer}>
-            <View style={styles.imageContainer}>
-              <Animated.Image
-                source={item.image}
-                style={[
-                  styles.image,
-                  {
-                    opacity: fadeAnim,
-                    transform: [{ translateY: translateAnim }]
-                  }
-                ]}
-                resizeMode="contain"
-              />
-            </View>
-
-            <View style={styles.textContainer}>
-              <Animated.Text style={[
-                styles.title,
-                {
-                  color: item.textColor,
-                  opacity: fadeAnim,
-                  transform: [{ translateY: translateAnim }]
-                }
-              ]}>
-                {item.title}
-              </Animated.Text>
-              <Animated.Text style={[
-                styles.subtitle,
-                {
-                  color: item.textColor,
-                  opacity: fadeAnim,
-                  transform: [{ translateY: translateAnim }]
-                }
-              ]}>
-                {item.subtitle}
-              </Animated.Text>
-            </View>
-          </View>
-
-          {/* Footer: Avatar Badge (Left) and Next Button (Right) */}
-          <View style={styles.footer}>
-            <View style={styles.reviewBadge}>
-              <RecommendsBadge />
-            </View>
-
-            <View style={styles.controlsRight}>
-              {/* Segmented Progress Bar */}
-              <View style={styles.progressContainer}>
-                <View style={styles.progressBar}>
-                  <Animated.View style={[
-                    styles.progressFill,
-                    {
-                      width: progressAnim.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: ['0%', '100%']
-                      })
-                    }
-                  ]} />
-                </View>
-                <Text style={styles.progressText}>{currentSlideIndex + 1} / 3</Text>
-              </View>
-
-              <TouchableOpacity
-                style={styles.nextButton}
-                onPress={goToNextSlide}
-                activeOpacity={0.8}
-              >
-                {/* Changed Icon to arrow-forward which is more standard/safe if chevron is missing */}
-                <Icon name="arrow-forward" size={28} color="#1F2937" />
-              </TouchableOpacity>
-            </View>
-          </View>
-
-        </SafeAreaView>
+      <View style={styles.slide}>
+        {/* Main Content */}
+        <View style={styles.contentContainer}>
+          {isTextFirst ? (
+            <>
+              {TextSection}
+              {ImageSection}
+            </>
+          ) : (
+            <>
+              {ImageSection}
+              {TextSection}
+            </>
+          )}
+        </View>
       </View>
     );
   };
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+
+      {/* Top Header: Skip Button */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={onComplete}>
+          <Text style={styles.skipText}>Skip</Text>
+        </TouchableOpacity>
+      </View>
+
       <FlatList
         ref={ref}
         onMomentumScrollEnd={updateCurrentSlideIndex}
@@ -205,12 +175,50 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
         horizontal
         data={slides}
         pagingEnabled
-        renderItem={({ item }) => <Slide item={item} />}
+        renderItem={({ item, index }) => <Slide item={item} index={index} />}
         keyExtractor={(item) => item.id}
         bounces={false}
-        scrollEnabled={false} // Disable manual scroll if relying on button, or keep enabled
+        scrollEnabled={false} // Clean design often controls via button, but we can enable if desired
       />
-    </View>
+
+      {/* Footer: Pagination & Navigation */}
+      <View style={styles.footer}>
+
+        {/* Left: Recommends & Pagination */}
+        <View style={styles.footerLeft}>
+          {/* Small Pagination Dots */}
+          <View style={styles.paginationContainer}>
+            {slides.map((_, index) => (
+              <TouchableOpacity
+                key={index}
+                onPress={() => skipToSlide(index)}
+                style={{ padding: 10 }} // Increased touch area
+              >
+                <View
+                  style={[
+                    styles.dot,
+                    currentSlideIndex === index && styles.activeDot
+                  ]}
+                />
+              </TouchableOpacity>
+            ))}
+          </View>
+
+
+        </View>
+
+        {/* Right: Circular Next Button */}
+        <TouchableOpacity
+          style={styles.nextButton}
+          onPress={goToNextSlide}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.nextButtonText}>
+            {currentSlideIndex === slides.length - 1 ? 'Start' : 'Next'}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
   );
 };
 
@@ -219,121 +227,105 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
-  slide: {
-    width: width,
-    height: height,
-  },
-  safeArea: {
-    flex: 1,
-    justifyContent: 'space-between',
-  },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     paddingHorizontal: 24,
     paddingTop: 10,
-  },
-  brandBadge: {
-    width: 30,
-    height: 30,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  brandText: {
-    fontSize: 24,
-    fontWeight: '900',
-    color: '#1F2937',
+    alignItems: 'flex-end',
+    height: 50,
   },
   skipText: {
     fontSize: 16,
-    fontWeight: '500',
-    color: '#1F2937',
-    opacity: 0.7,
+    fontWeight: '600',
+    color: '#9CA3AF', // lighter grey
+  },
+  slide: {
+    width: width,
+    height: height * 0.75, // Occupy most of screen, leaving room for footer
+    justifyContent: 'center',
   },
   contentContainer: {
     flex: 1,
     justifyContent: 'center',
-    marginTop: -40,
   },
   imageContainer: {
     height: height * 0.45,
     width: width,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: 32,
   },
   image: {
-    width: '85%',
+    width: '90%',
     height: '100%',
   },
   textContainer: {
     paddingHorizontal: 32,
+    alignItems: 'flex-start', // Left aligned
   },
   title: {
-    fontSize: 42,
+    fontSize: 32, // Slightly smaller than before for clean look
     fontWeight: '800',
-    lineHeight: 48,
-    marginBottom: 16,
-    letterSpacing: -1,
+    color: '#1F2937',
+    marginBottom: 12,
+    textAlign: 'left',
   },
   subtitle: {
     fontSize: 16,
     lineHeight: 24,
     fontWeight: '500',
-    opacity: 0.8,
+    color: '#6B7280', // Soft grey
+    textAlign: 'left',
+    maxWidth: '80%',
   },
   footer: {
+    height: height * 0.15,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-end',
+    alignItems: 'center',
     paddingHorizontal: 32,
-    paddingBottom: 50,
+    paddingBottom: 20,
   },
-  reviewBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-
-  controlsRight: {
-    alignItems: 'center',
+  footerLeft: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
     gap: 16,
   },
-  progressContainer: {
+  paginationContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
     gap: 8,
-    marginBottom: 8,
   },
-  progressBar: {
-    width: 60,
-    height: 4,
-    backgroundColor: 'rgba(0,0,0,0.1)',
-    borderRadius: 2,
-    overflow: 'hidden',
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#E5E7EB', // Very light grey
   },
-  progressFill: {
-    height: '100%',
-    backgroundColor: '#1F2937',
+  activeDot: {
+    backgroundColor: '#1F2937', // Dark active
+    width: 24, // Elongated active dot
   },
-  progressText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#1F2937',
+  badgeWrapper: {
+    transform: [{ scale: 0.8 }], // Smaller badge to fit clean aesthetic
+    marginLeft: -10, // Adjust for badge internal padding
   },
   nextButton: {
-    width: 68,
-    height: 68,
-    backgroundColor: '#fff',
-    borderRadius: 24,
+    width: 64,
+    height: 64,
+    backgroundColor: '#1F2937', // Dark button
+    borderRadius: 32,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.1,
-    shadowRadius: 20,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
   },
+  nextButtonText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 14,
+  }
 });
 
 export default OnboardingScreen;
