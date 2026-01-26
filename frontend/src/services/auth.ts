@@ -1,8 +1,11 @@
+import { Platform } from 'react-native';
 
-// Replace with your Laptop's Local IP if testing on Real Device, or 10.0.2.2 for Android Emulator, localhost for iOS simulator
-// Since user is on Mac, localhost is usually fine for iOS Simulator. 
-// For physical device, we should ideally use local IP, but let's stick to localhost for simulator first.
-export const API_URL = 'http://localhost:5001/api/auth';
+// Android Emulator uses 10.0.2.2 to access host localhost.
+// iOS Simulator uses localhost.
+// For physical devices, you must use your computer's LAN IP address.
+export const API_URL = Platform.OS === 'android'
+    ? 'http://10.0.2.2:5001/api/auth'
+    : 'http://localhost:5001/api/auth';
 
 export const sendOtp = async (email: string) => {
     try {
