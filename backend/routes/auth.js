@@ -6,4 +6,8 @@ router.post('/send-otp', authController.sendOtp);
 router.post('/verify-otp', authController.verifyOtp);
 router.post('/google-login', authController.googleLogin);
 
+
+// Logout Route
+router.post('/logout', authController.logout);
+
 module.exports = router;

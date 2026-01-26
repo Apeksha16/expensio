@@ -12,26 +12,30 @@ import {
   Animated,
   Easing,
 } from 'react-native';
-
+import Icon from 'react-native-vector-icons/Ionicons';
+import RecommendsBadge from '../components/RecommendsBadge';
+import image1 from '../assets/onboarding/image1.png';
+import image2 from '../assets/onboarding/image2.png';
+import image3 from '../assets/onboarding/image3.png';
 
 const { width, height } = Dimensions.get('window');
 
 const slides = [
   {
     id: '1',
-    image: require('../assets/onboarding/image1.png'),
+    image: image1,
     title: 'Track every\npenny',
     subtitle: 'Monitor your daily spending and\nkeep your finances in check.',
   },
   {
     id: '2',
-    image: require('../assets/onboarding/image2.png'),
+    image: image2,
     title: 'Save for\nyour goals',
     subtitle: 'Set targets for what matters\nand watch your savings grow.',
   },
   {
     id: '3',
-    image: require('../assets/onboarding/image3.png'),
+    image: image3,
     title: 'Split bills\nwith friends',
     subtitle: 'Seamlessly share expenses and\nsettle debts without stress.',
   },

@@ -1,11 +1,13 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { StatusBar, StyleSheet, View, Text, Platform, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import Icon from 'react-native-vector-icons/Ionicons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { logout } from './src/services/auth';
 
 // Screens
 import LoginScreen from './src/screens/LoginScreen';
@@ -16,14 +18,46 @@ import AddExpenseScreen from './src/screens/AddExpenseScreen';
 import SplitBillScreen from './src/screens/SplitBillScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import AddTransactionScreen from './src/screens/AddTransactionScreen';
+import PWAInstallPrompt from './src/components/PWAInstallPrompt';
+
+// Types
+interface User {
+  email: string;
+  name?: string;
+  photo?: string;
+  id?: string;
+}
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-// ... (keep CustomTabBarButton and MainTabs as is) ...
+const styles = StyleSheet.create({
+  shadow: {
+    shadowColor: '#7F5DF0',
+    shadowOffset: {
+      width: 0,
+      height: 10,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.5,
+    elevation: 5,
+  },
+  activeDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#FF7043',
+    marginTop: 4,
+  }
+});
 
 // Custom Tab Bar Button for FAB
-const CustomTabBarButton = ({ children, onPress }: any) => (
+interface CustomTabBarButtonProps {
+  children: React.ReactNode;
+  onPress?: (e: any) => void;
+}
+
+const CustomTabBarButton = ({ children, onPress }: CustomTabBarButtonProps) => (
   <TouchableOpacity
     style={{
       top: -20,
@@ -38,7 +72,6 @@ const CustomTabBarButton = ({ children, onPress }: any) => (
       height: 70,
       borderRadius: 35,
       backgroundColor: '#FF7043',
-      // Orange gradient feel or solid
     }}>
       {children}
     </View>
@@ -56,7 +89,6 @@ const MainTabs = ({ onLogout }: { onLogout: () => void }) => {
           bottom: 25,
           left: 20,
           right: 20,
-          elevation: 0,
           backgroundColor: '#ffffff',
           borderRadius: 15,
           height: 90,
@@ -68,7 +100,7 @@ const MainTabs = ({ onLogout }: { onLogout: () => void }) => {
         name="Home"
         component={DashboardScreen}
         options={{
-          tabBarIcon: ({ focused }) => (
+          tabBarIcon: ({ focused }: { focused: boolean }) => (
             <View style={{ alignItems: 'center', justifyContent: 'center' }}>
               <Icon name="home-outline" size={24} color={focused ? '#FF7043' : '#9CA3AF'} />
               {focused && <View style={styles.activeDot} />}
@@ -80,7 +112,7 @@ const MainTabs = ({ onLogout }: { onLogout: () => void }) => {
         name="Expenses"
         component={ExpensesScreen}
         options={{
-          tabBarIcon: ({ focused }) => (
+          tabBarIcon: ({ focused }: { focused: boolean }) => (
             <View style={{ alignItems: 'center', justifyContent: 'center' }}>
               <Icon name="card-outline" size={24} color={focused ? '#FF7043' : '#9CA3AF'} />
               {focused && <View style={styles.activeDot} />}
@@ -94,13 +126,13 @@ const MainTabs = ({ onLogout }: { onLogout: () => void }) => {
         name="Add"
         component={AddExpenseScreen}
         options={{
-          tabBarIcon: ({ focused }) => (
+          tabBarIcon: ({ focused }: { focused: boolean }) => (
             <Icon name="add" size={30} color="#fff" />
           ),
           tabBarButton: (props) => (
             <CustomTabBarButton {...props} />
           ),
-          tabBarStyle: { display: 'none' } // Hide tab bar on Add Screen if preferred, or modal
+          tabBarStyle: { display: 'none' }
         }}
       />
 
@@ -108,7 +140,7 @@ const MainTabs = ({ onLogout }: { onLogout: () => void }) => {
         name="Split"
         component={SplitBillScreen}
         options={{
-          tabBarIcon: ({ focused }) => (
+          tabBarIcon: ({ focused }: { focused: boolean }) => (
             <View style={{ alignItems: 'center', justifyContent: 'center' }}>
               <Icon name="calendar-outline" size={24} color={focused ? '#FF7043' : '#9CA3AF'} />
               {focused && <View style={styles.activeDot} />}
@@ -120,7 +152,7 @@ const MainTabs = ({ onLogout }: { onLogout: () => void }) => {
         name="Profile"
         children={(props) => <ProfileScreen {...props} onLogout={onLogout} />}
         options={{
-          tabBarIcon: ({ focused }) => (
+          tabBarIcon: ({ focused }: { focused: boolean }) => (
             <View style={{ alignItems: 'center', justifyContent: 'center' }}>
               <Icon name="settings-outline" size={24} color={focused ? '#FF7043' : '#9CA3AF'} />
               {focused && <View style={styles.activeDot} />}
@@ -134,7 +166,7 @@ const MainTabs = ({ onLogout }: { onLogout: () => void }) => {
 
 function App() {
   const [hasOnboarded, setHasOnboarded] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Check storage on app load
@@ -148,7 +180,7 @@ function App() {
           setUser(JSON.parse(storedUser));
         }
         if (storedOnboarding) {
-          setHasOnboarded(true); // Assuming 'true' string or existence logic
+          setHasOnboarded(true);
         }
       } catch (e) {
         console.error('Failed to load storage', e);
@@ -160,7 +192,7 @@ function App() {
     checkStorage();
   }, []);
 
-  const handleLoginSuccess = async (userData: any) => {
+  const handleLoginSuccess = async (userData: User) => {
     setUser(userData);
     await AsyncStorage.setItem('user', JSON.stringify(userData));
     await AsyncStorage.setItem('hasOnboarded', 'true');
@@ -172,10 +204,9 @@ function App() {
   };
 
   const handleLogout = async () => {
+    await logout();
     setUser(null);
     await AsyncStorage.removeItem('user');
-    // Optional: Keep onboarding state
-    // await AsyncStorage.removeItem('hasOnboarded'); 
   };
 
   if (loading) {
@@ -188,14 +219,12 @@ function App() {
 
   return (
     <SafeAreaProvider>
+      <StatusBar barStyle="dark-content" />
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
-
-
           {/* Authentication Flow */}
           {!user ? (
             <>
-              {/* Only show Onboarding if not done */}
               {!hasOnboarded && (
                 <Stack.Screen name="Onboarding">
                   {(props) => <OnboardingScreen {...props} onComplete={handleOnboardingComplete} />}
@@ -218,31 +247,11 @@ function App() {
               />
             </>
           )}
-
         </Stack.Navigator>
       </NavigationContainer>
+      {Platform.OS === 'web' && <PWAInstallPrompt />}
     </SafeAreaProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  shadow: {
-    shadowColor: '#7F5DF0',
-    shadowOffset: {
-      width: 0,
-      height: 10,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.5,
-    elevation: 5,
-  },
-  activeDot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: '#FF7043',
-    marginTop: 4,
-  }
-});
 
 export default App;

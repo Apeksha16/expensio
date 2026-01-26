@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { StyleSheet, View, Text, Image, Animated, Easing } from 'react-native';
+import defaultAvatar from '../assets/onboarding/avatar.png';
 
 interface RecommendsBadgeProps {
     name?: string;
@@ -8,7 +9,7 @@ interface RecommendsBadgeProps {
 
 const RecommendsBadge: React.FC<RecommendsBadgeProps> = ({
     name = "Nikitin",
-    image = require('../assets/onboarding/avatar.png')
+    image = defaultAvatar
 }) => {
     const pulseAnim = useRef(new Animated.Value(1)).current;
 

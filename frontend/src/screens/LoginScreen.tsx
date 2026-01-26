@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import {
     View,
@@ -15,16 +16,19 @@ import {
     Easing,
     Dimensions,
     Image,
+    ImageBackground,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { sendOtp, verifyOtp, googleLogin } from '../services/auth';
+import loginBackground from '../assets/login/login_background.png';
+import emailIcon from '../assets/icons/icon_email.png';
 
 const { width, height } = Dimensions.get('window');
 
 // Configure Google Sign-In
 GoogleSignin.configure({
-    webClientId: '820921044814-tmgitqep6hp6qd44qrn1i3sh1790osov.apps.googleusercontent.com',
+    webClientId: '820921044814-8fdnvo1193aki6t29kv5lpcdfffr8g6j.apps.googleusercontent.com',
     iosClientId: '820921044814-tmgitqep6hp6qd44qrn1i3sh1790osov.apps.googleusercontent.com',
 });
 
@@ -104,7 +108,7 @@ const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
             const userInfo = user as any;
             const idToken = userInfo.idToken || userInfo.data?.idToken;
             if (!idToken) throw new Error('No ID Token found');
-            const data = await googleLogin(idToken);
+            const data = await googleLogin(idToken) as { user?: { email?: string } };
             onLoginSuccess(data.user || { email: 'Google User' });
         } catch (error) {
             console.error('Google Sign-In Error:', error);
@@ -137,8 +141,12 @@ const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
         }
         try {
             setLoading(true);
-            const data = await verifyOtp(email, otp);
-            onLoginSuccess({ email });
+            const data = await verifyOtp(email, otp) as { token?: string };
+            if (data && data.token) {
+                onLoginSuccess({ email });
+            } else {
+                throw new Error('No token received');
+            }
         } catch (error) {
             Alert.alert('Error', 'Invalid OTP or Login Failed.');
         } finally {
@@ -159,153 +167,163 @@ const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
 
     return (
         <View style={styles.container}>
-            <StatusBar barStyle="dark-content" backgroundColor="#F9FAFB" />
-
-            {/* Background Blobs */}
-            <View style={styles.backgroundContainer}>
-                {/* Pink Blob - Top Right */}
-                <Animated.View style={[
-                    styles.blob,
-                    { backgroundColor: '#F9A8D4', top: -50, right: -50, width: 200, height: 200, transform: [{ translateY: blob1TranslateY }] }
-                ]} />
-
-                {/* Yellow Blob - Middle Left */}
-                <Animated.View style={[
-                    styles.blob,
-                    { backgroundColor: '#FDE047', top: height * 0.15, left: -60, width: 180, height: 180, transform: [{ translateY: blob2TranslateY }] }
-                ]} />
-
-                {/* Cyan Blob - Bottom Right (Behind sheet a bit) */}
-                <Animated.View style={[
-                    styles.blob,
-                    { backgroundColor: '#67E8F9', top: height * 0.35, right: -30, width: 150, height: 150 }
-                ]} />
-            </View>
-
-            <SafeAreaView style={styles.safeArea}>
-                {/* Brand Logo Floating Top */}
-                <View style={styles.topSection}>
-                    <View style={styles.logoContainer}>
-                        <Text style={styles.logoIcon}>💰</Text>
+            <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+            <ImageBackground
+                source={loginBackground}
+                style={styles.backgroundImage}
+                resizeMode="cover"
+            >
+                <SafeAreaView style={styles.safeArea}>
+                    {/* Top Section: Logo & Brand */}
+                    <View style={styles.topSection}>
+                        <Animated.View style={[styles.logoContainer, { transform: [{ scale: 1 }] }]}>
+                            <Text style={styles.logoIcon}>💰</Text>
+                        </Animated.View>
+                        <Animated.View style={{ alignItems: 'center', opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
+                            <Text style={styles.appName}>Expensio</Text>
+                            <Text style={styles.description}>Master your finances with style.</Text>
+                        </Animated.View>
                     </View>
-                    <Text style={styles.brandName}>Expensio</Text>
+                </SafeAreaView>
+
+                {/* Background Blobs */}
+                <View style={styles.backgroundContainer}>
+                    {/* Pink Blob - Top Right */}
+                    <Animated.View style={[
+                        styles.blob,
+                        { backgroundColor: '#F9A8D4', top: -50, right: -50, width: 200, height: 200, transform: [{ translateY: blob1TranslateY }] }
+                    ]} />
+
+                    {/* Yellow Blob - Middle Left */}
+                    <Animated.View style={[
+                        styles.blob,
+                        { backgroundColor: '#FDE047', top: height * 0.15, left: -60, width: 180, height: 180, transform: [{ translateY: blob2TranslateY }] }
+                    ]} />
+
+                    {/* Cyan Blob - Bottom Right (Behind sheet a bit) */}
+                    <Animated.View style={[
+                        styles.blob,
+                        { backgroundColor: '#67E8F9', top: height * 0.35, right: -30, width: 150, height: 150 }
+                    ]} />
                 </View>
 
-                {/* Bottom Sheet */}
-                <KeyboardAvoidingView
-                    behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-                    style={styles.keyboardView}
-                    keyboardVerticalOffset={Platform.OS === "ios" ? -64 : 0} // Adjust based on header/status bar
-                >
-                    <Animated.View style={[
-                        styles.bottomSheet,
-                        {
-                            transform: [{ translateY: slideAnim }],
-                            opacity: fadeAnim
-                        }
-                    ]}>
+                <SafeAreaView style={styles.safeArea}>
+                    {/* Brand Logo Floating Top (Hidden or Duplicate? Keeping for safety of user intent, but might overlap) */}
+                    {/* Actually, user had two safe areas overlapping? I'll keep the structure but ensure zIndex if needed */}
 
-                        {/* Header Section */}
-                        <View style={styles.sheetHeader}>
-                            <Text style={styles.title}>{otpSent ? 'Enter Code' : 'Welcome Back'}</Text>
-                            <Text style={styles.subtitle}>
-                                {otpSent
-                                    ? `We sent a code to ${email}`
-                                    : 'Please sign in to continue to your account.'}
-                            </Text>
-                        </View>
+                    {/* Bottom Sheet */}
+                    <KeyboardAvoidingView
+                        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+                        style={styles.keyboardView}
+                        keyboardVerticalOffset={Platform.OS === "ios" ? -64 : 0}
+                    >
+                        <Animated.View style={[
+                            styles.bottomSheet,
+                            {
+                                transform: [{ translateY: slideAnim }],
+                                opacity: fadeAnim
+                            }
+                        ]}>
 
-                        {/* Form Section */}
-                        <View style={styles.form}>
-                            <View style={styles.inputContainer}>
-                                <Image
-                                    source={require('../assets/icons/icon_email.png')}
-                                    style={styles.inputIconImage}
-                                    resizeMode="contain"
-                                />
-                                <TextInput
-                                    style={styles.input}
-                                    placeholder={otpSent ? '000000' : 'name@example.com'}
-                                    placeholderTextColor="#9CA3AF"
-                                    keyboardType={otpSent ? 'number-pad' : 'email-address'}
-                                    autoCapitalize="none"
-                                    value={otpSent ? otp : email}
-                                    onChangeText={otpSent ? setOtp : setEmail}
-                                    editable={!loading}
-                                />
+                            {/* Header Section */}
+                            <View style={styles.sheetHeader}>
+                                <Text style={styles.title}>{otpSent ? 'Enter Code' : 'Welcome Back'}</Text>
+                                <Text style={styles.subtitle}>
+                                    {otpSent
+                                        ? `We sent a code to ${email}`
+                                        : 'Please sign in to continue to your account.'}
+                                </Text>
                             </View>
 
-                            <TouchableOpacity
-                                style={styles.primaryButton}
-                                onPress={otpSent ? handleVerifyOtp : handleSendOtp}
-                                disabled={loading}
-                                activeOpacity={0.8}
-                            >
-                                {loading ? (
-                                    <ActivityIndicator color="#fff" />
-                                ) : (
-                                    <Text style={styles.primaryButtonText}>
-                                        {otpSent ? 'Verify Access' : 'Continue'}
-                                    </Text>
-                                )}
-                            </TouchableOpacity>
+                            {/* Form Section */}
+                            <View style={styles.form}>
+                                <View style={styles.inputContainer}>
+                                    <Image
+                                        source={emailIcon}
+                                        style={styles.inputIconImage}
+                                        resizeMode="contain"
+                                    />
+                                    <TextInput
+                                        style={styles.input}
+                                        placeholder={otpSent ? '000000' : 'name@example.com'}
+                                        placeholderTextColor="#9CA3AF"
+                                        keyboardType={otpSent ? 'number-pad' : 'email-address'}
+                                        autoCapitalize="none"
+                                        value={otpSent ? otp : email}
+                                        onChangeText={otpSent ? setOtp : setEmail}
+                                        editable={!loading}
+                                    />
+                                </View>
 
-                            {otpSent && (
-                                <TouchableOpacity onPress={() => setOtpSent(false)} style={styles.backButton}>
-                                    <Text style={styles.backButtonText}>Use a different email</Text>
+                                <TouchableOpacity
+                                    style={styles.primaryButton}
+                                    onPress={otpSent ? handleVerifyOtp : handleSendOtp}
+                                    disabled={loading}
+                                    activeOpacity={0.8}
+                                >
+                                    {loading ? (
+                                        <ActivityIndicator color="#fff" />
+                                    ) : (
+                                        <Text style={styles.primaryButtonText}>
+                                            {otpSent ? 'Verify Access' : 'Continue'}
+                                        </Text>
+                                    )}
                                 </TouchableOpacity>
-                            )}
 
-                            {!otpSent && (
-                                <>
-                                    <View style={styles.divider}>
-                                        <View style={styles.line} />
-                                        <Text style={styles.orText}>OR</Text>
-                                        <View style={styles.line} />
-                                    </View>
+                                {!otpSent && (
+                                    <>
+                                        <View style={styles.divider}>
+                                            <View style={styles.line} />
+                                            <Text style={styles.orText}>OR</Text>
+                                            <View style={styles.line} />
+                                        </View>
 
-                                    <TouchableOpacity
-                                        style={styles.socialButton}
-                                        onPress={handleGoogleLogin}
-                                        disabled={loading}
-                                        activeOpacity={0.8}
-                                    >
-                                        <Image
-                                            source={require('../assets/icons/icon_google.png')}
-                                            style={styles.socialIconImage}
-                                            resizeMode="contain"
-                                        />
-                                        <Text style={styles.socialButtonText}>Continue with Google</Text>
+                                        <TouchableOpacity style={styles.socialButton} onPress={handleGoogleLogin} disabled={loading} activeOpacity={0.8}>
+                                            <Icon name="logo-google" size={24} color="#1F2937" />
+                                            <Text style={styles.socialButtonText}>Continue with Google</Text>
+                                        </TouchableOpacity>
+                                    </>
+                                )}
+
+                                {otpSent && (
+                                    <TouchableOpacity onPress={() => setOtpSent(false)} style={styles.backButton}>
+                                        <Text style={styles.backButtonText}>Use a different email</Text>
                                     </TouchableOpacity>
-                                </>
-                            )}
-                        </View>
-                    </Animated.View>
-                </KeyboardAvoidingView>
-            </SafeAreaView>
-        </View>
+                                )}
+                            </View>
+                        </Animated.View>
+                    </KeyboardAvoidingView>
+                </SafeAreaView>
+            </ImageBackground>
+        </View >
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F9FAFB', // Light grey surface
+        backgroundColor: '#F9FAFB',
+    },
+    backgroundImage: {
+        flex: 1,
+        width: width,
+        height: height,
     },
     backgroundContainer: {
         ...StyleSheet.absoluteFillObject,
-        overflow: 'hidden', // Clip blobs
+        overflow: 'hidden',
     },
     blob: {
         position: 'absolute',
-        borderRadius: 999, // Circle
-        opacity: 0.6, // Soft look
+        borderRadius: 999,
+        opacity: 0.6,
     },
     safeArea: {
         flex: 1,
+        justifyContent: 'flex-start',
     },
     topSection: {
-        flex: 1, // Takes up remaining space above sheet
+        flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
         paddingBottom: 40,
@@ -327,6 +345,21 @@ const styles = StyleSheet.create({
     logoIcon: {
         fontSize: 40,
     },
+    appName: {
+        fontSize: 40,
+        fontWeight: '800',
+        color: '#fff',
+        letterSpacing: 1.5,
+        marginBottom: 8,
+        textAlign: 'center',
+    },
+    description: {
+        fontSize: 16,
+        color: 'rgba(255, 255, 255, 0.8)',
+        fontWeight: '500',
+        letterSpacing: 0.5,
+        textAlign: 'center',
+    },
     brandName: {
         fontSize: 24,
         fontWeight: '800',
@@ -335,6 +368,8 @@ const styles = StyleSheet.create({
     },
     keyboardView: {
         width: '100%',
+        position: 'absolute',
+        bottom: 0,
     },
     bottomSheet: {
         backgroundColor: '#fff',
@@ -348,7 +383,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.05,
         shadowRadius: 16,
         elevation: 10,
-        minHeight: height * 0.5, // Occupy at least half screen
+        minHeight: height * 0.5,
     },
     sheetHeader: {
         alignItems: 'center',
@@ -386,12 +421,6 @@ const styles = StyleSheet.create({
         width: 20,
         height: 20,
         marginRight: 12,
-        // tintColor removed to show original icon colors
-    },
-    socialIconImage: {
-        width: 24,
-        height: 24,
-        // No tint for Google (allow colors)
     },
     input: {
         flex: 1,
@@ -402,7 +431,7 @@ const styles = StyleSheet.create({
     primaryButton: {
         height: 56,
         backgroundColor: '#1F2937',
-        borderRadius: 28, // Pill shape
+        borderRadius: 28,
         justifyContent: 'center',
         alignItems: 'center',
         shadowColor: '#1F2937',
