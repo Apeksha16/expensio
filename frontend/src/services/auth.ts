@@ -1,3 +1,4 @@
+
 import { Platform } from 'react-native';
 
 // Android Emulator uses 10.0.2.2 to access host localhost.
@@ -70,5 +71,21 @@ export const googleLogin = async (idToken: string) => {
     } catch (error) {
         console.error('Google Login Error:', error);
         throw error;
+    }
+};
+
+export const logout = async () => {
+    try {
+        const response = await fetch(`${API_URL}/logout`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        if (!response.ok) console.warn('Backend logout failed');
+        return true;
+    } catch (error) {
+        console.error('Logout API Error:', error);
+        return false;
     }
 };

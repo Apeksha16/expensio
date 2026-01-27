@@ -1,12 +1,14 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { StatusBar, StyleSheet, View, Text, Platform, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import Icon from 'react-native-vector-icons/Ionicons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { logout } from './src/services/auth';
 
 // Screens
 import LoginScreen from './src/screens/LoginScreen';
@@ -22,14 +24,46 @@ import TotalExpenseScreen from './src/screens/TotalExpenseScreen';
 import GroupDetailsScreen from './src/screens/GroupDetailsScreen';
 import FriendDetailsScreen from './src/screens/FriendDetailsScreen';
 import GoalsScreen from './src/screens/GoalsScreen';
+import PWAInstallPrompt from './src/components/PWAInstallPrompt';
+
+// Types
+interface User {
+  email: string;
+  name?: string;
+  photo?: string;
+  id?: string;
+}
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-// ... (keep CustomTabBarButton and MainTabs as is) ...
+const styles = StyleSheet.create({
+  shadow: {
+    shadowColor: '#7F5DF0',
+    shadowOffset: {
+      width: 0,
+      height: 10,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.5,
+    elevation: 5,
+  },
+  activeDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#FF7043',
+    marginTop: 4,
+  }
+});
 
 // Custom Tab Bar Button for FAB
-const CustomTabBarButton = ({ children, onPress }: any) => (
+interface CustomTabBarButtonProps {
+  children: React.ReactNode;
+  onPress?: (e: any) => void;
+}
+
+const CustomTabBarButton = ({ children, onPress }: CustomTabBarButtonProps) => (
   <TouchableOpacity
     style={{
       top: -30, // Raise FAB significantly to float halfway
@@ -56,8 +90,6 @@ const CustomTabBarButton = ({ children, onPress }: any) => (
 
 import QuickActionModal from './src/components/QuickActionModal';
 import { useNavigation } from '@react-navigation/native';
-
-// ... (keep CustomTabBarButton) ...
 
 const MainTabs = ({ onLogout }: { onLogout: () => void }) => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -155,6 +187,19 @@ const MainTabs = ({ onLogout }: { onLogout: () => void }) => {
             ),
           }}
         />
+
+        <Tab.Screen
+          name="Profile"
+          children={(props) => <ProfileScreen {...props} onLogout={onLogout} />}
+          options={{
+            tabBarIcon: ({ focused }: { focused: boolean }) => (
+              <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="settings-outline" size={28} color={focused ? '#FF7043' : '#9CA3AF'} />
+                {focused && <View style={styles.activeDot} />}
+              </View>
+            ),
+          }}
+        />
       </Tab.Navigator>
 
       <QuickActionModal
@@ -168,7 +213,7 @@ const MainTabs = ({ onLogout }: { onLogout: () => void }) => {
 
 function App() {
   const [hasOnboarded, setHasOnboarded] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Check storage on app load
@@ -194,7 +239,7 @@ function App() {
     checkStorage();
   }, []);
 
-  const handleLoginSuccess = async (userData: any) => {
+  const handleLoginSuccess = async (userData: User) => {
     setUser(userData);
     await AsyncStorage.setItem('user', JSON.stringify(userData));
     await AsyncStorage.setItem('hasOnboarded', 'true');
@@ -206,6 +251,7 @@ function App() {
   };
 
   const handleLogout = async () => {
+    await logout();
     setUser(null);
     await AsyncStorage.removeItem('user');
   };
@@ -221,6 +267,7 @@ function App() {
   return (
     <SafeAreaProvider>
       <GestureHandlerRootView style={{ flex: 1 }}>
+        <StatusBar barStyle="dark-content" />
         <NavigationContainer>
           <Stack.Navigator screenOptions={{ headerShown: false }}>
             {/* Authentication Flow */}
@@ -279,31 +326,10 @@ function App() {
             )}
           </Stack.Navigator>
         </NavigationContainer>
+        {Platform.OS === 'web' && <PWAInstallPrompt />}
       </GestureHandlerRootView>
     </SafeAreaProvider>
   );
 }
-
-
-
-const styles = StyleSheet.create({
-  shadow: {
-    shadowColor: '#7F5DF0',
-    shadowOffset: {
-      width: 0,
-      height: 10,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.5,
-    elevation: 5,
-  },
-  activeDot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: '#FF7043',
-    marginTop: 4,
-  }
-});
 
 export default App;
