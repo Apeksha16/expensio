@@ -24,6 +24,8 @@ import TotalExpenseScreen from './src/screens/TotalExpenseScreen';
 import GroupDetailsScreen from './src/screens/GroupDetailsScreen';
 import FriendDetailsScreen from './src/screens/FriendDetailsScreen';
 import GoalsScreen from './src/screens/GoalsScreen';
+import CreateGroupScreen from './src/screens/CreateGroupScreen';
+import AddFriendScreen from './src/screens/AddFriendScreen';
 import PWAInstallPrompt from './src/components/PWAInstallPrompt';
 
 // Types
@@ -163,19 +165,6 @@ const MainTabs = ({ onLogout }: { onLogout: () => void }) => {
         />
 
         <Tab.Screen
-          name="Split"
-          component={SplitBillScreen} // This serves as the 'Friends' tab
-          options={{
-            tabBarIcon: ({ focused }) => (
-              <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-                <Icon name="people-outline" size={28} color={focused ? '#FF7043' : '#9CA3AF'} />
-                {focused && <View style={styles.activeDot} />}
-              </View>
-            ),
-          }}
-        />
-
-        <Tab.Screen
           name="Goals"
           component={GoalsScreen}
           options={{
@@ -189,17 +178,19 @@ const MainTabs = ({ onLogout }: { onLogout: () => void }) => {
         />
 
         <Tab.Screen
-          name="Profile"
-          children={(props) => <ProfileScreen {...props} onLogout={onLogout} />}
+          name="Split"
+          component={SplitBillScreen} // This serves as the 'Friends' tab
           options={{
-            tabBarIcon: ({ focused }: { focused: boolean }) => (
+            tabBarIcon: ({ focused }) => (
               <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-                <Icon name="settings-outline" size={28} color={focused ? '#FF7043' : '#9CA3AF'} />
+                <Icon name="people-outline" size={28} color={focused ? '#FF7043' : '#9CA3AF'} />
                 {focused && <View style={styles.activeDot} />}
               </View>
             ),
           }}
         />
+
+
       </Tab.Navigator>
 
       <QuickActionModal
@@ -317,6 +308,16 @@ function App() {
                 <Stack.Screen
                   name="FriendDetails"
                   component={FriendDetailsScreen}
+                  options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                  name="CreateGroup"
+                  component={CreateGroupScreen}
+                  options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                  name="AddFriend"
+                  component={AddFriendScreen}
                   options={{ headerShown: false }}
                 />
                 <Stack.Screen name="Profile">

@@ -98,50 +98,50 @@ const TotalExpenseScreen = ({ navigation }: { navigation: any }) => {
                     <Text style={styles.chartTitle}>Food And Drinks</Text>
                     <Text style={styles.chartSubtitle}>₹4,672</Text>
 
-                    {/* CSS Pie Chart Hack */}
-                    <View style={styles.pieParams}>
-                        {/* Simplified Visual for Pie Chart - Using simple circles/wedges would be complex in raw CSS. 
-                           Representing with a placeholder visual matching the screenshot's style */}
-                        <View style={styles.pieMain}>
-                            {/* Dark Segment 35% */}
-                            <View style={[styles.pieSegment, { backgroundColor: '#1E1B2E', width: '100%', height: '100%', borderRadius: 100 }]} />
-                            {/* Orange Segment 45% - Simplified overlay */}
-                            <View style={[styles.pieSegment, {
-                                backgroundColor: '#FF7043',
-                                width: '100%',
-                                height: '100%',
-                                borderRadius: 100,
+                    <View style={styles.chartArea}>
+                        {/* Simple Donut Chart Representation */}
+                        <View style={styles.donutContainer}>
+                            {/* Purple Segment (Base) */}
+                            <View style={[styles.donutSegment, { borderColor: '#8B5CF6' }]} />
+                            {/* Orange Segment (Overlay) */}
+                            <View style={[styles.donutSegment, {
+                                borderColor: '#FF7043',
                                 position: 'absolute',
-                                // clipPath removed - invalid prop
+                                borderLeftColor: 'transparent',
+                                borderBottomColor: 'transparent',
+                                transform: [{ rotate: '-45deg' }]
                             }]} />
+
+                            {/* Center Info */}
+                            <View style={styles.donutInner}>
+                                <Text style={styles.innerLabel}>Total</Text>
+                            </View>
                         </View>
-                        {/* Since React Native raw styles are hard for specific pie slices without SVG lib, 
-                           we'll use a simplified circular representation or just the legend */}
-                        <View style={styles.piePlaceholder}>
-                            <View style={[styles.slice, { backgroundColor: '#FF7043', transform: [{ rotate: '0deg' }] }]} />
-                            <View style={[styles.slice, { backgroundColor: '#1E1B2E', transform: [{ rotate: '120deg' }] }]} />
-                            <View style={[styles.slice, { backgroundColor: '#8B5CF6', transform: [{ rotate: '240deg' }] }]} />
-                            <View style={styles.innerCircle} />
-                            {/* Labels */}
-                            <Text style={[styles.labelOnChart, { top: 60, left: 40, color: '#fff' }]}>45%</Text>
-                            <Text style={[styles.labelOnChart, { top: 60, right: 40, color: '#fff' }]}>35%</Text>
-                            <Text style={[styles.labelOnChart, { bottom: 30, color: '#fff' }]}>20%</Text>
+
+                        {/* Percentage Labels */}
+                        <View style={[styles.percentLabel, { top: 40, right: 20 }]}>
+                            <Text style={styles.percentText}>35%</Text>
+                        </View>
+                        <View style={[styles.percentLabel, { bottom: 40, left: 20 }]}>
+                            <Text style={styles.percentText}>45%</Text>
                         </View>
                     </View>
 
                     <View style={styles.legendContainer}>
-                        {/* Shopping Legend */}
-                        <View style={[styles.legendItem, { position: 'absolute', bottom: 40, left: 0 }]}>
-                            <View style={[styles.legendLine, { backgroundColor: '#FF7043', height: 40, transform: [{ rotate: '-45deg' }] }]} />
-                            <Text style={styles.legendTitle}>Shopping</Text>
-                            <Text style={styles.legendValue}>₹3,762</Text>
+                        <View style={styles.legendItem}>
+                            <View style={[styles.legendDot, { backgroundColor: '#FF7043' }]} />
+                            <View>
+                                <Text style={styles.legendTitle}>Shopping</Text>
+                                <Text style={styles.legendValue}>₹3,762</Text>
+                            </View>
                         </View>
 
-                        {/* Healthcare Legend */}
-                        <View style={[styles.legendItem, { position: 'absolute', bottom: 20, right: 0 }]}>
-                            <View style={[styles.legendLine, { backgroundColor: '#8B5CF6', height: 40, transform: [{ rotate: '45deg' }] }]} />
-                            <Text style={styles.legendTitle}>Healthcare</Text>
-                            <Text style={styles.legendValue}>₹2,917</Text>
+                        <View style={styles.legendItem}>
+                            <View style={[styles.legendDot, { backgroundColor: '#8B5CF6' }]} />
+                            <View>
+                                <Text style={styles.legendTitle}>Healthcare</Text>
+                                <Text style={styles.legendValue}>₹2,917</Text>
+                            </View>
                         </View>
                     </View>
                 </View>
@@ -320,65 +320,74 @@ const styles = StyleSheet.create({
         color: '#9CA3AF',
         marginBottom: 24,
     },
-    piePlaceholder: {
+    chartArea: {
+        position: 'relative',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: 240,
+        width: '100%',
+        marginBottom: 24,
+    },
+    donutContainer: {
+        width: 200,
+        height: 200,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    donutSegment: {
         width: 200,
         height: 200,
         borderRadius: 100,
-        position: 'relative',
-        overflow: 'hidden',
-    },
-    slice: {
+        borderWidth: 20,
         position: 'absolute',
-        width: '100%',
-        height: '100%',
-        borderRadius: 100,
     },
-    innerCircle: {
+    donutInner: {
         position: 'absolute',
-        width: '100%',
-        height: '100%',
-        borderColor: '#fff',
-        borderWidth: 2,
-        borderRadius: 100,
-        zIndex: 10,
-    },
-    labelOnChart: {
-        position: 'absolute',
-        fontWeight: '700',
-        zIndex: 20,
-        fontSize: 14,
-    },
-    legendContainer: {
-        width: '100%',
-        height: 100,
-        marginTop: 0,
-    },
-    legendItem: {
+        justifyContent: 'center',
         alignItems: 'center',
     },
-    legendLine: {
-        width: 1,
-        marginBottom: 8,
+    innerLabel: {
+        fontSize: 14,
+        color: '#9CA3AF',
+        fontWeight: '600',
+    },
+    percentLabel: {
+        position: 'absolute',
+        backgroundColor: '#fff',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 12,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
+    },
+    percentText: {
+        fontSize: 12,
+        fontWeight: '700',
+        color: '#1F2937',
+    },
+    legendContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: '100%',
+        paddingHorizontal: 20,
+    },
+    legendItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+    },
+    legendDot: {
+        width: 12,
+        height: 12,
+        borderRadius: 6,
     },
     legendTitle: {
         fontSize: 14,
         fontWeight: '700',
         color: '#1F2937',
-    },
-    pieParams: {
-        width: 200,
-        height: 200,
-        justifyContent: 'center',
-        alignItems: 'center',
-        position: 'absolute', // Overlaying on the placeholder area if needed, or separate
-    },
-    pieMain: {
-        width: '100%',
-        height: '100%',
-        position: 'relative',
-    },
-    pieSegment: {
-        position: 'absolute',
     },
     legendValue: {
         fontSize: 12,

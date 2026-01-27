@@ -38,7 +38,10 @@ const SplitBillScreen = ({ navigation }: { navigation: any }) => {
 
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
                 {/* Create New Group Banner */}
-                <TouchableOpacity style={styles.createGroupBanner}>
+                <TouchableOpacity
+                    style={styles.createGroupBanner}
+                    onPress={() => navigation.navigate('CreateGroup')}
+                >
                     <View style={styles.createIconCircle}>
                         <Icon name="people" size={24} color="#fff" />
                     </View>
@@ -72,7 +75,12 @@ const SplitBillScreen = ({ navigation }: { navigation: any }) => {
                 </View>
 
                 {/* Friends */}
-                <Text style={styles.sectionTitle}>Friends</Text>
+                <View style={styles.sectionHeader}>
+                    <Text style={styles.sectionTitle}>Friends</Text>
+                    <TouchableOpacity onPress={() => navigation.navigate('AddFriend')}>
+                        <Text style={styles.addFriendLink}>+ Add Friend</Text>
+                    </TouchableOpacity>
+                </View>
                 <View style={styles.friendsList}>
                     {friends.map(friend => (
                         <TouchableOpacity
@@ -175,7 +183,17 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: '700',
         color: '#1F2937',
+    },
+    sectionHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         marginBottom: 16,
+    },
+    addFriendLink: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#FF7043',
     },
     groupsList: {
         marginBottom: 32,

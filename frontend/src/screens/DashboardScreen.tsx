@@ -7,6 +7,7 @@ import {
     TouchableOpacity,
     ScrollView,
     Dimensions,
+    Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -88,12 +89,41 @@ const DashboardScreen = ({ navigation }: { navigation: any }) => {
                     contentContainerStyle={styles.paymentsContainer}
                 >
                     {UPCOMING_PAYMENTS.map((item) => (
-                        <View key={item.id} style={[styles.paymentCard, { backgroundColor: item.bg }]}>
+                        <TouchableOpacity
+                            key={item.id}
+                            style={[styles.paymentCard, { backgroundColor: item.bg }]}
+                            activeOpacity={0.9}
+                            onPress={() => {
+                                Alert.alert(item.name, 'Payment details', [
+                                    { text: 'Cancel', style: 'cancel' },
+                                    { text: 'Pay Now', onPress: () => console.log('Pay Now') }
+                                ]);
+                            }}
+                        >
                             <View style={styles.paymentHeader}>
-                                <View style={styles.paymentIcon}>
+                                <View style={[
+                                    styles.paymentIcon,
+                                    { backgroundColor: item.bg === '#F3F4F6' ? '#FFFFFF' : 'rgba(255,255,255,0.2)' }
+                                ]}>
                                     <Icon name={item.icon} size={24} color={item.bg === '#F3F4F6' ? '#000' : '#fff'} />
                                 </View>
-                                <Icon name="ellipsis-vertical" size={20} color={item.bg === '#F3F4F6' ? '#000' : '#fff'} />
+                                <TouchableOpacity
+                                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                                    onPress={() => {
+                                        Alert.alert(
+                                            'Payment Options',
+                                            `Manage ${item.name}`,
+                                            [
+                                                { text: 'Pay Now', onPress: () => console.log('Paid') },
+                                                { text: 'Edit', onPress: () => console.log('Edit') },
+                                                { text: 'Delete', style: 'destructive', onPress: () => console.log('Delete') },
+                                                { text: 'Cancel', style: 'cancel' }
+                                            ]
+                                        );
+                                    }}
+                                >
+                                    <Icon name="ellipsis-vertical" size={20} color={item.bg === '#F3F4F6' ? '#000' : '#fff'} />
+                                </TouchableOpacity>
                             </View>
                             <View style={{ marginTop: 16 }}>
                                 <Text style={[styles.paymentName, { color: item.bg === '#F3F4F6' ? '#000' : '#fff' }]}>{item.name}</Text>
@@ -103,7 +133,7 @@ const DashboardScreen = ({ navigation }: { navigation: any }) => {
                                 </View>
                                 <Text style={[styles.paymentDays, { color: item.bg === '#F3F4F6' ? '#000' : '#fff' }]}>{item.days}</Text>
                             </View>
-                        </View>
+                        </TouchableOpacity>
                     ))}
                 </ScrollView>
 
