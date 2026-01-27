@@ -7,119 +7,185 @@ import {
     ScrollView,
     Image,
     Switch,
+    useColorScheme,
+    Alert,
+    Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { updateUserTheme } from '../services/auth';
 
-const ProfileScreen = ({ navigation, onLogout }: { navigation: any; onLogout: () => void }) => {
+interface User {
+    email: string;
+    name?: string;
+    photo?: string;
+    id?: string;
+    saved?: string;
+    goals?: number;
+    theme?: 'light' | 'dark' | 'system';
+}
+
+const ProfileScreen = ({ navigation, onLogout, user }: { navigation: any; onLogout: () => void; user: User | null }) => {
+    const systemScheme = useColorScheme();
+    // Use user preference if available, otherwise default to system scheme
+    const [isDarkMode, setIsDarkMode] = React.useState(
+        user?.theme ? user.theme === 'dark' : systemScheme === 'dark'
+    );
+
+    const toggleTheme = async (value: boolean) => {
+        setIsDarkMode(value);
+        const newTheme = value ? 'dark' : 'light';
+        if (user?.email) {
+            await updateUserTheme(user.email, newTheme);
+        }
+    };
+
+    const handleLogout = () => {
+        const confirmLogout = () => onLogout();
+
+        if (Platform.OS === 'web') {
+            if (window.confirm('Are you sure you want to log out?')) {
+                confirmLogout();
+            }
+        } else {
+            Alert.alert(
+                'Log Out',
+                'Are you sure you want to log out?',
+                [
+                    { text: 'Cancel', style: 'cancel' },
+                    { text: 'Log Out', style: 'destructive', onPress: confirmLogout }
+                ]
+            );
+        }
+    };
+
+    const themeStyles = isDarkMode ? darkStyles : lightStyles;
+    const bgStyle = { backgroundColor: isDarkMode ? '#111827' : '#F9FAFB' };
+    const textStyle = { color: isDarkMode ? '#F9FAFB' : '#1F2937' };
+    const subTextStyle = { color: isDarkMode ? '#9CA3AF' : '#6B7280' };
+    const cardStyle = { backgroundColor: isDarkMode ? '#1F2937' : '#fff' };
+    const iconColor = isDarkMode ? '#F9FAFB' : '#1F2937';
+
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={[styles.container, bgStyle]}>
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <Icon name="chevron-back" size={24} color="#1F2937" />
+                <TouchableOpacity
+                    onPress={() => {
+                        if (navigation.canGoBack()) {
+                            navigation.goBack();
+                        } else {
+                            navigation.reset({
+                                index: 0,
+                                routes: [{ name: 'Main' }],
+                            });
+                        }
+                    }}
+                    style={[styles.backButton, cardStyle]}
+                >
+                    <Icon name="chevron-back" size={24} color={iconColor} />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>My Profile</Text>
-                <TouchableOpacity style={styles.settingsButton}>
-                    <Icon name="settings-outline" size={24} color="#1F2937" />
-                </TouchableOpacity>
+                <Text style={[styles.headerTitle, textStyle]}>My Profile</Text>
+                <View style={{ width: 40 }} />
             </View>
 
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
                 {/* Profile Header */}
                 <View style={styles.profileInfo}>
                     <View style={styles.avatarContainer}>
-                        <Icon name="person" size={48} color="#8B5CF6" />
+                        {user?.photo ? (
+                            <Image
+                                source={{
+                                    uri: user.photo,
+                                    headers: { Referer: 'no-referrer' } // Fix for some Google Images
+                                }}
+                                style={{ width: 100, height: 100, borderRadius: 50 }}
+                            />
+                        ) : (
+                            <Icon name="person" size={48} color="#8B5CF6" />
+                        )}
                         <View style={styles.editBadge}>
                             <Icon name="pencil" size={12} color="#fff" />
                         </View>
                     </View>
-                    <Text style={styles.userName}>Apeksha Verma</Text>
-                    <Text style={styles.userEmail}>apeksha@example.com</Text>
+                    <Text style={[styles.userName, textStyle]}>{user?.name || 'User'}</Text>
+                    <Text style={[styles.userEmail, subTextStyle]}>{user?.email || 'No Email'}</Text>
                 </View>
 
                 {/* Stats Row */}
-                <View style={styles.statsCard}>
+                <View style={[styles.statsCard, cardStyle]}>
                     <View style={styles.statItem}>
-                        <Text style={styles.statValue}>₹15k</Text>
+                        {user?.saved ? (
+                            <Text style={[styles.statValue, textStyle]}>{user.saved}</Text>
+                        ) : (
+                            <Text style={[styles.statValue, { fontSize: 14, color: '#FF7043' }]}>Not Set</Text>
+                        )}
                         <Text style={styles.statLabel}>Saved</Text>
                     </View>
                     <View style={styles.divider} />
-                    <View style={styles.statItem}>
-                        <Text style={styles.statValue}>12</Text>
+                    <TouchableOpacity
+                        style={styles.statItem}
+                        onPress={() => navigation.navigate('Main', { screen: 'Goals' })}
+                    >
+                        {user?.goals ? (
+                            <Text style={[styles.statValue, textStyle]}>{user.goals}</Text>
+                        ) : (
+                            <Text style={[styles.statValue, { fontSize: 14, color: '#FF7043' }]}>Not Set</Text>
+                        )}
                         <Text style={styles.statLabel}>Goals</Text>
-                    </View>
+                    </TouchableOpacity>
                     <View style={styles.divider} />
                     <View style={styles.statItem}>
-                        <Text style={styles.statValue}>4.8</Text>
+                        <Text style={[styles.statValue, textStyle]}>4.8</Text>
                         <Text style={styles.statLabel}>Rating</Text>
                     </View>
                 </View>
 
                 {/* Account Section */}
-                <Text style={styles.sectionHeader}>Account</Text>
-                <View style={styles.menuContainer}>
-                    <TouchableOpacity style={styles.menuItem}>
-                        <View style={styles.menuIconBox}>
-                            <Icon name="person-outline" size={20} color="#1F2937" />
-                        </View>
-                        <Text style={styles.menuText}>Edit Profile</Text>
-                        <Icon name="chevron-forward" size={20} color="#9CA3AF" />
-                    </TouchableOpacity>
-                    <View style={styles.menuDivider} />
+                <Text style={[styles.sectionHeader, textStyle]}>Account</Text>
+                <View style={[styles.menuContainer, cardStyle]}>
+
 
                     <TouchableOpacity style={styles.menuItem}>
-                        <View style={styles.menuIconBox}>
-                            <Icon name="notifications-outline" size={20} color="#1F2937" />
+                        <View style={[styles.menuIconBox, { backgroundColor: isDarkMode ? '#374151' : '#F9FAFB' }]}>
+                            <Icon name="lock-closed-outline" size={20} color={iconColor} />
                         </View>
-                        <Text style={styles.menuText}>Notifications</Text>
-                        <Icon name="chevron-forward" size={20} color="#9CA3AF" />
-                    </TouchableOpacity>
-                    <View style={styles.menuDivider} />
-
-                    <TouchableOpacity style={styles.menuItem}>
-                        <View style={styles.menuIconBox}>
-                            <Icon name="lock-closed-outline" size={20} color="#1F2937" />
-                        </View>
-                        <Text style={styles.menuText}>Security</Text>
+                        <Text style={[styles.menuText, textStyle]}>Security</Text>
                         <Icon name="chevron-forward" size={20} color="#9CA3AF" />
                     </TouchableOpacity>
                 </View>
 
                 {/* Preferences Section */}
-                <Text style={styles.sectionHeader}>Preferences</Text>
-                <View style={styles.menuContainer}>
-                    <TouchableOpacity style={styles.menuItem}>
-                        <View style={styles.menuIconBox}>
-                            <Icon name="language-outline" size={20} color="#1F2937" />
-                        </View>
-                        <Text style={styles.menuText}>Language</Text>
-                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            <Text style={styles.menuValue}>English</Text>
-                            <Icon name="chevron-forward" size={20} color="#9CA3AF" />
-                        </View>
-                    </TouchableOpacity>
-                    <View style={styles.menuDivider} />
+                <Text style={[styles.sectionHeader, textStyle]}>Preferences</Text>
+                <View style={[styles.menuContainer, cardStyle]}>
+
 
                     <View style={styles.menuItem}>
-                        <View style={styles.menuIconBox}>
-                            <Icon name="moon-outline" size={20} color="#1F2937" />
+                        <View style={[styles.menuIconBox, { backgroundColor: isDarkMode ? '#374151' : '#F9FAFB' }]}>
+                            <Icon name="moon-outline" size={20} color={iconColor} />
                         </View>
-                        <Text style={styles.menuText}>Dark Mode</Text>
-                        <Switch trackColor={{ false: "#767577", true: "#8B5CF6" }} />
+                        <Text style={[styles.menuText, textStyle]}>Dark Mode</Text>
+                        <Switch
+                            trackColor={{ false: "#767577", true: "#8B5CF6" }}
+                            value={isDarkMode}
+                            onValueChange={toggleTheme}
+                        />
                     </View>
                 </View>
 
                 {/* Logout Button */}
-                <TouchableOpacity style={styles.logoutButton} onPress={onLogout}>
+                <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
                     <Icon name="log-out-outline" size={20} color="#EF4444" />
                     <Text style={styles.logoutText}>Log Out</Text>
                 </TouchableOpacity>
 
-                <View style={{ height: 100 }} />
+                <View style={{ height: 40 }} />
             </ScrollView>
         </SafeAreaView>
     );
 };
+
+const lightStyles = StyleSheet.create({});
+const darkStyles = StyleSheet.create({});
 
 const styles = StyleSheet.create({
     container: {

@@ -92,6 +92,10 @@ export default defineConfig({
             '@react-native-async-storage/async-storage': '/Users/pranavkatiyar/Documents/FULLSTACK/expensio/frontend/src/mocks/async-storage.ts',
             // Mock for codegenNativeComponent used by react-native-safe-area-context
             'react-native-web/Libraries/Utilities/codegenNativeComponent': '/Users/pranavkatiyar/Documents/FULLSTACK/expensio/frontend/src/mocks/codegenNativeComponent.ts',
+            // Mock gesture handler (Removed to enable swipe actions)
+            // 'react-native-gesture-handler': '/Users/pranavkatiyar/Documents/FULLSTACK/expensio/frontend/src/mocks/gesture-handler.ts',
+            // Mock date picker
+            'react-native-date-picker': '/Users/pranavkatiyar/Documents/FULLSTACK/expensio/frontend/src/mocks/date-picker.tsx',
         },
     },
 
@@ -122,6 +126,13 @@ export default defineConfig({
             transformMixedEsModules: true,
         },
         rollupOptions: {
+            onwarn(warning, warn) {
+                // Ignore "use client" and "worklet" directive warnings
+                if (warning.code === 'MODULE_LEVEL_DIRECTIVE' && warning.message.includes('"worklet"')) {
+                    return;
+                }
+                warn(warning);
+            },
             output: {
                 manualChunks: undefined,
             },
@@ -132,5 +143,7 @@ export default defineConfig({
     },
     define: {
         global: 'window',
+        __DEV__: JSON.stringify(false),
+        'process.env.NODE_ENV': JSON.stringify('production'),
     },
 });
