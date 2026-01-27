@@ -18,35 +18,7 @@ const GoalsScreen = ({ navigation }: { navigation: any }) => {
     const [modalVisible, setModalVisible] = useState(false);
 
     // Mock Data based on user request and image style
-    const [goals, setGoals] = useState([
-        {
-            id: '1',
-            title: 'Buy iPhone 17',
-            targetAmount: 120000,
-            savedAmount: 45000,
-            deadline: '16th July',
-            color: '#FF7043', // Red/Orange from image
-            icon: 'phone-portrait'
-        },
-        {
-            id: '2',
-            title: 'Goa Trip',
-            targetAmount: 50000,
-            savedAmount: 35000,
-            deadline: '20th Apr',
-            color: '#8B5CF6', // Purple/Blue from image
-            icon: 'airplane'
-        },
-        {
-            id: '3',
-            title: 'Emergency Fund',
-            targetAmount: 100000,
-            savedAmount: 80000,
-            deadline: 'Dec 2026',
-            color: '#10B981', // Green
-            icon: 'shield-checkmark'
-        },
-    ]);
+    const [goals, setGoals] = useState<any[]>([]);
 
     const calculateProgress = (saved: number, target: number) => {
         return (saved / target) * 100;
@@ -65,39 +37,56 @@ const GoalsScreen = ({ navigation }: { navigation: any }) => {
 
                 {/* Featured / Active Goals */}
                 <Text style={styles.sectionTitle}>Active Goals</Text>
-                <View style={styles.gridContainer}>
-                    {goals.map((goal) => {
-                        const progress = calculateProgress(goal.savedAmount, goal.targetAmount);
-                        return (
-                            <TouchableOpacity key={goal.id} style={[styles.goalCard, { backgroundColor: goal.color }]}>
-                                <View style={styles.cardHeader}>
-                                    <View style={styles.iconCircle}>
-                                        <Icon name={goal.icon} size={20} color={goal.color} />
+
+                {goals.length === 0 ? (
+                    <View style={styles.emptyStateContainer}>
+                        <View style={styles.emptyIconCircle}>
+                            <Icon name="trophy-outline" size={40} color="#8B5CF6" />
+                        </View>
+                        <Text style={styles.emptyTitle}>No Goals Yet</Text>
+                        <Text style={styles.emptySubtitle}>Create a goal to start saving for your dreams.</Text>
+                        <TouchableOpacity
+                            style={styles.createGoalButton}
+                            onPress={() => setModalVisible(true)}
+                        >
+                            <Text style={styles.createGoalButtonText}>Create Your First Goal</Text>
+                        </TouchableOpacity>
+                    </View>
+                ) : (
+                    <View style={styles.gridContainer}>
+                        {goals.map((goal) => {
+                            const progress = calculateProgress(goal.savedAmount, goal.targetAmount);
+                            return (
+                                <TouchableOpacity key={goal.id} style={[styles.goalCard, { backgroundColor: goal.color }]}>
+                                    <View style={styles.cardHeader}>
+                                        <View style={styles.iconCircle}>
+                                            <Icon name={goal.icon} size={20} color={goal.color} />
+                                        </View>
+                                        <TouchableOpacity>
+                                            <Icon name="ellipsis-vertical" size={20} color="#fff" />
+                                        </TouchableOpacity>
                                     </View>
-                                    <TouchableOpacity>
-                                        <Icon name="ellipsis-vertical" size={20} color="#fff" />
-                                    </TouchableOpacity>
-                                </View>
 
-                                <View style={styles.cardBody}>
-                                    <Text style={styles.goalTitle}>{goal.title}</Text>
-                                    <Text style={styles.goalDeadline}>by {goal.deadline}</Text>
+                                    <View style={styles.cardBody}>
+                                        <Text style={styles.goalTitle}>{goal.title}</Text>
+                                        <Text style={styles.goalDeadline}>by {goal.deadline}</Text>
 
-                                    <View style={styles.amountRow}>
-                                        <Text style={styles.savedText}>₹{(goal.savedAmount / 1000).toFixed(0)}k</Text>
-                                        <Text style={styles.targetText}>/ ₹{(goal.targetAmount / 1000).toFixed(0)}k</Text>
+                                        <View style={styles.amountRow}>
+                                            <Text style={styles.savedText}>₹{(goal.savedAmount / 1000).toFixed(0)}k</Text>
+                                            <Text style={styles.targetText}>/ ₹{(goal.targetAmount / 1000).toFixed(0)}k</Text>
+                                        </View>
                                     </View>
-                                </View>
 
-                                {/* Progress Bar */}
-                                <View style={styles.progressContainer}>
-                                    <View style={[styles.progressBar, { width: `${progress}%` }]} />
-                                </View>
-                                <Text style={styles.progressText}>{progress.toFixed(0)}% completed</Text>
-                            </TouchableOpacity>
-                        );
-                    })}
-                </View>
+                                    {/* Progress Bar */}
+                                    <View style={styles.progressContainer}>
+                                        <View style={[styles.progressBar, { width: `${progress}%` }]} />
+                                    </View>
+                                    <Text style={styles.progressText}>{progress.toFixed(0)}% completed</Text>
+                                </TouchableOpacity>
+                            );
+                        })}
+                    </View>
+                )}
 
                 <View style={{ height: 100 }} />
             </ScrollView>
@@ -309,6 +298,49 @@ const styles = StyleSheet.create({
     },
     cancelText: {
         color: '#9CA3AF',
+        fontSize: 14,
+        fontWeight: '600',
+    },
+    // Empty State Styles
+    emptyStateContainer: {
+        alignItems: 'center',
+        paddingVertical: 40,
+        backgroundColor: '#fff',
+        borderRadius: 24,
+        borderWidth: 1,
+        borderColor: '#F3F4F6',
+        borderStyle: 'dashed',
+    },
+    emptyIconCircle: {
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        backgroundColor: '#F3F4F6',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 16,
+    },
+    emptyTitle: {
+        fontSize: 18,
+        fontWeight: '700',
+        color: '#1F2937',
+        marginBottom: 8,
+    },
+    emptySubtitle: {
+        fontSize: 14,
+        color: '#6B7280',
+        textAlign: 'center',
+        marginBottom: 24,
+        paddingHorizontal: 32,
+    },
+    createGoalButton: {
+        backgroundColor: '#8B5CF6',
+        paddingHorizontal: 20,
+        paddingVertical: 12,
+        borderRadius: 16,
+    },
+    createGoalButtonText: {
+        color: '#fff',
         fontSize: 14,
         fontWeight: '600',
     },
