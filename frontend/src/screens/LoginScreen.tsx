@@ -20,7 +20,7 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
-import { sendOtp, verifyOtp, googleLogin } from '../services/auth';
+import { sendOtp, verifyOtp, googleLogin, getUserProfile } from '../services/auth';
 import loginBackground from '../assets/login/login_background.png';
 import emailIcon from '../assets/icons/icon_email.png';
 
@@ -109,7 +109,19 @@ const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
             const idToken = userInfo.idToken || userInfo.data?.idToken;
             if (!idToken) throw new Error('No ID Token found');
             const data = await googleLogin(idToken) as { user?: { email?: string } };
-            onLoginSuccess(data.user || { email: 'Google User' });
+
+            // Fetch full profile from Firestore as requested
+            let userProfile = data.user;
+            if (data.user && data.user.email) {
+                try {
+                    const profile = await getUserProfile(data.user.email);
+                    userProfile = { ...userProfile, ...profile };
+                } catch (e) {
+                    console.error('Failed to fetch realtime profile, using basic info', e);
+                }
+            }
+
+            onLoginSuccess(userProfile || { email: 'Google User' });
         } catch (error) {
             console.error('Google Sign-In Error:', error);
             Alert.alert('Login Failed', 'Google Sign-In could not be completed.');

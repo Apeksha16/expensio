@@ -74,6 +74,29 @@ export const googleLogin = async (idToken: string) => {
     }
 };
 
+export const getUserProfile = async (email: string) => {
+    try {
+        // Construct user api url manually since API_URL points to /api/auth
+        const USER_API_URL = API_URL.replace('/auth', '/users');
+        const response = await fetch(`${USER_API_URL}/profile`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email }),
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch user profile');
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Get Profile Error:', error);
+        throw error;
+    }
+};
+
 export const logout = async () => {
     try {
         const response = await fetch(`${API_URL}/logout`, {
