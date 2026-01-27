@@ -13,19 +13,32 @@ import Icon from 'react-native-vector-icons/Ionicons';
 
 const { width } = Dimensions.get('window');
 
-const DashboardScreen = () => {
+// ... (mock data for payments)
+const UPCOMING_PAYMENTS = [
+    { id: '1', name: 'Adobe Premium', cost: '$30', sub: '/month', days: '2 days left', icon: 'logo-dropbox', color: '#7C3AED', bg: '#8B5CF6' }, // Approximate Adobe
+    { id: '2', name: 'Apple Premium', cost: '$30', sub: '/month', days: '2 days left', icon: 'logo-apple', color: '#000', bg: '#F3F4F6' },
+    { id: '3', name: 'Netflix', cost: '$15', sub: '/month', days: '5 days left', icon: 'logo-usd', color: '#E50914', bg: '#FEE2E2' },
+];
+
+const DashboardScreen = ({ navigation }: { navigation: any }) => {
     return (
         <SafeAreaView style={styles.container}>
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                 {/* Header */}
                 <View style={styles.header}>
-                    <View style={styles.profileContainer}>
+                    <TouchableOpacity
+                        style={styles.profileContainer}
+                        onPress={() => navigation.navigate('Profile')}
+                    >
                         <View style={styles.avatarPlaceholder}>
                             <Icon name="person" size={24} color="#fff" />
                         </View>
-                    </View>
+                    </TouchableOpacity>
                     <Text style={styles.headerTitle}>Home</Text>
-                    <TouchableOpacity style={styles.notificationButton}>
+                    <TouchableOpacity
+                        style={styles.notificationButton}
+                        onPress={() => navigation.navigate('Notifications')}
+                    >
                         <Icon name="notifications-outline" size={24} color="#1F2937" />
                         <View style={styles.badge} />
                     </TouchableOpacity>
@@ -33,9 +46,8 @@ const DashboardScreen = () => {
 
                 {/* Summary Card */}
                 <View style={styles.summaryCard}>
+                    {/* ... (existing summary card content) ... */}
                     <View style={styles.summaryRow}>
-
-                        {/* Legend / Stats */}
                         <View style={styles.statsColumn}>
                             <View style={styles.statItem}>
                                 <View style={[styles.indicator, { backgroundColor: '#8B5CF6' }]} />
@@ -54,9 +66,7 @@ const DashboardScreen = () => {
                             </View>
                         </View>
 
-                        {/* Ring Chart Visualization */}
                         <View style={styles.chartContainer}>
-                            {/* Simple CSS Hack for Ring Chart */}
                             <View style={styles.ringBackground} />
                             <View style={styles.ringProgress} />
                             <View style={styles.ringInner} />
@@ -64,8 +74,42 @@ const DashboardScreen = () => {
                     </View>
                 </View>
 
-                {/* Analytics Header */}
+                {/* Upcoming Payments Section */}
                 <View style={styles.sectionHeader}>
+                    <Text style={styles.sectionTitle}>Upcoming payment</Text>
+                    <TouchableOpacity onPress={() => navigation.navigate('Expenses')}>
+                        <Text style={styles.seeAllText}>See all</Text>
+                    </TouchableOpacity>
+                </View>
+
+                <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.paymentsContainer}
+                >
+                    {UPCOMING_PAYMENTS.map((item) => (
+                        <View key={item.id} style={[styles.paymentCard, { backgroundColor: item.bg }]}>
+                            <View style={styles.paymentHeader}>
+                                <View style={styles.paymentIcon}>
+                                    <Icon name={item.icon} size={24} color={item.bg === '#F3F4F6' ? '#000' : '#fff'} />
+                                </View>
+                                <Icon name="ellipsis-vertical" size={20} color={item.bg === '#F3F4F6' ? '#000' : '#fff'} />
+                            </View>
+                            <View style={{ marginTop: 16 }}>
+                                <Text style={[styles.paymentName, { color: item.bg === '#F3F4F6' ? '#000' : '#fff' }]}>{item.name}</Text>
+                                <View style={{ flexDirection: 'row', alignItems: 'baseline', marginTop: 4 }}>
+                                    <Text style={[styles.paymentCost, { color: item.bg === '#F3F4F6' ? '#000' : '#fff' }]}>{item.cost}</Text>
+                                    <Text style={[styles.paymentSub, { color: item.bg === '#F3F4F6' ? '#6B7280' : 'rgba(255,255,255,0.7)' }]}>{item.sub}</Text>
+                                </View>
+                                <Text style={[styles.paymentDays, { color: item.bg === '#F3F4F6' ? '#000' : '#fff' }]}>{item.days}</Text>
+                            </View>
+                        </View>
+                    ))}
+                </ScrollView>
+
+
+                {/* Analytics Header */}
+                <View style={[styles.sectionHeader, { marginTop: 32 }]}>
                     <Text style={styles.sectionTitle}>Analytics</Text>
                     <TouchableOpacity style={styles.yearButton}>
                         <Text style={styles.yearText}>Year - 2022</Text>
@@ -80,7 +124,7 @@ const DashboardScreen = () => {
                     </View>
                     <View style={styles.barChartContainer}>
                         {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'].map((month, index) => {
-                            const heights = [80, 120, 100, 160, 125, 140, 110]; // Mock heights
+                            const heights = [80, 120, 100, 160, 125, 140, 110];
                             const isActive = month === 'Apr';
                             return (
                                 <View key={month} style={styles.barColumn}>
@@ -100,6 +144,7 @@ const DashboardScreen = () => {
 };
 
 const styles = StyleSheet.create({
+    // ... (existing styles)
     container: {
         flex: 1,
         backgroundColor: '#fff',
@@ -113,14 +158,12 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         marginBottom: 32,
     },
-    profileContainer: {
-        // Mock profile
-    },
+    profileContainer: {},
     avatarPlaceholder: {
         width: 48,
         height: 48,
         borderRadius: 16,
-        backgroundColor: '#A78BFA', // Light Purple
+        backgroundColor: '#A78BFA',
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -153,7 +196,6 @@ const styles = StyleSheet.create({
         borderRadius: 32,
         padding: 24,
         marginBottom: 32,
-        // Shadow
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 10 },
         shadowOpacity: 0.05,
@@ -206,7 +248,7 @@ const styles = StyleSheet.create({
         borderWidth: 15,
         borderColor: '#8B5CF6',
         position: 'absolute',
-        opacity: 0.2, // Simulate the empty part or secondary color
+        opacity: 0.2,
     },
     ringProgress: {
         width: 140,
@@ -215,7 +257,7 @@ const styles = StyleSheet.create({
         borderWidth: 15,
         borderColor: '#FF7043',
         position: 'absolute',
-        borderLeftColor: 'transparent', // Hack to look like partial ring
+        borderLeftColor: 'transparent',
         borderBottomColor: 'transparent',
         transform: [{ rotate: '-45deg' }],
     },
@@ -236,6 +278,51 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: '700',
         color: '#1F2937',
+    },
+    seeAllText: {
+        fontSize: 14,
+        color: '#6B7280',
+    },
+    paymentsContainer: {
+        paddingRight: 24,
+        gap: 16,
+    },
+    paymentCard: {
+        width: 160,
+        padding: 20,
+        borderRadius: 24,
+        marginRight: 16,
+    },
+    paymentHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+    },
+    paymentIcon: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: 'rgba(255,255,255,0.2)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    paymentName: {
+        fontSize: 16,
+        fontWeight: '700',
+        marginBottom: 4,
+    },
+    paymentCost: {
+        fontSize: 20,
+        fontWeight: '700',
+    },
+    paymentSub: {
+        fontSize: 12,
+        marginLeft: 2,
+    },
+    paymentDays: {
+        fontSize: 12,
+        marginTop: 8,
+        fontWeight: '500',
     },
     yearButton: {
         backgroundColor: '#FF7043',

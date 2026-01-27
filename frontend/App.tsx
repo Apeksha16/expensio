@@ -4,6 +4,7 @@ import { View, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-nat
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 
@@ -16,6 +17,11 @@ import AddExpenseScreen from './src/screens/AddExpenseScreen';
 import SplitBillScreen from './src/screens/SplitBillScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import AddTransactionScreen from './src/screens/AddTransactionScreen';
+import NotificationsScreen from './src/screens/NotificationsScreen';
+import TotalExpenseScreen from './src/screens/TotalExpenseScreen';
+import GroupDetailsScreen from './src/screens/GroupDetailsScreen';
+import FriendDetailsScreen from './src/screens/FriendDetailsScreen';
+import GoalsScreen from './src/screens/GoalsScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -26,7 +32,7 @@ const Tab = createBottomTabNavigator();
 const CustomTabBarButton = ({ children, onPress }: any) => (
   <TouchableOpacity
     style={{
-      top: -20,
+      top: -30, // Raise FAB significantly to float halfway
       justifyContent: 'center',
       alignItems: 'center',
       ...styles.shadow,
@@ -34,101 +40,129 @@ const CustomTabBarButton = ({ children, onPress }: any) => (
     onPress={onPress}
   >
     <View style={{
-      width: 70,
-      height: 70,
-      borderRadius: 35,
+      width: 64,
+      height: 64,
+      borderRadius: 32,
       backgroundColor: '#FF7043',
-      // Orange gradient feel or solid
+      borderWidth: 4,
+      borderColor: '#fff', // White border to blend with tab bar
+      alignItems: 'center',
+      justifyContent: 'center',
     }}>
       {children}
     </View>
   </TouchableOpacity>
 );
 
+import QuickActionModal from './src/components/QuickActionModal';
+import { useNavigation } from '@react-navigation/native';
+
+// ... (keep CustomTabBarButton) ...
+
 const MainTabs = ({ onLogout }: { onLogout: () => void }) => {
+  const [modalVisible, setModalVisible] = useState(false);
+  const navigation = useNavigation<any>();
+
   return (
-    <Tab.Navigator
-      screenOptions={{
-        headerShown: false,
-        tabBarShowLabel: false,
-        tabBarStyle: {
-          position: 'absolute',
-          bottom: 25,
-          left: 20,
-          right: 20,
-          elevation: 0,
-          backgroundColor: '#ffffff',
-          borderRadius: 15,
-          height: 90,
-          ...styles.shadow,
-        },
-      }}
-    >
-      <Tab.Screen
-        name="Home"
-        component={DashboardScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-              <Icon name="home-outline" size={24} color={focused ? '#FF7043' : '#9CA3AF'} />
-              {focused && <View style={styles.activeDot} />}
-            </View>
-          ),
+    <>
+      <Tab.Navigator
+        screenOptions={{
+          headerShown: false,
+          tabBarShowLabel: false,
+          tabBarStyle: {
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            elevation: 10,
+            backgroundColor: '#ffffff',
+            height: 80,
+            borderTopLeftRadius: 20,
+            borderTopRightRadius: 20,
+            borderTopWidth: 0,
+            paddingBottom: 10,
+          },
         }}
-      />
-      <Tab.Screen
-        name="Expenses"
-        component={ExpensesScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-              <Icon name="card-outline" size={24} color={focused ? '#FF7043' : '#9CA3AF'} />
-              {focused && <View style={styles.activeDot} />}
-            </View>
-          ),
-        }}
-      />
+      >
+        <Tab.Screen
+          name="Home"
+          component={DashboardScreen}
+          options={{
+            tabBarIcon: ({ focused }) => (
+              <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="home" size={28} color={focused ? '#FF7043' : '#9CA3AF'} />
+                {focused && <View style={styles.activeDot} />}
+              </View>
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="Expenses"
+          component={ExpensesScreen}
+          options={{
+            tabBarIcon: ({ focused }) => (
+              <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="stats-chart" size={28} color={focused ? '#FF7043' : '#9CA3AF'} />
+                {focused && <View style={styles.activeDot} />}
+              </View>
+            ),
+          }}
+        />
 
-      {/* FAB Button - Opens Add Expense */}
-      <Tab.Screen
-        name="Add"
-        component={AddExpenseScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <Icon name="add" size={30} color="#fff" />
-          ),
-          tabBarButton: (props) => (
-            <CustomTabBarButton {...props} />
-          ),
-          tabBarStyle: { display: 'none' } // Hide tab bar on Add Screen if preferred, or modal
-        }}
-      />
+        {/* FAB Button - Opens Quick Action Modal */}
+        <Tab.Screen
+          name="Add"
+          component={View} // Dummy component
+          listeners={{
+            tabPress: (e) => {
+              e.preventDefault(); // Prevent navigation
+              setModalVisible(true);
+            },
+          }}
+          options={{
+            tabBarIcon: ({ focused }) => (
+              <Icon name="add" size={32} color="#fff" />
+            ),
+            tabBarButton: (props) => (
+              <CustomTabBarButton {...props} onPress={() => setModalVisible(true)} />
+            ),
+            tabBarStyle: { display: 'none' }
+          }}
+        />
 
-      <Tab.Screen
-        name="Split"
-        component={SplitBillScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-              <Icon name="calendar-outline" size={24} color={focused ? '#FF7043' : '#9CA3AF'} />
-              {focused && <View style={styles.activeDot} />}
-            </View>
-          ),
-        }}
+        <Tab.Screen
+          name="Split"
+          component={SplitBillScreen} // This serves as the 'Friends' tab
+          options={{
+            tabBarIcon: ({ focused }) => (
+              <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="people-outline" size={28} color={focused ? '#FF7043' : '#9CA3AF'} />
+                {focused && <View style={styles.activeDot} />}
+              </View>
+            ),
+          }}
+        />
+
+        <Tab.Screen
+          name="Goals"
+          component={GoalsScreen}
+          options={{
+            tabBarIcon: ({ focused }) => (
+              <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="trophy-outline" size={26} color={focused ? '#FF7043' : '#9CA3AF'} />
+                {focused && <View style={styles.activeDot} />}
+              </View>
+            ),
+          }}
+        />
+      </Tab.Navigator>
+
+      <QuickActionModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        onNavigate={(screen) => navigation.navigate(screen)}
       />
-      <Tab.Screen
-        name="Profile"
-        children={(props) => <ProfileScreen {...props} onLogout={onLogout} />}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-              <Icon name="settings-outline" size={24} color={focused ? '#FF7043' : '#9CA3AF'} />
-              {focused && <View style={styles.activeDot} />}
-            </View>
-          ),
-        }}
-      />
-    </Tab.Navigator>
+    </>
   );
 }
 
@@ -148,7 +182,7 @@ function App() {
           setUser(JSON.parse(storedUser));
         }
         if (storedOnboarding) {
-          setHasOnboarded(true); // Assuming 'true' string or existence logic
+          setHasOnboarded(true);
         }
       } catch (e) {
         console.error('Failed to load storage', e);
@@ -174,8 +208,6 @@ function App() {
   const handleLogout = async () => {
     setUser(null);
     await AsyncStorage.removeItem('user');
-    // Optional: Keep onboarding state
-    // await AsyncStorage.removeItem('hasOnboarded'); 
   };
 
   if (loading) {
@@ -188,42 +220,71 @@ function App() {
 
   return (
     <SafeAreaProvider>
-      <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-
-
-          {/* Authentication Flow */}
-          {!user ? (
-            <>
-              {/* Only show Onboarding if not done */}
-              {!hasOnboarded && (
-                <Stack.Screen name="Onboarding">
-                  {(props) => <OnboardingScreen {...props} onComplete={handleOnboardingComplete} />}
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <NavigationContainer>
+          <Stack.Navigator screenOptions={{ headerShown: false }}>
+            {/* Authentication Flow */}
+            {!user ? (
+              <>
+                {/* Only show Onboarding if not done */}
+                {!hasOnboarded && (
+                  <Stack.Screen name="Onboarding">
+                    {(props) => <OnboardingScreen {...props} onComplete={handleOnboardingComplete} />}
+                  </Stack.Screen>
+                )}
+                <Stack.Screen name="Login">
+                  {(props) => <LoginScreen {...props} onLoginSuccess={handleLoginSuccess} />}
                 </Stack.Screen>
-              )}
-              <Stack.Screen name="Login">
-                {(props) => <LoginScreen {...props} onLoginSuccess={handleLoginSuccess} />}
-              </Stack.Screen>
-            </>
-          ) : (
-            /* Main App Flow */
-            <>
-              <Stack.Screen name="Main">
-                {() => <MainTabs onLogout={handleLogout} />}
-              </Stack.Screen>
-              <Stack.Screen
-                name="AddTransaction"
-                component={AddTransactionScreen}
-                options={{ presentation: 'modal' }}
-              />
-            </>
-          )}
-
-        </Stack.Navigator>
-      </NavigationContainer>
+              </>
+            ) : (
+              /* Main App Flow */
+              <>
+                <Stack.Screen name="Main">
+                  {() => <MainTabs onLogout={handleLogout} />}
+                </Stack.Screen>
+                <Stack.Screen
+                  name="AddTransaction"
+                  component={AddTransactionScreen}
+                  options={{ presentation: 'modal' }}
+                />
+                <Stack.Screen
+                  name="AddExpense"
+                  component={AddExpenseScreen}
+                  options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                  name="Notifications"
+                  component={NotificationsScreen}
+                  options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                  name="TotalExpense"
+                  component={TotalExpenseScreen}
+                  options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                  name="GroupDetails"
+                  component={GroupDetailsScreen}
+                  options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                  name="FriendDetails"
+                  component={FriendDetailsScreen}
+                  options={{ headerShown: false }}
+                />
+                <Stack.Screen name="Profile">
+                  {(props) => <ProfileScreen {...props} onLogout={handleLogout} />}
+                </Stack.Screen>
+              </>
+            )}
+          </Stack.Navigator>
+        </NavigationContainer>
+      </GestureHandlerRootView>
     </SafeAreaProvider>
   );
 }
+
+
 
 const styles = StyleSheet.create({
   shadow: {

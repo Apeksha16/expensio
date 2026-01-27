@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
+import DatePicker from 'react-native-date-picker';
 
 const { width } = Dimensions.get('window');
 
@@ -26,6 +27,15 @@ const AddExpenseScreen = ({ navigation }: { navigation: any }) => {
     const [amount, setAmount] = useState('');
     const [note, setNote] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('1');
+    const [date, setDate] = useState(new Date());
+    const [openDatePicker, setOpenDatePicker] = useState(false);
+
+    // Helper to format date label
+    const getDateLabel = () => {
+        const today = new Date();
+        if (date.toDateString() === today.toDateString()) return 'Today';
+        return date.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+    };
 
     return (
         <SafeAreaView style={styles.container}>
@@ -112,20 +122,45 @@ const AddExpenseScreen = ({ navigation }: { navigation: any }) => {
                 <View style={styles.noteContainer}>
                     <TextInput
                         style={styles.noteInput}
-                        placeholder="What was this for?"
+                        placeholder="Add a note... (e.g. Dinner with friends)"
                         placeholderTextColor="#9CA3AF"
                         value={note}
                         onChangeText={setNote}
                     />
                 </View>
 
+                {/* Date Picker Button */}
+                <View style={{ alignItems: 'center', marginTop: 24 }}>
+                    <TouchableOpacity
+                        style={styles.dateButton}
+                        onPress={() => setOpenDatePicker(true)}
+                    >
+                        <Icon name="calendar-outline" size={20} color="#1F2937" style={{ marginRight: 8 }} />
+                        <Text style={styles.dateButtonText}>{getDateLabel()}</Text>
+                    </TouchableOpacity>
+                </View>
+
                 <View style={{ height: 100 }} />
             </ScrollView>
+
+            <DatePicker
+                modal
+                open={openDatePicker}
+                date={date}
+                mode="date"
+                onConfirm={(date) => {
+                    setOpenDatePicker(false);
+                    setDate(date);
+                }}
+                onCancel={() => {
+                    setOpenDatePicker(false);
+                }}
+            />
 
             {/* Bottom Button */}
             <View style={styles.footer}>
                 <TouchableOpacity style={styles.saveButton}>
-                    <Text style={styles.saveButtonText}>Add Group Expense</Text>
+                    <Text style={styles.saveButtonText}>Save Expense</Text>
                 </TouchableOpacity>
             </View>
         </SafeAreaView>
@@ -267,6 +302,19 @@ const styles = StyleSheet.create({
         color: '#1F2937',
         textAlignVertical: 'top',
         height: '100%',
+    },
+    dateButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#F3F4F6',
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        borderRadius: 20,
+    },
+    dateButtonText: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#1F2937',
     },
     footer: {
         padding: 24,

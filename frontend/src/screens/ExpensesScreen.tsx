@@ -13,7 +13,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 
 const { width } = Dimensions.get('window');
 
-const ExpensesScreen = () => {
+const ExpensesScreen = ({ navigation }: { navigation: any }) => {
     const [selectedDate, setSelectedDate] = useState(24);
 
     const checkInOutData = [
@@ -104,7 +104,9 @@ const ExpensesScreen = () => {
 
                 <View style={styles.listHeader}>
                     <Text style={styles.sectionTitle}>Expenses</Text>
-                    <Text style={styles.viewAll}>View All</Text>
+                    <TouchableOpacity onPress={() => navigation.navigate('TotalExpense')}>
+                        <Text style={styles.viewAll}>View All</Text>
+                    </TouchableOpacity>
                 </View>
 
                 {/* Expenses List */}

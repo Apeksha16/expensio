@@ -53,7 +53,11 @@ const SplitBillScreen = ({ navigation }: { navigation: any }) => {
                 <Text style={styles.sectionTitle}>Your Groups</Text>
                 <View style={styles.groupsList}>
                     {groups.map(group => (
-                        <TouchableOpacity key={group.id} style={styles.groupCard}>
+                        <TouchableOpacity
+                            key={group.id}
+                            style={styles.groupCard}
+                            onPress={() => navigation.navigate('GroupDetails')}
+                        >
                             <View style={styles.groupIconPlaceholder}>
                                 {/* Mock Umbrella/Beach Icon */}
                                 <Icon name="briefcase" size={24} color="#FFA500" />
@@ -71,7 +75,11 @@ const SplitBillScreen = ({ navigation }: { navigation: any }) => {
                 <Text style={styles.sectionTitle}>Friends</Text>
                 <View style={styles.friendsList}>
                     {friends.map(friend => (
-                        <View key={friend.id} style={styles.friendCard}>
+                        <TouchableOpacity
+                            key={friend.id}
+                            style={styles.friendCard}
+                            onPress={() => navigation.navigate('FriendDetails')}
+                        >
                             <View style={[styles.avatarCircle, { backgroundColor: friend.color }]}>
                                 <Text style={styles.avatarInitial}>{friend.initial}</Text>
                             </View>
@@ -85,7 +93,7 @@ const SplitBillScreen = ({ navigation }: { navigation: any }) => {
                             >
                                 <Icon name="add" size={20} color="#1F2937" />
                             </TouchableOpacity>
-                        </View>
+                        </TouchableOpacity>
                     ))}
                 </View>
 
