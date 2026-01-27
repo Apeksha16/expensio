@@ -1,3 +1,4 @@
+
 const admin = require('firebase-admin');
 
 // In-memory OTP store (Use Redis for production)
@@ -118,10 +119,15 @@ exports.googleLogin = async (req, res) => {
             }
         }
 
+        // Save/Update user in Firestore
+        await admin.firestore().collection('users').doc(user.uid).set({
+            email,
+            name,
+            photoURL: picture,
+            lastLogin: admin.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+
         // Mint Custom Token for Firebase Auth on Client (if you were using it)
-        // OR just return the user object if purely API based.
-        // Since we are API based now, returning a custom token is still useful if we decide to re-integrate 
-        // or just to have a session token.
         const customToken = await admin.auth().createCustomToken(user.uid);
 
         res.json({ token: customToken, user: { email, picture, name } });

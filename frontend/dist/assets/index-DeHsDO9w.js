@@ -36888,6 +36888,25 @@ const googleLogin = async (idToken) => {
     throw error;
   }
 };
+const getUserProfile = async (email) => {
+  try {
+    const USER_API_URL = API_URL.replace("/auth", "/users");
+    const response = await fetch(`${USER_API_URL}/profile`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ email })
+    });
+    if (!response.ok) {
+      throw new Error("Failed to fetch user profile");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Get Profile Error:", error);
+    throw error;
+  }
+};
 const logout = async () => {
   try {
     const response = await fetch(`${API_URL}/logout`, {
@@ -37052,7 +37071,16 @@ const LoginScreen = ({ onLoginSuccess }) => {
       const idToken = userInfo.idToken || userInfo.data?.idToken;
       if (!idToken) throw new Error("No ID Token found");
       const data = await googleLogin(idToken);
-      onLoginSuccess(data.user || { email: "Google User" });
+      let userProfile = data.user;
+      if (data.user && data.user.email) {
+        try {
+          const profile = await getUserProfile(data.user.email);
+          userProfile = { ...userProfile, ...profile };
+        } catch (e) {
+          console.error("Failed to fetch realtime profile, using basic info", e);
+        }
+      }
+      onLoginSuccess(userProfile || { email: "Google User" });
     } catch (error) {
       console.error("Google Sign-In Error:", error);
     } finally {
