@@ -97,6 +97,28 @@ export const getUserProfile = async (email: string) => {
     }
 };
 
+export const updateUserTheme = async (email: string, theme: 'light' | 'dark' | 'system') => {
+    try {
+        const USER_API_URL = API_URL.replace('/auth', '/users');
+        const response = await fetch(`${USER_API_URL}/theme`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, theme }),
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to update user theme');
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Update Theme Error:', error);
+        throw error;
+    }
+};
+
 export const logout = async () => {
     try {
         const response = await fetch(`${API_URL}/logout`, {

@@ -202,6 +202,33 @@ const MainTabs = ({ onLogout }: { onLogout: () => void }) => {
   );
 }
 
+const linking = {
+  prefixes: ['expensio://', 'https://expensio.app'],
+  config: {
+    screens: {
+      Login: 'login',
+      Onboarding: 'onboarding',
+      Main: {
+        screens: {
+          Home: 'home',
+          Expenses: 'expenses',
+          Goals: 'goals',
+          Split: 'friends',
+        },
+      },
+      Profile: 'profile',
+      AddTransaction: 'add-transaction',
+      AddExpense: 'add-expense',
+      Notifications: 'notifications',
+      TotalExpense: 'total-expense',
+      GroupDetails: 'group/:id',
+      FriendDetails: 'friend/:id',
+      CreateGroup: 'create-group',
+      AddFriend: 'add-friend',
+    },
+  },
+};
+
 function App() {
   const [hasOnboarded, setHasOnboarded] = useState(false);
   const [user, setUser] = useState<User | null>(null);
@@ -259,7 +286,7 @@ function App() {
     <SafeAreaProvider>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <StatusBar barStyle="dark-content" />
-        <NavigationContainer>
+        <NavigationContainer linking={linking as any}>
           <Stack.Navigator screenOptions={{ headerShown: false }}>
             {/* Authentication Flow */}
             {!user ? (
@@ -321,7 +348,7 @@ function App() {
                   options={{ headerShown: false }}
                 />
                 <Stack.Screen name="Profile">
-                  {(props) => <ProfileScreen {...props} onLogout={handleLogout} />}
+                  {(props) => <ProfileScreen {...props} onLogout={handleLogout} user={user} />}
                 </Stack.Screen>
               </>
             )}

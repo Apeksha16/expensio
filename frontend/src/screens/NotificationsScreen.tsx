@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
-import Swipeable from 'react-native-gesture-handler/Swipeable';
+import { Swipeable } from 'react-native-gesture-handler';
 
 // Mock Data
 const INITIAL_NOTIFICATIONS = [
@@ -39,6 +39,99 @@ const INITIAL_NOTIFICATIONS = [
     },
 ];
 
+const NotificationItem = ({ item, onDelete, onRead }: { item: any, onDelete: (id: string) => void, onRead: (id: string) => void }) => {
+    const swipeableRef = React.useRef<Swipeable>(null);
+
+    const close = () => {
+        swipeableRef.current?.close();
+    };
+
+    const handleRead = () => {
+        onRead(item.id);
+        close();
+    };
+
+    const handleDelete = () => {
+        onDelete(item.id);
+        // No need to close if deleting, but good practice if animation is weird
+        close();
+    };
+
+    const renderRightActions = (progress: any, dragX: any) => {
+        const trans = dragX.interpolate({
+            inputRange: [-100, 0],
+            outputRange: [1, 0],
+            extrapolate: 'clamp',
+        });
+        return (
+            <TouchableOpacity onPress={handleDelete} style={styles.rightAction}>
+                <Animated.View style={[styles.actionIcon, { transform: [{ scale: trans }] }]}>
+                    <Icon name="trash-outline" size={24} color="#fff" />
+                    <Text style={styles.actionText}>Delete</Text>
+                </Animated.View>
+            </TouchableOpacity>
+        );
+    };
+
+    const renderLeftActions = (progress: any, dragX: any) => {
+        const trans = dragX.interpolate({
+            inputRange: [0, 100],
+            outputRange: [0, 1],
+            extrapolate: 'clamp',
+        });
+        return (
+            <TouchableOpacity onPress={handleRead} style={styles.leftAction}>
+                <Animated.View style={[styles.actionIcon, { transform: [{ scale: trans }] }]}>
+                    <Icon name="checkmark-done-outline" size={24} color="#fff" />
+                    <Text style={styles.actionText}>Read</Text>
+                </Animated.View>
+            </TouchableOpacity>
+        );
+    };
+
+    let iconName = 'notifications';
+    let iconColor = '#FF7043';
+    let bgColor = '#FFF3E0';
+
+    switch (item.type) {
+        case 'payment':
+            iconName = 'cash-outline';
+            iconColor = '#4CAF50';
+            bgColor = '#E8F5E9';
+            break;
+        case 'split':
+            iconName = 'people-outline';
+            iconColor = '#2196F3';
+            bgColor = '#E3F2FD';
+            break;
+        case 'reminder':
+            iconName = 'alert-circle-outline';
+            iconColor = '#FF9800';
+            bgColor = '#FFF3E0';
+            break;
+    }
+
+    return (
+        <Swipeable
+            ref={swipeableRef}
+            renderRightActions={renderRightActions}
+            renderLeftActions={renderLeftActions}
+        >
+            <View style={[styles.card, !item.read && styles.unreadCard]}>
+                <View style={[styles.iconContainer, { backgroundColor: bgColor }]}>
+                    <Icon name={iconName} size={24} color={iconColor} />
+                </View>
+                <View style={styles.textContainer}>
+                    <Text style={styles.title}>{item.title}</Text>
+                    <Text style={styles.message}>{item.message}</Text>
+                    <Text style={styles.time}>{item.time}</Text>
+                </View>
+                {!item.read && <View style={styles.dot} />}
+            </View>
+        </Swipeable>
+    );
+};
+
 const NotificationsScreen = ({ navigation }: { navigation: any }) => {
     const [notifications, setNotifications] = useState(INITIAL_NOTIFICATIONS);
 
@@ -48,81 +141,6 @@ const NotificationsScreen = ({ navigation }: { navigation: any }) => {
 
     const markAsRead = (id: string) => {
         setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
-    };
-
-    const renderRightActions = (progress: any, dragX: any, id: string) => {
-        const trans = dragX.interpolate({
-            inputRange: [-100, 0],
-            outputRange: [1, 0],
-            extrapolate: 'clamp',
-        });
-        return (
-            <TouchableOpacity onPress={() => deleteNotification(id)} style={styles.rightAction}>
-                <Animated.View style={[styles.actionIcon, { transform: [{ scale: trans }] }]}>
-                    <Icon name="trash-outline" size={24} color="#fff" />
-                    <Text style={styles.actionText}>Delete</Text>
-                </Animated.View>
-            </TouchableOpacity>
-        );
-    };
-
-    const renderLeftActions = (progress: any, dragX: any, id: string) => {
-        const trans = dragX.interpolate({
-            inputRange: [0, 100],
-            outputRange: [0, 1],
-            extrapolate: 'clamp',
-        });
-        return (
-            <TouchableOpacity onPress={() => markAsRead(id)} style={styles.leftAction}>
-                <Animated.View style={[styles.actionIcon, { transform: [{ scale: trans }] }]}>
-                    <Icon name="checkmark-done-outline" size={24} color="#fff" />
-                    <Text style={styles.actionText}>Read</Text>
-                </Animated.View>
-            </TouchableOpacity>
-        );
-    };
-
-    const renderItem = ({ item }: { item: any }) => {
-        let iconName = 'notifications';
-        let iconColor = '#FF7043';
-        let bgColor = '#FFF3E0';
-
-        switch (item.type) {
-            case 'payment':
-                iconName = 'cash-outline';
-                iconColor = '#4CAF50';
-                bgColor = '#E8F5E9';
-                break;
-            case 'split':
-                iconName = 'people-outline';
-                iconColor = '#2196F3';
-                bgColor = '#E3F2FD';
-                break;
-            case 'reminder':
-                iconName = 'alert-circle-outline';
-                iconColor = '#FF9800';
-                bgColor = '#FFF3E0';
-                break;
-        }
-
-        return (
-            <Swipeable
-                renderRightActions={(progress, dragX) => renderRightActions(progress, dragX, item.id)}
-                renderLeftActions={(progress, dragX) => renderLeftActions(progress, dragX, item.id)}
-            >
-                <View style={[styles.card, !item.read && styles.unreadCard]}>
-                    <View style={[styles.iconContainer, { backgroundColor: bgColor }]}>
-                        <Icon name={iconName} size={24} color={iconColor} />
-                    </View>
-                    <View style={styles.textContainer}>
-                        <Text style={styles.title}>{item.title}</Text>
-                        <Text style={styles.message}>{item.message}</Text>
-                        <Text style={styles.time}>{item.time}</Text>
-                    </View>
-                    {!item.read && <View style={styles.dot} />}
-                </View>
-            </Swipeable>
-        );
     };
 
     return (
@@ -138,7 +156,13 @@ const NotificationsScreen = ({ navigation }: { navigation: any }) => {
             <FlatList
                 data={notifications}
                 keyExtractor={(item) => item.id}
-                renderItem={renderItem}
+                renderItem={({ item }) => (
+                    <NotificationItem
+                        item={item}
+                        onDelete={deleteNotification}
+                        onRead={markAsRead}
+                    />
+                )}
                 contentContainerStyle={styles.listContent}
                 showsVerticalScrollIndicator={false}
             />

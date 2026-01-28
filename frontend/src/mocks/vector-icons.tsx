@@ -1,7 +1,6 @@
-// Web-compatible mock for react-native-vector-icons
-// This avoids JSX processing issues during PWA build
 import React from 'react';
 import { Text, TextProps, StyleSheet } from 'react-native';
+import glyphMap from 'react-native-vector-icons/glyphmaps/Ionicons.json';
 
 interface IconProps extends TextProps {
     name: string;
@@ -9,55 +8,31 @@ interface IconProps extends TextProps {
     color?: string;
 }
 
-const Icon: React.FC<IconProps> = ({ name, size = 24, color = '#000', style, ...props }) => {
-    // Return a simple text-based icon for web
-    // You can enhance this to use actual icon fonts or SVGs
+const Icon: React.FC<IconProps> = ({ name, size = 30, color = '#000', style, ...props }) => {
+    let glyph = (glyphMap as any)[name];
+
+    // Handle outline/sharp variants if exact match not found (optional, but good for safety)
+    if (!glyph) {
+        // Fallback or log? For now, we'll try to just show nothing or a placeholder
+        // If it's a critical icon, it should exist in the map.
+        console.warn(`Icon ${name} not found in Ionicons glyphmap`);
+        return null;
+    }
+
+    const iconChar = String.fromCharCode(glyph);
+
     return (
-        <Text
-            style={[
-                styles.icon,
-                { fontSize: size, color },
-                style,
-            ]}
-            {...props}
-        >
-            {getIconChar(name)}
+        <Text style={[styles.icon, { fontSize: size, color }, style]} {...props}>
+            {iconChar}
         </Text>
     );
 };
 
-// Simple mapping of common icon names to unicode characters
-function getIconChar(name: string): string {
-    const iconMap: Record<string, string> = {
-        'arrow-back': '←',
-        'arrow-forward': '→',
-        'close': '×',
-        'checkmark': '✓',
-        'add': '+',
-        'remove': '−',
-        'menu': '☰',
-        'search': '🔍',
-        'heart': '♥',
-        'star': '★',
-        'home': '⌂',
-        'settings': '⚙',
-        'person': '👤',
-        'mail': '✉',
-        'lock': '🔒',
-    };
-    
-    // Try to find icon by name (case-insensitive)
-    const key = Object.keys(iconMap).find(k => 
-        name.toLowerCase().includes(k.toLowerCase())
-    );
-    
-    return key ? iconMap[key] : '•';
-}
-
 const styles = StyleSheet.create({
     icon: {
-        fontFamily: 'system-ui',
-        textAlign: 'center',
+        fontFamily: 'Ionicons',
+        fontWeight: 'normal',
+        fontStyle: 'normal',
     },
 });
 
