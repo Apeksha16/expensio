@@ -17,7 +17,9 @@ import {
     Dimensions,
     Image,
     ImageBackground,
+    ScrollView,
 } from 'react-native';
+import { useToast } from '../components/Toast';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { sendOtp, verifyOtp, googleLogin, getUserProfile } from '../services/auth';
@@ -41,6 +43,7 @@ const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
     const [otp, setOtp] = useState('');
     const [otpSent, setOtpSent] = useState(false);
     const [loading, setLoading] = useState(false);
+    const { showToast } = useToast();
 
     // Animation Values
     const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -121,7 +124,11 @@ const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
                 }
             }
 
-            onLoginSuccess(userProfile || { email: 'Google User' });
+            showToast('Welcome back!', 'success');
+            // Small delay to let the toast appear before navigation switch
+            setTimeout(() => {
+                onLoginSuccess(userProfile || { email: 'Google User' });
+            }, 500);
         } catch (error) {
             console.error('Google Sign-In Error:', error);
             Alert.alert('Login Failed', 'Google Sign-In could not be completed.');
@@ -155,7 +162,10 @@ const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
             setLoading(true);
             const data = await verifyOtp(email, otp) as { token?: string };
             if (data && data.token) {
-                onLoginSuccess({ email });
+                showToast('Welcome back!', 'success');
+                setTimeout(() => {
+                    onLoginSuccess({ email });
+                }, 500);
             } else {
                 throw new Error('No token received');
             }

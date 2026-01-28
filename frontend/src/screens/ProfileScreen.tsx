@@ -1,4 +1,5 @@
 import React from 'react';
+import Header from '../components/Header';
 import {
     View,
     Text,
@@ -10,8 +11,10 @@ import {
     useColorScheme,
     Alert,
     Platform,
+    Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useToast } from '../components/Toast';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { updateUserTheme } from '../services/auth';
 
@@ -26,6 +29,7 @@ interface User {
 }
 
 const ProfileScreen = ({ navigation, onLogout, user }: { navigation: any; onLogout: () => void; user: User | null }) => {
+    const { showToast } = useToast();
     const systemScheme = useColorScheme();
     // Use user preference if available, otherwise default to system scheme
     const [isDarkMode, setIsDarkMode] = React.useState(
@@ -41,22 +45,21 @@ const ProfileScreen = ({ navigation, onLogout, user }: { navigation: any; onLogo
     };
 
     const handleLogout = () => {
-        const confirmLogout = () => onLogout();
-
-        if (Platform.OS === 'web') {
-            if (window.confirm('Are you sure you want to log out?')) {
-                confirmLogout();
-            }
-        } else {
-            Alert.alert(
-                'Log Out',
-                'Are you sure you want to log out?',
-                [
-                    { text: 'Cancel', style: 'cancel' },
-                    { text: 'Log Out', style: 'destructive', onPress: confirmLogout }
-                ]
-            );
-        }
+        Alert.alert(
+            "Logout",
+            "Are you sure you want to logout?",
+            [
+                { text: "Cancel", style: "cancel" },
+                {
+                    text: "Logout",
+                    style: 'destructive',
+                    onPress: () => {
+                        showToast('Logged out successfully', 'success');
+                        onLogout();
+                    }
+                }
+            ]
+        );
     };
 
     const themeStyles = isDarkMode ? darkStyles : lightStyles;
@@ -68,25 +71,20 @@ const ProfileScreen = ({ navigation, onLogout, user }: { navigation: any; onLogo
 
     return (
         <SafeAreaView style={[styles.container, bgStyle]}>
-            <View style={styles.header}>
-                <TouchableOpacity
-                    onPress={() => {
-                        if (navigation.canGoBack()) {
-                            navigation.goBack();
-                        } else {
-                            navigation.reset({
-                                index: 0,
-                                routes: [{ name: 'Main' }],
-                            });
-                        }
-                    }}
-                    style={[styles.backButton, cardStyle]}
-                >
-                    <Icon name="chevron-back" size={24} color={iconColor} />
-                </TouchableOpacity>
-                <Text style={[styles.headerTitle, textStyle]}>My Profile</Text>
-                <View style={{ width: 40 }} />
-            </View>
+            <Header
+                title="My Profile"
+                showBack={true}
+                onBackPress={() => {
+                    if (navigation.canGoBack()) {
+                        navigation.goBack();
+                    } else {
+                        navigation.reset({
+                            index: 0,
+                            routes: [{ name: 'Main' }],
+                        });
+                    }
+                }}
+            />
 
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
                 {/* Profile Header */}
@@ -145,7 +143,10 @@ const ProfileScreen = ({ navigation, onLogout, user }: { navigation: any; onLogo
                 <View style={[styles.menuContainer, cardStyle]}>
 
 
-                    <TouchableOpacity style={styles.menuItem}>
+                    <TouchableOpacity
+                        style={styles.menuItem}
+                        onPress={() => navigation.navigate('MPIN')}
+                    >
                         <View style={[styles.menuIconBox, { backgroundColor: isDarkMode ? '#374151' : '#F9FAFB' }]}>
                             <Icon name="lock-closed-outline" size={20} color={iconColor} />
                         </View>

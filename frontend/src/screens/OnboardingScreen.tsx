@@ -12,6 +12,7 @@ import {
   Animated,
   Easing,
 } from 'react-native';
+import Header from '../components/Header';
 import Icon from 'react-native-vector-icons/Ionicons';
 import RecommendsBadge from '../components/RecommendsBadge';
 import image1 from '../assets/onboarding/image1.png';
@@ -166,11 +167,13 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onComplete }) => {
       <StatusBar barStyle="dark-content" backgroundColor="#fff" />
 
       {/* Top Header: Skip Button */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={onComplete}>
-          <Text style={styles.skipText}>Skip</Text>
-        </TouchableOpacity>
-      </View>
+      <Header
+        rightAction={
+          <TouchableOpacity onPress={onComplete}>
+            <Text style={styles.skipText}>Skip</Text>
+          </TouchableOpacity>
+        }
+      />
 
       <FlatList
         ref={ref}

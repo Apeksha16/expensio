@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Icon from 'react-native-vector-icons/Ionicons';
 import {
     View,
     Text,
@@ -9,7 +10,7 @@ import {
     FlatList,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Icon from 'react-native-vector-icons/Ionicons';
+import Header from '../components/Header';
 
 const { width } = Dimensions.get('window');
 
@@ -26,21 +27,19 @@ const ExpensesScreen = ({ navigation }: { navigation: any }) => {
         { day: 'S', date: 26 },
     ];
 
-    const transactions = [
-        { id: '1', title: 'Food And Drinks', subtitle: 'Credit Card', amount: '₹2,486', date: 'April, 2022', budget: '₹3,000', percent: '75.78%', icon: 'fast-food' },
-        // ... more interactions
-    ];
+    const [transactions, setTransactions] = useState<any[]>([]); // Default empty for new user check
 
     return (
         <SafeAreaView style={styles.container}>
-            <View style={styles.header}>
-                <View style={styles.profileIconPlaceholder} />
-                <Text style={styles.headerTitle}>Expenses</Text>
-                <TouchableOpacity style={styles.notificationButton}>
-                    <Icon name="notifications-outline" size={24} color="#1F2937" />
-                    <View style={styles.badge} />
-                </TouchableOpacity>
-            </View>
+            <Header
+                title="Expenses"
+                rightAction={
+                    <TouchableOpacity style={styles.notificationButton}>
+                        <Icon name="notifications-outline" size={24} color="#1F2937" />
+                        <View style={styles.badge} />
+                    </TouchableOpacity>
+                }
+            />
 
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
 
@@ -78,11 +77,11 @@ const ExpensesScreen = ({ navigation }: { navigation: any }) => {
                             <Text style={styles.cardLabel}>Total Salary</Text>
                             <Icon name="ellipsis-vertical" size={16} color="#fff" style={{ opacity: 0.7 }} />
                         </View>
-                        <Text style={styles.cardAmount}>₹7,000.00</Text>
+                        <Text style={styles.cardAmount}>₹0.00</Text>
                         {/* Mock wifi symbol / decoration */}
                         <View style={styles.cardFooter}>
                             <Icon name="card-outline" size={24} color="rgba(255,255,255,0.5)" />
-                            <Text style={styles.bankText}>Bank Account ... 1965</Text>
+                            <Text style={styles.bankText}>Bank Account ... ----</Text>
                         </View>
                         <Icon name="wifi" size={100} color="rgba(255,255,255,0.1)" style={styles.bgIcon} />
                     </View>
@@ -93,10 +92,10 @@ const ExpensesScreen = ({ navigation }: { navigation: any }) => {
                             <Text style={styles.cardLabel}>Total Expense</Text>
                             <Icon name="ellipsis-vertical" size={16} color="#fff" style={{ opacity: 0.7 }} />
                         </View>
-                        <Text style={styles.cardAmount}>₹4,543.98</Text>
+                        <Text style={styles.cardAmount}>₹0.00</Text>
                         <View style={styles.cardFooter}>
                             <Icon name="card-outline" size={24} color="rgba(255,255,255,0.5)" />
-                            <Text style={styles.bankText}>Bank Account ... 1965</Text>
+                            <Text style={styles.bankText}>Bank Account ... ----</Text>
                         </View>
                         <Icon name="wifi" size={100} color="rgba(255,255,255,0.1)" style={styles.bgIcon} />
                     </View>
@@ -104,44 +103,62 @@ const ExpensesScreen = ({ navigation }: { navigation: any }) => {
 
                 <View style={styles.listHeader}>
                     <Text style={styles.sectionTitle}>Expenses</Text>
-                    <TouchableOpacity onPress={() => navigation.navigate('TotalExpense')}>
-                        <Text style={styles.viewAll}>View All</Text>
-                    </TouchableOpacity>
+                    {transactions.length > 0 && (
+                        <TouchableOpacity onPress={() => navigation.navigate('TotalExpense')}>
+                            <Text style={styles.viewAll}>View All</Text>
+                        </TouchableOpacity>
+                    )}
                 </View>
 
                 {/* Expenses List */}
                 <View>
-                    {transactions.map(item => (
-                        <View key={item.id} style={styles.transactionCard}>
-                            <View style={styles.transHeader}>
-                                <View style={styles.iconContainer}>
-                                    <Icon name={item.icon} size={24} color="#FF7043" />
-                                </View>
-                                <View style={styles.transInfo}>
-                                    <Text style={styles.transTitle}>{item.title}</Text>
-                                    <Text style={styles.transSubtitle}>{item.subtitle}</Text>
-                                </View>
-                                <Text style={styles.transDate}>{item.date}</Text>
+                    {transactions.length === 0 ? (
+                        <View style={styles.emptyStateContainer}>
+                            <View style={styles.emptyIconCircle}>
+                                <Icon name="receipt-outline" size={40} color="#FF7043" />
                             </View>
-
-                            <View style={styles.budgetRow}>
-                                <View>
-                                    <Text style={styles.budgetLabel}>Total Spend</Text>
-                                    <Text style={styles.budgetValue}>{item.amount}</Text>
-                                </View>
-                                <View>
-                                    <Text style={styles.budgetLabel}>Total Budget</Text>
-                                    <Text style={styles.budgetValue}>{item.budget}</Text>
-                                </View>
-                                <Text style={styles.percentText}>{item.percent}</Text>
-                            </View>
-
-                            {/* Progress Bar */}
-                            <View style={styles.progressContainer}>
-                                <View style={[styles.progressBar, { width: '75%' }]} />
-                            </View>
+                            <Text style={styles.emptyTitle}>No Expenses Yet</Text>
+                            <Text style={styles.emptySubtitle}>Track your daily spending here.</Text>
+                            <TouchableOpacity
+                                style={styles.addExpenseButton}
+                                onPress={() => navigation.navigate('AddTransaction')}
+                            >
+                                <Text style={styles.addExpenseButtonText}>Add Expense</Text>
+                            </TouchableOpacity>
                         </View>
-                    ))}
+                    ) : (
+                        transactions.map(item => (
+                            <View key={item.id} style={styles.transactionCard}>
+                                <View style={styles.transHeader}>
+                                    <View style={styles.iconContainer}>
+                                        <Icon name={item.icon} size={24} color="#FF7043" />
+                                    </View>
+                                    <View style={styles.transInfo}>
+                                        <Text style={styles.transTitle}>{item.title}</Text>
+                                        <Text style={styles.transSubtitle}>{item.subtitle}</Text>
+                                    </View>
+                                    <Text style={styles.transDate}>{item.date}</Text>
+                                </View>
+
+                                <View style={styles.budgetRow}>
+                                    <View>
+                                        <Text style={styles.budgetLabel}>Total Spend</Text>
+                                        <Text style={styles.budgetValue}>{item.amount}</Text>
+                                    </View>
+                                    <View>
+                                        <Text style={styles.budgetLabel}>Total Budget</Text>
+                                        <Text style={styles.budgetValue}>{item.budget}</Text>
+                                    </View>
+                                    <Text style={styles.percentText}>{item.percent}</Text>
+                                </View>
+
+                                {/* Progress Bar */}
+                                <View style={styles.progressContainer}>
+                                    <View style={[styles.progressBar, { width: '75%' }]} />
+                                </View>
+                            </View>
+                        ))
+                    )}
                 </View>
 
                 {/* Spacing for FAB */}
@@ -374,6 +391,49 @@ const styles = StyleSheet.create({
         height: '100%',
         backgroundColor: '#8B5CF6',
         borderRadius: 4,
+    },
+    // Empty State Styles
+    emptyStateContainer: {
+        alignItems: 'center',
+        paddingVertical: 40,
+        backgroundColor: '#fff',
+        borderRadius: 24,
+        borderWidth: 1,
+        borderColor: '#F3F4F6',
+        borderStyle: 'dashed',
+    },
+    emptyIconCircle: {
+        width: 72,
+        height: 72,
+        borderRadius: 36,
+        backgroundColor: '#FFF7ED', // Light Orange
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 16,
+    },
+    emptyTitle: {
+        fontSize: 18,
+        fontWeight: '700',
+        color: '#1F2937',
+        marginBottom: 8,
+    },
+    emptySubtitle: {
+        fontSize: 14,
+        color: '#6B7280',
+        textAlign: 'center',
+        marginBottom: 24,
+        paddingHorizontal: 32,
+    },
+    addExpenseButton: {
+        backgroundColor: '#FF7043',
+        paddingHorizontal: 20,
+        paddingVertical: 12,
+        borderRadius: 16,
+    },
+    addExpenseButtonText: {
+        color: '#fff',
+        fontSize: 14,
+        fontWeight: '600',
     },
 });
 

@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import Header from '../components/Header';
 import {
     View,
     Text,
@@ -26,15 +27,15 @@ const SplitBillScreen = ({ navigation }: { navigation: any }) => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <Icon name="chevron-back" size={24} color="#1F2937" />
-                </TouchableOpacity>
-                <Text style={styles.headerTitle}>Split Bill</Text>
-                <TouchableOpacity style={styles.searchButton}>
-                    <Icon name="search" size={24} color="#1F2937" />
-                </TouchableOpacity>
-            </View>
+            <Header
+                title="Split Bill"
+                showBack={true}
+                rightAction={
+                    <TouchableOpacity style={styles.searchButton}>
+                        <Icon name="search" size={24} color="#1F2937" />
+                    </TouchableOpacity>
+                }
+            />
 
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
                 {/* Create New Group Banner */}

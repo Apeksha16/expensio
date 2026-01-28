@@ -1,4 +1,5 @@
 import React from 'react';
+import Header from '../components/Header';
 import {
     View,
     Text,
@@ -20,15 +21,15 @@ const EXPENSES = [
 const GroupDetailsScreen = ({ navigation }: { navigation: any }) => {
     return (
         <SafeAreaView style={styles.container}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <Icon name="chevron-back" size={24} color="#1F2937" />
-                </TouchableOpacity>
-                <Text style={styles.headerTitle}>Goa Trip</Text>
-                <TouchableOpacity style={styles.settingsButton}>
-                    <Icon name="settings-outline" size={24} color="#1F2937" />
-                </TouchableOpacity>
-            </View>
+            <Header
+                title="Goa Trip"
+                showBack={true}
+                rightAction={
+                    <TouchableOpacity style={styles.settingsButton}>
+                        <Icon name="settings-outline" size={24} color="#1F2937" />
+                    </TouchableOpacity>
+                }
+            />
 
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
 

@@ -26,7 +26,9 @@ import FriendDetailsScreen from './src/screens/FriendDetailsScreen';
 import GoalsScreen from './src/screens/GoalsScreen';
 import CreateGroupScreen from './src/screens/CreateGroupScreen';
 import AddFriendScreen from './src/screens/AddFriendScreen';
+import MPINScreen from './src/screens/MPINScreen';
 import PWAInstallPrompt from './src/components/PWAInstallPrompt';
+import { ToastProvider } from './src/components/Toast';
 
 // Types
 interface User {
@@ -225,6 +227,7 @@ const linking = {
       FriendDetails: 'friend/:id',
       CreateGroup: 'create-group',
       AddFriend: 'add-friend',
+      MPIN: 'mpin',
     },
   },
 };
@@ -284,78 +287,85 @@ function App() {
 
   return (
     <SafeAreaProvider>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <StatusBar barStyle="dark-content" />
-        <NavigationContainer linking={linking as any}>
-          <Stack.Navigator screenOptions={{ headerShown: false }}>
-            {/* Authentication Flow */}
-            {!user ? (
-              <>
-                {/* Only show Onboarding if not done */}
-                {!hasOnboarded && (
-                  <Stack.Screen name="Onboarding">
-                    {(props) => <OnboardingScreen {...props} onComplete={handleOnboardingComplete} />}
+      <ToastProvider>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <StatusBar barStyle="dark-content" />
+          <NavigationContainer linking={linking as any}>
+            <Stack.Navigator screenOptions={{ headerShown: false }}>
+              {/* Authentication Flow */}
+              {!user ? (
+                <>
+                  {/* Only show Onboarding if not done */}
+                  {!hasOnboarded && (
+                    <Stack.Screen name="Onboarding">
+                      {(props) => <OnboardingScreen {...props} onComplete={handleOnboardingComplete} />}
+                    </Stack.Screen>
+                  )}
+                  <Stack.Screen name="Login">
+                    {(props) => <LoginScreen {...props} onLoginSuccess={handleLoginSuccess} />}
                   </Stack.Screen>
-                )}
-                <Stack.Screen name="Login">
-                  {(props) => <LoginScreen {...props} onLoginSuccess={handleLoginSuccess} />}
-                </Stack.Screen>
-              </>
-            ) : (
-              /* Main App Flow */
-              <>
-                <Stack.Screen name="Main">
-                  {() => <MainTabs onLogout={handleLogout} />}
-                </Stack.Screen>
-                <Stack.Screen
-                  name="AddTransaction"
-                  component={AddTransactionScreen}
-                  options={{ presentation: 'modal' }}
-                />
-                <Stack.Screen
-                  name="AddExpense"
-                  component={AddExpenseScreen}
-                  options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                  name="Notifications"
-                  component={NotificationsScreen}
-                  options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                  name="TotalExpense"
-                  component={TotalExpenseScreen}
-                  options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                  name="GroupDetails"
-                  component={GroupDetailsScreen}
-                  options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                  name="FriendDetails"
-                  component={FriendDetailsScreen}
-                  options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                  name="CreateGroup"
-                  component={CreateGroupScreen}
-                  options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                  name="AddFriend"
-                  component={AddFriendScreen}
-                  options={{ headerShown: false }}
-                />
-                <Stack.Screen name="Profile">
-                  {(props) => <ProfileScreen {...props} onLogout={handleLogout} user={user} />}
-                </Stack.Screen>
-              </>
-            )}
-          </Stack.Navigator>
-        </NavigationContainer>
-        {Platform.OS === 'web' && <PWAInstallPrompt />}
-      </GestureHandlerRootView>
+                </>
+              ) : (
+                /* Main App Flow */
+                <>
+                  <Stack.Screen name="Main">
+                    {() => <MainTabs onLogout={handleLogout} />}
+                  </Stack.Screen>
+                  <Stack.Screen
+                    name="AddTransaction"
+                    component={AddTransactionScreen}
+                    options={{ presentation: 'modal' }}
+                  />
+                  <Stack.Screen
+                    name="AddExpense"
+                    component={AddExpenseScreen}
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="Notifications"
+                    component={NotificationsScreen}
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="TotalExpense"
+                    component={TotalExpenseScreen}
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="GroupDetails"
+                    component={GroupDetailsScreen}
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="FriendDetails"
+                    component={FriendDetailsScreen}
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="CreateGroup"
+                    component={CreateGroupScreen}
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="AddFriend"
+                    component={AddFriendScreen}
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="MPIN"
+                    component={MPINScreen}
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen name="Profile">
+                    {(props) => <ProfileScreen {...props} onLogout={handleLogout} user={user} />}
+                  </Stack.Screen>
+                </>
+              )}
+            </Stack.Navigator>
+          </NavigationContainer>
+          {Platform.OS === 'web' && <PWAInstallPrompt />}
+        </GestureHandlerRootView>
+      </ToastProvider>
     </SafeAreaProvider>
   );
 }

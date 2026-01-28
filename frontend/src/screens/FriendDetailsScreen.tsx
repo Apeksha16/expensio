@@ -1,4 +1,5 @@
 import React from 'react';
+import Header from '../components/Header';
 import {
     View,
     Text,
@@ -17,20 +18,22 @@ const SHARED_EXPENSES = [
 const FriendDetailsScreen = ({ navigation }: { navigation: any }) => {
     return (
         <SafeAreaView style={styles.container}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <Icon name="chevron-back" size={24} color="#1F2937" />
-                </TouchableOpacity>
-                <View style={styles.profileHeader}>
-                    <View style={styles.avatar}>
-                        <Icon name="person" size={24} color="#fff" />
+            <Header
+                showBack={true}
+                title={
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                        <View style={styles.avatar}>
+                            <Icon name="person" size={20} color="#fff" />
+                        </View>
+                        <Text style={styles.headerTitle}>Rahul</Text>
                     </View>
-                    <Text style={styles.headerTitle}>Rahul</Text>
-                </View>
-                <TouchableOpacity style={styles.settingsButton}>
-                    <Icon name="ellipsis-vertical" size={24} color="#1F2937" />
-                </TouchableOpacity>
-            </View>
+                }
+                rightAction={
+                    <TouchableOpacity style={styles.settingsButton}>
+                        <Icon name="ellipsis-vertical" size={24} color="#1F2937" />
+                    </TouchableOpacity>
+                }
+            />
 
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
 

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Header from '../components/Header';
 import {
     View,
     Text,
@@ -25,24 +26,33 @@ const DashboardScreen = ({ navigation }: { navigation: any }) => {
         <SafeAreaView style={styles.container}>
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                 {/* Header */}
-                <View style={styles.header}>
-                    <TouchableOpacity
-                        style={styles.profileContainer}
-                        onPress={() => navigation.navigate('Profile')}
-                    >
-                        <View style={styles.avatarPlaceholder}>
-                            <Icon name="person" size={24} color="#fff" />
-                        </View>
-                    </TouchableOpacity>
-                    <Text style={styles.headerTitle}>Home</Text>
-                    <TouchableOpacity
-                        style={styles.notificationButton}
-                        onPress={() => navigation.navigate('Notifications')}
-                    >
-                        <Icon name="notifications-outline" size={24} color="#1F2937" />
-                        <View style={styles.badge} />
-                    </TouchableOpacity>
-                </View>
+                <Header
+                    alignment="left"
+                    leftStyle={{ width: 0 }}
+                    title={
+                        <TouchableOpacity
+                            style={styles.profileHeaderContent}
+                            onPress={() => navigation.navigate('Profile')}
+                        >
+                            <View style={styles.avatarPlaceholder}>
+                                <Icon name="person" size={20} color="#fff" />
+                            </View>
+                            <View>
+                                <Text style={styles.greeting}>Good Morning,</Text>
+                                <Text style={styles.username}>Apeksha</Text>
+                            </View>
+                        </TouchableOpacity>
+                    }
+                    rightAction={
+                        <TouchableOpacity
+                            style={styles.notificationButton}
+                            onPress={() => navigation.navigate('Notifications')}
+                        >
+                            <Icon name="notifications-outline" size={24} color="#1F2937" />
+                            <View style={styles.badge} />
+                        </TouchableOpacity>
+                    }
+                />
 
                 {/* Summary Card */}
                 <View style={styles.summaryCard}>
@@ -221,39 +231,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         marginBottom: 32,
     },
-    profileContainer: {},
-    avatarPlaceholder: {
-        width: 48,
-        height: 48,
-        borderRadius: 16,
-        backgroundColor: '#A78BFA',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    headerTitle: {
-        fontSize: 20,
-        fontWeight: '700',
-        color: '#1F2937',
-    },
-    notificationButton: {
-        width: 48,
-        height: 48,
-        borderRadius: 16,
-        backgroundColor: '#fff',
-        borderWidth: 1,
-        borderColor: '#E5E7EB',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    badge: {
-        position: 'absolute',
-        top: 12,
-        right: 14,
-        width: 8,
-        height: 8,
-        borderRadius: 4,
-        backgroundColor: '#EF4444',
-    },
+
     summaryCard: {
         backgroundColor: '#fff',
         borderRadius: 32,
@@ -440,6 +418,11 @@ const styles = StyleSheet.create({
         color: '#8B5CF6',
         fontWeight: '600',
     },
+    profileHeaderContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+    },
     // Empty State Styles
     emptySummaryContainer: {
         alignItems: 'center',
@@ -468,6 +451,44 @@ const styles = StyleSheet.create({
         marginBottom: 24,
         paddingHorizontal: 24,
         lineHeight: 20,
+    },
+    // New Header Styles
+    greeting: {
+        fontSize: 12,
+        color: '#6B7280',
+        fontWeight: '500',
+    },
+    username: {
+        fontSize: 16,
+        fontWeight: '700',
+        color: '#1F2937',
+    },
+    notificationButton: {
+        width: 48,
+        height: 48,
+        borderRadius: 16,
+        backgroundColor: '#fff',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    badge: {
+        width: 10,
+        height: 10,
+        borderRadius: 5,
+        backgroundColor: '#EF4444',
+        position: 'absolute',
+        top: 10,
+        right: 12,
+        borderWidth: 1.5,
+        borderColor: '#fff',
+    },
+    avatarPlaceholder: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        backgroundColor: '#8B5CF6',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     addFirstButton: {
         backgroundColor: '#8B5CF6', // Primary color

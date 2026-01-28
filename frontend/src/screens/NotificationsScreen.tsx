@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Header from '../components/Header';
 import {
     View,
     Text,
@@ -47,14 +48,19 @@ const NotificationItem = ({ item, onDelete, onRead }: { item: any, onDelete: (id
     };
 
     const handleRead = () => {
-        onRead(item.id);
         close();
+        // Wait for animation to finish
+        setTimeout(() => {
+            onRead(item.id);
+        }, 300);
     };
 
     const handleDelete = () => {
-        onDelete(item.id);
-        // No need to close if deleting, but good practice if animation is weird
         close();
+        // Wait for animation to finish before removing
+        setTimeout(() => {
+            onDelete(item.id);
+        }, 300);
     };
 
     const renderRightActions = (progress: any, dragX: any) => {
@@ -145,13 +151,10 @@ const NotificationsScreen = ({ navigation }: { navigation: any }) => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <Icon name="chevron-back" size={24} color="#1F2937" />
-                </TouchableOpacity>
-                <Text style={styles.headerTitle}>Notifications</Text>
-                <View style={{ width: 40 }} />
-            </View>
+            <Header
+                title="Notifications"
+                showBack={true}
+            />
 
             <FlatList
                 data={notifications}

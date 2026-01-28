@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Header from '../components/Header';
 import {
     View,
     Text,
@@ -26,12 +27,14 @@ const GoalsScreen = ({ navigation }: { navigation: any }) => {
 
     return (
         <SafeAreaView style={styles.container}>
-            <View style={styles.header}>
-                <Text style={styles.headerTitle}>Goals</Text>
-                <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.addButton}>
-                    <Icon name="add" size={24} color="#fff" />
-                </TouchableOpacity>
-            </View>
+            <Header
+                title="Goals"
+                rightAction={
+                    <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.addButton}>
+                        <Icon name="add" size={24} color="#fff" />
+                    </TouchableOpacity>
+                }
+            />
 
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
 

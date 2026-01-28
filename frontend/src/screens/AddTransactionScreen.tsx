@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Header from '../components/Header';
 import {
     View,
     Text,
@@ -9,6 +10,7 @@ import {
     Platform,
     ScrollView,
 } from 'react-native';
+import { useToast } from '../components/Toast';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 
@@ -17,10 +19,12 @@ const AddTransactionScreen = ({ navigation, route }: { navigation: any; route: a
     const [amount, setAmount] = useState('');
     const [note, setNote] = useState('');
     const [type, setType] = useState<'lent' | 'borrowed'>('lent'); // 'lent' to friend, 'borrowed' from friend
+    const { showToast } = useToast();
 
     const handleSave = () => {
         // Implement save logic here
         console.log(`Saved: You ${type} ${amount} to/from ${friendName}`);
+        showToast('Transaction Saved', 'success');
         navigation.goBack();
     };
 
@@ -30,13 +34,15 @@ const AddTransactionScreen = ({ navigation, route }: { navigation: any; route: a
                 behavior={Platform.OS === 'ios' ? 'padding' : undefined}
                 style={{ flex: 1 }}
             >
-                <View style={styles.header}>
-                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                        <Icon name="close" size={24} color="#1F2937" />
-                    </TouchableOpacity>
-                    <Text style={styles.headerTitle}>Add Transaction</Text>
-                    <View style={{ width: 40 }} />
-                </View>
+                <Header
+                    title="Add Transaction"
+                    alignment="center"
+                    leftAction={
+                        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                            <Icon name="close" size={24} color="#1F2937" />
+                        </TouchableOpacity>
+                    }
+                />
 
                 <ScrollView contentContainerStyle={styles.content}>
                     {/* Toggle Switch */}
