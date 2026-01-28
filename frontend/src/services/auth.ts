@@ -134,3 +134,26 @@ export const logout = async () => {
         return false;
     }
 };
+
+export const updateUserSalary = async (email: string, salary: string) => {
+    try {
+        const USER_API_URL = API_URL.replace('/auth', '/users');
+        const response = await fetch(`${USER_API_URL}/salary`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, salary }),
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Failed to update user salary: ${errorText}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Update Salary Error:', error);
+        throw error;
+    }
+};

@@ -16,6 +16,9 @@ import { useTransactions } from '../context/TransactionContext';
 import { useSubscriptions } from '../context/SubscriptionContext';
 import LinearGradient from 'react-native-linear-gradient';
 
+import { useTheme } from '../context/ThemeContext';
+import { useUser } from '../context/UserContext';
+
 const { width } = Dimensions.get('window');
 
 const DashboardScreen = ({ navigation }: { navigation: any }) => {
@@ -31,8 +34,11 @@ const DashboardScreen = ({ navigation }: { navigation: any }) => {
     // Derived value for selected month
     const selectedMonthValue = chartData[selectedMonthIndex]?.value || 0;
 
+    const { isDarkMode } = useTheme();
+    const { user } = useUser();
+
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={[styles.container, { backgroundColor: isDarkMode ? '#111827' : '#fff' }]}>
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                 {/* Header */}
                 <Header
@@ -44,33 +50,43 @@ const DashboardScreen = ({ navigation }: { navigation: any }) => {
                             onPress={() => navigation.navigate('Profile')}
                         >
                             <View style={styles.avatarPlaceholder}>
-                                <Icon name="person" size={20} color="#fff" />
+                                {user?.photoURL ? (
+                                    <Image
+                                        source={{
+                                            uri: user.photoURL,
+                                            headers: { Referer: 'no-referrer' }
+                                        }}
+                                        style={{ width: 44, height: 44, borderRadius: 22 }}
+                                    />
+                                ) : (
+                                    <Icon name="person" size={20} color="#fff" />
+                                )}
                             </View>
                             <View>
                                 <Text style={styles.greeting}>Good Morning,</Text>
-                                <Text style={styles.username}>Apeksha</Text>
+                                <Text style={[styles.username, { color: isDarkMode ? '#F9FAFB' : '#1F2937' }]}>{user?.name || 'User'}</Text>
                             </View>
                         </TouchableOpacity>
                     }
                     rightAction={
                         <TouchableOpacity
-                            style={styles.notificationButton}
+                            style={[styles.notificationButton, { backgroundColor: isDarkMode ? '#374151' : '#fff' }]}
                             onPress={() => navigation.navigate('Notifications')}
                         >
-                            <Icon name="notifications-outline" size={24} color="#1F2937" />
+                            <Icon name="notifications-outline" size={24} color={isDarkMode ? '#F9FAFB' : '#1F2937'} />
                             <View style={styles.badge} />
                         </TouchableOpacity>
                     }
                 />
 
                 {/* Summary Card */}
-                <View style={styles.summaryCard}>
-                    {!hasData ? (
+                <View style={[styles.summaryCard, { backgroundColor: isDarkMode ? '#1F2937' : '#fff', borderColor: isDarkMode ? '#374151' : '#F3F4F6' }]}>
+                    {!hasData && !user?.salary ? (
                         <View style={styles.emptySummaryContainer}>
                             <View style={styles.emptyIconContainer}>
                                 <Icon name="wallet-outline" size={40} color="#8B5CF6" />
                             </View>
-                            <Text style={styles.emptyTitle}>Welcome to eXpensio!</Text>
+                            <Text style={[styles.emptyTitle, { color: isDarkMode ? '#F9FAFB' : '#1F2937' }]}>Welcome to eXpensio!</Text>
                             <Text style={styles.emptySubtitle}>Start adding your expenses and income to see your financial summary here.</Text>
                             <TouchableOpacity
                                 style={styles.addFirstButton}
@@ -87,7 +103,9 @@ const DashboardScreen = ({ navigation }: { navigation: any }) => {
                                     <View style={[styles.indicator, { backgroundColor: '#8B5CF6' }]} />
                                     <View>
                                         <Text style={styles.statLabel}>Income</Text>
-                                        <Text style={styles.statValue}>₹{totalIncome.toLocaleString()}</Text>
+                                        <Text style={[styles.statValue, { color: isDarkMode ? '#F9FAFB' : '#1F2937' }]}>
+                                            {user?.salary ? `₹${user.salary}` : `₹${totalIncome.toLocaleString()}`}
+                                        </Text>
                                     </View>
                                 </View>
 
@@ -95,7 +113,7 @@ const DashboardScreen = ({ navigation }: { navigation: any }) => {
                                     <View style={[styles.indicator, { backgroundColor: '#FF7043' }]} />
                                     <View>
                                         <Text style={styles.statLabel}>Spent</Text>
-                                        <Text style={styles.statValue}>₹{totalExpense.toLocaleString()}</Text>
+                                        <Text style={[styles.statValue, { color: isDarkMode ? '#F9FAFB' : '#1F2937' }]}>₹{totalExpense.toLocaleString()}</Text>
                                     </View>
                                 </View>
                             </View>
@@ -103,7 +121,7 @@ const DashboardScreen = ({ navigation }: { navigation: any }) => {
                             <View style={styles.chartContainer}>
                                 <View style={styles.ringBackground} />
                                 <View style={styles.ringProgress} />
-                                <View style={styles.ringInner} />
+                                <View style={[styles.ringInner, { backgroundColor: isDarkMode ? '#1F2937' : '#fff' }]} />
                             </View>
                         </View>
                     )}
@@ -113,23 +131,23 @@ const DashboardScreen = ({ navigation }: { navigation: any }) => {
                 <View style={styles.analyticsSection}>
                     <View style={styles.analyticsHeaderRow}>
                         <View>
-                            <Text style={styles.analyticsTitle}>Spending Trends</Text>
+                            <Text style={[styles.analyticsTitle, { color: isDarkMode ? '#F9FAFB' : '#1F2937' }]}>Spending Trends</Text>
                             <Text style={styles.analyticsSubtitle}>
                                 {new Date(0, selectedMonthIndex).toLocaleString('default', { month: 'long' })} {selectedYear}
                             </Text>
                         </View>
                         <TouchableOpacity
-                            style={styles.yearPill}
+                            style={[styles.yearPill, { backgroundColor: isDarkMode ? '#374151' : '#F3F4F6' }]}
                             onPress={() => setShowYearDropdown(!showYearDropdown)}
                         >
-                            <Text style={styles.yearPillText}>{selectedYear}</Text>
+                            <Text style={[styles.yearPillText, { color: isDarkMode ? '#D1D5DB' : '#4B5563' }]}>{selectedYear}</Text>
                             <Icon name="chevron-down" size={12} color="#6B7280" />
                         </TouchableOpacity>
                     </View>
 
                     {/* Dropdown Menu */}
                     {showYearDropdown && (
-                        <View style={styles.dropdownMenu}>
+                        <View style={[styles.dropdownMenu, { backgroundColor: isDarkMode ? '#374151' : '#fff', borderColor: isDarkMode ? '#4B5563' : '#F3F4F6' }]}>
                             {[2026, 2025, 2024].map(year => (
                                 <TouchableOpacity
                                     key={year}
@@ -141,6 +159,7 @@ const DashboardScreen = ({ navigation }: { navigation: any }) => {
                                 >
                                     <Text style={[
                                         styles.dropdownItemText,
+                                        { color: isDarkMode ? '#D1D5DB' : '#4B5563' },
                                         selectedYear === year && styles.dropdownItemTextSelected
                                     ]}>
                                         {year}
@@ -154,10 +173,10 @@ const DashboardScreen = ({ navigation }: { navigation: any }) => {
                     )}
 
                     {/* Chart Card */}
-                    <View style={styles.chartCard}>
+                    <View style={[styles.chartCard, { backgroundColor: isDarkMode ? '#1F2937' : '#fff', borderColor: isDarkMode ? '#374151' : '#F9FAFB' }]}>
                         <View style={styles.chartHeader}>
                             <Text style={styles.chartTotalLabel}>Total Spent</Text>
-                            <Text style={styles.chartTotalValue}>
+                            <Text style={[styles.chartTotalValue, { color: isDarkMode ? '#F9FAFB' : '#1F2937' }]}>
                                 {chartData[selectedMonthIndex] ? `₹${chartData[selectedMonthIndex].value.toLocaleString()}` : '₹0'}
                             </Text>
                         </View>
@@ -165,9 +184,9 @@ const DashboardScreen = ({ navigation }: { navigation: any }) => {
                         <View style={styles.barChartContainer}>
                             {/* Grid Lines */}
                             <View style={styles.gridLines}>
-                                <View style={styles.gridLine} />
-                                <View style={styles.gridLine} />
-                                <View style={styles.gridLine} />
+                                <View style={[styles.gridLine, { backgroundColor: isDarkMode ? '#374151' : '#F3F4F6', borderColor: isDarkMode ? '#374151' : '#F3F4F6' }]} />
+                                <View style={[styles.gridLine, { backgroundColor: isDarkMode ? '#374151' : '#F3F4F6', borderColor: isDarkMode ? '#374151' : '#F3F4F6' }]} />
+                                <View style={[styles.gridLine, { backgroundColor: isDarkMode ? '#374151' : '#F3F4F6', borderColor: isDarkMode ? '#374151' : '#F3F4F6' }]} />
                             </View>
 
                             {/* Bars */}
@@ -188,7 +207,7 @@ const DashboardScreen = ({ navigation }: { navigation: any }) => {
                                             onPress={() => setSelectedMonthIndex(index)}
                                             activeOpacity={0.7}
                                         >
-                                            <View style={styles.barTrack}>
+                                            <View style={[styles.barTrack, { backgroundColor: isDarkMode ? '#374151' : '#F3F4F6' }]}>
                                                 {isActive ? (
                                                     <LinearGradient
                                                         colors={['#C084FC', '#8B5CF6']}
@@ -197,7 +216,7 @@ const DashboardScreen = ({ navigation }: { navigation: any }) => {
                                                         end={{ x: 0, y: 1 }}
                                                     />
                                                 ) : (
-                                                    <View style={[styles.bar, { height: `${percentageHeight}%`, backgroundColor: '#E5E7EB' }]} />
+                                                    <View style={[styles.bar, { height: `${percentageHeight}%`, backgroundColor: isDarkMode ? '#4B5563' : '#E5E7EB' }]} />
                                                 )}
                                             </View>
                                             <Text style={[styles.barLabel, isActive && styles.barLabelActive]}>
@@ -213,7 +232,7 @@ const DashboardScreen = ({ navigation }: { navigation: any }) => {
 
                 {/* Upcoming Payments Section */}
                 <View style={styles.sectionHeader}>
-                    <Text style={styles.sectionTitle}>Upcoming payment</Text>
+                    <Text style={[styles.sectionTitle, { color: isDarkMode ? '#F9FAFB' : '#1F2937' }]}>Upcoming payment</Text>
                     {subscriptions.length > 0 && (
                         <TouchableOpacity onPress={() => navigation.navigate('Expenses')}>
                             <Text style={styles.seeAllText}>See all</Text>
@@ -435,6 +454,42 @@ const styles = StyleSheet.create({
         position: 'absolute',
     },
 
+    // Empty State
+    emptySummaryContainer: {
+        alignItems: 'center',
+        padding: 16,
+    },
+    emptyIconContainer: {
+        marginBottom: 16,
+        opacity: 0.8,
+    },
+    emptyTitle: {
+        fontSize: 18,
+        fontWeight: '700',
+        color: '#1F2937',
+        marginBottom: 8,
+    },
+    emptySubtitle: {
+        fontSize: 14,
+        color: '#6B7280',
+        textAlign: 'center',
+        marginBottom: 24,
+    },
+    addFirstButton: {
+        backgroundColor: '#8B5CF6',
+        paddingHorizontal: 20,
+        paddingVertical: 12,
+        borderRadius: 16,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    addFirstButtonText: {
+        color: '#fff',
+        fontWeight: '600',
+        fontSize: 14,
+    },
+
     // Analytics Layout
     analyticsSection: {
         marginBottom: 40,
@@ -647,56 +702,14 @@ const styles = StyleSheet.create({
     },
     paymentDays: {
         fontSize: 12,
-        marginTop: 8,
-        fontWeight: '500',
     },
-    // Empty states
-    emptySummaryContainer: {
-        alignItems: 'center',
-        paddingVertical: 16,
-    },
-    emptyIconContainer: {
-        width: 80,
-        height: 80,
-        borderRadius: 40,
-        backgroundColor: '#F3F4F6',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 16,
-    },
-    emptyTitle: {
-        fontSize: 18,
-        fontWeight: '700',
-        color: '#1F2937',
-        marginBottom: 8,
-        textAlign: 'center',
-    },
-    emptySubtitle: {
-        fontSize: 14,
-        color: '#6B7280',
-        textAlign: 'center',
-        marginBottom: 24,
-        paddingHorizontal: 24,
-        lineHeight: 20,
-    },
-    addFirstButton: {
-        backgroundColor: '#8B5CF6',
-        paddingHorizontal: 20,
-        paddingVertical: 12,
-        borderRadius: 16,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-    },
-    addFirstButtonText: {
-        color: '#fff',
-        fontSize: 14,
-        fontWeight: '600',
-    },
+
+    // Empty state 2
     emptyStateContainer: {
-        backgroundColor: '#fff',
+        width: '100%',
+        padding: 24,
+        backgroundColor: '#F9FAFB',
         borderRadius: 24,
-        padding: 32,
         alignItems: 'center',
         borderWidth: 1,
         borderColor: '#F3F4F6',
@@ -706,7 +719,7 @@ const styles = StyleSheet.create({
         width: 64,
         height: 64,
         borderRadius: 32,
-        backgroundColor: '#F9FAFB',
+        backgroundColor: '#F3F4F6',
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: 16,
@@ -715,23 +728,31 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '600',
         color: '#374151',
-        marginBottom: 4,
+        marginBottom: 8,
     },
     emptyStateSubtext: {
         fontSize: 14,
         color: '#9CA3AF',
-        marginBottom: 20,
+        marginBottom: 24,
+        textAlign: 'center',
     },
     actionButton: {
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        backgroundColor: '#F3F4F6',
+        backgroundColor: '#fff',
+        paddingHorizontal: 20,
+        paddingVertical: 12,
         borderRadius: 12,
+        borderWidth: 1,
+        borderColor: '#E5E7EB',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 4,
+        elevation: 2,
     },
     actionButtonText: {
-        color: '#4B5563',
-        fontSize: 14,
+        color: '#374151',
         fontWeight: '600',
+        fontSize: 14,
     },
 });
 

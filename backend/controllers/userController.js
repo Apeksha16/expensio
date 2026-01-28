@@ -42,3 +42,23 @@ exports.updateUserTheme = async (req, res) => {
         res.status(500).json({ error: 'Failed to update theme' });
     }
 };
+
+exports.updateUserSalary = async (req, res) => {
+    const { email, salary } = req.body;
+
+    if (!email || salary === undefined) {
+        return res.status(400).json({ error: 'Email and salary are required' });
+    }
+
+    try {
+        const userRecord = await admin.auth().getUserByEmail(email);
+        await admin.firestore().collection('users').doc(userRecord.uid).set({
+            salary
+        }, { merge: true });
+
+        res.json({ success: true, salary });
+    } catch (error) {
+        console.error('Error updating user salary:', error);
+        res.status(500).json({ error: 'Failed to update salary' });
+    }
+};

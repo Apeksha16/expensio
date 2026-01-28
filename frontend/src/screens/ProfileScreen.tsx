@@ -10,38 +10,21 @@ import {
     Switch,
     useColorScheme,
     Alert,
-    Platform,
-    Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useToast } from '../components/Toast';
 import Icon from '@expo/vector-icons/Ionicons';
-import { updateUserTheme } from '../services/auth';
+import { useTheme } from '../context/ThemeContext';
+import { useUser } from '../context/UserContext';
 
-interface User {
-    email: string;
-    name?: string;
-    photo?: string;
-    id?: string;
-    saved?: string;
-    goals?: number;
-    theme?: 'light' | 'dark' | 'system';
-}
-
-const ProfileScreen = ({ navigation, onLogout, user }: { navigation: any; onLogout: () => void; user: User | null }) => {
+const ProfileScreen = ({ navigation, onLogout }: { navigation: any; onLogout: () => void }) => {
     const { showToast } = useToast();
-    const systemScheme = useColorScheme();
-    // Use user preference if available, otherwise default to system scheme
-    const [isDarkMode, setIsDarkMode] = React.useState(
-        user?.theme ? user.theme === 'dark' : systemScheme === 'dark'
-    );
+    const { user, setUser } = useUser();
+    const { isDarkMode, toggleTheme } = useTheme();
 
-    const toggleTheme = async (value: boolean) => {
-        setIsDarkMode(value);
-        const newTheme = value ? 'dark' : 'light';
-        if (user?.email) {
-            await updateUserTheme(user.email, newTheme);
-        }
+    // Local toggle wrapper to match Switch's onValueChange signature
+    const handleToggleTheme = (value: boolean) => {
+        toggleTheme(value);
     };
 
     const handleLogout = () => {
@@ -62,7 +45,6 @@ const ProfileScreen = ({ navigation, onLogout, user }: { navigation: any; onLogo
         );
     };
 
-    const themeStyles = isDarkMode ? darkStyles : lightStyles;
     const bgStyle = { backgroundColor: isDarkMode ? '#111827' : '#F9FAFB' };
     const textStyle = { color: isDarkMode ? '#F9FAFB' : '#1F2937' };
     const subTextStyle = { color: isDarkMode ? '#9CA3AF' : '#6B7280' };
@@ -90,10 +72,10 @@ const ProfileScreen = ({ navigation, onLogout, user }: { navigation: any; onLogo
                 {/* Profile Header */}
                 <View style={styles.profileInfo}>
                     <View style={styles.avatarContainer}>
-                        {user?.photo ? (
+                        {user?.photoURL ? (
                             <Image
                                 source={{
-                                    uri: user.photo,
+                                    uri: user.photoURL,
                                     headers: { Referer: 'no-referrer' } // Fix for some Google Images
                                 }}
                                 style={{ width: 100, height: 100, borderRadius: 50 }}
@@ -111,14 +93,27 @@ const ProfileScreen = ({ navigation, onLogout, user }: { navigation: any; onLogo
 
                 {/* Stats Row */}
                 <View style={[styles.statsCard, cardStyle]}>
-                    <View style={styles.statItem}>
-                        {user?.saved ? (
-                            <Text style={[styles.statValue, textStyle]}>{user.saved}</Text>
+                    <TouchableOpacity
+                        style={styles.statItem}
+                        onPress={() => navigation.navigate('SetSalary', {
+                            currentSalary: user?.salary,
+                            userEmail: user?.email
+                        })}
+                    >
+                        {user?.salary ? (
+                            <Text
+                                style={[styles.statValue, textStyle]}
+                                numberOfLines={1}
+                                adjustsFontSizeToFit
+                                minimumFontScale={0.7}
+                            >
+                                ₹{user.salary}
+                            </Text>
                         ) : (
-                            <Text style={[styles.statValue, { fontSize: 14, color: '#FF7043' }]}>Not Set</Text>
+                            <Text style={[styles.statValue, { fontSize: 14, color: '#FF7043' }]}>Set</Text>
                         )}
-                        <Text style={styles.statLabel}>Saved</Text>
-                    </View>
+                        <Text style={styles.statLabel}>Salary</Text>
+                    </TouchableOpacity>
                     <View style={styles.divider} />
                     <TouchableOpacity
                         style={styles.statItem}
@@ -141,8 +136,6 @@ const ProfileScreen = ({ navigation, onLogout, user }: { navigation: any; onLogo
                 {/* Account Section */}
                 <Text style={[styles.sectionHeader, textStyle]}>Account</Text>
                 <View style={[styles.menuContainer, cardStyle]}>
-
-
                     <TouchableOpacity
                         style={styles.menuItem}
                         onPress={() => navigation.navigate('MPIN')}
@@ -158,8 +151,6 @@ const ProfileScreen = ({ navigation, onLogout, user }: { navigation: any; onLogo
                 {/* Preferences Section */}
                 <Text style={[styles.sectionHeader, textStyle]}>Preferences</Text>
                 <View style={[styles.menuContainer, cardStyle]}>
-
-
                     <View style={styles.menuItem}>
                         <View style={[styles.menuIconBox, { backgroundColor: isDarkMode ? '#374151' : '#F9FAFB' }]}>
                             <Icon name="moon-outline" size={20} color={iconColor} />
@@ -168,7 +159,7 @@ const ProfileScreen = ({ navigation, onLogout, user }: { navigation: any; onLogo
                         <Switch
                             trackColor={{ false: "#767577", true: "#8B5CF6" }}
                             value={isDarkMode}
-                            onValueChange={toggleTheme}
+                            onValueChange={handleToggleTheme}
                         />
                     </View>
                 </View>
@@ -184,9 +175,6 @@ const ProfileScreen = ({ navigation, onLogout, user }: { navigation: any; onLogo
         </SafeAreaView>
     );
 };
-
-const lightStyles = StyleSheet.create({});
-const darkStyles = StyleSheet.create({});
 
 const styles = StyleSheet.create({
     container: {

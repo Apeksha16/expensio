@@ -1,14 +1,17 @@
 import 'react-native-url-polyfill/auto';
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { StatusBar, StyleSheet, View, Text, Platform, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Icon from '@expo/vector-icons/Ionicons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { logout } from './src/services/auth';
+import { ThemeProvider } from './src/context/ThemeContext';
+import { UserProvider, useUser } from './src/context/UserContext';
+import { ToastProvider } from './src/components/Toast';
+import { TransactionProvider } from './src/context/TransactionContext';
+import { SubscriptionProvider } from './src/context/SubscriptionContext';
 
 // Screens
 import LoginScreen from './src/screens/LoginScreen';
@@ -31,18 +34,12 @@ import AddSubscriptionScreen from './src/screens/AddSubscriptionScreen';
 import BudgetSettingsScreen from './src/screens/BudgetSettingsScreen';
 import BudgetFormScreen from './src/screens/BudgetFormScreen';
 import AddGoalScreen from './src/screens/AddGoalScreen';
+import SetSalaryScreen from './src/screens/SetSalaryScreen';
 import PWAInstallPrompt from './src/components/PWAInstallPrompt';
-import { ToastProvider } from './src/components/Toast';
-import { TransactionProvider } from './src/context/TransactionContext';
-import { SubscriptionProvider } from './src/context/SubscriptionContext';
 
-// Types
-interface User {
-  email: string;
-  name?: string;
-  photo?: string;
-  id?: string;
-}
+import QuickActionModal from './src/components/QuickActionModal';
+import { useNavigation } from '@react-navigation/native';
+import { useState } from 'react';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -97,9 +94,6 @@ const CustomTabBarButton = ({ children, onPress }: CustomTabBarButtonProps) => (
     </View>
   </TouchableOpacity>
 );
-
-import QuickActionModal from './src/components/QuickActionModal';
-import { useNavigation } from '@react-navigation/native';
 
 const MainTabs = ({ onLogout }: { onLogout: () => void }) => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -197,8 +191,6 @@ const MainTabs = ({ onLogout }: { onLogout: () => void }) => {
             ),
           }}
         />
-
-
       </Tab.Navigator>
 
       <QuickActionModal
@@ -234,54 +226,13 @@ const linking = {
       CreateGroup: 'create-group',
       AddFriend: 'add-friend',
       MPIN: 'mpin',
+      SetSalary: 'set-salary',
     },
   },
 };
 
-function App() {
-  const [hasOnboarded, setHasOnboarded] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  // Check storage on app load
-  useEffect(() => {
-    const checkStorage = async () => {
-      try {
-        const storedUser = await AsyncStorage.getItem('user');
-        const storedOnboarding = await AsyncStorage.getItem('hasOnboarded');
-
-        if (storedUser) {
-          setUser(JSON.parse(storedUser));
-        }
-        if (storedOnboarding) {
-          setHasOnboarded(true);
-        }
-      } catch (e) {
-        console.error('Failed to load storage', e);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkStorage();
-  }, []);
-
-  const handleLoginSuccess = async (userData: User) => {
-    setUser(userData);
-    await AsyncStorage.setItem('user', JSON.stringify(userData));
-    await AsyncStorage.setItem('hasOnboarded', 'true');
-  };
-
-  const handleOnboardingComplete = async () => {
-    setHasOnboarded(true);
-    await AsyncStorage.setItem('hasOnboarded', 'true');
-  };
-
-  const handleLogout = async () => {
-    await logout();
-    setUser(null);
-    await AsyncStorage.removeItem('user');
-  };
+const AppContent = () => {
+  const { user, loading, hasOnboarded, completeOnboarding, login, logout } = useUser();
 
   if (loading) {
     return (
@@ -292,98 +243,117 @@ function App() {
   }
 
   return (
+    <NavigationContainer linking={linking as any}>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        {!user ? (
+          <>
+            {!hasOnboarded && (
+              <Stack.Screen name="Onboarding">
+                {(props) => <OnboardingScreen {...props} onComplete={completeOnboarding} />}
+              </Stack.Screen>
+            )}
+            <Stack.Screen name="Login">
+              {(props) => <LoginScreen {...props} onLoginSuccess={login} />}
+            </Stack.Screen>
+          </>
+        ) : (
+          <>
+            <Stack.Screen name="Main">
+              {() => <MainTabs onLogout={logout} />}
+            </Stack.Screen>
+            <Stack.Screen
+              name="AddTransaction"
+              component={AddTransactionScreen}
+              options={{ presentation: 'modal' }}
+            />
+            <Stack.Screen
+              name="AddExpense"
+              component={AddExpenseScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen name="AddSubscription" component={AddSubscriptionScreen} />
+            <Stack.Screen
+              name="Notifications"
+              component={NotificationsScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen name="BudgetSettings" component={BudgetSettingsScreen} />
+            <Stack.Screen
+              name="BudgetForm"
+              component={BudgetFormScreen}
+              options={{ presentation: 'modal' }}
+            />
+            <Stack.Screen name="AddGoal" component={AddGoalScreen} />
+            <Stack.Screen
+              name="TotalExpense"
+              component={TotalExpenseScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="GroupDetails"
+              component={GroupDetailsScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="FriendDetails"
+              component={FriendDetailsScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="CreateGroup"
+              component={CreateGroupScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="AddFriend"
+              component={AddFriendScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="MPIN"
+              component={MPINScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen name="Profile">
+              {(props) => <ProfileScreen {...props} onLogout={logout} />}
+            </Stack.Screen>
+            <Stack.Screen
+              name="SetSalary"
+              component={SetSalaryScreen}
+              options={{ headerShown: false }}
+            />
+          </>
+        )}
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
+
+const AppWithTheme = () => {
+  const { user } = useUser();
+  return (
+    <ThemeProvider userEmail={user?.email}>
+      <StatusBar barStyle={user ? undefined : "dark-content"} />
+      {Platform.OS === 'web' && <PWAInstallPrompt />}
+      <AppContent />
+    </ThemeProvider>
+  );
+}
+
+function App() {
+  return (
     <SafeAreaProvider>
-      <ToastProvider>
-        <TransactionProvider>
-          <SubscriptionProvider>
-            <GestureHandlerRootView style={{ flex: 1 }}>
-              <StatusBar barStyle="dark-content" />
-              <NavigationContainer linking={linking as any}>
-                <Stack.Navigator screenOptions={{ headerShown: false }}>
-                  {/* Authentication Flow */}
-                  {!user ? (
-                    <>
-                      {/* Only show Onboarding if not done */}
-                      {!hasOnboarded && (
-                        <Stack.Screen name="Onboarding">
-                          {(props) => <OnboardingScreen {...props} onComplete={handleOnboardingComplete} />}
-                        </Stack.Screen>
-                      )}
-                      <Stack.Screen name="Login">
-                        {(props) => <LoginScreen {...props} onLoginSuccess={handleLoginSuccess} />}
-                      </Stack.Screen>
-                    </>
-                  ) : (
-                    /* Main App Flow */
-                    <>
-                      <Stack.Screen name="Main">
-                        {() => <MainTabs onLogout={handleLogout} />}
-                      </Stack.Screen>
-                      <Stack.Screen
-                        name="AddTransaction"
-                        component={AddTransactionScreen}
-                        options={{ presentation: 'modal' }}
-                      />
-                      <Stack.Screen
-                        name="AddExpense"
-                        component={AddExpenseScreen}
-                        options={{ headerShown: false }}
-                      />
-                      <Stack.Screen name="AddSubscription" component={AddSubscriptionScreen} />
-                      <Stack.Screen
-                        name="Notifications"
-                        component={NotificationsScreen}
-                        options={{ headerShown: false }}
-                      />
-                      <Stack.Screen name="BudgetSettings" component={BudgetSettingsScreen} />
-                      <Stack.Screen
-                        name="BudgetForm"
-                        component={BudgetFormScreen}
-                        options={{ presentation: 'modal' }}
-                      />
-                      <Stack.Screen name="AddGoal" component={AddGoalScreen} />
-                      <Stack.Screen
-                        name="TotalExpense"
-                        component={TotalExpenseScreen}
-                        options={{ headerShown: false }}
-                      />
-                      <Stack.Screen
-                        name="GroupDetails"
-                        component={GroupDetailsScreen}
-                        options={{ headerShown: false }}
-                      />
-                      <Stack.Screen
-                        name="FriendDetails"
-                        component={FriendDetailsScreen}
-                        options={{ headerShown: false }}
-                      />
-                      <Stack.Screen
-                        name="CreateGroup"
-                        component={CreateGroupScreen}
-                        options={{ headerShown: false }}
-                      />
-                      <Stack.Screen
-                        name="AddFriend"
-                        component={AddFriendScreen}
-                        options={{ headerShown: false }}
-                      />
-                      <Stack.Screen
-                        name="MPIN"
-                        component={MPINScreen}
-                        options={{ headerShown: false }}
-                      />
-                      <Stack.Screen name="Profile">
-                        {(props) => <ProfileScreen {...props} onLogout={handleLogout} user={user} />}
-                      </Stack.Screen>
-                    </>
-                  )}
-                </Stack.Navigator>
-              </NavigationContainer>
-              {Platform.OS === 'web' && <PWAInstallPrompt />}
-            </GestureHandlerRootView>
-          </SubscriptionProvider>
-        </TransactionProvider>
-      </ToastProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <UserProvider>
+          <ToastProvider>
+            <TransactionProvider>
+              <SubscriptionProvider>
+                <AppWithTheme />
+              </SubscriptionProvider>
+            </TransactionProvider>
+          </ToastProvider>
+        </UserProvider>
+      </GestureHandlerRootView>
     </SafeAreaProvider>
   );
 }

@@ -16946,7 +16946,7 @@ var View$1 = /* @__PURE__ */ reactExports.forwardRef((props, forwardedRef) => {
   var writingDirection = componentDirection || contextDirection;
   var supportedProps = pickProps$3(rest);
   supportedProps.dir = componentDirection;
-  supportedProps.style = [styles$$.view$raw, hasTextAncestor && styles$$.inline, props.style];
+  supportedProps.style = [styles$10.view$raw, hasTextAncestor && styles$10.inline, props.style];
   if (props.href != null) {
     component = "a";
     if (hrefAttrs != null) {
@@ -16970,7 +16970,7 @@ var View$1 = /* @__PURE__ */ reactExports.forwardRef((props, forwardedRef) => {
   });
 });
 View$1.displayName = "View";
-var styles$$ = stylesheet.create({
+var styles$10 = stylesheet.create({
   view$raw: {
     alignContent: "flex-start",
     alignItems: "stretch",
@@ -17348,10 +17348,10 @@ var ScrollViewBase = /* @__PURE__ */ reactExports.forwardRef((props, forwardedRe
     onTouchMove: createPreventableScrollHandler(onTouchMove),
     onWheel: createPreventableScrollHandler(onWheel),
     ref: useMergeRefs$1(scrollRef, forwardedRef),
-    style: [style, !scrollEnabled && styles$_.scrollDisabled, hideScrollbar && styles$_.hideScrollbar]
+    style: [style, !scrollEnabled && styles$$.scrollDisabled, hideScrollbar && styles$$.hideScrollbar]
   }));
 });
-var styles$_ = stylesheet.create({
+var styles$$ = stylesheet.create({
   scrollDisabled: {
     overflowX: "hidden",
     overflowY: "hidden",
@@ -17868,7 +17868,7 @@ let ScrollView$1 = class ScrollView extends React.Component {
       var isSticky = hasStickyHeaderIndices && stickyHeaderIndices.indexOf(i) > -1;
       if (child != null && (isSticky || pagingEnabled)) {
         return /* @__PURE__ */ React.createElement(View$1, {
-          style: [isSticky && styles$Z.stickyHeader, pagingEnabled && styles$Z.pagingEnabledChild]
+          style: [isSticky && styles$_.stickyHeader, pagingEnabled && styles$_.pagingEnabledChild]
         }, child);
       } else {
         return child;
@@ -17878,10 +17878,10 @@ let ScrollView$1 = class ScrollView extends React.Component {
       children,
       collapsable: false,
       ref: this._setInnerViewRef,
-      style: [horizontal && styles$Z.contentContainerHorizontal, centerContent && styles$Z.contentContainerCenterContent, contentContainerStyle]
+      style: [horizontal && styles$_.contentContainerHorizontal, centerContent && styles$_.contentContainerCenterContent, contentContainerStyle]
     }));
-    var baseStyle = horizontal ? styles$Z.baseHorizontal : styles$Z.baseVertical;
-    var pagingEnabledStyle = horizontal ? styles$Z.pagingEnabledHorizontal : styles$Z.pagingEnabledVertical;
+    var baseStyle = horizontal ? styles$_.baseHorizontal : styles$_.baseVertical;
+    var pagingEnabledStyle = horizontal ? styles$_.pagingEnabledHorizontal : styles$_.pagingEnabledVertical;
     var props = _objectSpread2(_objectSpread2({}, other), {}, {
       style: [baseStyle, pagingEnabled && pagingEnabledStyle, this.props.style],
       onTouchStart: this.scrollResponderHandleTouchStart,
@@ -17924,7 +17924,7 @@ var commonStyle = {
   // iOS native scrolling
   WebkitOverflowScrolling: "touch"
 };
-var styles$Z = stylesheet.create({
+var styles$_ = stylesheet.create({
   baseVertical: _objectSpread2(_objectSpread2({}, commonStyle), {}, {
     flexDirection: "column",
     overflowX: "hidden",
@@ -18836,7 +18836,7 @@ class CellRenderer extends reactExports.Component {
       // $FlowFixMe[incompatible-type]
       ItemSeparatorComponent && /* @__PURE__ */ reactExports.createElement(ItemSeparatorComponent, this.state.separatorProps)
     );
-    var cellStyle = inversionStyle ? horizontal ? [styles$Y.rowReverse, inversionStyle] : [styles$Y.columnReverse, inversionStyle] : horizontal ? [styles$Y.row, inversionStyle] : inversionStyle;
+    var cellStyle = inversionStyle ? horizontal ? [styles$Z.rowReverse, inversionStyle] : [styles$Z.columnReverse, inversionStyle] : horizontal ? [styles$Z.row, inversionStyle] : inversionStyle;
     var result = !CellRendererComponent ? /* @__PURE__ */ reactExports.createElement(View$1, _extends$5({
       style: cellStyle,
       onFocusCapture: onCellFocusCapture
@@ -18856,7 +18856,7 @@ class CellRenderer extends reactExports.Component {
     }, result);
   }
 }
-var styles$Y = stylesheet.create({
+var styles$Z = stylesheet.create({
   row: {
     flexDirection: "row"
   },
@@ -19803,7 +19803,7 @@ class VirtualizedList extends StateSafePureComponent {
     this._checkProps(this.props);
     var _this$props5 = this.props, ListEmptyComponent = _this$props5.ListEmptyComponent, ListFooterComponent = _this$props5.ListFooterComponent, ListHeaderComponent = _this$props5.ListHeaderComponent;
     var _this$props6 = this.props, data = _this$props6.data, horizontal = _this$props6.horizontal;
-    var inversionStyle = this.props.inverted ? horizontalOrDefault(this.props.horizontal) ? styles$X.horizontallyInverted : styles$X.verticallyInverted : null;
+    var inversionStyle = this.props.inverted ? horizontalOrDefault(this.props.horizontal) ? styles$Y.horizontallyInverted : styles$Y.verticallyInverted : null;
     var cells = [];
     var stickyIndicesFromProps = new Set(this.props.stickyHeaderIndices);
     var stickyHeaderIndices = [];
@@ -19931,7 +19931,7 @@ class VirtualizedList extends StateSafePureComponent {
     var ret = innerRet;
     if (this.props.debug) {
       return /* @__PURE__ */ reactExports.createElement(View$1, {
-        style: styles$X.debug
+        style: styles$Y.debug
       }, ret, this._renderDebugOverlay());
     } else {
       return ret;
@@ -20019,20 +20019,20 @@ class VirtualizedList extends StateSafePureComponent {
     var visTop = this._scrollMetrics.offset;
     var visLen = this._scrollMetrics.visibleLength;
     return /* @__PURE__ */ reactExports.createElement(View$1, {
-      style: [styles$X.debugOverlayBase, styles$X.debugOverlay]
+      style: [styles$Y.debugOverlayBase, styles$Y.debugOverlay]
     }, framesInLayout.map((f, ii2) => /* @__PURE__ */ reactExports.createElement(View$1, {
       key: "f" + ii2,
-      style: [styles$X.debugOverlayBase, styles$X.debugOverlayFrame, {
+      style: [styles$Y.debugOverlayBase, styles$Y.debugOverlayFrame, {
         top: f.offset * normalize,
         height: f.length * normalize
       }]
     })), /* @__PURE__ */ reactExports.createElement(View$1, {
-      style: [styles$X.debugOverlayBase, styles$X.debugOverlayFrameLast, {
+      style: [styles$Y.debugOverlayBase, styles$Y.debugOverlayFrameLast, {
         top: windowTop * normalize,
         height: windowLen * normalize
       }]
     }), /* @__PURE__ */ reactExports.createElement(View$1, {
-      style: [styles$X.debugOverlayBase, styles$X.debugOverlayFrameVis, {
+      style: [styles$Y.debugOverlayBase, styles$Y.debugOverlayFrameVis, {
         top: visTop * normalize,
         height: visLen * normalize
       }]
@@ -20117,7 +20117,7 @@ class VirtualizedList extends StateSafePureComponent {
   }
 }
 VirtualizedList.contextType = VirtualizedListContext;
-var styles$X = stylesheet.create({
+var styles$Y = stylesheet.create({
   verticallyInverted: {
     transform: "scaleY(-1)"
   },
@@ -20352,7 +20352,7 @@ let FlatList$1 = class FlatList extends reactExports.PureComponent {
           var _item2 = info.item, _index = info.index;
           invariant(Array.isArray(_item2), "Expected array of items with numColumns > 1");
           return /* @__PURE__ */ reactExports.createElement(View$1, {
-            style: [styles$W.row, columnWrapperStyle]
+            style: [styles$X.row, columnWrapperStyle]
           }, _item2.map((it, kk) => {
             var element = render2({
               // $FlowFixMe[incompatible-call]
@@ -20461,7 +20461,7 @@ let FlatList$1 = class FlatList extends reactExports.PureComponent {
     );
   }
 };
-var styles$W = stylesheet.create({
+var styles$X = stylesheet.create({
   row: {
     flexDirection: "row"
   }
@@ -22196,7 +22196,7 @@ var Image$1 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
   var backgroundSize = getBackgroundSize();
   var hiddenImage = displayImageUri ? createElement("img", {
     alt: ariaLabel || "",
-    style: styles$V.accessibilityImage$raw,
+    style: styles$W.accessibilityImage$raw,
     draggable: draggable || false,
     ref: hiddenImageRef,
     src: displayImageUri
@@ -22264,11 +22264,11 @@ var Image$1 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     pointerEvents,
     ref,
     style: [
-      styles$V.root,
-      hasTextAncestor && styles$V.inline,
+      styles$W.root,
+      hasTextAncestor && styles$W.inline,
       imageSizeStyle,
       style,
-      styles$V.undo,
+      styles$W.undo,
       // TEMP: avoid deprecated shadow props regression
       // until Image refactored to use createElement.
       {
@@ -22276,7 +22276,7 @@ var Image$1 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
       }
     ]
   }), /* @__PURE__ */ reactExports.createElement(View$1, {
-    style: [styles$V.image, resizeModeStyles[resizeMode], {
+    style: [styles$W.image, resizeModeStyles[resizeMode], {
       backgroundImage,
       filter: filter2
     }, backgroundSize != null && {
@@ -22296,7 +22296,7 @@ ImageWithStatics.prefetch = function(uri) {
 ImageWithStatics.queryCache = function(uris) {
   return ImageLoader.queryCache(uris);
 };
-var styles$V = stylesheet.create({
+var styles$W = stylesheet.create({
   root: {
     flexBasis: "auto",
     overflow: "hidden",
@@ -22804,7 +22804,7 @@ var Text$2 = /* @__PURE__ */ reactExports.forwardRef((props, forwardedRef) => {
   }
   supportedProps.style = [numberOfLines != null && numberOfLines > 1 && {
     WebkitLineClamp: numberOfLines
-  }, hasTextAncestor === true ? styles$U.textHasAncestor$raw : styles$U.text$raw, numberOfLines === 1 && styles$U.textOneLine, numberOfLines != null && numberOfLines > 1 && styles$U.textMultiLine, props.style, selectable === true && styles$U.selectable, selectable === false && styles$U.notSelectable, onPress && styles$U.pressable];
+  }, hasTextAncestor === true ? styles$V.textHasAncestor$raw : styles$V.text$raw, numberOfLines === 1 && styles$V.textOneLine, numberOfLines != null && numberOfLines > 1 && styles$V.textMultiLine, props.style, selectable === true && styles$V.selectable, selectable === false && styles$V.notSelectable, onPress && styles$V.pressable];
   if (props.href != null) {
     component = "a";
     if (hrefAttrs != null) {
@@ -22847,7 +22847,7 @@ var textStyle = {
   whiteSpace: "pre-wrap",
   wordWrap: "break-word"
 };
-var styles$U = stylesheet.create({
+var styles$V = stylesheet.create({
   text$raw: textStyle,
   textHasAncestor$raw: _objectSpread2(_objectSpread2({}, textStyle), {}, {
     color: "inherit",
@@ -24917,7 +24917,7 @@ var AppContainer = /* @__PURE__ */ reactExports.forwardRef((props, forwardedRef)
   var innerView = /* @__PURE__ */ reactExports.createElement(View$1, {
     children,
     key: 1,
-    style: styles$T.appContainer
+    style: styles$U.appContainer
   });
   if (WrapperComponent) {
     innerView = /* @__PURE__ */ reactExports.createElement(WrapperComponent, null, innerView);
@@ -24926,11 +24926,11 @@ var AppContainer = /* @__PURE__ */ reactExports.forwardRef((props, forwardedRef)
     value: props.rootTag
   }, /* @__PURE__ */ reactExports.createElement(View$1, {
     ref: forwardedRef,
-    style: styles$T.appContainer
+    style: styles$U.appContainer
   }, innerView));
 });
 AppContainer.displayName = "AppContainer";
-var styles$T = stylesheet.create({
+var styles$U = stylesheet.create({
   appContainer: {
     flex: 1,
     pointerEvents: "box-none"
@@ -25796,17 +25796,17 @@ var ActivityIndicator = /* @__PURE__ */ reactExports.forwardRef((props, forwarde
     "aria-valuemin": 0,
     ref: forwardedRef,
     role: "progressbar",
-    style: [styles$S.container, style]
+    style: [styles$T.container, style]
   }), /* @__PURE__ */ reactExports.createElement(View$1, {
     children: svg,
     style: [typeof size === "number" ? {
       height: size,
       width: size
-    } : indicatorSizes[size], styles$S.animation, !animating && styles$S.animationPause, !animating && hidesWhenStopped && styles$S.hidesWhenStopped]
+    } : indicatorSizes[size], styles$T.animation, !animating && styles$T.animationPause, !animating && hidesWhenStopped && styles$T.hidesWhenStopped]
   }));
 });
 ActivityIndicator.displayName = "ActivityIndicator";
-var styles$S = stylesheet.create({
+var styles$T = stylesheet.create({
   container: {
     alignItems: "center",
     justifyContent: "center"
@@ -26273,14 +26273,14 @@ function TouchableOpacity(props, forwardedRef) {
     focusable: !disabled && focusable !== false,
     pointerEvents: disabled ? "box-none" : void 0,
     ref: setRef,
-    style: [styles$R.root, !disabled && styles$R.actionable, style, opacityOverride != null && {
+    style: [styles$S.root, !disabled && styles$S.actionable, style, opacityOverride != null && {
       opacity: opacityOverride
     }, {
       transitionDuration: duration
     }]
   }));
 }
-var styles$R = stylesheet.create({
+var styles$S = stylesheet.create({
   root: {
     transitionProperty: "opacity",
     transitionDuration: "0.15s",
@@ -26302,16 +26302,16 @@ var Button = /* @__PURE__ */ reactExports.forwardRef((props, forwardedRef) => {
     focusable: !disabled,
     onPress,
     ref: forwardedRef,
-    style: [styles$Q.button, color2 && {
+    style: [styles$R.button, color2 && {
       backgroundColor: color2
-    }, disabled && styles$Q.buttonDisabled],
+    }, disabled && styles$R.buttonDisabled],
     testID
   }, /* @__PURE__ */ reactExports.createElement(Text$2, {
-    style: [styles$Q.text, disabled && styles$Q.textDisabled]
+    style: [styles$R.text, disabled && styles$R.textDisabled]
   }, title));
 });
 Button.displayName = "Button";
-var styles$Q = stylesheet.create({
+var styles$R = stylesheet.create({
   button: {
     backgroundColor: "#2196F3",
     borderRadius: 2
@@ -26341,15 +26341,15 @@ var CheckBox = /* @__PURE__ */ reactExports.forwardRef((props, forwardedRef) => 
   }
   var fakeControl = /* @__PURE__ */ reactExports.createElement(View$1, {
     style: [
-      styles$P.fakeControl,
-      value && styles$P.fakeControlChecked,
+      styles$Q.fakeControl,
+      value && styles$Q.fakeControlChecked,
       // custom color
       value && color2 && {
         backgroundColor: color2,
         borderColor: color2
       },
-      disabled && styles$P.fakeControlDisabled,
-      value && disabled && styles$P.fakeControlCheckedAndDisabled
+      disabled && styles$Q.fakeControlDisabled,
+      value && disabled && styles$Q.fakeControlCheckedAndDisabled
     ]
   });
   var nativeControl = createElement("input", {
@@ -26358,17 +26358,17 @@ var CheckBox = /* @__PURE__ */ reactExports.forwardRef((props, forwardedRef) => 
     onChange: handleChange,
     readOnly: readOnly === true || ariaReadOnly === true || other.accessibilityReadOnly === true,
     ref: forwardedRef,
-    style: [styles$P.nativeControl, styles$P.cursorInherit],
+    style: [styles$Q.nativeControl, styles$Q.cursorInherit],
     type: "checkbox"
   });
   return /* @__PURE__ */ reactExports.createElement(View$1, _extends$5({}, other, {
     "aria-disabled": disabled,
     "aria-readonly": ariaReadOnly,
-    style: [styles$P.root, style, disabled && styles$P.cursorDefault]
+    style: [styles$Q.root, style, disabled && styles$Q.cursorDefault]
   }), fakeControl, nativeControl);
 });
 CheckBox.displayName = "CheckBox";
-var styles$P = stylesheet.create({
+var styles$Q = stylesheet.create({
   root: {
     cursor: "pointer",
     height: 16,
@@ -26499,7 +26499,7 @@ function getAnimationStyle(animationType, visible) {
   if (animationType === "fade") {
     return visible ? animatedFadeInStyles : animatedFadeOutStyles;
   }
-  return visible ? styles$O.container : styles$O.hidden;
+  return visible ? styles$P.container : styles$P.hidden;
 }
 function ModalAnimation(props) {
   var animationType = props.animationType, children = props.children, onDismiss = props.onDismiss, onShow = props.onShow, visible = props.visible;
@@ -26535,12 +26535,12 @@ function ModalAnimation(props) {
     wasVisible.current = visible;
   }, [isAnimated2, visible, animationEndCallback]);
   return isRendering || visible ? createElement("div", {
-    style: isRendering ? getAnimationStyle(animationType, visible) : styles$O.hidden,
+    style: isRendering ? getAnimationStyle(animationType, visible) : styles$P.hidden,
     onAnimationEnd: animationEndCallback,
     children
   }) : null;
 }
-var styles$O = stylesheet.create({
+var styles$P = stylesheet.create({
   container: {
     position: "fixed",
     top: 0,
@@ -26606,10 +26606,10 @@ var styles$O = stylesheet.create({
     opacity: 0
   }
 });
-var animatedSlideInStyles = [styles$O.container, styles$O.animatedIn, styles$O.slideIn];
-var animatedSlideOutStyles = [styles$O.container, styles$O.animatedOut, styles$O.slideOut];
-var animatedFadeInStyles = [styles$O.container, styles$O.animatedIn, styles$O.fadeIn];
-var animatedFadeOutStyles = [styles$O.container, styles$O.animatedOut, styles$O.fadeOut];
+var animatedSlideInStyles = [styles$P.container, styles$P.animatedIn, styles$P.slideIn];
+var animatedSlideOutStyles = [styles$P.container, styles$P.animatedOut, styles$P.slideOut];
+var animatedFadeInStyles = [styles$P.container, styles$P.animatedIn, styles$P.fadeIn];
+var animatedFadeOutStyles = [styles$P.container, styles$P.animatedOut, styles$P.fadeOut];
 var _excluded$8 = ["active", "children", "onRequestClose", "transparent"];
 var ModalContent = /* @__PURE__ */ reactExports.forwardRef((props, forwardedRef) => {
   var active = props.active, children = props.children, onRequestClose = props.onRequestClose, transparent = props.transparent, rest = _objectWithoutPropertiesLoose(props, _excluded$8);
@@ -26628,7 +26628,7 @@ var ModalContent = /* @__PURE__ */ reactExports.forwardRef((props, forwardedRef)
     }
   }, [active, onRequestClose]);
   var style = reactExports.useMemo(() => {
-    return [styles$N.modal, transparent ? styles$N.modalTransparent : styles$N.modalOpaque];
+    return [styles$O.modal, transparent ? styles$O.modalTransparent : styles$O.modalOpaque];
   }, [transparent]);
   return /* @__PURE__ */ reactExports.createElement(View$1, _extends$5({}, rest, {
     "aria-modal": true,
@@ -26636,10 +26636,10 @@ var ModalContent = /* @__PURE__ */ reactExports.forwardRef((props, forwardedRef)
     role: active ? "dialog" : null,
     style
   }), /* @__PURE__ */ reactExports.createElement(View$1, {
-    style: styles$N.container
+    style: styles$O.container
   }, children));
 });
-var styles$N = stylesheet.create({
+var styles$O = stylesheet.create({
   modal: {
     position: "fixed",
     top: 0,
@@ -26662,7 +26662,7 @@ var FocusBracket = () => {
   return createElement("div", {
     role: "none",
     tabIndex: 0,
-    style: styles$M.focusBracket
+    style: styles$N.focusBracket
   });
 };
 function attemptFocus(element) {
@@ -26741,7 +26741,7 @@ var ModalFocusTrap = (_ref) => {
     ref: trapElementRef
   }, children), /* @__PURE__ */ reactExports.createElement(FocusBracket, null));
 };
-var styles$M = stylesheet.create({
+var styles$N = stylesheet.create({
   focusBracket: {
     outlineStyle: "none"
   }
@@ -26841,7 +26841,7 @@ var Picker = /* @__PURE__ */ reactExports.forwardRef((props, forwardedRef) => {
     children,
     disabled: enabled === false ? true : void 0,
     onChange: handleChange,
-    style: [styles$L.initial, style],
+    style: [styles$M.initial, style],
     testID,
     value: selectedValue
   }, other);
@@ -26851,7 +26851,7 @@ var Picker = /* @__PURE__ */ reactExports.forwardRef((props, forwardedRef) => {
   return createElement("select", supportedProps);
 });
 Picker.Item = PickerItem;
-var styles$L = stylesheet.create({
+var styles$M = stylesheet.create({
   initial: {
     fontFamily: "System",
     fontSize: "inherit",
@@ -27263,7 +27263,7 @@ function Pressable(props, forwardedRef) {
     onFocus: focusHandler,
     onKeyDown: keyDownHandler,
     ref: setRef,
-    style: [disabled ? styles$K.disabled : styles$K.active, typeof style === "function" ? style(interactionState) : style],
+    style: [disabled ? styles$L.disabled : styles$L.active, typeof style === "function" ? style(interactionState) : style],
     tabIndex: _tabIndex
   }), typeof children === "function" ? children(interactionState) : children);
 }
@@ -27271,7 +27271,7 @@ function useForceableState(forced) {
   var _useState = reactExports.useState(false), bool = _useState[0], setBool = _useState[1];
   return [bool || forced, setBool];
 }
-var styles$K = stylesheet.create({
+var styles$L = stylesheet.create({
   active: {
     cursor: "pointer",
     touchAction: "manipulation"
@@ -27293,18 +27293,18 @@ var ProgressBar = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
     "aria-valuenow": indeterminate ? null : percentageProgress,
     ref,
     role: "progressbar",
-    style: [styles$J.track, style, {
+    style: [styles$K.track, style, {
       backgroundColor: trackColor
     }]
   }), /* @__PURE__ */ reactExports.createElement(View$1, {
     style: [{
       backgroundColor: color2,
       width: width2
-    }, styles$J.progress, indeterminate && styles$J.animation]
+    }, styles$K.progress, indeterminate && styles$K.animation]
   }));
 });
 ProgressBar.displayName = "ProgressBar";
-var styles$J = stylesheet.create({
+var styles$K = stylesheet.create({
   track: {
     forcedColorAdjust: "none",
     height: 5,
@@ -27342,11 +27342,11 @@ var SafeAreaView$2 = /* @__PURE__ */ reactExports.forwardRef((props, ref) => {
   var style = props.style, rest = _objectWithoutPropertiesLoose(props, _excluded$3);
   return /* @__PURE__ */ reactExports.createElement(View$1, _extends$5({}, rest, {
     ref,
-    style: [styles$I.root, style]
+    style: [styles$J.root, style]
   }));
 });
 SafeAreaView$2.displayName = "SafeAreaView";
-var styles$I = stylesheet.create({
+var styles$J = stylesheet.create({
   root: {
     paddingTop: cssFunction + "(safe-area-inset-top)",
     paddingRight: cssFunction + "(safe-area-inset-right)",
@@ -27426,7 +27426,7 @@ var Switch = /* @__PURE__ */ reactExports.forwardRef((props, forwardedRef) => {
   var thumbCurrentColor = value ? activeThumbColor !== null && activeThumbColor !== void 0 ? activeThumbColor : defaultActiveThumbColor : thumbColor !== null && thumbColor !== void 0 ? thumbColor : defaultThumbColor;
   var thumbHeight = height2;
   var thumbWidth = thumbHeight;
-  var rootStyle = [styles$H.root, style, disabled && styles$H.cursorDefault, {
+  var rootStyle = [styles$I.root, style, disabled && styles$I.cursorDefault, {
     height: height2,
     width: width2
   }];
@@ -27460,11 +27460,11 @@ var Switch = /* @__PURE__ */ reactExports.forwardRef((props, forwardedRef) => {
       }
     }
   })();
-  var trackStyle = [styles$H.track, {
+  var trackStyle = [styles$I.track, {
     backgroundColor: disabled ? disabledTrackColor : trackCurrentColor,
     borderRadius: trackBorderRadius
   }];
-  var thumbStyle = [styles$H.thumb, value && styles$H.thumbActive, {
+  var thumbStyle = [styles$I.thumb, value && styles$I.thumbActive, {
     backgroundColor: disabled ? disabledThumbColor : thumbCurrentColor,
     height: thumbHeight,
     marginStart: value ? multiplyStyleLengthValue(thumbWidth, -1) : 0,
@@ -27478,7 +27478,7 @@ var Switch = /* @__PURE__ */ reactExports.forwardRef((props, forwardedRef) => {
     onChange: handleChange,
     onFocus: handleFocusState,
     ref: forwardedRef,
-    style: [styles$H.nativeControl, styles$H.cursorInherit],
+    style: [styles$I.nativeControl, styles$I.cursorInherit],
     type: "checkbox",
     role: "switch"
   });
@@ -27492,7 +27492,7 @@ var Switch = /* @__PURE__ */ reactExports.forwardRef((props, forwardedRef) => {
   }), nativeControl);
 });
 Switch.displayName = "Switch";
-var styles$H = stylesheet.create({
+var styles$I = stylesheet.create({
   root: {
     cursor: "pointer",
     userSelect: "none"
@@ -27788,7 +27788,7 @@ var TextInput = /* @__PURE__ */ reactExports.forwardRef((props, forwardedRef) =>
   supportedProps.spellCheck = spellCheck != null ? spellCheck : autoCorrect;
   supportedProps.style = [{
     "--placeholderTextColor": placeholderTextColor
-  }, styles$G.textinput$raw, styles$G.placeholder, props.style, caretHidden && styles$G.caretHidden];
+  }, styles$H.textinput$raw, styles$H.placeholder, props.style, caretHidden && styles$H.caretHidden];
   supportedProps.type = multiline ? void 0 : type;
   supportedProps.virtualkeyboardpolicy = showSoftInputOnFocus === false ? "manual" : "auto";
   var platformMethodsRef = usePlatformMethods(supportedProps);
@@ -27804,7 +27804,7 @@ var TextInput = /* @__PURE__ */ reactExports.forwardRef((props, forwardedRef) =>
 });
 TextInput.displayName = "TextInput";
 TextInput.State = TextInputState;
-var styles$G = stylesheet.create({
+var styles$H = stylesheet.create({
   textinput$raw: {
     MozAppearance: "textfield",
     WebkitAppearance: "none",
@@ -28541,12 +28541,12 @@ function TouchableHighlight(props, forwardedRef) {
     focusable: !disabled && focusable !== false,
     pointerEvents: disabled ? "box-none" : void 0,
     ref: setRef,
-    style: [styles$F.root, style, !disabled && styles$F.actionable, extraStyles && extraStyles.underlay]
+    style: [styles$G.root, style, !disabled && styles$G.actionable, extraStyles && extraStyles.underlay]
   }), /* @__PURE__ */ reactExports.cloneElement(child, {
     style: [child.props.style, extraStyles && extraStyles.child]
   }));
 }
-var styles$F = stylesheet.create({
+var styles$G = stylesheet.create({
   root: {
     userSelect: "none"
   },
@@ -28919,7 +28919,7 @@ function SafeAreaProvider({
     });
   }, []);
   return /* @__PURE__ */ reactExports.createElement(NativeSafeAreaProvider, _extends$4({
-    style: [styles$E.fill, style],
+    style: [styles$F.fill, style],
     onInsetsChange
   }, others), insets != null ? /* @__PURE__ */ reactExports.createElement(SafeAreaFrameContext.Provider, {
     value: frame
@@ -28927,7 +28927,7 @@ function SafeAreaProvider({
     value: insets
   }, children)) : null);
 }
-const styles$E = stylesheet.create({
+const styles$F = stylesheet.create({
   fill: {
     flex: 1
   }
@@ -29042,7 +29042,7 @@ const add2 = 59908;
 const airplane = 59914;
 const alarm = 59917;
 const albums = 59920;
-const alert = 59923;
+const alert$1 = 59923;
 const analytics = 59932;
 const aperture = 59935;
 const apps = 59938;
@@ -29294,7 +29294,7 @@ const glyphMap = {
   albums,
   "albums-outline": 59921,
   "albums-sharp": 59922,
-  alert,
+  alert: alert$1,
   "alert-circle": 59924,
   "alert-circle-outline": 59925,
   "alert-circle-sharp": 59926,
@@ -30622,41 +30622,15 @@ const Icon = ({ name: name2, size = 30, color: color2 = "#000", style, ...props 
     return null;
   }
   const iconChar = String.fromCharCode(glyph);
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$D.icon, { fontSize: size, color: color2 }, style], ...props, children: iconChar });
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$E.icon, { fontSize: size, color: color2 }, style], ...props, children: iconChar });
 };
-const styles$D = stylesheet.create({
+const styles$E = stylesheet.create({
   icon: {
     fontFamily: "Ionicons",
     fontWeight: "normal",
     fontStyle: "normal"
   }
 });
-const AsyncStorage = {
-  getItem: async (key2) => {
-    return window.localStorage.getItem(key2);
-  },
-  setItem: async (key2, value) => {
-    window.localStorage.setItem(key2, value);
-  },
-  removeItem: async (key2) => {
-    window.localStorage.removeItem(key2);
-  },
-  clear: async () => {
-    window.localStorage.clear();
-  },
-  getAllKeys: async () => {
-    return Object.keys(window.localStorage);
-  },
-  multiGet: async (keys) => {
-    return keys.map((key2) => [key2, window.localStorage.getItem(key2)]);
-  },
-  multiSet: async (kvPairs) => {
-    kvPairs.forEach(([key2, value]) => window.localStorage.setItem(key2, value));
-  },
-  multiRemove: async (keys) => {
-    keys.forEach((key2) => window.localStorage.removeItem(key2));
-  }
-};
 function goBack() {
   return {
     type: "GO_BACK"
@@ -31699,13 +31673,13 @@ const NavigationStateContext = /* @__PURE__ */ reactExports.createContext({
     throw new Error(MISSING_CONTEXT_ERROR$2);
   }
 });
-const ThemeContext = /* @__PURE__ */ reactExports.createContext(void 0);
-ThemeContext.displayName = "ThemeContext";
-function ThemeProvider({
+const ThemeContext$1 = /* @__PURE__ */ reactExports.createContext(void 0);
+ThemeContext$1.displayName = "ThemeContext";
+function ThemeProvider$1({
   value,
   children
 }) {
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(ThemeContext.Provider, {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(ThemeContext$1.Provider, {
     value,
     children
   });
@@ -32208,7 +32182,7 @@ const BaseNavigationContainer = /* @__PURE__ */ reactExports.forwardRef(function
             children: /* @__PURE__ */ jsxRuntimeExports.jsx(DeprecatedNavigationInChildContext.Provider, {
               value: navigationInChildEnabled,
               children: /* @__PURE__ */ jsxRuntimeExports.jsx(EnsureSingleNavigator, {
-                children: /* @__PURE__ */ jsxRuntimeExports.jsx(ThemeProvider, {
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx(ThemeProvider$1, {
                   value: theme,
                   children
                 })
@@ -33674,8 +33648,8 @@ const MemoizedScreen = /* @__PURE__ */ reactExports.memo(({
   return children;
 });
 MemoizedScreen.displayName = "Memo(Screen)";
-function useTheme() {
-  const theme = reactExports.useContext(ThemeContext);
+function useTheme$1() {
+  const theme = reactExports.useContext(ThemeContext$1);
   if (theme == null) {
     throw new Error("Couldn't find a theme. Is your component inside NavigationContainer or does it have a theme?");
   }
@@ -34058,7 +34032,7 @@ function useDescriptors({
   router,
   emitter
 }) {
-  const theme = reactExports.useContext(ThemeContext);
+  const theme = reactExports.useContext(ThemeContext$1);
   const [options2, setOptions] = reactExports.useState({});
   const {
     onDispatchAction,
@@ -35667,7 +35641,7 @@ function NavigationContainerInner({
   if (!isLinkingReady) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx(LocaleDirContext.Provider, {
       value: direction,
-      children: /* @__PURE__ */ jsxRuntimeExports.jsx(ThemeProvider, {
+      children: /* @__PURE__ */ jsxRuntimeExports.jsx(ThemeProvider$1, {
         value: theme,
         children: fallback
       })
@@ -35780,7 +35754,7 @@ function Background({
 }) {
   const {
     colors
-  } = useTheme();
+  } = useTheme$1();
   return /* @__PURE__ */ jsxRuntimeExports.jsx(Animated$2.View, {
     ...rest,
     style: [{
@@ -37379,7 +37353,7 @@ function Badge({
   const {
     colors,
     fonts: fonts2
-  } = useTheme();
+  } = useTheme$1();
   reactExports.useEffect(() => {
     if (!rendered) {
       return;
@@ -37429,12 +37403,12 @@ function Badge({
       fontSize,
       borderRadius,
       borderCurve: "continuous"
-    }, fonts2.regular, styles$C.container, restStyle],
+    }, fonts2.regular, styles$D.container, restStyle],
     ...rest,
     children
   });
 }
-const styles$C = stylesheet.create({
+const styles$D = stylesheet.create({
   container: {
     alignSelf: "flex-end",
     textAlign: "center",
@@ -37461,7 +37435,7 @@ function PlatformPressableInternal({
 }, ref) {
   const {
     dark
-  } = useTheme();
+  } = useTheme$1();
   const [opacity2] = reactExports.useState(() => new Animated$2.Value(1));
   const animateTo = (toValue, duration) => {
     if (ANDROID_SUPPORTS_RIPPLE) {
@@ -37577,7 +37551,7 @@ function Text({
   const {
     colors,
     fonts: fonts2
-  } = useTheme();
+  } = useTheme$1();
   return /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, {
     ...rest,
     style: [{
@@ -37798,7 +37772,7 @@ function HeaderButtonInternal({
     pressColor,
     pressOpacity,
     android_ripple: androidRipple,
-    style: [styles$B.container, disabled && styles$B.disabled, style],
+    style: [styles$C.container, disabled && styles$C.disabled, style],
     hitSlop: Platform$1.select({
       ios: void 0,
       default: {
@@ -37818,7 +37792,7 @@ const androidRipple = {
   foreground: Platform$1.OS === "android" && Platform$1.Version >= 23,
   radius: 20
 };
-const styles$B = stylesheet.create({
+const styles$C = stylesheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
@@ -37838,7 +37812,7 @@ function HeaderIcon({
 }) {
   const {
     colors
-  } = useTheme();
+  } = useTheme$1();
   const {
     direction
   } = useLocale();
@@ -37847,13 +37821,13 @@ function HeaderIcon({
     resizeMode: "contain",
     fadeDuration: 0,
     tintColor: colors.text,
-    style: [styles$A.icon, direction === "rtl" && styles$A.flip, style],
+    style: [styles$B.icon, direction === "rtl" && styles$B.flip, style],
     ...rest
   });
 }
 const ICON_SIZE = Platform$1.OS === "ios" ? 21 : 24;
 const ICON_MARGIN = Platform$1.OS === "ios" ? 8 : 3;
-const styles$A = stylesheet.create({
+const styles$B = stylesheet.create({
   icon: {
     width: ICON_SIZE,
     height: ICON_SIZE,
@@ -37886,7 +37860,7 @@ function HeaderBackButton({
   const {
     colors,
     fonts: fonts2
-  } = useTheme();
+  } = useTheme$1();
   const {
     direction
   } = useLocale();
@@ -37901,7 +37875,7 @@ function HeaderBackButton({
       return /* @__PURE__ */ jsxRuntimeExports.jsx(HeaderIcon, {
         source: backIcon,
         tintColor,
-        style: [styles$z.icon, displayMode !== "minimal" && styles$z.iconWithLabel]
+        style: [styles$A.icon, displayMode !== "minimal" && styles$A.iconWithLabel]
       });
     }
   };
@@ -37912,7 +37886,7 @@ function HeaderBackButton({
     const availableSpace = titleLayout && screenLayout ? (screenLayout.width - titleLayout.width) / 2 - (ICON_WIDTH + ICON_MARGIN) : null;
     const potentialLabelText = displayMode === "default" ? label : truncatedLabel;
     const finalLabelText = availableSpace && labelWidth && truncatedLabelWidth ? availableSpace > labelWidth ? potentialLabelText : availableSpace > truncatedLabelWidth ? truncatedLabel : null : potentialLabelText;
-    const commonStyle2 = [fonts2.regular, styles$z.label, labelStyle];
+    const commonStyle2 = [fonts2.regular, styles$A.label, labelStyle];
     const hiddenStyle = [commonStyle2, {
       position: "absolute",
       top: 0,
@@ -37920,7 +37894,7 @@ function HeaderBackButton({
       opacity: 0
     }];
     const labelElement = /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, {
-      style: styles$z.labelWrapper,
+      style: styles$A.labelWrapper,
       children: [label && displayMode === "default" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Animated$2.Text, {
         style: hiddenStyle,
         numberOfLines: 1,
@@ -37948,7 +37922,7 @@ function HeaderBackButton({
     return /* @__PURE__ */ jsxRuntimeExports.jsx(MaskedView, {
       maskElement: /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, {
         style: [
-          styles$z.iconMaskContainer,
+          styles$A.iconMaskContainer,
           // Extend the mask to the center of the screen so that label isn't clipped during animation
           screenLayout ? {
             minWidth: screenLayout.width / 2 - 27
@@ -37957,9 +37931,9 @@ function HeaderBackButton({
         children: [/* @__PURE__ */ jsxRuntimeExports.jsx(ImageWithStatics, {
           source: backIconMask,
           resizeMode: "contain",
-          style: [styles$z.iconMask, direction === "rtl" && styles$z.flip]
+          style: [styles$A.iconMask, direction === "rtl" && styles$A.flip]
         }), /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, {
-          style: styles$z.iconMaskFillerRect
+          style: styles$A.iconMaskFillerRect
         })]
       }),
       children: labelElement
@@ -37978,7 +37952,7 @@ function HeaderBackButton({
     onPress: handlePress,
     pressColor,
     pressOpacity,
-    style: [styles$z.container, style],
+    style: [styles$A.container, style],
     children: /* @__PURE__ */ jsxRuntimeExports.jsxs(reactExports.Fragment, {
       children: [renderBackImage(), renderLabel()]
     })
@@ -37986,7 +37960,7 @@ function HeaderBackButton({
 }
 const ICON_WIDTH = Platform$1.OS === "ios" ? 13 : 24;
 const ICON_MARGIN_END = Platform$1.OS === "ios" ? 22 : 3;
-const styles$z = stylesheet.create({
+const styles$A = stylesheet.create({
   container: {
     paddingHorizontal: 0,
     minWidth: stylesheet.hairlineWidth,
@@ -38046,9 +38020,9 @@ function HeaderBackground({
   const {
     colors,
     dark
-  } = useTheme();
+  } = useTheme$1();
   return /* @__PURE__ */ jsxRuntimeExports.jsx(Animated$2.View, {
-    style: [styles$y.container, {
+    style: [styles$z.container, {
       backgroundColor: colors.card,
       borderBottomColor: colors.border,
       ...Platform$1.OS === "ios" && {
@@ -38058,7 +38032,7 @@ function HeaderBackground({
     ...rest
   });
 }
-const styles$y = stylesheet.create({
+const styles$z = stylesheet.create({
   container: {
     flex: 1,
     ...Platform$1.select({
@@ -38105,7 +38079,7 @@ function HeaderSearchBarInternal({
     dark,
     colors,
     fonts: fonts2
-  } = useTheme();
+  } = useTheme$1();
   const [value, setValue] = reactExports.useState("");
   const [rendered, setRendered] = reactExports.useState(visible);
   const [visibleAnim] = reactExports.useState(() => new Animated$2.Value(visible ? 1 : 0));
@@ -38192,15 +38166,15 @@ function HeaderSearchBarInternal({
     pointerEvents: visible ? "auto" : "none",
     "aria-live": "polite",
     "aria-hidden": !visible,
-    style: [styles$x.container, {
+    style: [styles$y.container, {
       opacity: visibleAnim
     }, style],
     children: [/* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, {
-      style: styles$x.searchbarContainer,
+      style: styles$y.searchbarContainer,
       children: [/* @__PURE__ */ jsxRuntimeExports.jsx(HeaderIcon, {
         source: searchIcon,
         tintColor: textColor,
-        style: styles$x.inputSearchIcon
+        style: styles$y.inputSearchIcon
       }), /* @__PURE__ */ jsxRuntimeExports.jsx(TextInput, {
         ...rest,
         ref: inputRef,
@@ -38215,7 +38189,7 @@ function HeaderSearchBarInternal({
         cursorColor: colors.primary,
         selectionHandleColor: colors.primary,
         selectionColor: Color(colors.primary).alpha(0.3).string(),
-        style: [fonts2.regular, styles$x.searchbar, {
+        style: [fonts2.regular, styles$y.searchbar, {
           backgroundColor: Platform$1.select({
             ios: dark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)",
             default: "transparent"
@@ -38230,12 +38204,12 @@ function HeaderSearchBarInternal({
           transform: [{
             scale: clearVisibleAnim
           }]
-        }, styles$x.clearButton],
+        }, styles$y.clearButton],
         children: /* @__PURE__ */ jsxRuntimeExports.jsx(ImageWithStatics, {
           source: clearIcon,
           resizeMode: "contain",
           tintColor: textColor,
-          style: styles$x.clearIcon
+          style: styles$y.clearIcon
         })
       }) : null]
     }), Platform$1.OS !== "ios" ? /* @__PURE__ */ jsxRuntimeExports.jsx(HeaderButton, {
@@ -38246,24 +38220,24 @@ function HeaderSearchBarInternal({
           onClose();
         }
       },
-      style: styles$x.closeButton,
+      style: styles$y.closeButton,
       children: /* @__PURE__ */ jsxRuntimeExports.jsx(HeaderIcon, {
         source: closeIcon,
         tintColor: textColor
       })
     }) : null, Platform$1.OS === "ios" ? /* @__PURE__ */ jsxRuntimeExports.jsx(PlatformPressable, {
       onPress: cancelSearch,
-      style: styles$x.cancelButton,
+      style: styles$y.cancelButton,
       children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text, {
         style: [fonts2.regular, {
           color: tintColor ?? colors.primary
-        }, styles$x.cancelText],
+        }, styles$y.cancelText],
         children: cancelButtonText
       })
     }) : null]
   });
 }
-const styles$x = stylesheet.create({
+const styles$y = stylesheet.create({
   container: {
     flex: 1,
     flexDirection: "row",
@@ -38368,7 +38342,7 @@ function HeaderTitle({
   const {
     colors,
     fonts: fonts2
-  } = useTheme();
+  } = useTheme$1();
   return /* @__PURE__ */ jsxRuntimeExports.jsx(Animated$2.Text, {
     role: "heading",
     "aria-level": "1",
@@ -38379,10 +38353,10 @@ function HeaderTitle({
     }, Platform$1.select({
       ios: fonts2.bold,
       default: fonts2.medium
-    }), styles$w.title, style]
+    }), styles$x.title, style]
   });
 }
-const styles$w = stylesheet.create({
+const styles$x = stylesheet.create({
   title: Platform$1.select({
     ios: {
       fontSize: 17
@@ -38401,7 +38375,7 @@ function Header(props) {
   const frame = useFrameSize((size) => size, true);
   const {
     colors
-  } = useTheme();
+  } = useTheme$1();
   const navigation2 = useNavigation();
   const isParentHeaderShown = reactExports.useContext(HeaderShownContext);
   const [searchBarVisible, setSearchBarVisible] = reactExports.useState(false);
@@ -38628,17 +38602,17 @@ function Header(props) {
       }
     }), /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, {
       pointerEvents: "box-none",
-      style: [styles$v.content, Platform$1.OS === "ios" && frame.width >= IPAD_MINI_MEDIUM_WIDTH ? styles$v.large : null],
+      style: [styles$w.content, Platform$1.OS === "ios" && frame.width >= IPAD_MINI_MEDIUM_WIDTH ? styles$w.large : null],
       children: [/* @__PURE__ */ jsxRuntimeExports.jsx(Animated$2.View, {
         pointerEvents: "box-none",
-        style: [styles$v.start, !searchBarVisible && headerTitleAlign === "center" && styles$v.expand, {
+        style: [styles$w.start, !searchBarVisible && headerTitleAlign === "center" && styles$w.expand, {
           marginStart: insets.left
         }, leftContainerStyle],
         children: leftButton
       }), Platform$1.OS === "ios" || !searchBarVisible ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, {
         children: [/* @__PURE__ */ jsxRuntimeExports.jsx(Animated$2.View, {
           pointerEvents: "box-none",
-          style: [styles$v.title, {
+          style: [styles$w.title, {
             // Avoid the title from going offscreen or overlapping buttons
             maxWidth: headerTitleAlign === "center" ? layout.width - ((leftButton ? headerBackButtonDisplayMode !== "minimal" ? 80 : 32 : 16) + (rightButton || headerSearchBarOptions ? 16 : 0) + Math.max(insets.left, insets.right)) * 2 : layout.width - ((leftButton ? 52 : 16) + (rightButton || headerSearchBarOptions ? 52 : 16) + insets.left - insets.right)
           }, headerTitleAlign === "left" && leftButton ? {
@@ -38655,7 +38629,7 @@ function Header(props) {
           })
         }), /* @__PURE__ */ jsxRuntimeExports.jsxs(Animated$2.View, {
           pointerEvents: "box-none",
-          style: [styles$v.end, styles$v.expand, {
+          style: [styles$w.end, styles$w.expand, {
             marginEnd: insets.right
           }, rightContainerStyle],
           children: [rightButton, headerSearchBarOptions ? /* @__PURE__ */ jsxRuntimeExports.jsx(HeaderButton, {
@@ -38691,7 +38665,7 @@ function Header(props) {
     })]
   });
 }
-const styles$v = stylesheet.create({
+const styles$w = stylesheet.create({
   content: {
     flex: 1,
     flexDirection: "row",
@@ -38738,12 +38712,12 @@ function Label({
   return /* @__PURE__ */ jsxRuntimeExports.jsx(Text, {
     numberOfLines: 1,
     ...rest,
-    style: [styles$u.label, tintColor != null && {
+    style: [styles$v.label, tintColor != null && {
       color: tintColor
     }, style]
   });
 }
-const styles$u = stylesheet.create({
+const styles$v = stylesheet.create({
   label: {
     textAlign: "center",
     backgroundColor: "transparent"
@@ -38755,14 +38729,14 @@ function MissingIcon({
   style
 }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsx(Text, {
-    style: [styles$t.icon, {
+    style: [styles$u.icon, {
       color: color2,
       fontSize: size
     }, style],
     children: "⏷"
   });
 }
-const styles$t = stylesheet.create({
+const styles$u = stylesheet.create({
   icon: {
     backgroundColor: "transparent"
   }
@@ -38800,7 +38774,7 @@ function SafeAreaProviderCompat({
         return /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, {
           ref,
           onLayout,
-          style: [styles$s.container, style],
+          style: [styles$t.container, style],
           children
         });
       }
@@ -38814,7 +38788,7 @@ function SafeAreaProviderCompat({
   });
 }
 SafeAreaProviderCompat.initialMetrics = initialMetrics;
-const styles$s = stylesheet.create({
+const styles$t = stylesheet.create({
   container: {
     flex: 1
   }
@@ -38845,7 +38819,7 @@ function Screen$1(props) {
   }, [route2.name]);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Background, {
     "aria-hidden": !focused,
-    style: [styles$r.container, style],
+    style: [styles$s.container, style],
     collapsable: false,
     children: [headerShown ? /* @__PURE__ */ jsxRuntimeExports.jsx(NavigationContext.Provider, {
       value: navigation2,
@@ -38860,12 +38834,12 @@ function Screen$1(props) {
             } = e.nativeEvent.layout;
             setHeaderHeight(height2);
           },
-          style: [styles$r.header, headerTransparent ? styles$r.absolute : null],
+          style: [styles$s.header, headerTransparent ? styles$s.absolute : null],
           children: header
         })
       })
     }) : null, /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, {
-      style: styles$r.content,
+      style: styles$s.content,
       children: /* @__PURE__ */ jsxRuntimeExports.jsx(HeaderShownContext.Provider, {
         value: isParentHeaderShown || headerShown !== false,
         children: /* @__PURE__ */ jsxRuntimeExports.jsx(HeaderHeightContext.Provider, {
@@ -38876,7 +38850,7 @@ function Screen$1(props) {
     })]
   });
 }
-const styles$r = stylesheet.create({
+const styles$s = stylesheet.create({
   container: {
     flex: 1
   },
@@ -38972,7 +38946,7 @@ function NativeStackView({
               source: headerBackIcon?.source ?? headerBackImageSource,
               resizeMode: "contain",
               tintColor,
-              style: styles$q.backImage
+              style: styles$r.backImage
             }) : void 0,
             onPress: navigation2.goBack
           }) : headerLeft,
@@ -38987,7 +38961,7 @@ function NativeStackView({
           value: headerBack,
           children: /* @__PURE__ */ jsxRuntimeExports.jsx(AnimatedHeaderHeightProvider, {
             children: /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, {
-              style: [styles$q.contentContainer, contentStyle],
+              style: [styles$r.contentContainer, contentStyle],
               children: render2()
             })
           })
@@ -39009,7 +38983,7 @@ const AnimatedHeaderHeightProvider = ({
     children
   });
 };
-const styles$q = stylesheet.create({
+const styles$r = stylesheet.create({
   contentContainer: {
     flex: 1
   },
@@ -39190,9 +39164,9 @@ function TabBarIcon({
 }) {
   const iconSize = variant === "material" ? ICON_SIZE_MATERIAL : size === "compact" ? ICON_SIZE_ROUND_COMPACT : ICON_SIZE_ROUND;
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, {
-    style: [variant === "material" ? styles$p.wrapperMaterial : size === "compact" ? styles$p.wrapperUikitCompact : styles$p.wrapperUikit, style],
+    style: [variant === "material" ? styles$q.wrapperMaterial : size === "compact" ? styles$q.wrapperUikitCompact : styles$q.wrapperUikit, style],
     children: [/* @__PURE__ */ jsxRuntimeExports.jsx(View$1, {
-      style: [styles$p.icon, {
+      style: [styles$q.icon, {
         opacity: activeOpacity,
         // Workaround for react-native >= 0.54 layout bug
         minWidth: iconSize
@@ -39203,7 +39177,7 @@ function TabBarIcon({
         color: activeTintColor
       })
     }), /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, {
-      style: [styles$p.icon, {
+      style: [styles$q.icon, {
         opacity: inactiveOpacity
       }],
       children: renderIcon({
@@ -39215,12 +39189,12 @@ function TabBarIcon({
       visible: badge != null,
       size: iconSize * 0.75,
       allowFontScaling,
-      style: [styles$p.badge, badgeStyle],
+      style: [styles$q.badge, badgeStyle],
       children: badge
     })]
   });
 }
-const styles$p = stylesheet.create({
+const styles$q = stylesheet.create({
   icon: {
     // We render the icon twice at the same position on top of each other:
     // active and inactive one, so we can fade between them:
@@ -39288,7 +39262,7 @@ function BottomTabItem({
   const {
     colors,
     fonts: fonts2
-  } = useTheme();
+  } = useTheme$1();
   const activeTintColor = customActiveTintColor ?? (variant === "uikit" && sidebar && horizontal ? Color(colors.primary).isDark() ? "white" : Color(colors.primary).darken(0.71).string() : colors.primary);
   const inactiveTintColor = customInactiveTintColor === void 0 ? variant === "material" ? Color(colors.text).alpha(0.68).rgb().string() : Color(colors.text).mix(Color(colors.card), 0.5).hex() : customInactiveTintColor;
   const activeBackgroundColor = customActiveBackgroundColor ?? (variant === "material" ? Color(activeTintColor).alpha(0.12).rgb().string() : sidebar && horizontal ? colors.primary : "transparent");
@@ -39321,9 +39295,9 @@ function BottomTabItem({
       });
     }
     return /* @__PURE__ */ jsxRuntimeExports.jsx(Label, {
-      style: [horizontal ? [styles$o.labelBeside, variant === "material" ? styles$o.labelSidebarMaterial : sidebar ? styles$o.labelSidebarUiKit : compact ? styles$o.labelBesideUikitCompact : styles$o.labelBesideUikit, icon == null && {
+      style: [horizontal ? [styles$p.labelBeside, variant === "material" ? styles$p.labelSidebarMaterial : sidebar ? styles$p.labelSidebarUiKit : compact ? styles$p.labelBesideUikitCompact : styles$p.labelBesideUikit, icon == null && {
         marginStart: 0
-      }] : styles$o.labelBeneath, compact || variant === "uikit" && sidebar && horizontal ? fonts2.regular : fonts2.medium, labelStyle],
+      }] : styles$p.labelBeneath, compact || variant === "uikit" && sidebar && horizontal ? fonts2.regular : fonts2.medium, labelStyle],
       allowFontScaling,
       tintColor: color2,
       children: label
@@ -39390,18 +39364,18 @@ function BottomTabItem({
         color: colors.text
       } : void 0,
       "pressOpacity": 1,
-      "style": [styles$o.tab, {
+      "style": [styles$p.tab, {
         flex,
         backgroundColor,
         borderRadius
-      }, sidebar ? variant === "material" ? horizontal ? styles$o.tabBarSidebarMaterial : styles$o.tabVerticalMaterial : horizontal ? styles$o.tabBarSidebarUiKit : styles$o.tabVerticalUiKit : variant === "material" ? styles$o.tabVerticalMaterial : horizontal ? styles$o.tabHorizontalUiKit : styles$o.tabVerticalUiKit],
+      }, sidebar ? variant === "material" ? horizontal ? styles$p.tabBarSidebarMaterial : styles$p.tabVerticalMaterial : horizontal ? styles$p.tabBarSidebarUiKit : styles$p.tabVerticalUiKit : variant === "material" ? styles$p.tabVerticalMaterial : horizontal ? styles$p.tabHorizontalUiKit : styles$p.tabVerticalUiKit],
       "children": /* @__PURE__ */ jsxRuntimeExports.jsxs(React.Fragment, {
         children: [renderIcon(scene), renderLabel(scene)]
       })
     })
   });
 }
-const styles$o = stylesheet.create({
+const styles$p = stylesheet.create({
   tab: {
     alignItems: "center",
     // Roundness for iPad hover effect
@@ -39559,7 +39533,7 @@ function BottomTabBar({
 }) {
   const {
     colors
-  } = useTheme();
+  } = useTheme$1();
   const {
     direction
   } = useLocale();
@@ -39669,7 +39643,7 @@ function BottomTabBar({
   const minSidebarWidth = useFrameSize((size) => sidebar && hasHorizontalLabels ? getDefaultSidebarWidth(size) : 0);
   const tabBarBackgroundElement = tabBarBackground?.();
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Animated$2.View, {
-    style: [tabBarPosition === "left" ? styles$n.start : tabBarPosition === "right" ? styles$n.end : styles$n.bottom, (Platform$1.OS === "web" ? tabBarPosition === "right" : direction === "rtl" && tabBarPosition === "left" || direction !== "rtl" && tabBarPosition === "right") ? {
+    style: [tabBarPosition === "left" ? styles$o.start : tabBarPosition === "right" ? styles$o.end : styles$o.bottom, (Platform$1.OS === "web" ? tabBarPosition === "right" : direction === "rtl" && tabBarPosition === "left" || direction !== "rtl" && tabBarPosition === "right") ? {
       borderLeftWidth: stylesheet.hairlineWidth
     } : (Platform$1.OS === "web" ? tabBarPosition === "left" : direction === "rtl" && tabBarPosition === "right" || direction !== "rtl" && tabBarPosition === "left") ? {
       borderRightWidth: stylesheet.hairlineWidth
@@ -39710,7 +39684,7 @@ function BottomTabBar({
       children: tabBarBackgroundElement
     }), /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, {
       role: "tablist",
-      style: sidebar ? styles$n.sideContent : styles$n.bottomContent,
+      style: sidebar ? styles$o.sideContent : styles$o.bottomContent,
       children: routes.map((route2, index2) => {
         const focused = index2 === state.index;
         const {
@@ -39778,7 +39752,7 @@ function BottomTabBar({
               iconStyle: options2.tabBarIconStyle,
               style: [sidebar ? {
                 marginVertical: hasHorizontalLabels ? tabBarVariant === "material" ? 0 : 1 : spacing / 2
-              } : styles$n.bottomItem, options2.tabBarItemStyle]
+              } : styles$o.bottomItem, options2.tabBarItemStyle]
             })
           })
         }, route2.key);
@@ -39786,7 +39760,7 @@ function BottomTabBar({
     })]
   });
 }
-const styles$n = stylesheet.create({
+const styles$o = stylesheet.create({
   start: {
     top: 0,
     bottom: 0,
@@ -40101,7 +40075,7 @@ function ScreenStackItem({
     style: [style, internalScreenStyle],
     onHeaderHeightChange: isHeaderInModal ? void 0 : onHeaderHeightChange
   }, rest), isHeaderInModal ? /* @__PURE__ */ reactExports.createElement(ScreenStack, {
-    style: styles$m.container
+    style: styles$n.container
   }, /* @__PURE__ */ reactExports.createElement(Screen, {
     enabled: true,
     isNativeStack: true,
@@ -40117,19 +40091,19 @@ function getPositioningStyle(allowedDetents, presentation) {
   const isIOS = Platform$1.OS === "ios";
   const rnMinorVersion = Platform$1.constants.reactNativeVersion.minor;
   if (presentation !== "formSheet") {
-    return styles$m.container;
+    return styles$n.container;
   }
   if (isIOS) {
     if (allowedDetents !== "fitToContents" && rnMinorVersion >= 82 && featureFlags.experiment.synchronousScreenUpdatesEnabled) {
-      return styles$m.container;
+      return styles$n.container;
     } else {
-      return styles$m.absoluteWithNoBottom;
+      return styles$n.absoluteWithNoBottom;
     }
   }
   if (allowedDetents === "fitToContents") {
-    return styles$m.absoluteWithNoBottom;
+    return styles$n.absoluteWithNoBottom;
   }
-  return styles$m.container;
+  return styles$n.container;
 }
 function extractScreenStyles(style) {
   const flatStyle = stylesheet.flatten(style);
@@ -40159,7 +40133,7 @@ function getSafeAreaEdges(headerConfig) {
   }
   return defaultEdges2;
 }
-const styles$m = stylesheet.create({
+const styles$n = stylesheet.create({
   container: {
     flex: 1
   },
@@ -40402,7 +40376,7 @@ function BottomTabView(props) {
     children: [tabBarPosition === "top" || tabBarPosition === "left" ? tabBarElement : null, /* @__PURE__ */ jsxRuntimeExports.jsx(MaybeScreenContainer, {
       enabled: detachInactiveScreens,
       hasTwoStates,
-      style: styles$l.screens,
+      style: styles$m.screens,
       children: routes.map((route2, index2) => {
         const descriptor = descriptors[route2.key];
         const {
@@ -40481,7 +40455,7 @@ function BottomTabView(props) {
     }, "screens"), tabBarPosition === "bottom" || tabBarPosition === "right" ? tabBarElement : null]
   });
 }
-const styles$l = stylesheet.create({
+const styles$m = stylesheet.create({
   screens: {
     flex: 1,
     overflow: "hidden"
@@ -44612,12 +44586,12 @@ function GestureHandlerRootView({
   return /* @__PURE__ */ jsxRuntimeExports.jsx(GestureHandlerRootViewContext.Provider, {
     value: true,
     children: /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, {
-      style: style ?? styles$k.container,
+      style: style ?? styles$l.container,
       ...rest
     })
   });
 }
-const styles$k = stylesheet.create({
+const styles$l = stylesheet.create({
   container: {
     flex: 1
   }
@@ -56363,9 +56337,9 @@ function JsPerformance({
     };
   });
   return /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, {
-    style: styles$j.container,
+    style: styles$k.container,
     children: /* @__PURE__ */ jsxRuntimeExports.jsx(AnimatedTextInput, {
-      style: styles$j.text,
+      style: styles$k.text,
       animatedProps,
       editable: false
     })
@@ -56394,9 +56368,9 @@ function UiPerformance({
     };
   });
   return /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, {
-    style: styles$j.container,
+    style: styles$k.container,
     children: /* @__PURE__ */ jsxRuntimeExports.jsx(AnimatedTextInput, {
-      style: styles$j.text,
+      style: styles$k.text,
       animatedProps,
       editable: false
     })
@@ -56406,7 +56380,7 @@ function PerformanceMonitor({
   smoothingFrames = DEFAULT_BUFFER_SIZE
 }) {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, {
-    style: styles$j.monitor,
+    style: styles$k.monitor,
     children: [/* @__PURE__ */ jsxRuntimeExports.jsx(JsPerformance, {
       smoothingFrames
     }), /* @__PURE__ */ jsxRuntimeExports.jsx(UiPerformance, {
@@ -56414,7 +56388,7 @@ function PerformanceMonitor({
     })]
   });
 }
-const styles$j = stylesheet.create({
+const styles$k = stylesheet.create({
   monitor: {
     flexDirection: "row",
     position: "absolute",
@@ -61194,7 +61168,7 @@ class Swipeable extends reactExports.Component {
     } = this.props;
     const left2 = renderLeftActions && /* @__PURE__ */ jsxRuntimeExports.jsxs(Animated$2.View, {
       style: [
-        styles$i.leftActions,
+        styles$j.leftActions,
         // All those and below parameters can have ! since they are all
         // asigned in constructor in `updateAnimatedEvent` but TS cannot spot
         // it for some reason
@@ -61213,7 +61187,7 @@ class Swipeable extends reactExports.Component {
       })]
     });
     const right2 = renderRightActions && /* @__PURE__ */ jsxRuntimeExports.jsxs(Animated$2.View, {
-      style: [styles$i.rightActions, {
+      style: [styles$j.rightActions, {
         transform: [{
           translateX: this.rightActionTranslate
         }]
@@ -61234,7 +61208,7 @@ class Swipeable extends reactExports.Component {
       onHandlerStateChange: this.onHandlerStateChange,
       children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Animated$2.View, {
         onLayout: this.onRowLayout,
-        style: [styles$i.container, this.props.containerStyle],
+        style: [styles$j.container, this.props.containerStyle],
         children: [left2, right2, /* @__PURE__ */ jsxRuntimeExports.jsx(TapGestureHandler2, {
           enabled: rowState !== 0,
           touchAction: "pan-y",
@@ -61253,7 +61227,7 @@ class Swipeable extends reactExports.Component {
     });
   }
 }
-const styles$i = stylesheet.create({
+const styles$j = stylesheet.create({
   container: {
     overflow: "hidden"
   },
@@ -61291,6 +61265,32 @@ stylesheet.create({
   }
 });
 initialize();
+const AsyncStorage = {
+  getItem: async (key2) => {
+    return window.localStorage.getItem(key2);
+  },
+  setItem: async (key2, value) => {
+    window.localStorage.setItem(key2, value);
+  },
+  removeItem: async (key2) => {
+    window.localStorage.removeItem(key2);
+  },
+  clear: async () => {
+    window.localStorage.clear();
+  },
+  getAllKeys: async () => {
+    return Object.keys(window.localStorage);
+  },
+  multiGet: async (keys) => {
+    return keys.map((key2) => [key2, window.localStorage.getItem(key2)]);
+  },
+  multiSet: async (kvPairs) => {
+    kvPairs.forEach(([key2, value]) => window.localStorage.setItem(key2, value));
+  },
+  multiRemove: async (keys) => {
+    keys.forEach((key2) => window.localStorage.removeItem(key2));
+  }
+};
 const API_URL = Platform$1.OS === "android" ? "http://10.0.2.2:5001/api/auth" : "http://localhost:5001/api/auth";
 const sendOtp = async (email) => {
   try {
@@ -61400,6 +61400,70 @@ const logout = async () => {
     console.error("Logout API Error:", error);
     return false;
   }
+};
+const updateUserSalary = async (email, salary) => {
+  try {
+    const USER_API_URL = API_URL.replace("/auth", "/users");
+    const response = await fetch(`${USER_API_URL}/salary`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ email, salary })
+    });
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Failed to update user salary: ${errorText}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Update Salary Error:", error);
+    throw error;
+  }
+};
+const ThemeContext = reactExports.createContext(void 0);
+const ThemeProvider = ({ children, userEmail }) => {
+  const systemScheme = useColorScheme();
+  const [theme, setTheme] = reactExports.useState(systemScheme === "dark" ? "dark" : "light");
+  reactExports.useEffect(() => {
+    const loadTheme = async () => {
+      const savedTheme = await AsyncStorage.getItem("theme");
+      if (savedTheme) {
+        setTheme(savedTheme);
+      } else {
+        setTheme(systemScheme === "dark" ? "dark" : "light");
+      }
+    };
+    loadTheme();
+  }, [systemScheme]);
+  const toggleTheme = async (isDark) => {
+    const newTheme = isDark ? "dark" : "light";
+    setTheme(newTheme);
+    await AsyncStorage.setItem("theme", newTheme);
+    if (userEmail) {
+      updateUserTheme(userEmail, newTheme).catch((err) => console.error("Failed to sync theme", err));
+    }
+  };
+  const setThemeFromUser = (userTheme) => {
+    if (!userTheme || userTheme === "system") {
+      return;
+    }
+    setTheme(userTheme);
+    AsyncStorage.setItem("theme", userTheme);
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(ThemeContext.Provider, { value: {
+    theme,
+    isDarkMode: theme === "dark",
+    toggleTheme,
+    setThemeFromUser
+  }, children });
+};
+const useTheme = () => {
+  const context = reactExports.useContext(ThemeContext);
+  if (context === void 0) {
+    throw new Error("useTheme must be used within a ThemeProvider");
+  }
+  return context;
 };
 const GOOGLE_CLIENT_ID = "820921044814-8fdnvo1193aki6t29kv5lpcdfffr8g6j.apps.googleusercontent.com";
 const loadGoogleScript = () => {
@@ -61609,67 +61673,67 @@ const LoginScreen = ({ onLoginSuccess }) => {
     inputRange: [0, 1],
     outputRange: [0, -25]
   });
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$h.container, children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$i.container, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(StatusBar, { barStyle: "light-content", translucent: true, backgroundColor: "transparent" }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(
       ImageBackground,
       {
         source: loginBackground,
-        style: styles$h.backgroundImage,
+        style: styles$i.backgroundImage,
         resizeMode: "cover",
         children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SafeAreaView$2, { style: styles$h.safeArea, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$h.topSection, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Animated$2.View, { style: [styles$h.logoContainer, { transform: [{ scale: 1 }] }], children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$h.logoIcon, children: "💰" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(SafeAreaView$2, { style: styles$i.safeArea, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$i.topSection, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Animated$2.View, { style: [styles$i.logoContainer, { transform: [{ scale: 1 }] }], children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$i.logoIcon, children: "💰" }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(Animated$2.View, { style: { alignItems: "center", opacity: fadeAnim, transform: [{ translateY: slideAnim }] }, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$h.appName, children: "Expensio" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$h.description, children: "Master your finances with style." })
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$i.appName, children: "Expensio" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$i.description, children: "Master your finances with style." })
             ] })
           ] }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$h.backgroundContainer, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$i.backgroundContainer, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Animated$2.View, { style: [
-              styles$h.blob,
+              styles$i.blob,
               { backgroundColor: "#F9A8D4", top: -50, right: -50, width: 200, height: 200, transform: [{ translateY: blob1TranslateY }] }
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(Animated$2.View, { style: [
-              styles$h.blob,
+              styles$i.blob,
               { backgroundColor: "#FDE047", top: height$1 * 0.15, left: -60, width: 180, height: 180, transform: [{ translateY: blob2TranslateY }] }
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(Animated$2.View, { style: [
-              styles$h.blob,
+              styles$i.blob,
               { backgroundColor: "#67E8F9", top: height$1 * 0.35, right: -30, width: 150, height: 150 }
             ] })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(SafeAreaView$2, { style: styles$h.safeArea, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          /* @__PURE__ */ jsxRuntimeExports.jsx(SafeAreaView$2, { style: styles$i.safeArea, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
             KeyboardAvoidingView,
             {
               behavior: Platform$1.OS === "ios" ? "padding" : void 0,
-              style: styles$h.keyboardView,
+              style: styles$i.keyboardView,
               keyboardVerticalOffset: Platform$1.OS === "ios" ? -64 : 0,
               children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Animated$2.View, { style: [
-                styles$h.bottomSheet,
+                styles$i.bottomSheet,
                 {
                   transform: [{ translateY: slideAnim }],
                   opacity: fadeAnim
                 }
               ], children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$h.sheetHeader, children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$h.title, children: otpSent ? "Enter Code" : "Welcome Back" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$h.subtitle, children: otpSent ? `We sent a code to ${email}` : "Please sign in to continue to your account." })
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$i.sheetHeader, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$i.title, children: otpSent ? "Enter Code" : "Welcome Back" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$i.subtitle, children: otpSent ? `We sent a code to ${email}` : "Please sign in to continue to your account." })
                 ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$h.form, children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$h.inputContainer, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$i.form, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$i.inputContainer, children: [
                     /* @__PURE__ */ jsxRuntimeExports.jsx(
                       ImageWithStatics,
                       {
                         source: emailIcon,
-                        style: styles$h.inputIconImage,
+                        style: styles$i.inputIconImage,
                         resizeMode: "contain"
                       }
                     ),
                     /* @__PURE__ */ jsxRuntimeExports.jsx(
                       TextInput,
                       {
-                        style: styles$h.input,
+                        style: styles$i.input,
                         placeholder: otpSent ? "000000" : "name@example.com",
                         placeholderTextColor: "#9CA3AF",
                         keyboardType: otpSent ? "number-pad" : "email-address",
@@ -61683,25 +61747,25 @@ const LoginScreen = ({ onLoginSuccess }) => {
                   /* @__PURE__ */ jsxRuntimeExports.jsx(
                     MemoedTouchableOpacity,
                     {
-                      style: styles$h.primaryButton,
+                      style: styles$i.primaryButton,
                       onPress: otpSent ? handleVerifyOtp : handleSendOtp,
                       disabled: loading,
                       activeOpacity: 0.8,
-                      children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(ActivityIndicator, { color: "#fff" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$h.primaryButtonText, children: otpSent ? "Verify Access" : "Continue" })
+                      children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(ActivityIndicator, { color: "#fff" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$i.primaryButtonText, children: otpSent ? "Verify Access" : "Continue" })
                     }
                   ),
                   !otpSent && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$h.divider, children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$h.line }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$h.orText, children: "OR" }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$h.line })
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$i.divider, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$i.line }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$i.orText, children: "OR" }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$i.line })
                     ] }),
-                    /* @__PURE__ */ jsxRuntimeExports.jsxs(MemoedTouchableOpacity, { style: styles$h.socialButton, onPress: handleGoogleLogin, disabled: loading, activeOpacity: 0.8, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs(MemoedTouchableOpacity, { style: styles$i.socialButton, onPress: handleGoogleLogin, disabled: loading, activeOpacity: 0.8, children: [
                       /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "logo-google", size: 24, color: "#1F2937" }),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$h.socialButtonText, children: "Continue with Google" })
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$i.socialButtonText, children: "Continue with Google" })
                     ] })
                   ] }),
-                  otpSent && /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { onPress: () => setOtpSent(false), style: styles$h.backButton, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$h.backButtonText, children: "Use a different email" }) })
+                  otpSent && /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { onPress: () => setOtpSent(false), style: styles$i.backButton, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$i.backButtonText, children: "Use a different email" }) })
                 ] })
               ] })
             }
@@ -61711,7 +61775,7 @@ const LoginScreen = ({ onLoginSuccess }) => {
     )
   ] });
 };
-const styles$h = stylesheet.create({
+const styles$i = stylesheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F9FAFB"
@@ -61969,12 +62033,12 @@ const OnboardingScreen = ({ onComplete }) => {
   };
   const Slide = ({ item, index: index2 }) => {
     const isTextFirst = index2 % 2 === 0;
-    const ImageSection = /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$g.imageContainer, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+    const ImageSection = /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$h.imageContainer, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
       Animated$2.Image,
       {
         source: item.image,
         style: [
-          styles$g.image,
+          styles$h.image,
           {
             opacity: fadeAnim,
             transform: [{ translateY: translateAnim }]
@@ -61983,23 +62047,23 @@ const OnboardingScreen = ({ onComplete }) => {
         resizeMode: "contain"
       }
     ) });
-    const TextSection = /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$g.textContainer, children: [
+    const TextSection = /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$h.textContainer, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Animated$2.Text, { style: [
-        styles$g.title,
+        styles$h.title,
         {
           opacity: fadeAnim,
           transform: [{ translateY: translateAnim }]
         }
       ], children: item.title }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Animated$2.Text, { style: [
-        styles$g.subtitle,
+        styles$h.subtitle,
         {
           opacity: fadeAnim,
           transform: [{ translateY: translateAnim }]
         }
       ], children: item.subtitle })
     ] });
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$g.slide, children: /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$g.contentContainer, children: isTextFirst ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$h.slide, children: /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$h.contentContainer, children: isTextFirst ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
       TextSection,
       ImageSection
     ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
@@ -62007,9 +62071,9 @@ const OnboardingScreen = ({ onComplete }) => {
       TextSection
     ] }) }) });
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(SafeAreaView$2, { style: styles$g.container, children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(SafeAreaView$2, { style: styles$h.container, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(StatusBar, { barStyle: "dark-content", backgroundColor: "#fff" }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$g.header, children: /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { onPress: onComplete, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$g.skipText, children: "Skip" }) }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$h.header, children: /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { onPress: onComplete, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$h.skipText, children: "Skip" }) }) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       FlatList$1,
       {
@@ -62025,8 +62089,8 @@ const OnboardingScreen = ({ onComplete }) => {
         scrollEnabled: false
       }
     ),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$g.footer, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$g.footerLeft, children: /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$g.paginationContainer, children: slides.map((_, index2) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$h.footer, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$h.footerLeft, children: /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$h.paginationContainer, children: slides.map((_, index2) => /* @__PURE__ */ jsxRuntimeExports.jsx(
         MemoedTouchableOpacity,
         {
           onPress: () => skipToSlide(index2),
@@ -62035,8 +62099,8 @@ const OnboardingScreen = ({ onComplete }) => {
             View$1,
             {
               style: [
-                styles$g.dot,
-                currentSlideIndex === index2 && styles$g.activeDot
+                styles$h.dot,
+                currentSlideIndex === index2 && styles$h.activeDot
               ]
             }
           )
@@ -62046,16 +62110,16 @@ const OnboardingScreen = ({ onComplete }) => {
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         MemoedTouchableOpacity,
         {
-          style: styles$g.nextButton,
+          style: styles$h.nextButton,
           onPress: goToNextSlide,
           activeOpacity: 0.8,
-          children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$g.nextButtonText, children: currentSlideIndex === slides.length - 1 ? "Start" : "Next" })
+          children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$h.nextButtonText, children: currentSlideIndex === slides.length - 1 ? "Start" : "Next" })
         }
       )
     ] })
   ] });
 };
-const styles$g = stylesheet.create({
+const styles$h = stylesheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff"
@@ -62171,6 +62235,84 @@ const styles$g = stylesheet.create({
     fontSize: 14
   }
 });
+const UserContext = reactExports.createContext(void 0);
+const UserProvider = ({ children }) => {
+  const [user, setUserState] = reactExports.useState(null);
+  const [loading, setLoading] = reactExports.useState(true);
+  const [hasOnboarded, setHasOnboarded] = reactExports.useState(false);
+  reactExports.useEffect(() => {
+    const init2 = async () => {
+      try {
+        const storedUser = await AsyncStorage.getItem("user");
+        const storedOnboarding = await AsyncStorage.getItem("hasOnboarded");
+        if (storedOnboarding) setHasOnboarded(true);
+        if (storedUser) {
+          const parsedUser = JSON.parse(storedUser);
+          setUserState(parsedUser);
+          if (parsedUser.email) {
+            try {
+              const freshUser = await getUserProfile(parsedUser.email);
+              const merged = { ...parsedUser, ...freshUser };
+              setUserState(merged);
+              await AsyncStorage.setItem("user", JSON.stringify(merged));
+            } catch (err) {
+              console.error("Background profile sync failed", err);
+            }
+          }
+        }
+      } catch (e) {
+        console.error("UserContext init error", e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    init2();
+  }, []);
+  const login = async (userData) => {
+    setUserState(userData);
+    await AsyncStorage.setItem("user", JSON.stringify(userData));
+    await AsyncStorage.setItem("hasOnboarded", "true");
+    setHasOnboarded(true);
+  };
+  const logout$1 = async () => {
+    await logout();
+    setUserState(null);
+    await AsyncStorage.removeItem("user");
+  };
+  const completeOnboarding = async () => {
+    setHasOnboarded(true);
+    await AsyncStorage.setItem("hasOnboarded", "true");
+  };
+  const updateUser = async (updates) => {
+    if (!user) return;
+    const updated = { ...user, ...updates };
+    setUserState(updated);
+    await AsyncStorage.setItem("user", JSON.stringify(updated));
+  };
+  const setUser = (newUser) => {
+    setUserState(newUser);
+    if (newUser) {
+      AsyncStorage.setItem("user", JSON.stringify(newUser));
+    } else {
+      AsyncStorage.removeItem("user");
+    }
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(UserContext.Provider, { value: {
+    user,
+    loading,
+    hasOnboarded,
+    setUser,
+    updateUser,
+    login,
+    logout: logout$1,
+    completeOnboarding
+  }, children });
+};
+const useUser = () => {
+  const context = reactExports.useContext(UserContext);
+  if (!context) throw new Error("useUser must be used within UserProvider");
+  return context;
+};
 const { width: width$5 } = Dimensions.get("window");
 const UPCOMING_PAYMENTS = [
   { id: "1", name: "Adobe Premium", cost: "$30", sub: "/month", days: "2 days left", icon: "logo-dropbox", color: "#7C3AED", bg: "#8B5CF6" },
@@ -62179,66 +62321,74 @@ const UPCOMING_PAYMENTS = [
   { id: "3", name: "Netflix", cost: "$15", sub: "/month", days: "5 days left", icon: "logo-usd", color: "#E50914", bg: "#FEE2E2" }
 ];
 const DashboardScreen = ({ navigation: navigation2 }) => {
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(SafeAreaView$1, { style: styles$f.container, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(ForwardedScrollView, { contentContainerStyle: styles$f.scrollContent, showsVerticalScrollIndicator: false, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$f.header, children: [
+  const { isDarkMode } = useTheme();
+  const { user } = useUser();
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(SafeAreaView$1, { style: [styles$g.container, { backgroundColor: isDarkMode ? "#111827" : "#fff" }], children: /* @__PURE__ */ jsxRuntimeExports.jsxs(ForwardedScrollView, { contentContainerStyle: styles$g.scrollContent, showsVerticalScrollIndicator: false, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$g.header, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         MemoedTouchableOpacity,
         {
-          style: styles$f.profileContainer,
+          style: styles$g.profileContainer,
           onPress: () => navigation2.navigate("Profile"),
-          children: /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$f.avatarPlaceholder, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "person", size: 24, color: "#fff" }) })
+          children: /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$g.avatarPlaceholder, children: user?.photoURL ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+            ImageWithStatics,
+            {
+              source: { uri: user.photoURL, headers: { Referer: "no-referrer" } },
+              style: { width: 48, height: 48, borderRadius: 16 }
+            }
+          ) : /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "person", size: 24, color: "#fff" }) })
         }
       ),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$f.headerTitle, children: "Home" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$g.headerTitle, { color: isDarkMode ? "#F9FAFB" : "#1F2937" }], children: "Home" }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(
         MemoedTouchableOpacity,
         {
-          style: styles$f.notificationButton,
+          style: [styles$g.notificationButton, { backgroundColor: isDarkMode ? "#374151" : "#fff", borderColor: isDarkMode ? "#4B5563" : "#E5E7EB" }],
           onPress: () => navigation2.navigate("Notifications"),
           children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "notifications-outline", size: 24, color: "#1F2937" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$f.badge })
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "notifications-outline", size: 24, color: isDarkMode ? "#F9FAFB" : "#1F2937" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$g.badge })
           ]
         }
       )
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$f.summaryCard, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$f.summaryRow, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$f.statsColumn, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$f.statItem, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$f.indicator, { backgroundColor: "#8B5CF6" }] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$g.summaryCard, { backgroundColor: isDarkMode ? "#1F2937" : "#fff", borderColor: isDarkMode ? "#374151" : "#F3F4F6" }], children: /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$g.summaryRow, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$g.statsColumn, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$g.statItem, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$g.indicator, { backgroundColor: "#8B5CF6" }] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$f.statLabel, children: "Income" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$f.statValue, children: "₹8,429" })
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$g.statLabel, children: "Income" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$g.statValue, { color: isDarkMode ? "#F9FAFB" : "#1F2937" }], children: user?.salary ? `₹${user.salary}` : "₹0" })
           ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$f.statItem, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$f.indicator, { backgroundColor: "#FF7043" }] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$g.statItem, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$g.indicator, { backgroundColor: "#FF7043" }] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$f.statLabel, children: "Spent" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$f.statValue, children: "₹3,621" })
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$g.statLabel, children: "Spent" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$g.statValue, { color: isDarkMode ? "#F9FAFB" : "#1F2937" }], children: "₹3,621" })
           ] })
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$f.chartContainer, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$f.ringBackground }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$f.ringProgress }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$f.ringInner })
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$g.chartContainer, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$g.ringBackground }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$g.ringProgress }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$g.ringInner, { backgroundColor: isDarkMode ? "#1F2937" : "#fff" }] })
       ] })
     ] }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$f.sectionHeader, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$f.sectionTitle, children: "Upcoming payment" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { onPress: () => navigation2.navigate("Expenses"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$f.seeAllText, children: "See all" }) })
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$g.sectionHeader, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$g.sectionTitle, { color: isDarkMode ? "#F9FAFB" : "#1F2937" }], children: "Upcoming payment" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { onPress: () => navigation2.navigate("Expenses"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$g.seeAllText, children: "See all" }) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       ForwardedScrollView,
       {
         horizontal: true,
         showsHorizontalScrollIndicator: false,
-        contentContainerStyle: styles$f.paymentsContainer,
+        contentContainerStyle: styles$g.paymentsContainer,
         children: UPCOMING_PAYMENTS.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
           MemoedTouchableOpacity,
           {
-            style: [styles$f.paymentCard, { backgroundColor: item.bg }],
+            style: [styles$g.paymentCard, { backgroundColor: item.bg }],
             activeOpacity: 0.9,
             onPress: () => {
               Alert.alert(item.name, "Payment details", [
@@ -62247,9 +62397,9 @@ const DashboardScreen = ({ navigation: navigation2 }) => {
               ]);
             },
             children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$f.paymentHeader, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$g.paymentHeader, children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [
-                  styles$f.paymentIcon,
+                  styles$g.paymentIcon,
                   { backgroundColor: item.bg === "#F3F4F6" ? "#FFFFFF" : "rgba(255,255,255,0.2)" }
                 ], children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: item.icon, size: 24, color: item.bg === "#F3F4F6" ? "#000" : "#fff" }) }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -62273,12 +62423,12 @@ const DashboardScreen = ({ navigation: navigation2 }) => {
                 )
               ] }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: { marginTop: 16 }, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$f.paymentName, { color: item.bg === "#F3F4F6" ? "#000" : "#fff" }], children: item.name }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$g.paymentName, { color: item.bg === "#F3F4F6" ? "#000" : "#fff" }], children: item.name }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: { flexDirection: "row", alignItems: "baseline", marginTop: 4 }, children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$f.paymentCost, { color: item.bg === "#F3F4F6" ? "#000" : "#fff" }], children: item.cost }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$f.paymentSub, { color: item.bg === "#F3F4F6" ? "#6B7280" : "rgba(255,255,255,0.7)" }], children: item.sub })
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$g.paymentCost, { color: item.bg === "#F3F4F6" ? "#000" : "#fff" }], children: item.cost }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$g.paymentSub, { color: item.bg === "#F3F4F6" ? "#6B7280" : "rgba(255,255,255,0.7)" }], children: item.sub })
                 ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$f.paymentDays, { color: item.bg === "#F3F4F6" ? "#000" : "#fff" }], children: item.days })
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$g.paymentDays, { color: item.bg === "#F3F4F6" ? "#000" : "#fff" }], children: item.days })
               ] })
             ]
           },
@@ -62286,28 +62436,28 @@ const DashboardScreen = ({ navigation: navigation2 }) => {
         ))
       }
     ),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: [styles$f.sectionHeader, { marginTop: 32 }], children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$f.sectionTitle, children: "Analytics" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(MemoedTouchableOpacity, { style: styles$f.yearButton, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$f.yearText, children: "Year - 2022" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: [styles$g.sectionHeader, { marginTop: 32 }], children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$g.sectionTitle, { color: isDarkMode ? "#F9FAFB" : "#1F2937" }], children: "Analytics" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(MemoedTouchableOpacity, { style: styles$g.yearButton, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$g.yearText, children: "Year - 2022" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "chevron-down", size: 16, color: "#fff" })
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$f.chartCard, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$f.barChartHeader, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$f.chartValueLabel, children: "₹2,972" }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$f.barChartContainer, children: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"].map((month, index2) => {
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: [styles$g.chartCard, { backgroundColor: isDarkMode ? "#1F2937" : "#fff", borderColor: isDarkMode ? "#374151" : "#F3F4F6" }], children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$g.barChartHeader, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$g.chartValueLabel, children: "₹2,972" }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$g.barChartContainer, children: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"].map((month, index2) => {
         const heights = [80, 120, 100, 160, 125, 140, 110];
         const isActive = month === "Apr";
-        return /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$f.barColumn, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$f.barValue, { height: heights[index2], backgroundColor: isActive ? "#8B5CF6" : "#F3F4F6" }] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$f.barLabel, isActive && styles$f.barLabelActive], children: month })
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$g.barColumn, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$g.barValue, { height: heights[index2], backgroundColor: isActive ? "#8B5CF6" : isDarkMode ? "#374151" : "#F3F4F6" }] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$g.barLabel, isActive && styles$g.barLabelActive], children: month })
         ] }, month);
       }) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: { height: 100 } })
   ] }) });
 };
-const styles$f = stylesheet.create({
+const styles$g = stylesheet.create({
   // ... (existing styles)
   container: {
     flex: 1,
@@ -62559,95 +62709,95 @@ const ExpensesScreen = ({ navigation: navigation2 }) => {
     { id: "1", title: "Food And Drinks", subtitle: "Credit Card", amount: "₹2,486", date: "April, 2022", budget: "₹3,000", percent: "75.78%", icon: "fast-food" }
     // ... more interactions
   ];
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(SafeAreaView$1, { style: styles$e.container, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$e.header, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$e.profileIconPlaceholder }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$e.headerTitle, children: "Expenses" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(MemoedTouchableOpacity, { style: styles$e.notificationButton, children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(SafeAreaView$1, { style: styles$f.container, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$f.header, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$f.profileIconPlaceholder }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$f.headerTitle, children: "Expenses" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(MemoedTouchableOpacity, { style: styles$f.notificationButton, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "notifications-outline", size: 24, color: "#1F2937" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$e.badge })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$f.badge })
       ] })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(ForwardedScrollView, { contentContainerStyle: styles$e.content, showsVerticalScrollIndicator: false, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$e.calendarCard, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$e.calendarHeader, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(ForwardedScrollView, { contentContainerStyle: styles$f.content, showsVerticalScrollIndicator: false, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$f.calendarCard, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$f.calendarHeader, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "chevron-back", size: 20, color: "#1F2937" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$e.monthTitle, children: "April 2022" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$f.monthTitle, children: "April 2022" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "chevron-forward", size: 20, color: "#1F2937" })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$e.daysRow, children: checkInOutData.map((item) => {
+        /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$f.daysRow, children: checkInOutData.map((item) => {
           const isSelected = item.date === selectedDate;
           return /* @__PURE__ */ jsxRuntimeExports.jsxs(
             MemoedTouchableOpacity,
             {
-              style: styles$e.dayItem,
+              style: styles$f.dayItem,
               onPress: () => setSelectedDate(item.date),
               children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$e.dayLabel, children: item.day }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$e.dateContainer, isSelected && styles$e.dateContainerActive], children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$e.dateLabel, isSelected && styles$e.dateLabelActive], children: item.date }) })
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$f.dayLabel, children: item.day }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$f.dateContainer, isSelected && styles$f.dateContainerActive], children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$f.dateLabel, isSelected && styles$f.dateLabelActive], children: item.date }) })
               ]
             },
             item.date
           );
         }) })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(ForwardedScrollView, { horizontal: true, showsHorizontalScrollIndicator: false, style: styles$e.summaryScroll, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: [styles$e.summaryCard, { backgroundColor: "#8B5CF6", marginRight: 16 }], children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$e.cardHeader, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$e.cardLabel, children: "Total Salary" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(ForwardedScrollView, { horizontal: true, showsHorizontalScrollIndicator: false, style: styles$f.summaryScroll, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: [styles$f.summaryCard, { backgroundColor: "#8B5CF6", marginRight: 16 }], children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$f.cardHeader, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$f.cardLabel, children: "Total Salary" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "ellipsis-vertical", size: 16, color: "#fff", style: { opacity: 0.7 } })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$e.cardAmount, children: "₹7,000.00" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$e.cardFooter, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$f.cardAmount, children: "₹7,000.00" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$f.cardFooter, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "card-outline", size: 24, color: "rgba(255,255,255,0.5)" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$e.bankText, children: "Bank Account ... 1965" })
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$f.bankText, children: "Bank Account ... 1965" })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "wifi", size: 100, color: "rgba(255,255,255,0.1)", style: styles$e.bgIcon })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "wifi", size: 100, color: "rgba(255,255,255,0.1)", style: styles$f.bgIcon })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: [styles$e.summaryCard, { backgroundColor: "#FF7043" }], children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$e.cardHeader, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$e.cardLabel, children: "Total Expense" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: [styles$f.summaryCard, { backgroundColor: "#FF7043" }], children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$f.cardHeader, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$f.cardLabel, children: "Total Expense" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "ellipsis-vertical", size: 16, color: "#fff", style: { opacity: 0.7 } })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$e.cardAmount, children: "₹4,543.98" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$e.cardFooter, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$f.cardAmount, children: "₹4,543.98" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$f.cardFooter, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "card-outline", size: 24, color: "rgba(255,255,255,0.5)" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$e.bankText, children: "Bank Account ... 1965" })
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$f.bankText, children: "Bank Account ... 1965" })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "wifi", size: 100, color: "rgba(255,255,255,0.1)", style: styles$e.bgIcon })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "wifi", size: 100, color: "rgba(255,255,255,0.1)", style: styles$f.bgIcon })
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$e.listHeader, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$e.sectionTitle, children: "Expenses" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { onPress: () => navigation2.navigate("TotalExpense"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$e.viewAll, children: "View All" }) })
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$f.listHeader, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$f.sectionTitle, children: "Expenses" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { onPress: () => navigation2.navigate("TotalExpense"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$f.viewAll, children: "View All" }) })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { children: transactions.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$e.transactionCard, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$e.transHeader, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$e.iconContainer, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: item.icon, size: 24, color: "#FF7043" }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$e.transInfo, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$e.transTitle, children: item.title }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$e.transSubtitle, children: item.subtitle })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { children: transactions.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$f.transactionCard, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$f.transHeader, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$f.iconContainer, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: item.icon, size: 24, color: "#FF7043" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$f.transInfo, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$f.transTitle, children: item.title }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$f.transSubtitle, children: item.subtitle })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$e.transDate, children: item.date })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$f.transDate, children: item.date })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$e.budgetRow, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$f.budgetRow, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$e.budgetLabel, children: "Total Spend" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$e.budgetValue, children: item.amount })
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$f.budgetLabel, children: "Total Spend" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$f.budgetValue, children: item.amount })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$e.budgetLabel, children: "Total Budget" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$e.budgetValue, children: item.budget })
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$f.budgetLabel, children: "Total Budget" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$f.budgetValue, children: item.budget })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$e.percentText, children: item.percent })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$f.percentText, children: item.percent })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$e.progressContainer, children: /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$e.progressBar, { width: "75%" }] }) })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$f.progressContainer, children: /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$f.progressBar, { width: "75%" }] }) })
       ] }, item.id)) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: { height: 100 } })
     ] })
   ] });
 };
-const styles$e = stylesheet.create({
+const styles$f = stylesheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F9FAFB"
@@ -62897,21 +63047,21 @@ const AddExpenseScreen = ({ navigation: navigation2 }) => {
     if (date.toDateString() === today2.toDateString()) return "Today";
     return date.toLocaleDateString("en-US", { day: "numeric", month: "short" });
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(SafeAreaView$1, { style: styles$d.container, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$d.header, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { onPress: () => navigation2.goBack(), style: styles$d.backButton, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "chevron-back", size: 24, color: "#1F2937" }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$d.headerTitle, children: "Add Expense" }),
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(SafeAreaView$1, { style: styles$e.container, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$e.header, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { onPress: () => navigation2.goBack(), style: styles$e.backButton, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "chevron-back", size: 24, color: "#1F2937" }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$e.headerTitle, children: "Add Expense" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: { width: 40 } })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(ForwardedScrollView, { contentContainerStyle: styles$d.content, showsVerticalScrollIndicator: false, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$d.amountContainer, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$d.amountLabel, children: "Enter Amount" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$d.amountRow, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$d.currency, children: "₹" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(ForwardedScrollView, { contentContainerStyle: styles$e.content, showsVerticalScrollIndicator: false, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$e.amountContainer, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$e.amountLabel, children: "Enter Amount" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$e.amountRow, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$e.currency, children: "₹" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             TextInput,
             {
-              style: styles$d.amountInput,
+              style: styles$e.amountInput,
               placeholder: "0",
               placeholderTextColor: "#E5E7EB",
               keyboardType: "numeric",
@@ -62922,36 +63072,36 @@ const AddExpenseScreen = ({ navigation: navigation2 }) => {
           )
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$d.splitRow, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(MemoedTouchableOpacity, { style: styles$d.dropdownBtn, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$e.splitRow, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(MemoedTouchableOpacity, { style: styles$e.dropdownBtn, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$d.dropdownLabel, children: "Paid by" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$d.dropdownValue, children: "You" })
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$e.dropdownLabel, children: "Paid by" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$e.dropdownValue, children: "You" })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "chevron-down", size: 16, color: "#9CA3AF" })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(MemoedTouchableOpacity, { style: styles$d.dropdownBtn, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(MemoedTouchableOpacity, { style: styles$e.dropdownBtn, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$d.dropdownLabel, children: "Split" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$d.dropdownValue, children: "Equally" })
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$e.dropdownLabel, children: "Split" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$e.dropdownValue, children: "Equally" })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "chevron-down", size: 16, color: "#9CA3AF" })
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$d.sectionTitle, children: "Category" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$d.categoryGrid, children: categories.map((cat) => {
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$e.sectionTitle, children: "Category" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$e.categoryGrid, children: categories.map((cat) => {
         const isSelected = selectedCategory === cat.id;
         return /* @__PURE__ */ jsxRuntimeExports.jsxs(
           MemoedTouchableOpacity,
           {
             style: [
-              styles$d.categoryItem,
-              isSelected && styles$d.categoryItemActive
+              styles$e.categoryItem,
+              isSelected && styles$e.categoryItemActive
             ],
             onPress: () => setSelectedCategory(cat.id),
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [
-                styles$d.iconCircle,
+                styles$e.iconCircle,
                 { backgroundColor: isSelected ? "#FF7043" : "#F3F4F6" }
               ], children: /* @__PURE__ */ jsxRuntimeExports.jsx(
                 Icon,
@@ -62962,19 +63112,19 @@ const AddExpenseScreen = ({ navigation: navigation2 }) => {
                 }
               ) }),
               /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [
-                styles$d.categoryName,
-                isSelected && styles$d.categoryNameActive
+                styles$e.categoryName,
+                isSelected && styles$e.categoryNameActive
               ], children: cat.name })
             ]
           },
           cat.id
         );
       }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$d.sectionTitle, children: "Note" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$d.noteContainer, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$e.sectionTitle, children: "Note" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$e.noteContainer, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
         TextInput,
         {
-          style: styles$d.noteInput,
+          style: styles$e.noteInput,
           placeholder: "Add a note... (e.g. Dinner with friends)",
           placeholderTextColor: "#9CA3AF",
           value: note,
@@ -62984,11 +63134,11 @@ const AddExpenseScreen = ({ navigation: navigation2 }) => {
       /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: { alignItems: "center", marginTop: 24 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
         MemoedTouchableOpacity,
         {
-          style: styles$d.dateButton,
+          style: styles$e.dateButton,
           onPress: () => setOpenDatePicker(true),
           children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "calendar-outline", size: 20, color: "#1F2937", style: { marginRight: 8 } }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$d.dateButtonText, children: getDateLabel() })
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$e.dateButtonText, children: getDateLabel() })
           ]
         }
       ) }),
@@ -63010,10 +63160,10 @@ const AddExpenseScreen = ({ navigation: navigation2 }) => {
         }
       }
     ),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$d.footer, children: /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { style: styles$d.saveButton, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$d.saveButtonText, children: "Save Expense" }) }) })
+    /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$e.footer, children: /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { style: styles$e.saveButton, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$e.saveButtonText, children: "Save Expense" }) }) })
   ] });
 };
-const styles$d = stylesheet.create({
+const styles$e = stylesheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F9FAFB"
@@ -63200,64 +63350,64 @@ const SplitBillScreen = ({ navigation: navigation2 }) => {
     { id: "3", name: "Amit", status: "Settled", initial: "A", color: "#F3E8FF" },
     { id: "4", name: "Sneha", status: "Settled", initial: "S", color: "#F3E8FF" }
   ];
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(SafeAreaView$1, { style: styles$c.container, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$c.header, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { onPress: () => navigation2.goBack(), style: styles$c.backButton, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "chevron-back", size: 24, color: "#1F2937" }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$c.headerTitle, children: "Split Bill" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { style: styles$c.searchButton, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "search", size: 24, color: "#1F2937" }) })
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(SafeAreaView$1, { style: styles$d.container, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$d.header, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { onPress: () => navigation2.goBack(), style: styles$d.backButton, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "chevron-back", size: 24, color: "#1F2937" }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$d.headerTitle, children: "Split Bill" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { style: styles$d.searchButton, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "search", size: 24, color: "#1F2937" }) })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(ForwardedScrollView, { contentContainerStyle: styles$c.content, showsVerticalScrollIndicator: false, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(ForwardedScrollView, { contentContainerStyle: styles$d.content, showsVerticalScrollIndicator: false, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsxs(
         MemoedTouchableOpacity,
         {
-          style: styles$c.createGroupBanner,
+          style: styles$d.createGroupBanner,
           onPress: () => navigation2.navigate("CreateGroup"),
           children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$c.createIconCircle, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "people", size: 24, color: "#fff" }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$c.createGroupTextContainer, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$c.createGroupTitle, children: "Create New Group" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$c.createGroupSubtitle, children: "Start a new split with friends" })
+            /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$d.createIconCircle, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "people", size: 24, color: "#fff" }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$d.createGroupTextContainer, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$d.createGroupTitle, children: "Create New Group" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$d.createGroupSubtitle, children: "Start a new split with friends" })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "chevron-forward", size: 24, color: "#fff" })
           ]
         }
       ),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$c.sectionTitle, children: "Your Groups" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$c.groupsList, children: groups.map((group) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$d.sectionTitle, children: "Your Groups" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$d.groupsList, children: groups.map((group) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
         MemoedTouchableOpacity,
         {
-          style: styles$c.groupCard,
+          style: styles$d.groupCard,
           onPress: () => navigation2.navigate("GroupDetails"),
           children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$c.groupIconPlaceholder, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "briefcase", size: 24, color: "#FFA500" }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$c.groupInfo, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$c.groupName, children: group.name }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$c.groupStatus, { color: group.statusColor }], children: group.status })
+            /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$d.groupIconPlaceholder, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "briefcase", size: 24, color: "#FFA500" }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$d.groupInfo, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$d.groupName, children: group.name }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$d.groupStatus, { color: group.statusColor }], children: group.status })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "chevron-forward", size: 20, color: "#9CA3AF" })
           ]
         },
         group.id
       )) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$c.sectionHeader, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$c.sectionTitle, children: "Friends" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { onPress: () => navigation2.navigate("AddFriend"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$c.addFriendLink, children: "+ Add Friend" }) })
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$d.sectionHeader, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$d.sectionTitle, children: "Friends" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { onPress: () => navigation2.navigate("AddFriend"), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$d.addFriendLink, children: "+ Add Friend" }) })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$c.friendsList, children: friends.map((friend) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$d.friendsList, children: friends.map((friend) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
         MemoedTouchableOpacity,
         {
-          style: styles$c.friendCard,
+          style: styles$d.friendCard,
           onPress: () => navigation2.navigate("FriendDetails"),
           children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$c.avatarCircle, { backgroundColor: friend.color }], children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$c.avatarInitial, children: friend.initial }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$c.friendInfo, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$c.friendName, children: friend.name }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$c.friendStatus, children: friend.status })
+            /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$d.avatarCircle, { backgroundColor: friend.color }], children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$d.avatarInitial, children: friend.initial }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$d.friendInfo, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$d.friendName, children: friend.name }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$d.friendStatus, children: friend.status })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               MemoedTouchableOpacity,
               {
-                style: styles$c.addButton,
+                style: styles$d.addButton,
                 onPress: () => navigation2.navigate("AddTransaction", { friendName: friend.name }),
                 children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "add", size: 20, color: "#1F2937" })
               }
@@ -63270,7 +63420,7 @@ const SplitBillScreen = ({ navigation: navigation2 }) => {
     ] })
   ] });
 };
-const styles$c = stylesheet.create({
+const styles$d = stylesheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F9FAFB"
@@ -63439,17 +63589,11 @@ const styles$c = stylesheet.create({
     alignItems: "center"
   }
 });
-const ProfileScreen = ({ navigation: navigation2, onLogout, user }) => {
-  const systemScheme = useColorScheme();
-  const [isDarkMode, setIsDarkMode] = React.useState(
-    user?.theme ? user.theme === "dark" : systemScheme === "dark"
-  );
-  const toggleTheme = async (value) => {
-    setIsDarkMode(value);
-    const newTheme = value ? "dark" : "light";
-    if (user?.email) {
-      await updateUserTheme(user.email, newTheme);
-    }
+const ProfileScreen = ({ navigation: navigation2, onLogout }) => {
+  const { user, setUser } = useUser();
+  const { isDarkMode, toggleTheme } = useTheme();
+  const handleToggleTheme = (value) => {
+    toggleTheme(value);
   };
   const handleLogout = () => {
     const confirmLogout = () => onLogout();
@@ -63473,8 +63617,8 @@ const ProfileScreen = ({ navigation: navigation2, onLogout, user }) => {
   const subTextStyle = { color: isDarkMode ? "#9CA3AF" : "#6B7280" };
   const cardStyle = { backgroundColor: isDarkMode ? "#1F2937" : "#fff" };
   const iconColor = isDarkMode ? "#F9FAFB" : "#1F2937";
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(SafeAreaView$1, { style: [styles$b.container, bgStyle], children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$b.header, children: [
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(SafeAreaView$1, { style: [styles$c.container, bgStyle], children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$c.header, children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(
         MemoedTouchableOpacity,
         {
@@ -63488,77 +63632,99 @@ const ProfileScreen = ({ navigation: navigation2, onLogout, user }) => {
               });
             }
           },
-          style: [styles$b.backButton, cardStyle],
+          style: [styles$c.backButton, cardStyle],
           children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "chevron-back", size: 24, color: iconColor })
         }
       ),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$b.headerTitle, textStyle2], children: "My Profile" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$c.headerTitle, textStyle2], children: "My Profile" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: { width: 40 } })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(ForwardedScrollView, { contentContainerStyle: styles$b.content, showsVerticalScrollIndicator: false, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$b.profileInfo, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$b.avatarContainer, children: [
-          user?.photo ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(ForwardedScrollView, { contentContainerStyle: styles$c.content, showsVerticalScrollIndicator: false, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$c.profileInfo, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$c.avatarContainer, children: [
+          user?.photoURL ? /* @__PURE__ */ jsxRuntimeExports.jsx(
             ImageWithStatics,
             {
               source: {
-                uri: user.photo,
+                uri: user.photoURL,
                 headers: { Referer: "no-referrer" }
                 // Fix for some Google Images
               },
               style: { width: 100, height: 100, borderRadius: 50 }
             }
           ) : /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "person", size: 48, color: "#8B5CF6" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$b.editBadge, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "pencil", size: 12, color: "#fff" }) })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$c.editBadge, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "pencil", size: 12, color: "#fff" }) })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$b.userName, textStyle2], children: user?.name || "User" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$b.userEmail, subTextStyle], children: user?.email || "No Email" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$c.userName, textStyle2], children: user?.name || "User" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$c.userEmail, subTextStyle], children: user?.email || "No Email" })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: [styles$b.statsCard, cardStyle], children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$b.statItem, children: [
-          user?.saved ? /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$b.statValue, textStyle2], children: user.saved }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$b.statValue, { fontSize: 14, color: "#FF7043" }], children: "Not Set" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$b.statLabel, children: "Saved" })
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$b.divider }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: [styles$c.statsCard, cardStyle], children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           MemoedTouchableOpacity,
           {
-            style: styles$b.statItem,
-            onPress: () => navigation2.navigate("Main", { screen: "Goals" }),
+            style: styles$c.statItem,
+            onPress: () => navigation2.navigate("SetSalary", {
+              currentSalary: user?.salary,
+              userEmail: user?.email
+            }),
             children: [
-              user?.goals ? /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$b.statValue, textStyle2], children: user.goals }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$b.statValue, { fontSize: 14, color: "#FF7043" }], children: "Not Set" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$b.statLabel, children: "Goals" })
+              user?.salary ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                Text$2,
+                {
+                  style: [styles$c.statValue, textStyle2],
+                  numberOfLines: 1,
+                  adjustsFontSizeToFit: true,
+                  minimumFontScale: 0.7,
+                  children: [
+                    "₹",
+                    user.salary
+                  ]
+                }
+              ) : /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$c.statValue, { fontSize: 14, color: "#FF7043" }], children: "Set" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$c.statLabel, children: "Salary" })
             ]
           }
         ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$b.divider }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$b.statItem, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$b.statValue, textStyle2], children: "4.8" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$b.statLabel, children: "Rating" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$c.divider }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          MemoedTouchableOpacity,
+          {
+            style: styles$c.statItem,
+            onPress: () => navigation2.navigate("Main", { screen: "Goals" }),
+            children: [
+              user?.goals ? /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$c.statValue, textStyle2], children: user.goals }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$c.statValue, { fontSize: 14, color: "#FF7043" }], children: "Not Set" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$c.statLabel, children: "Goals" })
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$c.divider }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$c.statItem, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$c.statValue, textStyle2], children: "4.8" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$c.statLabel, children: "Rating" })
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$b.sectionHeader, textStyle2], children: "Account" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$b.menuContainer, cardStyle], children: /* @__PURE__ */ jsxRuntimeExports.jsxs(MemoedTouchableOpacity, { style: styles$b.menuItem, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$b.menuIconBox, { backgroundColor: isDarkMode ? "#374151" : "#F9FAFB" }], children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "lock-closed-outline", size: 20, color: iconColor }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$b.menuText, textStyle2], children: "Security" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$c.sectionHeader, textStyle2], children: "Account" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$c.menuContainer, cardStyle], children: /* @__PURE__ */ jsxRuntimeExports.jsxs(MemoedTouchableOpacity, { style: styles$c.menuItem, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$c.menuIconBox, { backgroundColor: isDarkMode ? "#374151" : "#F9FAFB" }], children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "lock-closed-outline", size: 20, color: iconColor }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$c.menuText, textStyle2], children: "Security" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "chevron-forward", size: 20, color: "#9CA3AF" })
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$b.sectionHeader, textStyle2], children: "Preferences" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$b.menuContainer, cardStyle], children: /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$b.menuItem, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$b.menuIconBox, { backgroundColor: isDarkMode ? "#374151" : "#F9FAFB" }], children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "moon-outline", size: 20, color: iconColor }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$b.menuText, textStyle2], children: "Dark Mode" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$c.sectionHeader, textStyle2], children: "Preferences" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$c.menuContainer, cardStyle], children: /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$c.menuItem, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$c.menuIconBox, { backgroundColor: isDarkMode ? "#374151" : "#F9FAFB" }], children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "moon-outline", size: 20, color: iconColor }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$c.menuText, textStyle2], children: "Dark Mode" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           Switch,
           {
             trackColor: { false: "#767577", true: "#8B5CF6" },
             value: isDarkMode,
-            onValueChange: toggleTheme
+            onValueChange: handleToggleTheme
           }
         )
       ] }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(MemoedTouchableOpacity, { style: styles$b.logoutButton, onPress: handleLogout, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(MemoedTouchableOpacity, { style: styles$c.logoutButton, onPress: handleLogout, children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "log-out-outline", size: 20, color: "#EF4444" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$b.logoutText, children: "Log Out" })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$c.logoutText, children: "Log Out" })
       ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: { height: 40 } })
     ] })
@@ -63566,7 +63732,7 @@ const ProfileScreen = ({ navigation: navigation2, onLogout, user }) => {
 };
 stylesheet.create({});
 stylesheet.create({});
-const styles$b = stylesheet.create({
+const styles$c = stylesheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F9FAFB"
@@ -63743,25 +63909,25 @@ const AddTransactionScreen = ({ navigation: navigation2, route: route2 }) => {
     console.log(`Saved: You ${type} ${amount} to/from ${friendName}`);
     navigation2.goBack();
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(SafeAreaView$1, { style: styles$a.container, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(SafeAreaView$1, { style: styles$b.container, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
     KeyboardAvoidingView,
     {
       behavior: Platform$1.OS === "ios" ? "padding" : void 0,
       style: { flex: 1 },
       children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$a.header, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { onPress: () => navigation2.goBack(), style: styles$a.backButton, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "close", size: 24, color: "#1F2937" }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$a.headerTitle, children: "Add Transaction" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$b.header, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { onPress: () => navigation2.goBack(), style: styles$b.backButton, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "close", size: 24, color: "#1F2937" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$b.headerTitle, children: "Add Transaction" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: { width: 40 } })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(ForwardedScrollView, { contentContainerStyle: styles$a.content, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$a.toggleContainer, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(ForwardedScrollView, { contentContainerStyle: styles$b.content, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$b.toggleContainer, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               MemoedTouchableOpacity,
               {
                 style: [
-                  styles$a.toggleButton,
-                  type === "lent" && styles$a.toggleButtonActive,
+                  styles$b.toggleButton,
+                  type === "lent" && styles$b.toggleButtonActive,
                   type === "lent" && { backgroundColor: "#DCFCE7" }
                   // Green bg for Lent
                 ],
@@ -63770,7 +63936,7 @@ const AddTransactionScreen = ({ navigation: navigation2, route: route2 }) => {
                   Text$2,
                   {
                     style: [
-                      styles$a.toggleText,
+                      styles$b.toggleText,
                       type === "lent" && { color: "#166534" }
                       // Dark green text
                     ],
@@ -63783,8 +63949,8 @@ const AddTransactionScreen = ({ navigation: navigation2, route: route2 }) => {
               MemoedTouchableOpacity,
               {
                 style: [
-                  styles$a.toggleButton,
-                  type === "borrowed" && styles$a.toggleButtonActive,
+                  styles$b.toggleButton,
+                  type === "borrowed" && styles$b.toggleButtonActive,
                   type === "borrowed" && { backgroundColor: "#FEE2E2" }
                   // Red bg for Borrowed
                 ],
@@ -63793,7 +63959,7 @@ const AddTransactionScreen = ({ navigation: navigation2, route: route2 }) => {
                   Text$2,
                   {
                     style: [
-                      styles$a.toggleText,
+                      styles$b.toggleText,
                       type === "borrowed" && { color: "#991B1B" }
                       // Dark red text
                     ],
@@ -63803,16 +63969,16 @@ const AddTransactionScreen = ({ navigation: navigation2, route: route2 }) => {
               }
             )
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$a.personContainer, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$a.avatarCircle, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$a.avatarInitial, children: friendName.charAt(0) }) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$a.personText, children: type === "lent" ? `To ${friendName}` : `From ${friendName}` })
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$b.personContainer, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$b.avatarCircle, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$b.avatarInitial, children: friendName.charAt(0) }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$b.personText, children: type === "lent" ? `To ${friendName}` : `From ${friendName}` })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$a.amountContainer, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$a.currencySymbol, children: "₹" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$b.amountContainer, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$b.currencySymbol, children: "₹" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               TextInput,
               {
-                style: styles$a.amountInput,
+                style: styles$b.amountInput,
                 placeholder: "0",
                 placeholderTextColor: "#D1D5DB",
                 keyboardType: "numeric",
@@ -63822,12 +63988,12 @@ const AddTransactionScreen = ({ navigation: navigation2, route: route2 }) => {
               }
             )
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$a.inputGroup, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$a.label, children: "Note" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$b.inputGroup, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$b.label, children: "Note" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(
               TextInput,
               {
-                style: styles$a.input,
+                style: styles$b.input,
                 placeholder: "What is this for?",
                 placeholderTextColor: "#9CA3AF",
                 value: note,
@@ -63835,17 +64001,17 @@ const AddTransactionScreen = ({ navigation: navigation2, route: route2 }) => {
               }
             )
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(MemoedTouchableOpacity, { style: styles$a.dateSelector, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(MemoedTouchableOpacity, { style: styles$b.dateSelector, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "calendar-outline", size: 20, color: "#6B7280" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$a.dateText, children: "Today" })
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$b.dateText, children: "Today" })
           ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$a.footer, children: /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { style: styles$a.saveButton, onPress: handleSave, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$a.saveButtonText, children: "Save Transaction" }) }) })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$b.footer, children: /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { style: styles$b.saveButton, onPress: handleSave, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$b.saveButtonText, children: "Save Transaction" }) }) })
       ]
     }
   ) });
 };
-const styles$a = stylesheet.create({
+const styles$b = stylesheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff"
@@ -64040,9 +64206,9 @@ const NotificationItem = ({ item, onDelete, onRead }) => {
       outputRange: [1, 0],
       extrapolate: "clamp"
     });
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { onPress: handleDelete, style: styles$9.rightAction, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Animated$2.View, { style: [styles$9.actionIcon, { transform: [{ scale: trans }] }], children: [
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { onPress: handleDelete, style: styles$a.rightAction, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Animated$2.View, { style: [styles$a.actionIcon, { transform: [{ scale: trans }] }], children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "trash-outline", size: 24, color: "#fff" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$9.actionText, children: "Delete" })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$a.actionText, children: "Delete" })
     ] }) });
   };
   const renderLeftActions = (progress, dragX) => {
@@ -64051,9 +64217,9 @@ const NotificationItem = ({ item, onDelete, onRead }) => {
       outputRange: [0, 1],
       extrapolate: "clamp"
     });
-    return /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { onPress: handleRead, style: styles$9.leftAction, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Animated$2.View, { style: [styles$9.actionIcon, { transform: [{ scale: trans }] }], children: [
+    return /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { onPress: handleRead, style: styles$a.leftAction, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Animated$2.View, { style: [styles$a.actionIcon, { transform: [{ scale: trans }] }], children: [
       /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "checkmark-done-outline", size: 24, color: "#fff" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$9.actionText, children: "Read" })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$a.actionText, children: "Read" })
     ] }) });
   };
   let iconName = "notifications";
@@ -64082,14 +64248,14 @@ const NotificationItem = ({ item, onDelete, onRead }) => {
       ref: swipeableRef,
       renderRightActions,
       renderLeftActions,
-      children: /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: [styles$9.card, !item.read && styles$9.unreadCard], children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$9.iconContainer, { backgroundColor: bgColor }], children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: iconName, size: 24, color: iconColor }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$9.textContainer, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$9.title, children: item.title }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$9.message, children: item.message }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$9.time, children: item.time })
+      children: /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: [styles$a.card, !item.read && styles$a.unreadCard], children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$a.iconContainer, { backgroundColor: bgColor }], children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: iconName, size: 24, color: iconColor }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$a.textContainer, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$a.title, children: item.title }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$a.message, children: item.message }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$a.time, children: item.time })
         ] }),
-        !item.read && /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$9.dot })
+        !item.read && /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$a.dot })
       ] })
     }
   );
@@ -64102,10 +64268,10 @@ const NotificationsScreen = ({ navigation: navigation2 }) => {
   const markAsRead = (id2) => {
     setNotifications((prev) => prev.map((n) => n.id === id2 ? { ...n, read: true } : n));
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(SafeAreaView$1, { style: styles$9.container, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$9.header, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { onPress: () => navigation2.goBack(), style: styles$9.backButton, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "chevron-back", size: 24, color: "#1F2937" }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$9.headerTitle, children: "Notifications" }),
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(SafeAreaView$1, { style: styles$a.container, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$a.header, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { onPress: () => navigation2.goBack(), style: styles$a.backButton, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "chevron-back", size: 24, color: "#1F2937" }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$a.headerTitle, children: "Notifications" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: { width: 40 } })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -64121,13 +64287,13 @@ const NotificationsScreen = ({ navigation: navigation2 }) => {
             onRead: markAsRead
           }
         ),
-        contentContainerStyle: styles$9.listContent,
+        contentContainerStyle: styles$a.listContent,
         showsVerticalScrollIndicator: false
       }
     )
   ] });
 };
-const styles$9 = stylesheet.create({
+const styles$a = stylesheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F9FAFB"
@@ -64252,88 +64418,88 @@ const TotalExpenseScreen = ({ navigation: navigation2 }) => {
     { day: "S", date: "25" },
     { day: "S", date: "26" }
   ];
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(SafeAreaView$1, { style: styles$8.container, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$8.header, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { onPress: () => navigation2.goBack(), style: styles$8.backButton, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "chevron-back", size: 24, color: "#1F2937" }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$8.headerTitle, children: "Total Expense" }),
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(SafeAreaView$1, { style: styles$9.container, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$9.header, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { onPress: () => navigation2.goBack(), style: styles$9.backButton, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "chevron-back", size: 24, color: "#1F2937" }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$9.headerTitle, children: "Total Expense" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: { width: 40 } })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(ForwardedScrollView, { contentContainerStyle: styles$8.content, showsVerticalScrollIndicator: false, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$8.calendarCard, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$8.calendarHeader, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(ForwardedScrollView, { contentContainerStyle: styles$9.content, showsVerticalScrollIndicator: false, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$9.calendarCard, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$9.calendarHeader, children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "chevron-back", size: 20, color: "#1F2937" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$8.monthTitle, children: "April 2022" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$9.monthTitle, children: "April 2022" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "chevron-forward", size: 20, color: "#1F2937" })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$8.weekRow, children: calendarData.map((item, index2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$8.dayCol, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$8.dayLabel, children: item.day }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$9.weekRow, children: calendarData.map((item, index2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$9.dayCol, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$9.dayLabel, children: item.day }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             MemoedTouchableOpacity,
             {
               style: [
-                styles$8.dateBtn,
-                selectedDate === item.date && styles$8.dateBtnActive
+                styles$9.dateBtn,
+                selectedDate === item.date && styles$9.dateBtnActive
               ],
               onPress: () => setSelectedDate(item.date),
               children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [
-                styles$8.dateText,
-                selectedDate === item.date && styles$8.dateTextActive
+                styles$9.dateText,
+                selectedDate === item.date && styles$9.dateTextActive
               ], children: item.date })
             }
           )
         ] }, index2)) })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$8.summaryCard, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$8.summaryHeader, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Text$2, { style: styles$8.summaryText, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$9.summaryCard, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$9.summaryHeader, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Text$2, { style: styles$9.summaryText, children: [
             "You have Spend ",
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$8.highlightAmount, children: "₹6,584" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$9.highlightAmount, children: "₹6,584" }),
             "\n",
             "this month."
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$8.summaryDate, children: "April, 2022" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$9.summaryDate, children: "April, 2022" })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$8.progressRow, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$8.progressLabelContainer, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$8.progressPercent, children: "75.78%" }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$8.remainingPercent, children: "24.22%" })
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$9.progressRow, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$9.progressLabelContainer, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$9.progressPercent, children: "75.78%" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$9.remainingPercent, children: "24.22%" })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$8.progressBarBg, children: /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$8.progressBarFill, { width: "75.78%" }] }) })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$9.progressBarBg, children: /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$9.progressBarFill, { width: "75.78%" }] }) })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$8.analyticsHeader, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$8.sectionTitle, children: "Analytics" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$8.viewAllText, children: "View All" })
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$9.analyticsHeader, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$9.sectionTitle, children: "Analytics" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$9.viewAllText, children: "View All" })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$8.pieChartContainer, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$8.chartTitle, children: "Food And Drinks" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$8.chartSubtitle, children: "₹4,672" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$8.chartArea, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$8.donutContainer, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$8.donutSegment, { borderColor: "#8B5CF6" }] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$8.donutSegment, {
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$9.pieChartContainer, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$9.chartTitle, children: "Food And Drinks" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$9.chartSubtitle, children: "₹4,672" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$9.chartArea, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$9.donutContainer, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$9.donutSegment, { borderColor: "#8B5CF6" }] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$9.donutSegment, {
               borderColor: "#FF7043",
               position: "absolute",
               borderLeftColor: "transparent",
               borderBottomColor: "transparent",
               transform: [{ rotate: "-45deg" }]
             }] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$8.donutInner, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$8.innerLabel, children: "Total" }) })
+            /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$9.donutInner, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$9.innerLabel, children: "Total" }) })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$8.percentLabel, { top: 40, right: 20 }], children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$8.percentText, children: "35%" }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$8.percentLabel, { bottom: 40, left: 20 }], children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$8.percentText, children: "45%" }) })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$9.percentLabel, { top: 40, right: 20 }], children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$9.percentText, children: "35%" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$9.percentLabel, { bottom: 40, left: 20 }], children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$9.percentText, children: "45%" }) })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$8.legendContainer, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$8.legendItem, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$8.legendDot, { backgroundColor: "#FF7043" }] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$9.legendContainer, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$9.legendItem, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$9.legendDot, { backgroundColor: "#FF7043" }] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$8.legendTitle, children: "Shopping" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$8.legendValue, children: "₹3,762" })
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$9.legendTitle, children: "Shopping" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$9.legendValue, children: "₹3,762" })
             ] })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$8.legendItem, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$8.legendDot, { backgroundColor: "#8B5CF6" }] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$9.legendItem, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$9.legendDot, { backgroundColor: "#8B5CF6" }] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$8.legendTitle, children: "Healthcare" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$8.legendValue, children: "₹2,917" })
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$9.legendTitle, children: "Healthcare" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$9.legendValue, children: "₹2,917" })
             ] })
           ] })
         ] })
@@ -64342,7 +64508,7 @@ const TotalExpenseScreen = ({ navigation: navigation2 }) => {
     ] })
   ] });
 };
-const styles$8 = stylesheet.create({
+const styles$9 = stylesheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F9FAFB"
@@ -64590,55 +64756,55 @@ const EXPENSES = [
   { id: "3", title: "Booze", amount: "₹4,000", paidBy: "Amit", date: "19 Apr", icon: "beer" }
 ];
 const GroupDetailsScreen = ({ navigation: navigation2 }) => {
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(SafeAreaView$1, { style: styles$7.container, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$7.header, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { onPress: () => navigation2.goBack(), style: styles$7.backButton, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "chevron-back", size: 24, color: "#1F2937" }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$7.headerTitle, children: "Goa Trip" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { style: styles$7.settingsButton, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "settings-outline", size: 24, color: "#1F2937" }) })
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(SafeAreaView$1, { style: styles$8.container, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$8.header, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { onPress: () => navigation2.goBack(), style: styles$8.backButton, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "chevron-back", size: 24, color: "#1F2937" }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$8.headerTitle, children: "Goa Trip" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { style: styles$8.settingsButton, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "settings-outline", size: 24, color: "#1F2937" }) })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(ForwardedScrollView, { contentContainerStyle: styles$7.content, showsVerticalScrollIndicator: false, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$7.summaryCard, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$7.cardTitle, children: "Your Total Share" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$7.cardAmount, children: "₹4,500" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$7.breakdownRow, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$7.breakdownItem, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$7.breakdownLabel, children: "Paid" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$7.breakdownValue, { color: "#4CAF50" }], children: "₹2,500" })
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(ForwardedScrollView, { contentContainerStyle: styles$8.content, showsVerticalScrollIndicator: false, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$8.summaryCard, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$8.cardTitle, children: "Your Total Share" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$8.cardAmount, children: "₹4,500" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$8.breakdownRow, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$8.breakdownItem, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$8.breakdownLabel, children: "Paid" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$8.breakdownValue, { color: "#4CAF50" }], children: "₹2,500" })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$7.divider }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$7.breakdownItem, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$7.breakdownLabel, children: "Owe" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$7.breakdownValue, { color: "#FF7043" }], children: "₹2,000" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$8.divider }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$8.breakdownItem, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$8.breakdownLabel, children: "Owe" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$8.breakdownValue, { color: "#FF7043" }], children: "₹2,000" })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$7.divider }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$7.breakdownItem, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$7.breakdownLabel, children: "Owed" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$7.breakdownValue, { color: "#8B5CF6" }], children: "₹0" })
+          /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$8.divider }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$8.breakdownItem, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$8.breakdownLabel, children: "Owed" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$8.breakdownValue, { color: "#8B5CF6" }], children: "₹0" })
           ] })
         ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$7.sectionTitle, children: "Expenses" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { children: EXPENSES.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$7.expenseItem, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$7.iconContainer, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: item.icon, size: 24, color: "#FF7043" }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$7.expenseInfo, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$7.expenseTitle, children: item.title }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Text$2, { style: styles$7.expenseSubtitle, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$8.sectionTitle, children: "Expenses" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { children: EXPENSES.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$8.expenseItem, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$8.iconContainer, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: item.icon, size: 24, color: "#FF7043" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$8.expenseInfo, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$8.expenseTitle, children: item.title }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Text$2, { style: styles$8.expenseSubtitle, children: [
             "Paid by ",
             item.paidBy,
             " • ",
             item.date
           ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$7.expenseAmount, children: item.amount })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$8.expenseAmount, children: item.amount })
       ] }, item.id)) }),
       /* @__PURE__ */ jsxRuntimeExports.jsxs(
         MemoedTouchableOpacity,
         {
-          style: styles$7.addExpenseButton,
+          style: styles$8.addExpenseButton,
           onPress: () => navigation2.navigate("AddExpense"),
           children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "add", size: 24, color: "#fff" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$7.addExpenseText, children: "Add Group Expense" })
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$8.addExpenseText, children: "Add Group Expense" })
           ]
         }
       ),
@@ -64646,7 +64812,7 @@ const GroupDetailsScreen = ({ navigation: navigation2 }) => {
     ] })
   ] });
 };
-const styles$7 = stylesheet.create({
+const styles$8 = stylesheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F9FAFB"
@@ -64795,40 +64961,40 @@ const SHARED_EXPENSES = [
   { id: "2", title: "Movie Tickets", amount: "₹800", paidBy: "Rahul", date: "2 days ago", icon: "ticket" }
 ];
 const FriendDetailsScreen = ({ navigation: navigation2 }) => {
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(SafeAreaView$1, { style: styles$6.container, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$6.header, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { onPress: () => navigation2.goBack(), style: styles$6.backButton, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "chevron-back", size: 24, color: "#1F2937" }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$6.profileHeader, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$6.avatar, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "person", size: 24, color: "#fff" }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$6.headerTitle, children: "Rahul" })
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(SafeAreaView$1, { style: styles$7.container, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$7.header, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { onPress: () => navigation2.goBack(), style: styles$7.backButton, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "chevron-back", size: 24, color: "#1F2937" }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$7.profileHeader, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$7.avatar, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "person", size: 24, color: "#fff" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$7.headerTitle, children: "Rahul" })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { style: styles$6.settingsButton, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "ellipsis-vertical", size: 24, color: "#1F2937" }) })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { style: styles$7.settingsButton, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "ellipsis-vertical", size: 24, color: "#1F2937" }) })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(ForwardedScrollView, { contentContainerStyle: styles$6.content, showsVerticalScrollIndicator: false, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$6.balanceCard, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$6.balanceLabel, children: "Rahul owes you" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$6.balanceAmount, children: "₹400" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { style: styles$6.settleButton, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$6.settleButtonText, children: "Settle Up" }) })
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(ForwardedScrollView, { contentContainerStyle: styles$7.content, showsVerticalScrollIndicator: false, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$7.balanceCard, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$7.balanceLabel, children: "Rahul owes you" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$7.balanceAmount, children: "₹400" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { style: styles$7.settleButton, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$7.settleButtonText, children: "Settle Up" }) })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$6.sectionTitle, children: "Shared Expenses" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { children: SHARED_EXPENSES.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$6.expenseItem, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$6.iconContainer, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: item.icon, size: 24, color: "#8B5CF6" }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$6.expenseInfo, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$6.expenseTitle, children: item.title }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Text$2, { style: styles$6.expenseSubtitle, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$7.sectionTitle, children: "Shared Expenses" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { children: SHARED_EXPENSES.map((item) => /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$7.expenseItem, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$7.iconContainer, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: item.icon, size: 24, color: "#8B5CF6" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$7.expenseInfo, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$7.expenseTitle, children: item.title }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Text$2, { style: styles$7.expenseSubtitle, children: [
             "Paid by ",
             item.paidBy,
             " • ",
             item.date
           ] })
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$6.expenseAmount, children: item.amount })
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$7.expenseAmount, children: item.amount })
       ] }, item.id)) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: { height: 100 } })
     ] })
   ] });
 };
-const styles$6 = stylesheet.create({
+const styles$7 = stylesheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F9FAFB"
@@ -64993,41 +65159,41 @@ const GoalsScreen = ({ navigation: navigation2 }) => {
   const calculateProgress = (saved, target) => {
     return saved / target * 100;
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(SafeAreaView$1, { style: styles$5.container, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$5.header, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$5.headerTitle, children: "Goals" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { onPress: () => setModalVisible(true), style: styles$5.addButton, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "add", size: 24, color: "#fff" }) })
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(SafeAreaView$1, { style: styles$6.container, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$6.header, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$6.headerTitle, children: "Goals" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { onPress: () => setModalVisible(true), style: styles$6.addButton, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "add", size: 24, color: "#fff" }) })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(ForwardedScrollView, { contentContainerStyle: styles$5.content, showsVerticalScrollIndicator: false, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$5.sectionTitle, children: "Active Goals" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$5.gridContainer, children: goals.map((goal) => {
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(ForwardedScrollView, { contentContainerStyle: styles$6.content, showsVerticalScrollIndicator: false, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$6.sectionTitle, children: "Active Goals" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$6.gridContainer, children: goals.map((goal) => {
         const progress = calculateProgress(goal.savedAmount, goal.targetAmount);
-        return /* @__PURE__ */ jsxRuntimeExports.jsxs(MemoedTouchableOpacity, { style: [styles$5.goalCard, { backgroundColor: goal.color }], children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$5.cardHeader, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$5.iconCircle, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: goal.icon, size: 20, color: goal.color }) }),
+        return /* @__PURE__ */ jsxRuntimeExports.jsxs(MemoedTouchableOpacity, { style: [styles$6.goalCard, { backgroundColor: goal.color }], children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$6.cardHeader, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$6.iconCircle, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: goal.icon, size: 20, color: goal.color }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "ellipsis-vertical", size: 20, color: "#fff" }) })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$5.cardBody, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$5.goalTitle, children: goal.title }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(Text$2, { style: styles$5.goalDeadline, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$6.cardBody, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$6.goalTitle, children: goal.title }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(Text$2, { style: styles$6.goalDeadline, children: [
               "by ",
               goal.deadline
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$5.amountRow, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(Text$2, { style: styles$5.savedText, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$6.amountRow, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(Text$2, { style: styles$6.savedText, children: [
                 "₹",
                 (goal.savedAmount / 1e3).toFixed(0),
                 "k"
               ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(Text$2, { style: styles$5.targetText, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(Text$2, { style: styles$6.targetText, children: [
                 "/ ₹",
                 (goal.targetAmount / 1e3).toFixed(0),
                 "k"
               ] })
             ] })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$5.progressContainer, children: /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$5.progressBar, { width: `${progress}%` }] }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Text$2, { style: styles$5.progressText, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$6.progressContainer, children: /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$6.progressBar, { width: `${progress}%` }] }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Text$2, { style: styles$6.progressText, children: [
             progress.toFixed(0),
             "% completed"
           ] })
@@ -65042,12 +65208,12 @@ const GoalsScreen = ({ navigation: navigation2 }) => {
         transparent: true,
         visible: modalVisible,
         onRequestClose: () => setModalVisible(false),
-        children: /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$5.modalOverlay, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$5.modalContent, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$5.modalTitle, children: "New Goal" }),
+        children: /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$6.modalOverlay, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$6.modalContent, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$6.modalTitle, children: "New Goal" }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             TextInput,
             {
-              style: styles$5.input,
+              style: styles$6.input,
               placeholder: "Goal Name (e.g. iPhone 17)",
               placeholderTextColor: "#9CA3AF"
             }
@@ -65055,7 +65221,7 @@ const GoalsScreen = ({ navigation: navigation2 }) => {
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             TextInput,
             {
-              style: styles$5.input,
+              style: styles$6.input,
               placeholder: "Target Amount (e.g. 120000)",
               keyboardType: "numeric",
               placeholderTextColor: "#9CA3AF"
@@ -65064,7 +65230,7 @@ const GoalsScreen = ({ navigation: navigation2 }) => {
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             TextInput,
             {
-              style: styles$5.input,
+              style: styles$6.input,
               placeholder: "Target Date (e.g. 16th July)",
               placeholderTextColor: "#9CA3AF"
             }
@@ -65072,17 +65238,17 @@ const GoalsScreen = ({ navigation: navigation2 }) => {
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             MemoedTouchableOpacity,
             {
-              style: styles$5.saveGoalButton,
+              style: styles$6.saveGoalButton,
               onPress: () => setModalVisible(false),
-              children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$5.saveGoalText, children: "Create Goal" })
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$6.saveGoalText, children: "Create Goal" })
             }
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             MemoedTouchableOpacity,
             {
-              style: styles$5.cancelButton,
+              style: styles$6.cancelButton,
               onPress: () => setModalVisible(false),
-              children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$5.cancelText, children: "Cancel" })
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$6.cancelText, children: "Cancel" })
             }
           )
         ] }) })
@@ -65090,7 +65256,7 @@ const GoalsScreen = ({ navigation: navigation2 }) => {
     )
   ] });
 };
-const styles$5 = stylesheet.create({
+const styles$6 = stylesheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F9FAFB"
@@ -65273,19 +65439,19 @@ const CreateGroupScreen = ({ navigation: navigation2 }) => {
       setSelectedMembers([...selectedMembers, id2]);
     }
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(SafeAreaView$1, { style: styles$4.container, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$4.header, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { onPress: () => navigation2.goBack(), style: styles$4.backButton, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "chevron-back", size: 24, color: "#1F2937" }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$4.headerTitle, children: "Create New Group" }),
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(SafeAreaView$1, { style: styles$5.container, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$5.header, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { onPress: () => navigation2.goBack(), style: styles$5.backButton, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "chevron-back", size: 24, color: "#1F2937" }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$5.headerTitle, children: "Create New Group" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: { width: 40 } })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(ForwardedScrollView, { contentContainerStyle: styles$4.content, showsVerticalScrollIndicator: false, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$4.inputContainer, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$4.label, children: "Group Name" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(ForwardedScrollView, { contentContainerStyle: styles$5.content, showsVerticalScrollIndicator: false, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$5.inputContainer, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$5.label, children: "Group Name" }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           TextInput,
           {
-            style: styles$4.input,
+            style: styles$5.input,
             placeholder: "e.g. Goa Trip",
             placeholderTextColor: "#9CA3AF",
             value: groupName,
@@ -65294,38 +65460,38 @@ const CreateGroupScreen = ({ navigation: navigation2 }) => {
           }
         )
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$4.sectionTitle, children: "Add Members" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$4.membersList, children: FRIENDS_DATA.map((friend) => {
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$5.sectionTitle, children: "Add Members" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$5.membersList, children: FRIENDS_DATA.map((friend) => {
         const isSelected = selectedMembers.includes(friend.id);
         return /* @__PURE__ */ jsxRuntimeExports.jsxs(
           MemoedTouchableOpacity,
           {
-            style: [styles$4.memberCard, isSelected && styles$4.memberCardActive],
+            style: [styles$5.memberCard, isSelected && styles$5.memberCardActive],
             onPress: () => toggleMember(friend.id),
             children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$4.avatarCircle, { backgroundColor: friend.color }], children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$4.avatarInitial, children: friend.initial }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$4.memberName, children: friend.name }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$4.checkbox, isSelected && styles$4.checkboxActive], children: isSelected && /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "checkmark", size: 14, color: "#fff" }) })
+              /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$5.avatarCircle, { backgroundColor: friend.color }], children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$5.avatarInitial, children: friend.initial }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$5.memberName, children: friend.name }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: [styles$5.checkbox, isSelected && styles$5.checkboxActive], children: isSelected && /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "checkmark", size: 14, color: "#fff" }) })
             ]
           },
           friend.id
         );
       }) })
     ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$4.footer, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+    /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$5.footer, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
       MemoedTouchableOpacity,
       {
-        style: [styles$4.createButton, { opacity: groupName ? 1 : 0.6 }],
+        style: [styles$5.createButton, { opacity: groupName ? 1 : 0.6 }],
         disabled: !groupName,
         onPress: () => {
           navigation2.goBack();
         },
-        children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$4.createButtonText, children: "Create Group" })
+        children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$5.createButtonText, children: "Create Group" })
       }
     ) })
   ] });
 };
-const styles$4 = stylesheet.create({
+const styles$5 = stylesheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F9FAFB"
@@ -65570,10 +65736,10 @@ const LinearGradient = /* @__PURE__ */ getDefaultExportFromCjs(distExports);
 const AddFriendScreen = ({ navigation: navigation2 }) => {
   const [name2, setName] = reactExports.useState("");
   const [email, setEmail] = reactExports.useState("");
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(SafeAreaView$1, { style: styles$3.container, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$3.header, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { onPress: () => navigation2.goBack(), style: styles$3.backButton, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "chevron-back", size: 24, color: "#1F2937" }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$3.headerTitle, children: "Add Friend" }),
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(SafeAreaView$1, { style: styles$4.container, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$4.header, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { onPress: () => navigation2.goBack(), style: styles$4.backButton, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "chevron-back", size: 24, color: "#1F2937" }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$4.headerTitle, children: "Add Friend" }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: { width: 40 } })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -65582,25 +65748,25 @@ const AddFriendScreen = ({ navigation: navigation2 }) => {
         behavior: Platform$1.OS === "ios" ? "padding" : "height",
         style: { flex: 1 },
         children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(ForwardedScrollView, { contentContainerStyle: styles$3.content, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$3.mainCard, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$3.iconContainer, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(ForwardedScrollView, { contentContainerStyle: styles$4.content, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$4.mainCard, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$4.iconContainer, children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "person-add", size: 48, color: "#8B5CF6" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$3.iconPlusBadge, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "add", size: 16, color: "#fff" }) })
+              /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$4.iconPlusBadge, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "add", size: 16, color: "#fff" }) })
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(Text$2, { style: styles$3.helperText, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(Text$2, { style: styles$4.helperText, children: [
               "Add a friend to split bills and track",
               "\n",
               "expenses together."
             ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$3.formContainer, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$3.inputGroup, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$3.label, children: "Name" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$3.inputWrapper, children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "person-outline", size: 20, color: "#9CA3AF", style: styles$3.inputIcon }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$4.formContainer, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$4.inputGroup, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$4.label, children: "Name" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$4.inputWrapper, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "person-outline", size: 20, color: "#9CA3AF", style: styles$4.inputIcon }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx(
                     TextInput,
                     {
-                      style: styles$3.input,
+                      style: styles$4.input,
                       placeholder: "Enter name",
                       placeholderTextColor: "#9CA3AF",
                       value: name2,
@@ -65610,14 +65776,14 @@ const AddFriendScreen = ({ navigation: navigation2 }) => {
                   )
                 ] })
               ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$3.inputGroup, children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$3.label, children: "Email or Phone" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$3.inputWrapper, children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "mail-outline", size: 20, color: "#9CA3AF", style: styles$3.inputIcon }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$4.inputGroup, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$4.label, children: "Email or Phone" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$4.inputWrapper, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "mail-outline", size: 20, color: "#9CA3AF", style: styles$4.inputIcon }),
                   /* @__PURE__ */ jsxRuntimeExports.jsx(
                     TextInput,
                     {
-                      style: styles$3.input,
+                      style: styles$4.input,
                       placeholder: "Enter email or phone",
                       placeholderTextColor: "#9CA3AF",
                       value: email,
@@ -65630,7 +65796,7 @@ const AddFriendScreen = ({ navigation: navigation2 }) => {
               ] })
             ] })
           ] }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$3.footer, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$4.footer, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
             MemoedTouchableOpacity,
             {
               activeOpacity: 0.8,
@@ -65644,8 +65810,8 @@ const AddFriendScreen = ({ navigation: navigation2 }) => {
                   colors: name2 && email ? ["#8B5CF6", "#7C3AED"] : ["#C4B5FD", "#C4B5FD"],
                   start: { x: 0, y: 0 },
                   end: { x: 1, y: 0 },
-                  style: styles$3.gradientButton,
-                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$3.addButtonText, children: "Add Friend" })
+                  style: styles$4.gradientButton,
+                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$4.addButtonText, children: "Add Friend" })
                 }
               )
             }
@@ -65655,7 +65821,7 @@ const AddFriendScreen = ({ navigation: navigation2 }) => {
     )
   ] });
 };
-const styles$3 = stylesheet.create({
+const styles$4 = stylesheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F9FAFB"
@@ -65782,6 +65948,190 @@ const styles$3 = stylesheet.create({
     fontSize: 17,
     fontWeight: "700",
     letterSpacing: 0.5
+  }
+});
+const SetSalaryScreen = ({ navigation: navigation2, route: route2 }) => {
+  const { isDarkMode } = useTheme();
+  const { user, updateUser } = useUser();
+  const [salary, setSalary] = reactExports.useState(user?.salary || "");
+  const [loading, setLoading] = reactExports.useState(false);
+  const themeStyles = {
+    container: { backgroundColor: isDarkMode ? "#111827" : "#F9FAFB" },
+    text: { color: isDarkMode ? "#F9FAFB" : "#1F2937" },
+    subText: { color: isDarkMode ? "#9CA3AF" : "#6B7280" },
+    button: { backgroundColor: "#8B5CF6" }
+    // Violet for premium feel
+  };
+  const formatSalary = (value) => {
+    const cleaned = value.replace(/\D/g, "");
+    let x = cleaned;
+    if (x.length <= 3) return x;
+    let lastThree = x.substring(x.length - 3);
+    let otherNumbers = x.substring(0, x.length - 3);
+    if (otherNumbers !== "")
+      lastThree = "," + lastThree;
+    return otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + lastThree;
+  };
+  const handleChangeText = (text2) => {
+    setSalary(formatSalary(text2));
+  };
+  const handleSave = async () => {
+    if (!salary) {
+      Platform$1.OS === "web" ? alert("Please enter a valid salary.") : Alert.alert("Error", "Please enter a valid salary.");
+      return;
+    }
+    setLoading(true);
+    try {
+      const userEmail = user?.email;
+      if (!userEmail) {
+        Platform$1.OS === "web" ? alert("User email not found. Please log in again.") : Alert.alert("Error", "User email not found. Please log in again.");
+        return;
+      }
+      await updateUserSalary(userEmail, salary);
+      await updateUser({ salary });
+      if (Platform$1.OS === "web") {
+        setTimeout(() => {
+          alert("Salary updated successfully!");
+          navigation2.goBack();
+        }, 100);
+      } else {
+        Alert.alert("Success", "Salary updated successfully!", [{ text: "OK", onPress: () => navigation2.goBack() }]);
+      }
+    } catch (error) {
+      console.error(error);
+      Platform$1.OS === "web" ? alert("Failed to update salary.") : Alert.alert("Error", "Failed to update salary.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(SafeAreaView$1, { style: [styles$3.container, themeStyles.container], children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    KeyboardAvoidingView,
+    {
+      behavior: Platform$1.OS === "ios" ? "padding" : "height",
+      style: { flex: 1 },
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$3.header, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(MemoedTouchableOpacity, { onPress: () => navigation2.goBack(), style: styles$3.backButton, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "arrow-back", size: 24, color: isDarkMode ? "#fff" : "#000" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$3.headerTitle, themeStyles.text], children: "Set Monthly Salary" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: { width: 40 } })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: styles$3.content, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$3.iconContainer, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { name: "wallet-outline", size: 64, color: "#8B5CF6" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$3.label, themeStyles.subText], children: "What is your monthly income?" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(View$1, { style: [styles$3.inputContainer, { borderColor: isDarkMode ? "#4B5563" : "#E5E7EB" }], children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$3.currencySymbol, themeStyles.text], children: "₹" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              TextInput,
+              {
+                style: [styles$3.input, themeStyles.text],
+                placeholder: "0",
+                placeholderTextColor: isDarkMode ? "#6B7280" : "#9CA3AF",
+                keyboardType: "numeric",
+                value: salary,
+                onChangeText: handleChangeText,
+                autoFocus: true,
+                numberOfLines: 1
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: [styles$3.hint, themeStyles.subText], children: "This helps us calculate your savings and goals accurately." })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: styles$3.footer, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          MemoedTouchableOpacity,
+          {
+            style: [styles$3.saveButton, themeStyles.button, loading && { opacity: 0.7 }],
+            onPress: handleSave,
+            disabled: loading,
+            children: loading ? /* @__PURE__ */ jsxRuntimeExports.jsx(ActivityIndicator, { color: "#fff" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Text$2, { style: styles$3.saveButtonText, children: "Save Salary" })
+          }
+        ) })
+      ]
+    }
+  ) });
+};
+const styles$3 = stylesheet.create({
+  container: {
+    flex: 1
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 24,
+    paddingVertical: 16
+  },
+  backButton: {
+    padding: 8
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: "600"
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 32,
+    alignItems: "center",
+    paddingTop: 48
+  },
+  iconContainer: {
+    marginBottom: 32,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: "rgba(139, 92, 246, 0.1)",
+    justifyContent: "center",
+    alignItems: "center"
+  },
+  label: {
+    fontSize: 16,
+    marginBottom: 24
+  },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderBottomWidth: 2,
+    paddingBottom: 8,
+    width: "100%",
+    justifyContent: "center"
+  },
+  currencySymbol: {
+    fontSize: 40,
+    fontWeight: "700",
+    marginRight: 8
+  },
+  input: {
+    fontSize: 40,
+    fontWeight: "700",
+    minWidth: 100,
+    textAlign: "center"
+  },
+  hint: {
+    fontSize: 14,
+    marginTop: 32,
+    textAlign: "center",
+    lineHeight: 20
+  },
+  footer: {
+    padding: 24
+  },
+  saveButton: {
+    height: 56,
+    borderRadius: 28,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#8B5CF6",
+    shadowOffset: {
+      width: 0,
+      height: 8
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 8
+  },
+  saveButtonText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "700"
   }
 });
 const usePWAInstall = () => {
@@ -66381,129 +66731,107 @@ const linking = {
       GroupDetails: "group/:id",
       FriendDetails: "friend/:id",
       CreateGroup: "create-group",
-      AddFriend: "add-friend"
+      AddFriend: "add-friend",
+      SetSalary: "set-salary"
     }
   }
 };
-function App() {
-  const [hasOnboarded, setHasOnboarded] = reactExports.useState(false);
-  const [user, setUser] = reactExports.useState(null);
-  const [loading, setLoading] = reactExports.useState(true);
-  reactExports.useEffect(() => {
-    const checkStorage = async () => {
-      try {
-        const storedUser = await AsyncStorage.getItem("user");
-        const storedOnboarding = await AsyncStorage.getItem("hasOnboarded");
-        if (storedUser) {
-          setUser(JSON.parse(storedUser));
-        }
-        if (storedOnboarding) {
-          setHasOnboarded(true);
-        }
-      } catch (e) {
-        console.error("Failed to load storage", e);
-      } finally {
-        setLoading(false);
-      }
-    };
-    checkStorage();
-  }, []);
-  const handleLoginSuccess = async (userData) => {
-    setUser(userData);
-    await AsyncStorage.setItem("user", JSON.stringify(userData));
-    await AsyncStorage.setItem("hasOnboarded", "true");
-  };
-  const handleOnboardingComplete = async () => {
-    setHasOnboarded(true);
-    await AsyncStorage.setItem("hasOnboarded", "true");
-  };
-  const handleLogout = async () => {
-    await logout();
-    setUser(null);
-    await AsyncStorage.removeItem("user");
-  };
+const AppContent = () => {
+  const { user, loading, hasOnboarded, completeOnboarding, login, logout: logout2 } = useUser();
   if (loading) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx(View$1, { style: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#fff" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(ActivityIndicator, { size: "large", color: "#FF7043" }) });
   }
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(SafeAreaProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(GestureHandlerRootView, { style: { flex: 1 }, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(StatusBar, { barStyle: "dark-content" }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(NavigationContainer, { linking, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Stack.Navigator, { screenOptions: { headerShown: false }, children: !user ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-      !hasOnboarded && /* @__PURE__ */ jsxRuntimeExports.jsx(Stack.Screen, { name: "Onboarding", children: (props) => /* @__PURE__ */ jsxRuntimeExports.jsx(OnboardingScreen, { ...props, onComplete: handleOnboardingComplete }) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Stack.Screen, { name: "Login", children: (props) => /* @__PURE__ */ jsxRuntimeExports.jsx(LoginScreen, { ...props, onLoginSuccess: handleLoginSuccess }) })
-    ] }) : (
-      /* Main App Flow */
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Stack.Screen, { name: "Main", children: () => /* @__PURE__ */ jsxRuntimeExports.jsx(MainTabs, { onLogout: handleLogout }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          Stack.Screen,
-          {
-            name: "AddTransaction",
-            component: AddTransactionScreen,
-            options: { presentation: "modal" }
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          Stack.Screen,
-          {
-            name: "AddExpense",
-            component: AddExpenseScreen,
-            options: { headerShown: false }
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          Stack.Screen,
-          {
-            name: "Notifications",
-            component: NotificationsScreen,
-            options: { headerShown: false }
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          Stack.Screen,
-          {
-            name: "TotalExpense",
-            component: TotalExpenseScreen,
-            options: { headerShown: false }
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          Stack.Screen,
-          {
-            name: "GroupDetails",
-            component: GroupDetailsScreen,
-            options: { headerShown: false }
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          Stack.Screen,
-          {
-            name: "FriendDetails",
-            component: FriendDetailsScreen,
-            options: { headerShown: false }
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          Stack.Screen,
-          {
-            name: "CreateGroup",
-            component: CreateGroupScreen,
-            options: { headerShown: false }
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          Stack.Screen,
-          {
-            name: "AddFriend",
-            component: AddFriendScreen,
-            options: { headerShown: false }
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Stack.Screen, { name: "Profile", children: (props) => /* @__PURE__ */ jsxRuntimeExports.jsx(ProfileScreen, { ...props, onLogout: handleLogout, user }) })
-      ] })
-    ) }) }),
-    Platform$1.OS === "web" && /* @__PURE__ */ jsxRuntimeExports.jsx(PWAInstallPrompt, {})
-  ] }) });
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(NavigationContainer, { linking, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Stack.Navigator, { screenOptions: { headerShown: false }, children: !user ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    !hasOnboarded && /* @__PURE__ */ jsxRuntimeExports.jsx(Stack.Screen, { name: "Onboarding", children: (props) => /* @__PURE__ */ jsxRuntimeExports.jsx(OnboardingScreen, { ...props, onComplete: completeOnboarding }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Stack.Screen, { name: "Login", children: (props) => /* @__PURE__ */ jsxRuntimeExports.jsx(LoginScreen, { ...props, onLoginSuccess: login }) })
+  ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Stack.Screen, { name: "Main", children: () => /* @__PURE__ */ jsxRuntimeExports.jsx(MainTabs, { onLogout: logout2 }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      Stack.Screen,
+      {
+        name: "AddTransaction",
+        component: AddTransactionScreen,
+        options: { presentation: "modal" }
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      Stack.Screen,
+      {
+        name: "AddExpense",
+        component: AddExpenseScreen,
+        options: { headerShown: false }
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      Stack.Screen,
+      {
+        name: "Notifications",
+        component: NotificationsScreen,
+        options: { headerShown: false }
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      Stack.Screen,
+      {
+        name: "TotalExpense",
+        component: TotalExpenseScreen,
+        options: { headerShown: false }
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      Stack.Screen,
+      {
+        name: "GroupDetails",
+        component: GroupDetailsScreen,
+        options: { headerShown: false }
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      Stack.Screen,
+      {
+        name: "FriendDetails",
+        component: FriendDetailsScreen,
+        options: { headerShown: false }
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      Stack.Screen,
+      {
+        name: "CreateGroup",
+        component: CreateGroupScreen,
+        options: { headerShown: false }
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      Stack.Screen,
+      {
+        name: "AddFriend",
+        component: AddFriendScreen,
+        options: { headerShown: false }
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Stack.Screen, { name: "Profile", children: (props) => /* @__PURE__ */ jsxRuntimeExports.jsx(ProfileScreen, { ...props, onLogout: logout2 }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      Stack.Screen,
+      {
+        name: "SetSalary",
+        component: SetSalaryScreen,
+        options: { headerShown: false }
+      }
+    )
+  ] }) }) });
+};
+function App() {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(SafeAreaProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(GestureHandlerRootView, { style: { flex: 1 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(UserProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(AppWithTheme, {}) }) }) });
 }
+const AppWithTheme = () => {
+  const { user } = useUser();
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(ThemeProvider, { userEmail: user?.email, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(StatusBar, { barStyle: user ? void 0 : "dark-content" }),
+    Platform$1.OS === "web" && /* @__PURE__ */ jsxRuntimeExports.jsx(PWAInstallPrompt, {}),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(AppContent, {})
+  ] });
+};
 const name = "expensio";
 const name$1 = {
   name
