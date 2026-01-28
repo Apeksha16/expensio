@@ -5,6 +5,7 @@ import {
     StyleSheet,
     TouchableOpacity,
     Dimensions,
+    ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -17,9 +18,12 @@ const MPINScreen = ({ navigation }: { navigation: any }) => {
     const [pin, setPin] = useState('');
     const [step, setStep] = useState<'enter' | 'confirm'>('enter');
     const [confirmPin, setConfirmPin] = useState('');
+    const [loading, setLoading] = useState(false);
     const { showToast } = useToast();
 
     const handlePress = (key: string) => {
+        if (loading) return; // Prevent input while loading
+
         if (key === 'backspace') {
             setPin(prev => prev.slice(0, -1));
             return;
@@ -40,9 +44,13 @@ const MPINScreen = ({ navigation }: { navigation: any }) => {
                     setStep('confirm');
                 } else {
                     if (pin === confirmPin) {
-                        // Success
-                        showToast('MPIN set successfully', 'success');
-                        navigation.goBack();
+                        // Success with dummy loader
+                        setLoading(true);
+                        setTimeout(() => {
+                            setLoading(false);
+                            showToast('MPIN set successfully', 'success');
+                            navigation.goBack();
+                        }, 2000);
                     } else {
                         // Mismatch
                         showToast('PINs do not match. Try again.', 'error');
@@ -93,15 +101,22 @@ const MPINScreen = ({ navigation }: { navigation: any }) => {
             <View style={styles.content}>
                 <View style={styles.messageContainer}>
                     <View style={styles.lockIconContainer}>
-                        <Icon name="lock-closed" size={32} color="#8B5CF6" />
+                        {loading ? (
+                            <ActivityIndicator size="large" color="#8B5CF6" />
+                        ) : (
+                            <Icon name="lock-closed" size={32} color="#8B5CF6" />
+                        )}
                     </View>
                     <Text style={styles.title}>
-                        {step === 'enter' ? 'Set Your MPIN' : 'Confirm Your MPIN'}
+                        {loading ? 'Setting MPIN...' : (step === 'enter' ? 'Set Your MPIN' : 'Confirm Your MPIN')}
                     </Text>
                     <Text style={styles.subtitle}>
-                        {step === 'enter'
-                            ? 'Enter a 4-digit PIN to secure your account'
-                            : 'Re-enter your 4-digit PIN to confirm'}
+                        {loading
+                            ? 'Please wait while we secure your account.'
+                            : (step === 'enter'
+                                ? 'Enter a 4-digit PIN to secure your account'
+                                : 'Re-enter your 4-digit PIN to confirm')
+                        }
                     </Text>
                 </View>
 
