@@ -13,7 +13,7 @@ import {
 import { useToast } from '../components/Toast';
 import { useTransactions } from '../context/TransactionContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Icon from 'react-native-vector-icons/Ionicons';
+import Icon from '@expo/vector-icons/Ionicons';
 
 const AddTransactionScreen = ({ navigation, route }: { navigation: any; route: any }) => {
     const { friendName = 'Friend' } = route.params || {};

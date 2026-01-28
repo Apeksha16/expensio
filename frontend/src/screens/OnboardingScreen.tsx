@@ -13,7 +13,7 @@ import {
   Easing,
 } from 'react-native';
 import Header from '../components/Header';
-import Icon from 'react-native-vector-icons/Ionicons';
+import Icon from '@expo/vector-icons/Ionicons';
 import RecommendsBadge from '../components/RecommendsBadge';
 import image1 from '../assets/onboarding/image1.png';
 import image2 from '../assets/onboarding/image2.png';

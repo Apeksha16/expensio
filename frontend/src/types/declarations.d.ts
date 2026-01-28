@@ -1,1 +1,1 @@
-declare module 'react-native-vector-icons/Ionicons';
+declare module '@expo/vector-icons/Ionicons';

@@ -9,7 +9,7 @@ import {
     Dimensions,
 } from 'react-native';
 import { useTransactions } from '../context/TransactionContext';
-import Icon from 'react-native-vector-icons/Ionicons';
+import Icon from '@expo/vector-icons/Ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');

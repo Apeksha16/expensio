@@ -13,7 +13,7 @@ import {
 import { useToast } from '../components/Toast';
 import { useSubscriptions } from '../context/SubscriptionContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Icon from 'react-native-vector-icons/Ionicons';
+import Icon from '@expo/vector-icons/Ionicons';
 
 const AddSubscriptionScreen = ({ navigation }: { navigation: any }) => {
     const [name, setName] = useState('');

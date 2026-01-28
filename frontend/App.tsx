@@ -1,8 +1,8 @@
-
+import 'react-native-url-polyfill/auto';
 import React, { useState, useEffect } from 'react';
 import { StatusBar, StyleSheet, View, Text, Platform, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import Icon from 'react-native-vector-icons/Ionicons';
+import Icon from '@expo/vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';

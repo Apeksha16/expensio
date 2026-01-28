@@ -1,10 +1,6 @@
 {
-  "extends": "@react-native/typescript-config",
+  "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "types": ["jest"],
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "skipLibCheck": true
-  },
-  "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["**/node_modules", "**/Pods"]
+    "strict": true
+  }
 }

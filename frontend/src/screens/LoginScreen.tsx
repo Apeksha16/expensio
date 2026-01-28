@@ -20,7 +20,7 @@ import {
     ScrollView,
 } from 'react-native';
 import { useToast } from '../components/Toast';
-import Icon from 'react-native-vector-icons/Ionicons';
+import Icon from '@expo/vector-icons/Ionicons';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { sendOtp, verifyOtp, googleLogin, getUserProfile } from '../services/auth';
 import loginBackground from '../assets/login/login_background.png';

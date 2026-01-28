@@ -10,7 +10,7 @@ import {
     Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Icon from 'react-native-vector-icons/Ionicons';
+import Icon from '@expo/vector-icons/Ionicons';
 
 const EXPENSES = [
     { id: '1', title: 'Dinner', amount: '₹2,500', paidBy: 'You', date: '20 Apr', icon: 'fast-food' },

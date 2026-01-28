@@ -8,7 +8,7 @@ import {
     ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Icon from 'react-native-vector-icons/Ionicons';
+import Icon from '@expo/vector-icons/Ionicons';
 
 const SHARED_EXPENSES = [
     { id: '1', title: 'Lunch at Cafe', amount: '₹1,200', paidBy: 'You', date: 'Yesterday', icon: 'pizza' },
