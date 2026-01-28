@@ -24,7 +24,6 @@ const GroupDetailsScreen = ({ navigation }: { navigation: any }) => {
             <Header
                 title="Goa Trip"
                 showBack={true}
-                showBack={true}
             />
 
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>

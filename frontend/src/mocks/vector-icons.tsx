@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text, TextProps, StyleSheet } from 'react-native';
-import glyphMap from '@expo/vector-icons/glyphmaps/Ionicons.json';
+import glyphMap from '@expo/vector-icons/build/vendor/react-native-vector-icons/glyphmaps/Ionicons.json';
 
 interface IconProps extends TextProps {
     name: string;

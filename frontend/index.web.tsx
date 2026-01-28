@@ -7,17 +7,17 @@ import { preventPullToRefresh, hideAddressBar, requestPersistentStorage } from '
 if (typeof window !== 'undefined') {
     // Prevent pull-to-refresh
     preventPullToRefresh();
-    
+
     // Hide address bar on mobile
     hideAddressBar();
-    
+
     // Request persistent storage for better offline experience
     requestPersistentStorage().then((isPersistent) => {
         if (isPersistent) {
             console.log('✅ Persistent storage granted');
         }
     });
-    
+
     // Prevent zoom on double tap
     let lastTouchEnd = 0;
     document.addEventListener('touchend', (event: TouchEvent) => {
@@ -27,7 +27,7 @@ if (typeof window !== 'undefined') {
         }
         lastTouchEnd = now;
     }, false);
-    
+
     // Register service worker update handler
     if ('serviceWorker' in navigator) {
         let refreshing = false;
@@ -41,18 +41,19 @@ if (typeof window !== 'undefined') {
 }
 
 // Register the app
-AppRegistry.registerComponent(name.name, () => App);
+// Register the app
+AppRegistry.registerComponent(name.expo.name, () => App);
 
 const rootTag = document.getElementById('root');
 console.log('Root tag:', rootTag);
 
 if (rootTag) {
     // Mount the app
-    AppRegistry.runApplication(name.name, {
+    AppRegistry.runApplication(name.expo.name, {
         initialProps: {},
         rootTag: rootTag,
     });
-    console.log('AppRegistry.runApplication called for', name.name);
+    console.log('AppRegistry.runApplication called for', name.expo.name);
 } else {
     console.error('Root tag not found!');
 }
