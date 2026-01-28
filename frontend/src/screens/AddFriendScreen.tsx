@@ -12,88 +12,64 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
-import LinearGradient from 'react-native-linear-gradient';
+import { useToast } from '../components/Toast';
 
 const AddFriendScreen = ({ navigation }: { navigation: any }) => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
+    const { showToast } = useToast();
+
+    const handleAdd = () => {
+        showToast('Friend Added', 'success');
+        navigation.goBack();
+    };
 
     return (
         <SafeAreaView style={styles.container}>
-            <Header
-                title="Add Friend"
-                showBack={true}
-            />
+            <Header title="Add New Friend" showBack={true} />
 
             <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
                 style={{ flex: 1 }}
             >
                 <ScrollView contentContainerStyle={styles.content}>
-                    <View style={styles.mainCard}>
-                        <View style={styles.iconContainer}>
-                            <Icon name="person-add" size={48} color="#8B5CF6" />
-                            <View style={styles.iconPlusBadge}>
-                                <Icon name="add" size={16} color="#fff" />
-                            </View>
-                        </View>
 
-                        <Text style={styles.helperText}>
-                            Add a friend to split bills and track{'\n'}expenses together.
-                        </Text>
+                    <Text style={styles.sectionTitle}>Friend Details</Text>
 
-                        <View style={styles.formContainer}>
-                            <View style={styles.inputGroup}>
-                                <Text style={styles.label}>Name</Text>
-                                <View style={styles.inputWrapper}>
-                                    <Icon name="person-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
-                                    <TextInput
-                                        style={styles.input}
-                                        placeholder="Enter name"
-                                        placeholderTextColor="#9CA3AF"
-                                        value={name}
-                                        onChangeText={setName}
-                                        autoCapitalize="words"
-                                    />
-                                </View>
-                            </View>
-
-                            <View style={styles.inputGroup}>
-                                <Text style={styles.label}>Email or Phone</Text>
-                                <View style={styles.inputWrapper}>
-                                    <Icon name="mail-outline" size={20} color="#9CA3AF" style={styles.inputIcon} />
-                                    <TextInput
-                                        style={styles.input}
-                                        placeholder="Enter email or phone"
-                                        placeholderTextColor="#9CA3AF"
-                                        value={email}
-                                        onChangeText={setEmail}
-                                        keyboardType="email-address"
-                                        autoCapitalize="none"
-                                    />
-                                </View>
-                            </View>
-                        </View>
+                    <View style={styles.inputContainer}>
+                        <Text style={styles.label}>Full Name</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="e.g. Rahul Sharma"
+                            placeholderTextColor="#9CA3AF"
+                            value={name}
+                            onChangeText={setName}
+                            autoCapitalize="words"
+                        />
                     </View>
+
+                    <View style={styles.inputContainer}>
+                        <Text style={styles.label}>Email Address or Phone</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="e.g. rahul@example.com"
+                            placeholderTextColor="#9CA3AF"
+                            value={email}
+                            onChangeText={setEmail}
+                            keyboardType="email-address"
+                            autoCapitalize="none"
+                        />
+                    </View>
+
                 </ScrollView>
 
                 <View style={styles.footer}>
                     <TouchableOpacity
-                        activeOpacity={0.8}
+                        style={[styles.addButton, (!name || !email) && styles.disabledButton]}
+                        onPress={handleAdd}
                         disabled={!name || !email}
-                        onPress={() => {
-                            // Logic to add friend
-                            navigation.goBack();
-                        }}
                     >
-                        <LinearGradient
-                            colors={name && email ? ['#8B5CF6', '#7C3AED'] : ['#C4B5FD', '#C4B5FD']}
-                            start={{ x: 0, y: 0 }}
-                            end={{ x: 1, y: 0 }}
-                            style={styles.gradientButton}
-                        >
-                            <Text style={styles.addButtonText}>Add Friend</Text>
-                        </LinearGradient>
+                        <Text style={styles.addButtonText}>Add Friend</Text>
                     </TouchableOpacity>
                 </View>
             </KeyboardAvoidingView>
@@ -104,130 +80,53 @@ const AddFriendScreen = ({ navigation }: { navigation: any }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F9FAFB',
-    },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 24,
-        paddingVertical: 12,
-        marginBottom: 8,
-    },
-    backButton: {
-        width: 44,
-        height: 44,
-        borderRadius: 14,
         backgroundColor: '#fff',
-        justifyContent: 'center',
-        alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 4,
-        elevation: 2,
-    },
-    headerTitle: {
-        fontSize: 18,
-        fontWeight: '700',
-        color: '#1F2937',
     },
     content: {
         padding: 24,
-        paddingTop: 16,
     },
-    mainCard: {
-        backgroundColor: '#fff',
-        borderRadius: 32,
-        padding: 32,
-        alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.03,
-        shadowRadius: 16,
-        elevation: 3,
-    },
-    iconContainer: {
-        width: 100,
-        height: 100,
-        borderRadius: 50,
-        backgroundColor: '#F3E8FF',
-        justifyContent: 'center',
-        alignItems: 'center',
+    sectionTitle: {
+        fontSize: 20,
+        fontWeight: '700',
+        color: '#1F2937',
         marginBottom: 24,
-        position: 'relative',
     },
-    iconPlusBadge: {
-        position: 'absolute',
-        top: 0,
-        right: 0,
-        width: 32,
-        height: 32,
-        borderRadius: 16,
-        backgroundColor: '#8B5CF6',
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderWidth: 3,
-        borderColor: '#fff',
-    },
-    helperText: {
-        textAlign: 'center',
-        fontSize: 15,
-        color: '#6B7280',
-        marginBottom: 40,
-        lineHeight: 22,
-    },
-    formContainer: {
-        width: '100%',
-        gap: 24,
-    },
-    inputGroup: {
-        width: '100%',
+    inputContainer: {
+        marginBottom: 24,
     },
     label: {
         fontSize: 14,
-        fontWeight: '700',
+        fontWeight: '600',
         color: '#374151',
-        marginBottom: 10,
-        marginLeft: 4,
-    },
-    inputWrapper: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#F9FAFB',
-        borderRadius: 18,
-        paddingHorizontal: 18,
-        height: 60,
-        borderWidth: 1,
-        borderColor: '#F3F4F6',
-    },
-    inputIcon: {
-        marginRight: 14,
+        marginBottom: 8,
     },
     input: {
-        flex: 1,
+        backgroundColor: '#F9FAFB',
+        borderWidth: 1,
+        borderColor: '#E5E7EB',
+        borderRadius: 16,
+        padding: 16,
         fontSize: 16,
         color: '#1F2937',
     },
     footer: {
         padding: 24,
+        borderTopWidth: 1,
+        borderTopColor: '#F3F4F6',
     },
-    gradientButton: {
-        height: 58,
-        borderRadius: 29,
-        justifyContent: 'center',
+    addButton: {
+        backgroundColor: '#1F2937',
+        borderRadius: 16,
+        paddingVertical: 18,
         alignItems: 'center',
-        shadowColor: '#8B5CF6',
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.3,
-        shadowRadius: 16,
-        elevation: 8,
+    },
+    disabledButton: {
+        backgroundColor: '#E5E7EB',
     },
     addButtonText: {
         color: '#fff',
-        fontSize: 17,
+        fontSize: 16,
         fontWeight: '700',
-        letterSpacing: 0.5,
     },
 });
 

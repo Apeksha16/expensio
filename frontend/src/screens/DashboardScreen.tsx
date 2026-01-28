@@ -12,15 +12,24 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { useTransactions } from '../context/TransactionContext';
+import { useSubscriptions } from '../context/SubscriptionContext';
+import LinearGradient from 'react-native-linear-gradient';
 
 const { width } = Dimensions.get('window');
 
 const DashboardScreen = ({ navigation }: { navigation: any }) => {
     // State for empty state simulation
-    const [upcomingPayments, setUpcomingPayments] = useState<any[]>([]);
-    const [stats, setStats] = useState({ income: 0, spent: 0 });
+    const { totalIncome, totalExpense, chartData, selectedYear, changeYear } = useTransactions();
+    const { subscriptions } = useSubscriptions();
 
-    const hasData = stats.income > 0 || stats.spent > 0;
+    const [selectedMonthIndex, setSelectedMonthIndex] = useState(new Date().getMonth()); // Default to current month index
+    const [showYearDropdown, setShowYearDropdown] = useState(false);
+
+    const hasData = totalIncome > 0 || totalExpense > 0;
+
+    // Derived value for selected month
+    const selectedMonthValue = chartData[selectedMonthIndex]?.value || 0;
 
     return (
         <SafeAreaView style={styles.container}>
@@ -78,7 +87,7 @@ const DashboardScreen = ({ navigation }: { navigation: any }) => {
                                     <View style={[styles.indicator, { backgroundColor: '#8B5CF6' }]} />
                                     <View>
                                         <Text style={styles.statLabel}>Income</Text>
-                                        <Text style={styles.statValue}>₹{stats.income.toLocaleString()}</Text>
+                                        <Text style={styles.statValue}>₹{totalIncome.toLocaleString()}</Text>
                                     </View>
                                 </View>
 
@@ -86,7 +95,7 @@ const DashboardScreen = ({ navigation }: { navigation: any }) => {
                                     <View style={[styles.indicator, { backgroundColor: '#FF7043' }]} />
                                     <View>
                                         <Text style={styles.statLabel}>Spent</Text>
-                                        <Text style={styles.statValue}>₹{stats.spent.toLocaleString()}</Text>
+                                        <Text style={styles.statValue}>₹{totalExpense.toLocaleString()}</Text>
                                     </View>
                                 </View>
                             </View>
@@ -100,17 +109,119 @@ const DashboardScreen = ({ navigation }: { navigation: any }) => {
                     )}
                 </View>
 
+                {/* Analytics Section */}
+                <View style={styles.analyticsSection}>
+                    <View style={styles.analyticsHeaderRow}>
+                        <View>
+                            <Text style={styles.analyticsTitle}>Spending Trends</Text>
+                            <Text style={styles.analyticsSubtitle}>
+                                {new Date(0, selectedMonthIndex).toLocaleString('default', { month: 'long' })} {selectedYear}
+                            </Text>
+                        </View>
+                        <TouchableOpacity
+                            style={styles.yearPill}
+                            onPress={() => setShowYearDropdown(!showYearDropdown)}
+                        >
+                            <Text style={styles.yearPillText}>{selectedYear}</Text>
+                            <Icon name="chevron-down" size={12} color="#6B7280" />
+                        </TouchableOpacity>
+                    </View>
+
+                    {/* Dropdown Menu */}
+                    {showYearDropdown && (
+                        <View style={styles.dropdownMenu}>
+                            {[2026, 2025, 2024].map(year => (
+                                <TouchableOpacity
+                                    key={year}
+                                    style={styles.dropdownItem}
+                                    onPress={() => {
+                                        changeYear(year);
+                                        setShowYearDropdown(false);
+                                    }}
+                                >
+                                    <Text style={[
+                                        styles.dropdownItemText,
+                                        selectedYear === year && styles.dropdownItemTextSelected
+                                    ]}>
+                                        {year}
+                                    </Text>
+                                    {selectedYear === year && (
+                                        <Icon name="checkmark" size={14} color="#8B5CF6" />
+                                    )}
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+                    )}
+
+                    {/* Chart Card */}
+                    <View style={styles.chartCard}>
+                        <View style={styles.chartHeader}>
+                            <Text style={styles.chartTotalLabel}>Total Spent</Text>
+                            <Text style={styles.chartTotalValue}>
+                                {chartData[selectedMonthIndex] ? `₹${chartData[selectedMonthIndex].value.toLocaleString()}` : '₹0'}
+                            </Text>
+                        </View>
+
+                        <View style={styles.barChartContainer}>
+                            {/* Grid Lines */}
+                            <View style={styles.gridLines}>
+                                <View style={styles.gridLine} />
+                                <View style={styles.gridLine} />
+                                <View style={styles.gridLine} />
+                            </View>
+
+                            {/* Bars */}
+                            <ScrollView
+                                horizontal
+                                showsHorizontalScrollIndicator={false}
+                                contentContainerStyle={styles.barsScrollContent}
+                            >
+                                {chartData.map((data, index) => {
+                                    const maxVal = Math.max(...chartData.map(d => d.value)) || 1;
+                                    const percentageHeight = Math.max((data.value / maxVal) * 100, 0); // Allow 0 for empty state
+                                    const isActive = index === selectedMonthIndex;
+
+                                    return (
+                                        <TouchableOpacity
+                                            key={data.label}
+                                            style={styles.barWrapper}
+                                            onPress={() => setSelectedMonthIndex(index)}
+                                            activeOpacity={0.7}
+                                        >
+                                            <View style={styles.barTrack}>
+                                                {isActive ? (
+                                                    <LinearGradient
+                                                        colors={['#C084FC', '#8B5CF6']}
+                                                        style={[styles.bar, { height: `${percentageHeight}%` }]}
+                                                        start={{ x: 0, y: 0 }}
+                                                        end={{ x: 0, y: 1 }}
+                                                    />
+                                                ) : (
+                                                    <View style={[styles.bar, { height: `${percentageHeight}%`, backgroundColor: '#E5E7EB' }]} />
+                                                )}
+                                            </View>
+                                            <Text style={[styles.barLabel, isActive && styles.barLabelActive]}>
+                                                {data.label}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    );
+                                })}
+                            </ScrollView>
+                        </View>
+                    </View>
+                </View>
+
                 {/* Upcoming Payments Section */}
                 <View style={styles.sectionHeader}>
                     <Text style={styles.sectionTitle}>Upcoming payment</Text>
-                    {upcomingPayments.length > 0 && (
+                    {subscriptions.length > 0 && (
                         <TouchableOpacity onPress={() => navigation.navigate('Expenses')}>
                             <Text style={styles.seeAllText}>See all</Text>
                         </TouchableOpacity>
                     )}
                 </View>
 
-                {upcomingPayments.length === 0 ? (
+                {subscriptions.length === 0 ? (
                     <View style={styles.emptyStateContainer}>
                         <View style={styles.emptyIconCircle}>
                             <Icon name="calendar-outline" size={32} color="#9CA3AF" />
@@ -119,7 +230,7 @@ const DashboardScreen = ({ navigation }: { navigation: any }) => {
                         <Text style={styles.emptyStateSubtext}>Track your recurring payments here</Text>
                         <TouchableOpacity
                             style={styles.actionButton}
-                            onPress={() => console.log('Add Subscription')} // To be connected
+                            onPress={() => navigation.navigate('AddSubscription')}
                         >
                             <Text style={styles.actionButtonText}>Add Subscription</Text>
                         </TouchableOpacity>
@@ -130,10 +241,10 @@ const DashboardScreen = ({ navigation }: { navigation: any }) => {
                         showsHorizontalScrollIndicator={false}
                         contentContainerStyle={styles.paymentsContainer}
                     >
-                        {upcomingPayments.map((item) => (
+                        {subscriptions.map((item) => (
                             <TouchableOpacity
                                 key={item.id}
-                                style={[styles.paymentCard, { backgroundColor: item.bg }]}
+                                style={[styles.paymentCard, { backgroundColor: item.color || '#F3F4F6' }]}
                                 activeOpacity={0.9}
                                 onPress={() => {
                                     Alert.alert(item.name, 'Payment details', [
@@ -145,9 +256,9 @@ const DashboardScreen = ({ navigation }: { navigation: any }) => {
                                 <View style={styles.paymentHeader}>
                                     <View style={[
                                         styles.paymentIcon,
-                                        { backgroundColor: item.bg === '#F3F4F6' ? '#FFFFFF' : 'rgba(255,255,255,0.2)' }
+                                        { backgroundColor: 'rgba(255,255,255,0.2)' }
                                     ]}>
-                                        <Icon name={item.icon} size={24} color={item.bg === '#F3F4F6' ? '#000' : '#fff'} />
+                                        <Icon name={item.icon || 'card-outline'} size={24} color={'#fff'} />
                                     </View>
                                     <TouchableOpacity
                                         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
@@ -164,50 +275,22 @@ const DashboardScreen = ({ navigation }: { navigation: any }) => {
                                             );
                                         }}
                                     >
-                                        <Icon name="ellipsis-vertical" size={20} color={item.bg === '#F3F4F6' ? '#000' : '#fff'} />
+                                        <Icon name="ellipsis-vertical" size={20} color={'#fff'} />
                                     </TouchableOpacity>
                                 </View>
                                 <View style={{ marginTop: 16 }}>
-                                    <Text style={[styles.paymentName, { color: item.bg === '#F3F4F6' ? '#000' : '#fff' }]}>{item.name}</Text>
+                                    <Text style={[styles.paymentName, { color: '#fff' }]}>{item.name}</Text>
                                     <View style={{ flexDirection: 'row', alignItems: 'baseline', marginTop: 4 }}>
-                                        <Text style={[styles.paymentCost, { color: item.bg === '#F3F4F6' ? '#000' : '#fff' }]}>{item.cost}</Text>
-                                        <Text style={[styles.paymentSub, { color: item.bg === '#F3F4F6' ? '#6B7280' : 'rgba(255,255,255,0.7)' }]}>{item.sub}</Text>
+                                        <Text style={[styles.paymentCost, { color: '#fff' }]}>₹{item.amount}</Text>
+                                        <Text style={[styles.paymentSub, { color: 'rgba(255,255,255,0.7)' }]}>/{item.frequency === 'Monthly' ? 'mo' : 'yr'}</Text>
                                     </View>
-                                    <Text style={[styles.paymentDays, { color: item.bg === '#F3F4F6' ? '#000' : '#fff' }]}>{item.days}</Text>
+                                    <Text style={[styles.paymentDays, { color: '#fff' }]}>Due: {new Date(item.nextBillDate).getDate()}{getOrdinal(new Date(item.nextBillDate).getDate())}</Text>
                                 </View>
                             </TouchableOpacity>
                         ))}
                     </ScrollView>
                 )}
 
-
-                {/* Analytics Header */}
-                <View style={[styles.sectionHeader, { marginTop: 32 }]}>
-                    <Text style={styles.sectionTitle}>Analytics</Text>
-                    <TouchableOpacity style={styles.yearButton}>
-                        <Text style={styles.yearText}>Year - 2022</Text>
-                        <Icon name="chevron-down" size={16} color="#fff" />
-                    </TouchableOpacity>
-                </View>
-
-                {/* Analytics Bar Chart */}
-                <View style={styles.chartCard}>
-                    <View style={styles.barChartHeader}>
-                        <Text style={styles.chartValueLabel}>₹2,972</Text>
-                    </View>
-                    <View style={styles.barChartContainer}>
-                        {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'].map((month, index) => {
-                            const heights = [80, 120, 100, 160, 125, 140, 110];
-                            const isActive = month === 'Apr';
-                            return (
-                                <View key={month} style={styles.barColumn}>
-                                    <View style={[styles.barValue, { height: heights[index], backgroundColor: isActive ? '#8B5CF6' : '#F3F4F6' }]} />
-                                    <Text style={[styles.barLabel, isActive && styles.barLabelActive]}>{month}</Text>
-                                </View>
-                            );
-                        })}
-                    </View>
-                </View>
 
                 {/* Spacing for FAB */}
                 <View style={{ height: 100 }} />
@@ -216,8 +299,13 @@ const DashboardScreen = ({ navigation }: { navigation: any }) => {
     );
 };
 
+const getOrdinal = (n: number) => {
+    const s = ["th", "st", "nd", "rd"];
+    const v = n % 100;
+    return s[(v - 20) % 10] || s[v] || s[0];
+};
+
 const styles = StyleSheet.create({
-    // ... (existing styles)
     container: {
         flex: 1,
         backgroundColor: '#fff',
@@ -225,13 +313,50 @@ const styles = StyleSheet.create({
     scrollContent: {
         padding: 24,
     },
-    header: {
+    // Header
+    greeting: {
+        fontSize: 12,
+        color: '#6B7280',
+        fontWeight: '500',
+    },
+    username: {
+        fontSize: 16,
+        fontWeight: '700',
+        color: '#1F2937',
+    },
+    notificationButton: {
+        width: 48,
+        height: 48,
+        borderRadius: 16,
+        backgroundColor: '#fff',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    badge: {
+        width: 10,
+        height: 10,
+        borderRadius: 5,
+        backgroundColor: '#EF4444',
+        position: 'absolute',
+        top: 10,
+        right: 12,
+        borderWidth: 1.5,
+        borderColor: '#fff',
+    },
+    avatarPlaceholder: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        backgroundColor: '#8B5CF6',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    profileHeaderContent: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
-        marginBottom: 32,
+        gap: 12,
     },
-
+    // Summary Card
     summaryCard: {
         backgroundColor: '#fff',
         borderRadius: 32,
@@ -309,6 +434,166 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         position: 'absolute',
     },
+
+    // Analytics Layout
+    analyticsSection: {
+        marginBottom: 40,
+        zIndex: 10, // For dropdown
+    },
+    analyticsHeaderRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        marginBottom: 20,
+    },
+    analyticsTitle: {
+        fontSize: 20,
+        fontWeight: '800',
+        color: '#1F2937',
+        letterSpacing: -0.3,
+    },
+    analyticsSubtitle: {
+        fontSize: 14,
+        color: '#9CA3AF',
+        marginTop: 4,
+        fontWeight: '500',
+    },
+    yearPill: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#F3F4F6',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 20,
+        gap: 4,
+    },
+    yearPillText: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: '#4B5563',
+    },
+    dropdownMenu: {
+        position: 'absolute',
+        top: 45,
+        right: 0,
+        backgroundColor: '#fff',
+        borderRadius: 16,
+        padding: 6,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 12,
+        elevation: 5,
+        width: 110,
+        borderWidth: 1,
+        borderColor: '#F3F4F6',
+        zIndex: 20,
+    },
+    dropdownItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: 10,
+        paddingHorizontal: 12,
+        borderRadius: 10,
+    },
+    dropdownItemText: {
+        fontSize: 13,
+        color: '#4B5563',
+        fontWeight: '500',
+    },
+    dropdownItemTextSelected: {
+        color: '#8B5CF6',
+        fontWeight: '700',
+    },
+
+    // Chart Card
+    chartCard: {
+        backgroundColor: '#fff',
+        borderRadius: 28,
+        padding: 24,
+        shadowColor: '#8B5CF6',
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.08,
+        shadowRadius: 24,
+        elevation: 4,
+        borderWidth: 1,
+        borderColor: '#F9FAFB',
+    },
+    chartHeader: {
+        marginBottom: 24,
+    },
+    chartTotalLabel: {
+        fontSize: 13,
+        color: '#9CA3AF',
+        fontWeight: '600',
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
+    },
+    chartTotalValue: {
+        fontSize: 32,
+        fontWeight: '800',
+        color: '#1F2937',
+        marginTop: 4,
+        letterSpacing: -0.5,
+    },
+    barChartContainer: {
+        height: 180,
+        position: 'relative',
+    },
+    gridLines: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 30, // Space for labels
+        justifyContent: 'space-between',
+        zIndex: -1,
+    },
+    gridLine: {
+        height: 1,
+        backgroundColor: '#F3F4F6',
+        width: '100%',
+        borderStyle: 'dashed',
+        borderWidth: 1,
+        borderColor: '#F3F4F6',
+    },
+    barsScrollContent: {
+        flexDirection: 'row',
+        alignItems: 'flex-end',
+        paddingTop: 10,
+        paddingHorizontal: 4,
+        gap: 16, // Use gap for spacing in ScrollView
+    },
+    barWrapper: {
+        alignItems: 'center',
+        width: 32,
+        height: '100%', // Take full height of container
+        justifyContent: 'flex-end',
+    },
+    barTrack: {
+        width: 12,
+        height: '85%', // Leave space for label
+        backgroundColor: '#F3F4F6', // The gray pillar background
+        borderRadius: 6,
+        justifyContent: 'flex-end',
+        overflow: 'hidden',
+    },
+    bar: {
+        width: '100%',
+        borderRadius: 6,
+    },
+    barLabel: {
+        fontSize: 12,
+        color: '#D1D5DB',
+        fontWeight: '500',
+    },
+    barLabelActive: {
+        color: '#8B5CF6',
+        fontWeight: '700',
+    },
+
+    // Other Sections
     sectionHeader: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -365,65 +650,7 @@ const styles = StyleSheet.create({
         marginTop: 8,
         fontWeight: '500',
     },
-    yearButton: {
-        backgroundColor: '#FF7043',
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderRadius: 12,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-    },
-    yearText: {
-        color: '#fff',
-        fontWeight: '600',
-        fontSize: 14,
-    },
-    chartCard: {
-        backgroundColor: '#fff',
-        borderRadius: 32,
-        padding: 24,
-        borderWidth: 1,
-        borderColor: '#F3F4F6',
-    },
-    barChartHeader: {
-        alignItems: 'center',
-        marginBottom: 24,
-    },
-    chartValueLabel: {
-        fontSize: 16,
-        fontWeight: '700',
-        color: '#8B5CF6',
-    },
-    barChartContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'flex-end',
-        height: 180,
-    },
-    barColumn: {
-        alignItems: 'center',
-        gap: 12,
-        width: 32,
-    },
-    barValue: {
-        width: '100%',
-        borderRadius: 8,
-    },
-    barLabel: {
-        fontSize: 12,
-        color: '#9CA3AF',
-    },
-    barLabelActive: {
-        color: '#8B5CF6',
-        fontWeight: '600',
-    },
-    profileHeaderContent: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 12,
-    },
-    // Empty State Styles
+    // Empty states
     emptySummaryContainer: {
         alignItems: 'center',
         paddingVertical: 16,
@@ -452,46 +679,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: 24,
         lineHeight: 20,
     },
-    // New Header Styles
-    greeting: {
-        fontSize: 12,
-        color: '#6B7280',
-        fontWeight: '500',
-    },
-    username: {
-        fontSize: 16,
-        fontWeight: '700',
-        color: '#1F2937',
-    },
-    notificationButton: {
-        width: 48,
-        height: 48,
-        borderRadius: 16,
-        backgroundColor: '#fff',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    badge: {
-        width: 10,
-        height: 10,
-        borderRadius: 5,
-        backgroundColor: '#EF4444',
-        position: 'absolute',
-        top: 10,
-        right: 12,
-        borderWidth: 1.5,
-        borderColor: '#fff',
-    },
-    avatarPlaceholder: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
-        backgroundColor: '#8B5CF6',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
     addFirstButton: {
-        backgroundColor: '#8B5CF6', // Primary color
+        backgroundColor: '#8B5CF6',
         paddingHorizontal: 20,
         paddingVertical: 12,
         borderRadius: 16,

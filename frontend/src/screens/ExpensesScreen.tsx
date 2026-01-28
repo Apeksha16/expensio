@@ -11,32 +11,55 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Header from '../components/Header';
+import { useTransactions } from '../context/TransactionContext';
 
 const { width } = Dimensions.get('window');
 
 const ExpensesScreen = ({ navigation }: { navigation: any }) => {
     const [selectedDate, setSelectedDate] = useState(24);
+    const { transactions: rawTransactions, totalIncome, totalExpense, budgets, getCategorySpend } = useTransactions();
 
+    // Mock Calendar Data
     const checkInOutData = [
-        { day: 'M', date: 20 },
-        { day: 'T', date: 21 },
-        { day: 'W', date: 22 },
-        { day: 'T', date: 23 },
-        { day: 'F', date: 24 }, // Selected
-        { day: 'S', date: 25 },
-        { day: 'S', date: 26 },
+        { day: 'Mon', date: 21 },
+        { day: 'Tue', date: 22 },
+        { day: 'Wed', date: 23 },
+        { day: 'Thu', date: 24 },
+        { day: 'Fri', date: 25 },
+        { day: 'Sat', date: 26 },
     ];
 
-    const [transactions, setTransactions] = useState<any[]>([]); // Default empty for new user check
+    const transactions = rawTransactions.map(t => {
+        const category = t.category || 'Others';
+        const spend = getCategorySpend(category); // Total spend for this category in current month
+        const budget = budgets[category] || 0;
+        const percent = budget > 0 ? Math.min((spend / budget) * 100, 100) : 0;
+
+        return {
+            id: t.id,
+            icon: t.type === 'income' ? 'wallet-outline' : 'cart-outline',
+            title: t.title,
+            subtitle: category,
+            date: t.date.toLocaleDateString(),
+            amount: `₹${t.amount}`,
+            budget: `₹${budget}`,
+            spendDisplay: `₹${spend}`,
+            percentVal: percent,
+            percent: `${Math.round(percent)}%`,
+            type: t.type
+        };
+    });
 
     return (
         <SafeAreaView style={styles.container}>
             <Header
                 title="Expenses"
                 rightAction={
-                    <TouchableOpacity style={styles.notificationButton}>
-                        <Icon name="notifications-outline" size={24} color="#1F2937" />
-                        <View style={styles.badge} />
+                    <TouchableOpacity
+                        style={styles.notificationButton}
+                        onPress={() => navigation.navigate('BudgetSettings')}
+                    >
+                        <Icon name="settings-outline" size={24} color="#1F2937" />
                     </TouchableOpacity>
                 }
             />
@@ -74,14 +97,14 @@ const ExpensesScreen = ({ navigation }: { navigation: any }) => {
                     {/* Total Salary Card */}
                     <View style={[styles.summaryCard, { backgroundColor: '#8B5CF6', marginRight: 16 }]}>
                         <View style={styles.cardHeader}>
-                            <Text style={styles.cardLabel}>Total Salary</Text>
+                            <Text style={styles.cardLabel}>Total Income</Text>
                             <Icon name="ellipsis-vertical" size={16} color="#fff" style={{ opacity: 0.7 }} />
                         </View>
-                        <Text style={styles.cardAmount}>₹0.00</Text>
+                        <Text style={styles.cardAmount}>₹{totalIncome.toLocaleString()}</Text>
                         {/* Mock wifi symbol / decoration */}
                         <View style={styles.cardFooter}>
                             <Icon name="card-outline" size={24} color="rgba(255,255,255,0.5)" />
-                            <Text style={styles.bankText}>Bank Account ... ----</Text>
+                            <Text style={styles.bankText}>Bank Account</Text>
                         </View>
                         <Icon name="wifi" size={100} color="rgba(255,255,255,0.1)" style={styles.bgIcon} />
                     </View>
@@ -92,10 +115,10 @@ const ExpensesScreen = ({ navigation }: { navigation: any }) => {
                             <Text style={styles.cardLabel}>Total Expense</Text>
                             <Icon name="ellipsis-vertical" size={16} color="#fff" style={{ opacity: 0.7 }} />
                         </View>
-                        <Text style={styles.cardAmount}>₹0.00</Text>
+                        <Text style={styles.cardAmount}>₹{totalExpense.toLocaleString()}</Text>
                         <View style={styles.cardFooter}>
                             <Icon name="card-outline" size={24} color="rgba(255,255,255,0.5)" />
-                            <Text style={styles.bankText}>Bank Account ... ----</Text>
+                            <Text style={styles.bankText}>Bank Account</Text>
                         </View>
                         <Icon name="wifi" size={100} color="rgba(255,255,255,0.1)" style={styles.bgIcon} />
                     </View>
@@ -143,18 +166,27 @@ const ExpensesScreen = ({ navigation }: { navigation: any }) => {
                                 <View style={styles.budgetRow}>
                                     <View>
                                         <Text style={styles.budgetLabel}>Total Spend</Text>
-                                        <Text style={styles.budgetValue}>{item.amount}</Text>
+                                        <Text style={styles.budgetValue}>{item.spendDisplay}</Text>
                                     </View>
-                                    <View>
-                                        <Text style={styles.budgetLabel}>Total Budget</Text>
+                                    <TouchableOpacity onPress={() => navigation.navigate('BudgetSettings')}>
+                                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                            <Text style={styles.budgetLabel}>Total Budget</Text>
+                                            <Icon name="pencil" size={10} color="#9CA3AF" style={{ marginLeft: 4, marginBottom: 4 }} />
+                                        </View>
                                         <Text style={styles.budgetValue}>{item.budget}</Text>
-                                    </View>
-                                    <Text style={styles.percentText}>{item.percent}</Text>
+                                    </TouchableOpacity>
+                                    <Text style={[styles.percentText, { color: item.percentVal > 90 ? '#EF4444' : '#22C55E' }]}>{item.percent}</Text>
                                 </View>
 
                                 {/* Progress Bar */}
                                 <View style={styles.progressContainer}>
-                                    <View style={[styles.progressBar, { width: '75%' }]} />
+                                    <View style={[
+                                        styles.progressBar,
+                                        {
+                                            width: `${item.percentVal}%`,
+                                            backgroundColor: item.percentVal > 90 ? '#EF4444' : '#8B5CF6'
+                                        }
+                                    ]} />
                                 </View>
                             </View>
                         ))

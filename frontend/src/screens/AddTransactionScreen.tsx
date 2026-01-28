@@ -11,6 +11,7 @@ import {
     ScrollView,
 } from 'react-native';
 import { useToast } from '../components/Toast';
+import { useTransactions } from '../context/TransactionContext';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 
@@ -19,13 +20,50 @@ const AddTransactionScreen = ({ navigation, route }: { navigation: any; route: a
     const [amount, setAmount] = useState('');
     const [note, setNote] = useState('');
     const [type, setType] = useState<'lent' | 'borrowed'>('lent'); // 'lent' to friend, 'borrowed' from friend
+
     const { showToast } = useToast();
+    const { addTransaction, budgets } = useTransactions();
+    const [selectedCategory, setSelectedCategory] = useState('Others');
 
     const handleSave = () => {
-        // Implement save logic here
-        console.log(`Saved: You ${type} ${amount} to/from ${friendName}`);
+        if (!amount) {
+            showToast('Please enter an amount', 'error');
+            return;
+        }
+
+        addTransaction({
+            title: friendName !== 'Friend' ? (type === 'lent' ? `Lent to ${friendName}` : `Borrowed from ${friendName}`) : (note || 'Expense'),
+            amount: parseFloat(amount),
+            type: type === 'lent' ? 'expense' : 'income', // Treating lent as expense (outflow) contextually for now
+            category: selectedCategory, // Use selected category
+            note,
+        });
+
         showToast('Transaction Saved', 'success');
         navigation.goBack();
+    };
+
+    const getIconName = (category: string) => {
+        switch (category.toLowerCase()) {
+            case 'food': return 'fast-food';
+            case 'entertainment': return 'film';
+            case 'travel': return 'airplane';
+            case 'bills': return 'receipt';
+            case 'credit card': return 'card';
+            case 'others': return 'grid';
+            default: return 'wallet';
+        }
+    };
+
+    const getIconColor = (category: string) => {
+        switch (category.toLowerCase()) {
+            case 'food': return '#F59E0B'; // Amber
+            case 'entertainment': return '#EC4899'; // Pink
+            case 'travel': return '#3B82F6'; // Blue
+            case 'bills': return '#EF4444'; // Red
+            case 'credit card': return '#8B5CF6'; // Purple
+            default: return '#10B981'; // Green
+        }
     };
 
     return (
@@ -44,7 +82,10 @@ const AddTransactionScreen = ({ navigation, route }: { navigation: any; route: a
                     }
                 />
 
-                <ScrollView contentContainerStyle={styles.content}>
+                <ScrollView
+                    contentContainerStyle={styles.content}
+                    keyboardShouldPersistTaps="handled"
+                >
                     {/* Toggle Switch */}
                     <View style={styles.toggleContainer}>
                         <TouchableOpacity
@@ -61,7 +102,7 @@ const AddTransactionScreen = ({ navigation, route }: { navigation: any; route: a
                                     type === 'lent' && { color: '#166534' }, // Dark green text
                                 ]}
                             >
-                                You Lent
+                                Expense / Lent
                             </Text>
                         </TouchableOpacity>
                         <TouchableOpacity
@@ -78,20 +119,74 @@ const AddTransactionScreen = ({ navigation, route }: { navigation: any; route: a
                                     type === 'borrowed' && { color: '#991B1B' }, // Dark red text
                                 ]}
                             >
-                                You Borrowed
+                                Income / Borrowed
                             </Text>
                         </TouchableOpacity>
                     </View>
 
-                    {/* Friend/Person Display */}
-                    <View style={styles.personContainer}>
-                        <View style={styles.avatarCircle}>
-                            <Text style={styles.avatarInitial}>{friendName.charAt(0)}</Text>
+                    {/* Category Selection (Only if Type is Expense) */}
+                    {type === 'lent' && (
+                        <View style={styles.categoryContainer}>
+                            <Text style={styles.label}>Category</Text>
+                            <ScrollView
+                                horizontal
+                                showsHorizontalScrollIndicator={false}
+                                contentContainerStyle={{ paddingRight: 20 }}
+                                keyboardShouldPersistTaps="handled"
+                            >
+                                {Object.keys(budgets).map(cat => {
+                                    const icon = getIconName(cat);
+                                    const color = getIconColor(cat);
+                                    const isActive = selectedCategory === cat;
+
+                                    return (
+                                        <TouchableOpacity
+                                            key={cat}
+                                            style={styles.categoryItem}
+                                            onPress={() => setSelectedCategory(cat)}
+                                            activeOpacity={0.8}
+                                        >
+                                            <View style={[
+                                                styles.iconCircle,
+                                                { backgroundColor: isActive ? color : `${color}15` },
+                                                isActive && {
+                                                    shadowColor: color,
+                                                    shadowOffset: { width: 0, height: 4 },
+                                                    shadowOpacity: 0.3,
+                                                    shadowRadius: 8,
+                                                    elevation: 4
+                                                }
+                                            ]}>
+                                                <Icon
+                                                    name={icon}
+                                                    size={24}
+                                                    color={isActive ? '#fff' : color}
+                                                />
+                                            </View>
+                                            <Text style={[
+                                                styles.categoryLabel,
+                                                isActive && { color: '#1F2937', fontWeight: '700' }
+                                            ]}>
+                                                {cat}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    );
+                                })}
+                            </ScrollView>
                         </View>
-                        <Text style={styles.personText}>
-                            {type === 'lent' ? `To ${friendName}` : `From ${friendName}`}
-                        </Text>
-                    </View>
+                    )}
+
+                    {/* Friend/Person Display */}
+                    {friendName !== 'Friend' && (
+                        <View style={styles.personContainer}>
+                            <View style={styles.avatarCircle}>
+                                <Text style={styles.avatarInitial}>{friendName.charAt(0)}</Text>
+                            </View>
+                            <Text style={styles.personText}>
+                                {type === 'lent' ? `To ${friendName}` : `From ${friendName}`}
+                            </Text>
+                        </View>
+                    )}
 
                     {/* Amount Input */}
                     <View style={styles.amountContainer}>
@@ -103,20 +198,26 @@ const AddTransactionScreen = ({ navigation, route }: { navigation: any; route: a
                             keyboardType="numeric"
                             value={amount}
                             onChangeText={setAmount}
-                            autoFocus
+                        // Removed autoFocus to prevent focus stealing from Note if user taps there
                         />
                     </View>
 
                     {/* Note Input */}
                     <View style={styles.inputGroup}>
                         <Text style={styles.label}>Note</Text>
-                        <TextInput
-                            style={styles.input}
-                            placeholder="What is this for?"
-                            placeholderTextColor="#9CA3AF"
-                            value={note}
-                            onChangeText={setNote}
-                        />
+                        <View style={styles.textAreaContainer}>
+                            <TextInput
+                                style={styles.textArea}
+                                placeholder="Add a note... (e.g. Dinner at Taj)"
+                                placeholderTextColor="#9CA3AF"
+                                value={note}
+                                onChangeText={setNote}
+                                multiline
+                                numberOfLines={3}
+                                textAlignVertical="top"
+                                autoCorrect={false}
+                            />
+                        </View>
                     </View>
 
                     {/* Quick Access / Date (Visual Only for now) */}
@@ -286,6 +387,42 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 18,
         fontWeight: '700',
+    },
+    categoryContainer: {
+        marginBottom: 24,
+    },
+    categoryItem: {
+        alignItems: 'center',
+        marginRight: 20,
+        marginBottom: 8,
+    },
+    iconCircle: {
+        width: 64,
+        height: 64,
+        borderRadius: 24,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 8,
+    },
+    categoryLabel: {
+        fontSize: 12,
+        color: '#6B7280',
+        fontWeight: '500',
+    },
+    textAreaContainer: {
+        backgroundColor: '#F9FAFB',
+        borderWidth: 1,
+        borderColor: '#E5E7EB',
+        borderRadius: 16,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        height: 100,
+    },
+    textArea: {
+        flex: 1,
+        fontSize: 16,
+        color: '#1F2937',
+        textAlignVertical: 'top',
     },
 });
 

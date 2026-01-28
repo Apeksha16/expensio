@@ -30,7 +30,7 @@ const GoalsScreen = ({ navigation }: { navigation: any }) => {
             <Header
                 title="Goals"
                 rightAction={
-                    <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.addButton}>
+                    <TouchableOpacity onPress={() => navigation.navigate('AddGoal')} style={styles.addButton}>
                         <Icon name="add" size={24} color="#fff" />
                     </TouchableOpacity>
                 }
@@ -50,7 +50,7 @@ const GoalsScreen = ({ navigation }: { navigation: any }) => {
                         <Text style={styles.emptySubtitle}>Create a goal to start saving for your dreams.</Text>
                         <TouchableOpacity
                             style={styles.createGoalButton}
-                            onPress={() => setModalVisible(true)}
+                            onPress={() => navigation.navigate('AddGoal')}
                         >
                             <Text style={styles.createGoalButtonText}>Create Your First Goal</Text>
                         </TouchableOpacity>
@@ -94,47 +94,11 @@ const GoalsScreen = ({ navigation }: { navigation: any }) => {
                 <View style={{ height: 100 }} />
             </ScrollView>
 
-            {/* Simple Add Goal Modal (Mock) */}
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalVisible}
-                onRequestClose={() => setModalVisible(false)}
-            >
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>New Goal</Text>
-                        <TextInput
-                            style={styles.input}
-                            placeholder="Goal Name (e.g. iPhone 17)"
-                            placeholderTextColor="#9CA3AF"
-                        />
-                        <TextInput
-                            style={styles.input}
-                            placeholder="Target Amount (e.g. 120000)"
-                            keyboardType="numeric"
-                            placeholderTextColor="#9CA3AF"
-                        />
-                        <TextInput
-                            style={styles.input}
-                            placeholder="Target Date (e.g. 16th July)"
-                            placeholderTextColor="#9CA3AF"
-                        />
-                        <TouchableOpacity
-                            style={styles.saveGoalButton}
-                            onPress={() => setModalVisible(false)}
-                        >
-                            <Text style={styles.saveGoalText}>Create Goal</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={styles.cancelButton}
-                            onPress={() => setModalVisible(false)}
-                        >
-                            <Text style={styles.cancelText}>Cancel</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </Modal>
+            {/* Empty State Action */}
+            {goals.length === 0 && (
+                <View /> // Placeholder or removal of duplicate button logic if handled in header, 
+                // but let's keep the empty state button functional too.
+            )}
 
         </SafeAreaView>
     );

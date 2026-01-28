@@ -24,11 +24,7 @@ const GroupDetailsScreen = ({ navigation }: { navigation: any }) => {
             <Header
                 title="Goa Trip"
                 showBack={true}
-                rightAction={
-                    <TouchableOpacity style={styles.settingsButton}>
-                        <Icon name="settings-outline" size={24} color="#1F2937" />
-                    </TouchableOpacity>
-                }
+                showBack={true}
             />
 
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
