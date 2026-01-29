@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Header from '../components/Header';
+import ScreenWrapper from '../components/ScreenWrapper';
 import {
     View,
     Text,
@@ -8,7 +8,6 @@ import {
     ScrollView,
     Dimensions,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from '@expo/vector-icons/Ionicons';
 
 const { width } = Dimensions.get('window');
@@ -27,11 +26,10 @@ const TotalExpenseScreen = ({ navigation }: { navigation: any }) => {
     ];
 
     return (
-        <SafeAreaView style={styles.container}>
-            <Header
-                title="Total Expense"
-                showBack={true}
-            />
+        <ScreenWrapper
+            title="Total Expense"
+            showBack={true}
+        >
 
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
 
@@ -146,7 +144,7 @@ const TotalExpenseScreen = ({ navigation }: { navigation: any }) => {
 
                 <View style={{ height: 100 }} />
             </ScrollView>
-        </SafeAreaView>
+        </ScreenWrapper>
     );
 };
 

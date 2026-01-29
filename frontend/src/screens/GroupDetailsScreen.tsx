@@ -1,5 +1,5 @@
 import React from 'react';
-import Header from '../components/Header';
+import ScreenWrapper from '../components/ScreenWrapper';
 import {
     View,
     Text,
@@ -9,7 +9,6 @@ import {
     FlatList,
     Image,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from '@expo/vector-icons/Ionicons';
 
 const EXPENSES = [
@@ -20,11 +19,10 @@ const EXPENSES = [
 
 const GroupDetailsScreen = ({ navigation }: { navigation: any }) => {
     return (
-        <SafeAreaView style={styles.container}>
-            <Header
-                title="Goa Trip"
-                showBack={true}
-            />
+        <ScreenWrapper
+            title="Goa Trip"
+            showBack={true}
+        >
 
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
 
@@ -80,7 +78,7 @@ const GroupDetailsScreen = ({ navigation }: { navigation: any }) => {
 
                 <View style={{ height: 100 }} />
             </ScrollView>
-        </SafeAreaView>
+        </ScreenWrapper>
     );
 };
 

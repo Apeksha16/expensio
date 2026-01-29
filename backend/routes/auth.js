@@ -10,4 +10,9 @@ router.post('/google-login', authController.googleLogin);
 // Logout Route
 router.post('/logout', authController.logout);
 
+// Secure MPIN Routes
+router.get('/public-key', authController.getPublicKey);
+router.post('/mpin/set', authController.setMpin);
+router.post('/mpin/validate', authController.validateMpin);
+
 module.exports = router;

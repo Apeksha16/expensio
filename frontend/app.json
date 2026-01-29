@@ -15,9 +15,19 @@
     "assetBundlePatterns": [
       "**/*"
     ],
+    "scheme": "expensio",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.expensio.app"
+      "bundleIdentifier": "com.techvriksha.expensio.pranav",
+      "infoPlist": {
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": [
+              "com.googleusercontent.apps.820921044814-tmgitqep6hp6qd44qrn1i3sh1790osov"
+            ]
+          }
+        ]
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -36,12 +46,6 @@
           "ios": {
             "useFrameworks": "static"
           }
-        }
-      ],
-      [
-        "@react-native-google-signin/google-signin",
-        {
-          "iosUrlScheme": "com.googleusercontent.apps.820921044814-tmgitqep6hp6qd44qrn1i3sh1790osov"
         }
       ]
     ]

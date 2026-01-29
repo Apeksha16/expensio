@@ -3,7 +3,9 @@ import { View, Text, StyleSheet, TouchableOpacity, ViewStyle } from 'react-nativ
 import Icon from '@expo/vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 
-interface HeaderProps {
+import { useTheme } from '../context/ThemeContext';
+
+export interface HeaderProps {
     title?: string | React.ReactNode;
     showBack?: boolean;
     rightAction?: React.ReactNode;
@@ -25,12 +27,18 @@ const Header: React.FC<HeaderProps> = ({
     leftStyle
 }) => {
     const navigation = useNavigation();
+    const { isDarkMode } = useTheme();
 
     const handleBack = () => {
         if (onBackPress) {
             onBackPress();
         } else {
-            navigation.goBack();
+            if (navigation.canGoBack()) {
+                navigation.goBack();
+            } else {
+                // Fallback for web refresh or deep linking
+                navigation.navigate('Main' as never);
+            }
         }
     };
 
@@ -38,8 +46,8 @@ const Header: React.FC<HeaderProps> = ({
         <View style={[styles.container, style]}>
             <View style={[styles.leftContainer, leftStyle]}>
                 {showBack ? (
-                    <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-                        <Icon name="chevron-back" size={24} color="#1F2937" />
+                    <TouchableOpacity onPress={handleBack} style={[styles.backButton, isDarkMode && { backgroundColor: '#374151' }]}>
+                        <Icon name="chevron-back" size={24} color={isDarkMode ? '#fff' : '#1F2937'} />
                     </TouchableOpacity>
                 ) : (
                     leftAction
@@ -48,7 +56,7 @@ const Header: React.FC<HeaderProps> = ({
 
             <View style={[styles.titleContainer, alignment === 'left' && styles.titleLeft]}>
                 {typeof title === 'string' ? (
-                    <Text style={styles.title}>{title}</Text>
+                    <Text style={[styles.title, { color: isDarkMode ? '#fff' : '#1F2937' }]}>{title}</Text>
                 ) : (
                     title
                 )}

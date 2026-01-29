@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Header from '../components/Header';
+import ScreenWrapper from '../components/ScreenWrapper';
 import {
     View,
     Text,
@@ -11,7 +11,6 @@ import {
     TouchableWithoutFeedback,
     Keyboard
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTransactions } from '../context/TransactionContext';
 import { useToast } from '../components/Toast';
 
@@ -41,18 +40,17 @@ const BudgetFormScreen = ({ navigation, route }: { navigation: any, route: any }
     };
 
     return (
-        <SafeAreaView style={styles.container}>
+        <ScreenWrapper
+            title={isEditing ? "Edit Budget" : "New Budget"}
+            showBack={true}
+        >
+
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : undefined}
                 style={{ flex: 1 }}
             >
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                     <View style={{ flex: 1 }}>
-                        <Header
-                            title={isEditing ? "Edit Budget" : "New Budget"}
-                            showBack={true}
-                        />
-
                         <View style={styles.content}>
                             <View style={styles.formGroup}>
                                 <Text style={styles.label}>Category Name</Text>
@@ -92,7 +90,7 @@ const BudgetFormScreen = ({ navigation, route }: { navigation: any, route: any }
                     </View>
                 </TouchableWithoutFeedback>
             </KeyboardAvoidingView>
-        </SafeAreaView>
+        </ScreenWrapper>
     );
 };
 

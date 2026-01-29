@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Header from '../components/Header';
+import ScreenWrapper from '../components/ScreenWrapper';
 import {
     View,
     Text,
@@ -9,7 +9,6 @@ import {
     Image,
     TextInput,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from '@expo/vector-icons/Ionicons';
 
 const SplitBillScreen = ({ navigation }: { navigation: any }) => {
@@ -26,16 +25,15 @@ const SplitBillScreen = ({ navigation }: { navigation: any }) => {
     ];
 
     return (
-        <SafeAreaView style={styles.container}>
-            <Header
-                title="Split Bill"
-                showBack={true}
-                rightAction={
-                    <TouchableOpacity style={styles.searchButton}>
-                        <Icon name="search" size={24} color="#1F2937" />
-                    </TouchableOpacity>
-                }
-            />
+        <ScreenWrapper
+            title="Split Bill"
+            showBack={true}
+            rightAction={
+                <TouchableOpacity style={styles.searchButton}>
+                    <Icon name="search" size={24} color="#1F2937" />
+                </TouchableOpacity>
+            }
+        >
 
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
                 {/* Create New Group Banner */}
@@ -108,7 +106,7 @@ const SplitBillScreen = ({ navigation }: { navigation: any }) => {
 
                 <View style={{ height: 100 }} />
             </ScrollView>
-        </SafeAreaView>
+        </ScreenWrapper>
     );
 };
 

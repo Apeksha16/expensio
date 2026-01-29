@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Header from '../components/Header';
+import ScreenWrapper from '../components/ScreenWrapper';
 import {
     View,
     Text,
@@ -8,7 +8,6 @@ import {
     TouchableOpacity,
     Animated,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from '@expo/vector-icons/Ionicons';
 import { Swipeable } from 'react-native-gesture-handler';
 
@@ -150,12 +149,11 @@ const NotificationsScreen = ({ navigation }: { navigation: any }) => {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
-            <Header
-                title="Notifications"
-                showBack={true}
-            />
-
+        <ScreenWrapper
+            title="Notifications"
+            showBack={true}
+            backgroundColor="#F9FAFB"
+        >
             <FlatList
                 data={notifications}
                 keyExtractor={(item) => item.id}
@@ -169,7 +167,7 @@ const NotificationsScreen = ({ navigation }: { navigation: any }) => {
                 contentContainerStyle={styles.listContent}
                 showsVerticalScrollIndicator={false}
             />
-        </SafeAreaView>
+        </ScreenWrapper>
     );
 };
 

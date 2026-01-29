@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ScreenWrapper from '../components/ScreenWrapper';
 import {
     View,
     Text,
@@ -10,7 +11,6 @@ import {
     Platform,
     Alert
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from '@expo/vector-icons/Ionicons';
 import { useTheme } from '../context/ThemeContext';
 import { updateUserSalary } from '../services/auth';
@@ -35,9 +35,10 @@ const SetSalaryScreen = ({ navigation, route }: { navigation: any, route: any })
     };
 
     const formatSalary = (value: string) => {
-        // Remove non-digits
-        const cleaned = value.replace(/\D/g, '');
-        // Format with Indian Number System (e.g. 10,00,000)
+        // Remove non-digits and limit to 5 digits (max 99,999)
+        const cleaned = value.replace(/\D/g, '').substring(0, 5);
+
+        // Format with Indian Number System
         let x = cleaned;
         if (x.length <= 3) return x;
 
@@ -77,10 +78,23 @@ const SetSalaryScreen = ({ navigation, route }: { navigation: any, route: any })
             if (Platform.OS === 'web') {
                 setTimeout(() => {
                     alert('Salary updated successfully!');
-                    navigation.goBack();
+                    if (navigation.canGoBack()) {
+                        navigation.goBack();
+                    } else {
+                        navigation.navigate('Profile' as never);
+                    }
                 }, 100);
             } else {
-                Alert.alert('Success', 'Salary updated successfully!', [{ text: 'OK', onPress: () => navigation.goBack() }]);
+                Alert.alert('Success', 'Salary updated successfully!', [{
+                    text: 'OK',
+                    onPress: () => {
+                        if (navigation.canGoBack()) {
+                            navigation.goBack();
+                        } else {
+                            navigation.navigate('Profile' as never);
+                        }
+                    }
+                }]);
             }
         } catch (error) {
             console.error(error);
@@ -91,18 +105,15 @@ const SetSalaryScreen = ({ navigation, route }: { navigation: any, route: any })
     };
 
     return (
-        <SafeAreaView style={[styles.container, themeStyles.container]}>
+        <ScreenWrapper
+            title={<Text style={[styles.headerTitle, themeStyles.text]}>Set Monthly Salary</Text>}
+            showBack={true}
+            backgroundColor={themeStyles.container.backgroundColor}
+        >
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={{ flex: 1 }}
             >
-                <View style={styles.header}>
-                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                        <Icon name="arrow-back" size={24} color={isDarkMode ? '#fff' : '#000'} />
-                    </TouchableOpacity>
-                    <Text style={[styles.headerTitle, themeStyles.text]}>Set Monthly Salary</Text>
-                    <View style={{ width: 40 }} />
-                </View>
 
                 <View style={styles.content}>
                     <View style={styles.iconContainer}>
@@ -146,7 +157,7 @@ const SetSalaryScreen = ({ navigation, route }: { navigation: any, route: any })
                     </TouchableOpacity>
                 </View>
             </KeyboardAvoidingView>
-        </SafeAreaView>
+        </ScreenWrapper>
     );
 };
 
@@ -205,6 +216,11 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         minWidth: 100,
         textAlign: 'center',
+        ...Platform.select({
+            web: {
+                outlineStyle: 'none',
+            }
+        })
     },
     hint: {
         fontSize: 14,
@@ -214,6 +230,7 @@ const styles = StyleSheet.create({
     },
     footer: {
         padding: 24,
+        paddingBottom: Platform.OS === 'web' ? 40 : 24,
     },
     saveButton: {
         height: 56,

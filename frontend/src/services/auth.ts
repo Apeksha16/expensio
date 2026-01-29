@@ -157,3 +157,59 @@ export const updateUserSalary = async (email: string, salary: string) => {
         throw error;
     }
 };
+// --- Secure MPIN APIs ---
+
+export const fetchPublicKey = async () => {
+    try {
+        const response = await fetch(`${API_URL}/public-key`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch public key');
+        }
+        const data = await response.json();
+        return data.publicKey;
+    } catch (error) {
+        console.error('Fetch Public Key Error:', error);
+        throw error;
+    }
+};
+
+export const setMpin = async (email: string, encryptedMpin: string) => {
+    try {
+        const response = await fetch(`${API_URL}/mpin/set`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, encryptedMpin }),
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText || 'Failed to set MPIN');
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Set MPIN Error:', error);
+        throw error;
+    }
+};
+
+export const validateMpin = async (email: string, encryptedMpin: string) => {
+    try {
+        const response = await fetch(`${API_URL}/mpin/validate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, encryptedMpin }),
+        });
+
+        if (response.status === 401) {
+            return { success: false, error: 'Invalid MPIN' };
+        }
+
+        if (!response.ok) {
+            throw new Error('Failed to validate MPIN');
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Validate MPIN Error:', error);
+        throw error;
+    }
+};

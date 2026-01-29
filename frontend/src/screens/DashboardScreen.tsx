@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Header from '../components/Header';
+import ScreenWrapper from '../components/ScreenWrapper';
 import {
     View,
     Text,
@@ -10,11 +10,10 @@ import {
     Dimensions,
     Alert,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from '@expo/vector-icons/Ionicons';
 import { useTransactions } from '../context/TransactionContext';
 import { useSubscriptions } from '../context/SubscriptionContext';
-import LinearGradient from 'react-native-linear-gradient';
+import { LinearGradient } from 'expo-linear-gradient';
 
 import { useTheme } from '../context/ThemeContext';
 import { useUser } from '../context/UserContext';
@@ -38,46 +37,45 @@ const DashboardScreen = ({ navigation }: { navigation: any }) => {
     const { user } = useUser();
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: isDarkMode ? '#111827' : '#fff' }]}>
+        <ScreenWrapper
+            alignment="left"
+            leftStyle={{ width: 0 }}
+            backgroundColor={isDarkMode ? '#111827' : '#fff'}
+            title={
+                <TouchableOpacity
+                    style={styles.profileHeaderContent}
+                    onPress={() => navigation.navigate('Profile')}
+                >
+                    <View style={styles.avatarPlaceholder}>
+                        {user?.photoURL ? (
+                            <Image
+                                source={{
+                                    uri: user.photoURL,
+                                    headers: { Referer: 'no-referrer' }
+                                }}
+                                style={{ width: 44, height: 44, borderRadius: 22 }}
+                            />
+                        ) : (
+                            <Icon name="person" size={20} color="#fff" />
+                        )}
+                    </View>
+                    <View>
+                        <Text style={styles.greeting}>Good Morning,</Text>
+                        <Text style={[styles.username, { color: isDarkMode ? '#F9FAFB' : '#1F2937' }]}>{user?.name || 'User'}</Text>
+                    </View>
+                </TouchableOpacity>
+            }
+            rightAction={
+                <TouchableOpacity
+                    style={[styles.notificationButton, { backgroundColor: isDarkMode ? '#374151' : '#fff' }]}
+                    onPress={() => navigation.navigate('Notifications')}
+                >
+                    <Icon name="notifications-outline" size={24} color={isDarkMode ? '#F9FAFB' : '#1F2937'} />
+                    <View style={styles.badge} />
+                </TouchableOpacity>
+            }
+        >
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-                {/* Header */}
-                <Header
-                    alignment="left"
-                    leftStyle={{ width: 0 }}
-                    title={
-                        <TouchableOpacity
-                            style={styles.profileHeaderContent}
-                            onPress={() => navigation.navigate('Profile')}
-                        >
-                            <View style={styles.avatarPlaceholder}>
-                                {user?.photoURL ? (
-                                    <Image
-                                        source={{
-                                            uri: user.photoURL,
-                                            headers: { Referer: 'no-referrer' }
-                                        }}
-                                        style={{ width: 44, height: 44, borderRadius: 22 }}
-                                    />
-                                ) : (
-                                    <Icon name="person" size={20} color="#fff" />
-                                )}
-                            </View>
-                            <View>
-                                <Text style={styles.greeting}>Good Morning,</Text>
-                                <Text style={[styles.username, { color: isDarkMode ? '#F9FAFB' : '#1F2937' }]}>{user?.name || 'User'}</Text>
-                            </View>
-                        </TouchableOpacity>
-                    }
-                    rightAction={
-                        <TouchableOpacity
-                            style={[styles.notificationButton, { backgroundColor: isDarkMode ? '#374151' : '#fff' }]}
-                            onPress={() => navigation.navigate('Notifications')}
-                        >
-                            <Icon name="notifications-outline" size={24} color={isDarkMode ? '#F9FAFB' : '#1F2937'} />
-                            <View style={styles.badge} />
-                        </TouchableOpacity>
-                    }
-                />
 
                 {/* Summary Card */}
                 <View style={[styles.summaryCard, { backgroundColor: isDarkMode ? '#1F2937' : '#fff', borderColor: isDarkMode ? '#374151' : '#F3F4F6' }]}>
@@ -314,7 +312,7 @@ const DashboardScreen = ({ navigation }: { navigation: any }) => {
                 {/* Spacing for FAB */}
                 <View style={{ height: 100 }} />
             </ScrollView>
-        </SafeAreaView>
+        </ScreenWrapper>
     );
 };
 

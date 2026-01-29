@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Header from '../components/Header';
+import ScreenWrapper from '../components/ScreenWrapper';
 import {
     View,
     Text,
@@ -10,7 +10,6 @@ import {
     KeyboardAvoidingView,
     Platform,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from '@expo/vector-icons/Ionicons';
 import { useToast } from '../components/Toast';
 
@@ -25,8 +24,7 @@ const AddFriendScreen = ({ navigation }: { navigation: any }) => {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
-            <Header title="Add New Friend" showBack={true} />
+        <ScreenWrapper title="Add New Friend" showBack={true}>
 
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -73,7 +71,7 @@ const AddFriendScreen = ({ navigation }: { navigation: any }) => {
                     </TouchableOpacity>
                 </View>
             </KeyboardAvoidingView>
-        </SafeAreaView>
+        </ScreenWrapper>
     );
 };
 

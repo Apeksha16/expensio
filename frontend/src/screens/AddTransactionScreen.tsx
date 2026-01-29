@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Header from '../components/Header';
+import ScreenWrapper from '../components/ScreenWrapper';
 import {
     View,
     Text,
@@ -12,7 +12,6 @@ import {
 } from 'react-native';
 import { useToast } from '../components/Toast';
 import { useTransactions } from '../context/TransactionContext';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from '@expo/vector-icons/Ionicons';
 
 const AddTransactionScreen = ({ navigation, route }: { navigation: any; route: any }) => {
@@ -67,20 +66,19 @@ const AddTransactionScreen = ({ navigation, route }: { navigation: any; route: a
     };
 
     return (
-        <SafeAreaView style={styles.container}>
+        <ScreenWrapper
+            title="Add Transaction"
+            alignment="center"
+            leftAction={
+                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                    <Icon name="close" size={24} color="#1F2937" />
+                </TouchableOpacity>
+            }
+        >
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : undefined}
                 style={{ flex: 1 }}
             >
-                <Header
-                    title="Add Transaction"
-                    alignment="center"
-                    leftAction={
-                        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                            <Icon name="close" size={24} color="#1F2937" />
-                        </TouchableOpacity>
-                    }
-                />
 
                 <ScrollView
                     contentContainerStyle={styles.content}
@@ -235,7 +233,7 @@ const AddTransactionScreen = ({ navigation, route }: { navigation: any; route: a
                     </TouchableOpacity>
                 </View>
             </KeyboardAvoidingView>
-        </SafeAreaView>
+        </ScreenWrapper>
     );
 };
 

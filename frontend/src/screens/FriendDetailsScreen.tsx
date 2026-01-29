@@ -1,5 +1,5 @@
 import React from 'react';
-import Header from '../components/Header';
+import ScreenWrapper from '../components/ScreenWrapper';
 import {
     View,
     Text,
@@ -7,7 +7,6 @@ import {
     TouchableOpacity,
     ScrollView,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from '@expo/vector-icons/Ionicons';
 
 const SHARED_EXPENSES = [
@@ -17,23 +16,22 @@ const SHARED_EXPENSES = [
 
 const FriendDetailsScreen = ({ navigation }: { navigation: any }) => {
     return (
-        <SafeAreaView style={styles.container}>
-            <Header
-                showBack={true}
-                title={
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                        <View style={styles.avatar}>
-                            <Icon name="person" size={20} color="#fff" />
-                        </View>
-                        <Text style={styles.headerTitle}>Rahul</Text>
+        <ScreenWrapper
+            showBack={true}
+            title={
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                    <View style={styles.avatar}>
+                        <Icon name="person" size={20} color="#fff" />
                     </View>
-                }
-                rightAction={
-                    <TouchableOpacity style={styles.settingsButton}>
-                        <Icon name="ellipsis-vertical" size={24} color="#1F2937" />
-                    </TouchableOpacity>
-                }
-            />
+                    <Text style={styles.headerTitle}>Rahul</Text>
+                </View>
+            }
+            rightAction={
+                <TouchableOpacity style={styles.settingsButton}>
+                    <Icon name="ellipsis-vertical" size={24} color="#1F2937" />
+                </TouchableOpacity>
+            }
+        >
 
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
 
@@ -66,7 +64,7 @@ const FriendDetailsScreen = ({ navigation }: { navigation: any }) => {
 
                 <View style={{ height: 100 }} />
             </ScrollView>
-        </SafeAreaView>
+        </ScreenWrapper>
     );
 };
 

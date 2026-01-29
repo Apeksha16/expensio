@@ -145,3 +145,98 @@ exports.logout = async (req, res) => {
     // For now, we return a success response to acknowledge the action.
     res.status(200).json({ message: 'Logged out successfully' });
 };
+
+// --- Secure MPIN Implementation ---
+const { getPublicKey, decryptData, hashData, verifyHash } = require('../utils/cryptoUtils');
+
+exports.getPublicKey = (req, res) => {
+    const publicKey = getPublicKey();
+    if (!publicKey) {
+        return res.status(500).json({ error: 'Public Key not available' });
+    }
+    res.json({ publicKey });
+};
+
+exports.setMpin = async (req, res) => {
+    const { email, encryptedMpin } = req.body;
+
+    if (!email || !encryptedMpin) {
+        return res.status(400).json({ error: 'Email and Encrypted MPIN are required' });
+    }
+
+    try {
+        // 1. Get User UID
+        const userRecord = await admin.auth().getUserByEmail(email);
+        const uid = userRecord.uid;
+
+        // 2. Decrypt MPIN
+        let mpin;
+        try {
+            mpin = decryptData(encryptedMpin);
+        } catch (e) {
+            return res.status(400).json({ error: 'Decryption failed. Potential replay or invalid key.' });
+        }
+
+        if (!mpin || mpin.length !== 4) { // Assuming 4 digit MPIN
+            return res.status(400).json({ error: 'Invalid MPIN format after decryption' });
+        }
+
+        // 3. Hash MPIN
+        const mpinHash = await hashData(mpin);
+
+        // 4. Store Hash in Firestore
+        await admin.firestore().collection('users').doc(uid).set({
+            mpinHash,
+            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+
+        res.json({ message: 'MPIN set successfully' });
+
+    } catch (error) {
+        console.error('Set MPIN Error:', error);
+        res.status(500).json({ error: 'Failed to set MPIN' });
+    }
+};
+
+exports.validateMpin = async (req, res) => {
+    const { email, encryptedMpin } = req.body;
+
+    if (!email || !encryptedMpin) {
+        return res.status(400).json({ error: 'Email and Encrypted MPIN are required' });
+    }
+
+    try {
+        // 1. Get User UID
+        const userRecord = await admin.auth().getUserByEmail(email);
+        const uid = userRecord.uid;
+
+        // 2. Decrypt MPIN
+        let mpin;
+        try {
+            mpin = decryptData(encryptedMpin);
+        } catch (e) {
+            return res.status(400).json({ error: 'Decryption failed. Potential replay or invalid key.' });
+        }
+
+        // 3. Fetch Stored Hash
+        const userDoc = await admin.firestore().collection('users').doc(uid).get();
+        if (!userDoc.exists || !userDoc.data().mpinHash) {
+            return res.status(400).json({ error: 'MPIN not set for this user' });
+        }
+
+        const storedHash = userDoc.data().mpinHash;
+
+        // 4. Verify Hash
+        const isValid = await verifyHash(storedHash, mpin);
+
+        if (isValid) {
+            res.json({ success: true, message: 'MPIN verified' });
+        } else {
+            res.status(401).json({ success: false, error: 'Invalid MPIN' });
+        }
+
+    } catch (error) {
+        console.error('Validate MPIN Error:', error);
+        res.status(500).json({ error: 'Failed to validate MPIN' });
+    }
+};

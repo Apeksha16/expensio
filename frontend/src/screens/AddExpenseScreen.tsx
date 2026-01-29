@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Header from '../components/Header';
+import ScreenWrapper from '../components/ScreenWrapper';
 import {
     View,
     Text,
@@ -9,9 +9,8 @@ import {
     ScrollView,
     Dimensions,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from '@expo/vector-icons/Ionicons';
-import DatePicker from 'react-native-date-picker';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const { width } = Dimensions.get('window');
 
@@ -39,11 +38,10 @@ const AddExpenseScreen = ({ navigation }: { navigation: any }) => {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
-            <Header
-                title="Add Expense"
-                showBack={true}
-            />
+        <ScreenWrapper
+            title="Add Expense"
+            showBack={true}
+        >
 
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
                 {/* Amount Output */}
@@ -141,19 +139,21 @@ const AddExpenseScreen = ({ navigation }: { navigation: any }) => {
                 <View style={{ height: 100 }} />
             </ScrollView>
 
-            <DatePicker
-                modal
-                open={openDatePicker}
-                date={date}
-                mode="date"
-                onConfirm={(date) => {
-                    setOpenDatePicker(false);
-                    setDate(date);
-                }}
-                onCancel={() => {
-                    setOpenDatePicker(false);
-                }}
-            />
+
+
+            {openDatePicker && (
+                <DateTimePicker
+                    value={date}
+                    mode="date"
+                    display="default"
+                    onChange={(event, selectedDate) => {
+                        setOpenDatePicker(false);
+                        if (selectedDate) {
+                            setDate(selectedDate);
+                        }
+                    }}
+                />
+            )}
 
             {/* Bottom Button */}
             <View style={styles.footer}>
@@ -161,7 +161,7 @@ const AddExpenseScreen = ({ navigation }: { navigation: any }) => {
                     <Text style={styles.saveButtonText}>Save Expense</Text>
                 </TouchableOpacity>
             </View>
-        </SafeAreaView>
+        </ScreenWrapper>
     );
 };
 

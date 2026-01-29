@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Header from '../components/Header';
+import ScreenWrapper from '../components/ScreenWrapper';
 import {
     View,
     Text,
@@ -11,9 +11,8 @@ import {
     Platform,
 } from 'react-native';
 import { useToast } from '../components/Toast';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from '@expo/vector-icons/Ionicons';
-import DatePicker from 'react-native-date-picker';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const AddGoalScreen = ({ navigation }: { navigation: any }) => {
     const [title, setTitle] = useState('');
@@ -33,8 +32,10 @@ const AddGoalScreen = ({ navigation }: { navigation: any }) => {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
-            <Header title="New Goal" showBack={true} />
+        <ScreenWrapper
+            title="New Goal"
+            showBack={true}
+        >
 
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -85,20 +86,20 @@ const AddGoalScreen = ({ navigation }: { navigation: any }) => {
                 </View>
             </KeyboardAvoidingView>
 
-            <DatePicker
-                modal
-                open={open}
-                date={date || new Date()}
-                mode="date"
-                onConfirm={(selectedDate) => {
-                    setOpen(false);
-                    setDate(selectedDate);
-                }}
-                onCancel={() => {
-                    setOpen(false);
-                }}
-            />
-        </SafeAreaView>
+            {open && (
+                <DateTimePicker
+                    value={date || new Date()}
+                    mode="date"
+                    display="default"
+                    onChange={(event, selectedDate) => {
+                        setOpen(false);
+                        if (selectedDate) {
+                            setDate(selectedDate);
+                        }
+                    }}
+                />
+            )}
+        </ScreenWrapper>
     );
 };
 

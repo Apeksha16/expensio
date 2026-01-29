@@ -73,9 +73,12 @@ interface CustomTabBarButtonProps {
 const CustomTabBarButton = ({ children, onPress }: CustomTabBarButtonProps) => (
   <TouchableOpacity
     style={{
-      top: -30, // Raise FAB significantly to float halfway
+      top: -30,
       justifyContent: 'center',
       alignItems: 'center',
+      width: 70,
+      height: 70,
+      borderRadius: 35,
       ...styles.shadow,
     }}
     onPress={onPress}
@@ -111,6 +114,13 @@ const MainTabs = ({ onLogout }: { onLogout: () => void }) => {
             left: 0,
             right: 0,
             elevation: 10,
+            shadowColor: '#000',
+            shadowOffset: {
+              width: 0,
+              height: -4,
+            },
+            shadowOpacity: 0.1,
+            shadowRadius: 10,
             backgroundColor: '#ffffff',
             height: 80,
             borderTopLeftRadius: 20,

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Header from '../components/Header';
+import ScreenWrapper from '../components/ScreenWrapper';
 import {
     View,
     Text,
@@ -10,7 +10,6 @@ import {
     TextInput,
     Modal,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from '@expo/vector-icons/Ionicons';
 
 const { width } = Dimensions.get('window');
@@ -26,15 +25,14 @@ const GoalsScreen = ({ navigation }: { navigation: any }) => {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
-            <Header
-                title="Goals"
-                rightAction={
-                    <TouchableOpacity onPress={() => navigation.navigate('AddGoal')} style={styles.addButton}>
-                        <Icon name="add" size={24} color="#fff" />
-                    </TouchableOpacity>
-                }
-            />
+        <ScreenWrapper
+            title="Goals"
+            rightAction={
+                <TouchableOpacity onPress={() => navigation.navigate('AddGoal')} style={styles.addButton}>
+                    <Icon name="add" size={24} color="#fff" />
+                </TouchableOpacity>
+            }
+        >
 
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
 
@@ -100,7 +98,7 @@ const GoalsScreen = ({ navigation }: { navigation: any }) => {
                 // but let's keep the empty state button functional too.
             )}
 
-        </SafeAreaView>
+        </ScreenWrapper>
     );
 };
 

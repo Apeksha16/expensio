@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Header from '../components/Header';
+import ScreenWrapper from '../components/ScreenWrapper';
 import {
     View,
     Text,
@@ -9,7 +9,6 @@ import {
     ScrollView,
     FlatList,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from '@expo/vector-icons/Ionicons';
 
 const FRIENDS_DATA = [
@@ -33,11 +32,10 @@ const CreateGroupScreen = ({ navigation }: { navigation: any }) => {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
-            <Header
-                title="Create New Group"
-                showBack={true}
-            />
+        <ScreenWrapper
+            title="Create New Group"
+            showBack={true}
+        >
 
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
                 {/* Group Name Input */}
@@ -91,7 +89,7 @@ const CreateGroupScreen = ({ navigation }: { navigation: any }) => {
                     <Text style={styles.createButtonText}>Create Group</Text>
                 </TouchableOpacity>
             </View>
-        </SafeAreaView>
+        </ScreenWrapper>
     );
 };
 

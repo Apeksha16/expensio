@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Header from '../components/Header';
+import ScreenWrapper from '../components/ScreenWrapper';
 import {
     View,
     Text,
@@ -12,7 +12,6 @@ import {
 } from 'react-native';
 import { useToast } from '../components/Toast';
 import { useSubscriptions } from '../context/SubscriptionContext';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from '@expo/vector-icons/Ionicons';
 
 const AddSubscriptionScreen = ({ navigation }: { navigation: any }) => {
@@ -47,11 +46,10 @@ const AddSubscriptionScreen = ({ navigation }: { navigation: any }) => {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
-            <Header
-                title="Add Subscription"
-                showBack={true}
-            />
+        <ScreenWrapper
+            title="Add Subscription"
+            showBack={true}
+        >
 
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -131,7 +129,7 @@ const AddSubscriptionScreen = ({ navigation }: { navigation: any }) => {
                     </TouchableOpacity>
                 </View>
             </KeyboardAvoidingView>
-        </SafeAreaView>
+        </ScreenWrapper>
     );
 };
 

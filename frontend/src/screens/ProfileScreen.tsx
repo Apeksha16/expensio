@@ -1,5 +1,5 @@
 import React from 'react';
-import Header from '../components/Header';
+import ScreenWrapper from '../components/ScreenWrapper';
 import {
     View,
     Text,
@@ -8,10 +8,8 @@ import {
     ScrollView,
     Image,
     Switch,
-    useColorScheme,
     Alert,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useToast } from '../components/Toast';
 import Icon from '@expo/vector-icons/Ionicons';
 import { useTheme } from '../context/ThemeContext';
@@ -52,21 +50,21 @@ const ProfileScreen = ({ navigation, onLogout }: { navigation: any; onLogout: ()
     const iconColor = isDarkMode ? '#F9FAFB' : '#1F2937';
 
     return (
-        <SafeAreaView style={[styles.container, bgStyle]}>
-            <Header
-                title="My Profile"
-                showBack={true}
-                onBackPress={() => {
-                    if (navigation.canGoBack()) {
-                        navigation.goBack();
-                    } else {
-                        navigation.reset({
-                            index: 0,
-                            routes: [{ name: 'Main' }],
-                        });
-                    }
-                }}
-            />
+        <ScreenWrapper
+            title="My Profile"
+            showBack={true}
+            backgroundColor={isDarkMode ? '#111827' : '#F9FAFB'}
+            onBackPress={() => {
+                if (navigation.canGoBack()) {
+                    navigation.goBack();
+                } else {
+                    navigation.reset({
+                        index: 0,
+                        routes: [{ name: 'Main' }],
+                    });
+                }
+            }}
+        >
 
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
                 {/* Profile Header */}
@@ -172,7 +170,7 @@ const ProfileScreen = ({ navigation, onLogout }: { navigation: any; onLogout: ()
 
                 <View style={{ height: 40 }} />
             </ScrollView>
-        </SafeAreaView>
+        </ScreenWrapper>
     );
 };
 

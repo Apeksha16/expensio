@@ -27,12 +27,6 @@
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>com.expensio.app</string>
-        </array>
-      </dict>
-      <dict>
-        <key>CFBundleURLSchemes</key>
-        <array>
           <string>com.googleusercontent.apps.820921044814-tmgitqep6hp6qd44qrn1i3sh1790osov</string>
         </array>
       </dict>

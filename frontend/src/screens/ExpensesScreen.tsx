@@ -9,8 +9,7 @@ import {
     Dimensions,
     FlatList,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import Header from '../components/Header';
+import ScreenWrapper from '../components/ScreenWrapper';
 import { useTransactions } from '../context/TransactionContext';
 
 const { width } = Dimensions.get('window');
@@ -51,18 +50,17 @@ const ExpensesScreen = ({ navigation }: { navigation: any }) => {
     });
 
     return (
-        <SafeAreaView style={styles.container}>
-            <Header
-                title="Expenses"
-                rightAction={
-                    <TouchableOpacity
-                        style={styles.notificationButton}
-                        onPress={() => navigation.navigate('BudgetSettings')}
-                    >
-                        <Icon name="settings-outline" size={24} color="#1F2937" />
-                    </TouchableOpacity>
-                }
-            />
+        <ScreenWrapper
+            title="Expenses"
+            rightAction={
+                <TouchableOpacity
+                    style={styles.notificationButton}
+                    onPress={() => navigation.navigate('BudgetSettings')}
+                >
+                    <Icon name="settings-outline" size={24} color="#1F2937" />
+                </TouchableOpacity>
+            }
+        >
 
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
 
@@ -196,7 +194,7 @@ const ExpensesScreen = ({ navigation }: { navigation: any }) => {
                 {/* Spacing for FAB */}
                 <View style={{ height: 100 }} />
             </ScrollView>
-        </SafeAreaView>
+        </ScreenWrapper>
     );
 };
 

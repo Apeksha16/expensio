@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Header from '../components/Header';
+import ScreenWrapper from '../components/ScreenWrapper';
 import {
     View,
     Text,
@@ -10,7 +10,6 @@ import {
 } from 'react-native';
 import { useTransactions } from '../context/TransactionContext';
 import Icon from '@expo/vector-icons/Ionicons';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
@@ -54,8 +53,10 @@ const BudgetSettingsScreen = ({ navigation }: { navigation: any }) => {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
-            <Header title="My Budgets" showBack={true} />
+        <ScreenWrapper
+            title="My Budgets"
+            showBack={true}
+        >
 
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
                 <View style={styles.headerRow}>
@@ -119,7 +120,7 @@ const BudgetSettingsScreen = ({ navigation }: { navigation: any }) => {
                     );
                 })}
             </ScrollView>
-        </SafeAreaView>
+        </ScreenWrapper>
     );
 };
 
