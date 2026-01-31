@@ -9,36 +9,92 @@ import {
     KeyboardAvoidingView,
     Platform,
     ScrollView,
+    ActivityIndicator,
 } from 'react-native';
 import { useToast } from '../components/Toast';
 import { useTransactions } from '../context/TransactionContext';
+import { useTheme } from '../context/ThemeContext';
 import Icon from '@expo/vector-icons/Ionicons';
 
 const AddTransactionScreen = ({ navigation, route }: { navigation: any; route: any }) => {
-    const { friendName = 'Friend' } = route.params || {};
+    const { friendName = 'Friend', date: dateParam } = route.params || {};
+    const { addTransaction, budgets, loading, selectedDate } = useTransactions();
     const [amount, setAmount] = useState('');
     const [note, setNote] = useState('');
-    const [type, setType] = useState<'lent' | 'borrowed'>('lent'); // 'lent' to friend, 'borrowed' from friend
+    const { isDarkMode } = useTheme();
+
+    // Determine initial date: Route param > Context Selected Date > Today
+    const initialDate = dateParam ? new Date(dateParam) : (selectedDate ? new Date(selectedDate) : new Date());
+
+    // State for the transaction date
+    const [transactionDate, setTransactionDate] = useState(initialDate);
+
+    const isToday = (d: Date) => {
+        const today = new Date();
+        return d.getDate() === today.getDate() &&
+            d.getMonth() === today.getMonth() &&
+            d.getFullYear() === today.getFullYear();
+    };
+
+    const handleSetToday = () => {
+        setTransactionDate(new Date());
+    };
 
     const { showToast } = useToast();
-    const { addTransaction, budgets } = useTransactions();
-    const [selectedCategory, setSelectedCategory] = useState('Others');
+    const [selectedCategory, setSelectedCategory] = useState('');
 
-    const handleSave = () => {
+    const formatAmount = (value: string) => {
+        // Remove non-numeric chars
+        const number = value.replace(/[^0-9]/g, '');
+        // Format with commas (Indian numbering system could be used, but standard for now)
+        return number.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    };
+
+    const handleAmountChange = (text: string) => {
+        setAmount(formatAmount(text));
+    };
+
+    const handleNoteChange = (text: string) => {
+        // Allow only alphanumeric and spaces
+        const filtered = text.replace(/[^a-zA-Z0-9 ]/g, '');
+        setNote(filtered);
+    };
+
+    const handleSave = async () => {
         if (!amount) {
             showToast('Please enter an amount', 'error');
             return;
         }
+        if (!selectedCategory) {
+            showToast('Please select a category', 'error');
+            return;
+        }
+        if (!note.trim()) {
+            showToast('Please enter a note', 'error');
+            return;
+        }
 
-        addTransaction({
-            title: friendName !== 'Friend' ? (type === 'lent' ? `Lent to ${friendName}` : `Borrowed from ${friendName}`) : (note || 'Expense'),
-            amount: parseFloat(amount),
-            type: type === 'lent' ? 'expense' : 'income', // Treating lent as expense (outflow) contextually for now
-            category: selectedCategory, // Use selected category
-            note,
-        });
+        // Strip commas for parsing
+        const cleanAmount = parseFloat(amount.replace(/,/g, ''));
 
-        showToast('Transaction Saved', 'success');
+        // Use current TIME for the chosen date to avoid sorting issues with 00:00:00
+        const finalDate = new Date(transactionDate);
+        const now = new Date();
+        // If it's today, keep current time. If it's past date, maybe use current time too to keep order?
+        // User didn't specify, but "picking current date" usually implies preserving time.
+        // Let's safe-guard by using current time component.
+        finalDate.setHours(now.getHours(), now.getMinutes(), now.getSeconds());
+
+        await addTransaction({
+            title: note, // Note acts as title/label
+            amount: cleanAmount,
+            type: 'expense', // Default to expense as requested
+            category: selectedCategory,
+            note: note,
+            date: finalDate,
+        } as any);
+
+        showToast('Expense Saved', 'success');
         navigation.goBack();
     };
 
@@ -49,6 +105,10 @@ const AddTransactionScreen = ({ navigation, route }: { navigation: any; route: a
             case 'travel': return 'airplane';
             case 'bills': return 'receipt';
             case 'credit card': return 'card';
+            case 'shopping': return 'cart';
+            case 'health': return 'medkit';
+            case 'transport': return 'car';
+            case 'gym': return 'barbell';
             case 'others': return 'grid';
             default: return 'wallet';
         }
@@ -56,22 +116,34 @@ const AddTransactionScreen = ({ navigation, route }: { navigation: any; route: a
 
     const getIconColor = (category: string) => {
         switch (category.toLowerCase()) {
-            case 'food': return '#F59E0B'; // Amber
-            case 'entertainment': return '#EC4899'; // Pink
-            case 'travel': return '#3B82F6'; // Blue
-            case 'bills': return '#EF4444'; // Red
-            case 'credit card': return '#8B5CF6'; // Purple
-            default: return '#10B981'; // Green
+            case 'food': return '#F59E0B';
+            case 'entertainment': return '#EC4899';
+            case 'travel': return '#3B82F6';
+            case 'bills': return '#EF4444';
+            case 'credit card': return '#8B5CF6';
+            case 'shopping': return '#10B981';
+            case 'health': return '#06B6D4';
+            case 'transport': return '#F97316';
+            case 'gym': return '#84CC16';
+            case 'others': return '#6366F1';
+            default: return '#10B981';
         }
     };
 
+    const textColor = isDarkMode ? '#F9FAFB' : '#1F2937';
+    const subTextColor = isDarkMode ? '#9CA3AF' : '#6B7280';
+    const inputBg = isDarkMode ? '#1F2937' : '#fff'; // Transparent/matches bg usually, or specific input bg
+    const inputBorder = isDarkMode ? '#374151' : '#E5E7EB';
+    const containerBg = isDarkMode ? '#111827' : '#fff';
+
     return (
         <ScreenWrapper
-            title="Add Transaction"
+            title="Add Expense"
             alignment="center"
+            backgroundColor={containerBg}
             leftAction={
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <Icon name="close" size={24} color="#1F2937" />
+                <TouchableOpacity onPress={() => navigation.goBack()} style={[styles.backButton, isDarkMode && { backgroundColor: '#374151' }]}>
+                    <Icon name="close" size={24} color={textColor} />
                 </TouchableOpacity>
             }
         >
@@ -84,55 +156,71 @@ const AddTransactionScreen = ({ navigation, route }: { navigation: any; route: a
                     contentContainerStyle={styles.content}
                     keyboardShouldPersistTaps="handled"
                 >
-                    {/* Toggle Switch */}
-                    <View style={styles.toggleContainer}>
-                        <TouchableOpacity
-                            style={[
-                                styles.toggleButton,
-                                type === 'lent' && styles.toggleButtonActive,
-                                type === 'lent' && { backgroundColor: '#DCFCE7' }, // Green bg for Lent
-                            ]}
-                            onPress={() => setType('lent')}
-                        >
-                            <Text
-                                style={[
-                                    styles.toggleText,
-                                    type === 'lent' && { color: '#166534' }, // Dark green text
-                                ]}
-                            >
-                                Expense / Lent
+                    {/* Date Display / Toggle */}
+                    {!isToday(transactionDate) && (
+                        <View style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: 24, alignItems: 'center' }}>
+                            <Text style={{ color: subTextColor, marginRight: 8 }}>
+                                Date: <Text style={{ color: textColor, fontWeight: '700' }}>{transactionDate.toLocaleDateString()}</Text>
                             </Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
+                            <TouchableOpacity onPress={handleSetToday} style={{ backgroundColor: isDarkMode ? '#374151' : '#E5E7EB', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12 }}>
+                                <Text style={{ fontSize: 12, fontWeight: '600', color: textColor }}>Set to Today</Text>
+                            </TouchableOpacity>
+                        </View>
+                    )}
+
+                    {/* Amount Input (Top) */}
+                    <View style={styles.amountContainer}>
+                        <Text style={[styles.currencySymbol, { color: textColor }]}>₹</Text>
+                        <TextInput
                             style={[
-                                styles.toggleButton,
-                                type === 'borrowed' && styles.toggleButtonActive,
-                                type === 'borrowed' && { backgroundColor: '#FEE2E2' }, // Red bg for Borrowed
+                                styles.amountInput,
+                                { color: textColor },
+                                Platform.OS === 'web' && ({ outlineStyle: 'none' } as any)
                             ]}
-                            onPress={() => setType('borrowed')}
-                        >
-                            <Text
-                                style={[
-                                    styles.toggleText,
-                                    type === 'borrowed' && { color: '#991B1B' }, // Dark red text
-                                ]}
-                            >
-                                Income / Borrowed
-                            </Text>
-                        </TouchableOpacity>
+                            placeholder="0"
+                            placeholderTextColor={isDarkMode ? '#4B5563' : '#D1D5DB'}
+                            keyboardType="number-pad"
+                            maxLength={10}
+                            value={amount}
+                            onChangeText={handleAmountChange}
+                            autoFocus
+                        />
                     </View>
 
-                    {/* Category Selection (Only if Type is Expense) */}
-                    {type === 'lent' && (
-                        <View style={styles.categoryContainer}>
-                            <Text style={styles.label}>Category</Text>
-                            <ScrollView
-                                horizontal
-                                showsHorizontalScrollIndicator={false}
-                                contentContainerStyle={{ paddingRight: 20 }}
-                                keyboardShouldPersistTaps="handled"
-                            >
-                                {Object.keys(budgets).map(cat => {
+                    {/* Note Input (Label) - Below Amount */}
+                    <View style={styles.inputGroup}>
+                        <Text style={[styles.label, { color: subTextColor }]}>Note</Text>
+                        <View style={[styles.textAreaContainer, { backgroundColor: isDarkMode ? '#1F2937' : '#F9FAFB', borderColor: inputBorder }]}>
+                            <TextInput
+                                style={[
+                                    styles.textArea,
+                                    { color: textColor },
+                                    Platform.OS === 'web' && ({ outlineStyle: 'none' } as any)
+                                ]}
+                                placeholder="Add a note... (e.g. Dinner at Taj)"
+                                placeholderTextColor={isDarkMode ? '#6B7280' : '#9CA3AF'}
+                                value={note}
+                                onChangeText={handleNoteChange}
+                                autoCorrect={false}
+                            />
+                        </View>
+                    </View>
+
+                    {/* Category Selection - Below Note */}
+                    <View style={styles.categoryContainer}>
+                        <Text style={[styles.label, { color: subTextColor }]}>Category</Text>
+                        <ScrollView
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={{ paddingRight: 20 }}
+                            keyboardShouldPersistTaps="handled"
+                        >
+                            {(() => {
+                                const categories = Object.keys(budgets);
+                                if (!categories.includes('Others')) {
+                                    categories.push('Others');
+                                }
+                                return categories.map(cat => {
                                     const icon = getIconName(cat);
                                     const color = getIconColor(cat);
                                     const isActive = selectedCategory === cat;
@@ -146,7 +234,7 @@ const AddTransactionScreen = ({ navigation, route }: { navigation: any; route: a
                                         >
                                             <View style={[
                                                 styles.iconCircle,
-                                                { backgroundColor: isActive ? color : `${color}15` },
+                                                { backgroundColor: isActive ? color : (isDarkMode ? '#374151' : `${color}15`) },
                                                 isActive && {
                                                     shadowColor: color,
                                                     shadowOffset: { width: 0, height: 4 },
@@ -163,73 +251,35 @@ const AddTransactionScreen = ({ navigation, route }: { navigation: any; route: a
                                             </View>
                                             <Text style={[
                                                 styles.categoryLabel,
-                                                isActive && { color: '#1F2937', fontWeight: '700' }
+                                                isActive && { color: textColor, fontWeight: '700' },
+                                                !isActive && { color: subTextColor }
                                             ]}>
                                                 {cat}
                                             </Text>
                                         </TouchableOpacity>
                                     );
-                                })}
-                            </ScrollView>
-                        </View>
-                    )}
-
-                    {/* Friend/Person Display */}
-                    {friendName !== 'Friend' && (
-                        <View style={styles.personContainer}>
-                            <View style={styles.avatarCircle}>
-                                <Text style={styles.avatarInitial}>{friendName.charAt(0)}</Text>
-                            </View>
-                            <Text style={styles.personText}>
-                                {type === 'lent' ? `To ${friendName}` : `From ${friendName}`}
-                            </Text>
-                        </View>
-                    )}
-
-                    {/* Amount Input */}
-                    <View style={styles.amountContainer}>
-                        <Text style={styles.currencySymbol}>₹</Text>
-                        <TextInput
-                            style={styles.amountInput}
-                            placeholder="0"
-                            placeholderTextColor="#D1D5DB"
-                            keyboardType="numeric"
-                            value={amount}
-                            onChangeText={setAmount}
-                        // Removed autoFocus to prevent focus stealing from Note if user taps there
-                        />
+                                })
+                            })()}
+                        </ScrollView>
                     </View>
-
-                    {/* Note Input */}
-                    <View style={styles.inputGroup}>
-                        <Text style={styles.label}>Note</Text>
-                        <View style={styles.textAreaContainer}>
-                            <TextInput
-                                style={styles.textArea}
-                                placeholder="Add a note... (e.g. Dinner at Taj)"
-                                placeholderTextColor="#9CA3AF"
-                                value={note}
-                                onChangeText={setNote}
-                                multiline
-                                numberOfLines={3}
-                                textAlignVertical="top"
-                                autoCorrect={false}
-                            />
-                        </View>
-                    </View>
-
-                    {/* Quick Access / Date (Visual Only for now) */}
-                    <TouchableOpacity style={styles.dateSelector}>
-                        <Icon name="calendar-outline" size={20} color="#6B7280" />
-                        <Text style={styles.dateText}>Today</Text>
-                    </TouchableOpacity>
-
                 </ScrollView>
 
                 {/* Save Button */}
-                <View style={styles.footer}>
-                    <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-                        <Text style={styles.saveButtonText}>Save Transaction</Text>
+                <View style={[styles.footer, { borderTopColor: isDarkMode ? '#374151' : '#F3F4F6' }]}>
+                    <TouchableOpacity
+                        style={[
+                            styles.saveButton,
+                            loading && { opacity: 0.7 },
+                            { backgroundColor: isDarkMode ? '#374151' : '#1F2937' }
+                        ]}
+                        onPress={handleSave}
+                        disabled={loading}
+                    >
+                        {loading ? (
+                            <ActivityIndicator color="#fff" />
+                        ) : (
+                            <Text style={styles.saveButtonText}>Save Expense</Text>
+                        )}
                     </TouchableOpacity>
                 </View>
             </KeyboardAvoidingView>
@@ -255,7 +305,8 @@ const styles = StyleSheet.create({
         width: 40,
         height: 40,
         justifyContent: 'center',
-        alignItems: 'flex-start',
+        alignItems: 'center', // Center icon if bg is applied
+        borderRadius: 20, // Make it touchable area round if partial bg applied
     },
     headerTitle: {
         fontSize: 18,
@@ -325,13 +376,11 @@ const styles = StyleSheet.create({
     currencySymbol: {
         fontSize: 32,
         fontWeight: '600',
-        color: '#1F2937',
         marginRight: 8,
     },
     amountInput: {
         fontSize: 48,
         fontWeight: '700',
-        color: '#1F2937',
         minWidth: 100,
         textAlign: 'center',
     },
@@ -341,7 +390,6 @@ const styles = StyleSheet.create({
     label: {
         fontSize: 14,
         fontWeight: '600',
-        color: '#374151',
         marginBottom: 8,
     },
     input: {
@@ -352,31 +400,13 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 16,
         fontSize: 16,
-        color: '#1F2937',
     },
-    dateSelector: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#F3F4F6',
-        alignSelf: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderRadius: 20,
-    },
-    dateText: {
-        marginLeft: 8,
-        fontSize: 14,
-        color: '#4B5563',
-        fontWeight: '500',
-    },
+    // Date Selector removed
     footer: {
         padding: 24,
         borderTopWidth: 1,
-        borderTopColor: '#F3F4F6',
     },
     saveButton: {
-        backgroundColor: '#1F2937',
         borderRadius: 16,
         paddingVertical: 18,
         alignItems: 'center',
@@ -404,22 +434,18 @@ const styles = StyleSheet.create({
     },
     categoryLabel: {
         fontSize: 12,
-        color: '#6B7280',
         fontWeight: '500',
     },
     textAreaContainer: {
-        backgroundColor: '#F9FAFB',
         borderWidth: 1,
         borderColor: '#E5E7EB',
         borderRadius: 16,
         paddingHorizontal: 16,
         paddingVertical: 12,
-        height: 100,
     },
     textArea: {
         flex: 1,
         fontSize: 16,
-        color: '#1F2937',
         textAlignVertical: 'top',
     },
 });

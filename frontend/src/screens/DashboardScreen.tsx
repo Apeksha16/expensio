@@ -11,6 +11,7 @@ import {
     Alert,
 } from 'react-native';
 import Icon from '@expo/vector-icons/Ionicons';
+import Svg, { Circle, G } from 'react-native-svg';
 import { useTransactions } from '../context/TransactionContext';
 import { useSubscriptions } from '../context/SubscriptionContext';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -22,13 +23,24 @@ const { width } = Dimensions.get('window');
 
 const DashboardScreen = ({ navigation }: { navigation: any }) => {
     // State for empty state simulation
-    const { totalIncome, totalExpense, chartData, selectedYear, changeYear } = useTransactions();
+    const { totalIncome, totalExpense, chartData, selectedYear, changeYear, transactions } = useTransactions();
     const { subscriptions } = useSubscriptions();
 
     const [selectedMonthIndex, setSelectedMonthIndex] = useState(new Date().getMonth()); // Default to current month index
     const [showYearDropdown, setShowYearDropdown] = useState(false);
 
-    const hasData = totalIncome > 0 || totalExpense > 0;
+    // Filter transactions for the selected year
+    const yearlyTransactions = transactions.filter(t => new Date(t.date).getFullYear() === selectedYear);
+
+    const yearlyIncome = yearlyTransactions
+        .filter(t => t.type === 'income')
+        .reduce((sum, t) => sum + t.amount, 0);
+
+    const yearlyExpense = yearlyTransactions
+        .filter(t => t.type === 'expense')
+        .reduce((sum, t) => sum + t.amount, 0);
+
+    const hasData = yearlyIncome > 0 || yearlyExpense > 0 || totalIncome > 0; // Fallback to check if *any* data exists globally if we want to show empty state differently
 
     // Derived value for selected month
     const selectedMonthValue = chartData[selectedMonthIndex]?.value || 0;
@@ -102,7 +114,7 @@ const DashboardScreen = ({ navigation }: { navigation: any }) => {
                                     <View>
                                         <Text style={styles.statLabel}>Income</Text>
                                         <Text style={[styles.statValue, { color: isDarkMode ? '#F9FAFB' : '#1F2937' }]}>
-                                            {user?.salary ? `₹${user.salary}` : `₹${totalIncome.toLocaleString()}`}
+                                            {user?.salary ? `₹${user.salary}` : `₹${yearlyIncome.toLocaleString()}`}
                                         </Text>
                                     </View>
                                 </View>
@@ -111,15 +123,60 @@ const DashboardScreen = ({ navigation }: { navigation: any }) => {
                                     <View style={[styles.indicator, { backgroundColor: '#FF7043' }]} />
                                     <View>
                                         <Text style={styles.statLabel}>Spent</Text>
-                                        <Text style={[styles.statValue, { color: isDarkMode ? '#F9FAFB' : '#1F2937' }]}>₹{totalExpense.toLocaleString()}</Text>
+                                        <Text style={[styles.statValue, { color: isDarkMode ? '#F9FAFB' : '#1F2937' }]}>₹{yearlyExpense.toLocaleString()}</Text>
                                     </View>
                                 </View>
                             </View>
 
                             <View style={styles.chartContainer}>
-                                <View style={styles.ringBackground} />
-                                <View style={styles.ringProgress} />
-                                <View style={[styles.ringInner, { backgroundColor: isDarkMode ? '#1F2937' : '#fff' }]} />
+                                {(() => {
+                                    const size = 140;
+                                    const strokeWidth = 15;
+                                    const center = size / 2;
+                                    const radius = (size - strokeWidth) / 2;
+                                    const circumference = 2 * Math.PI * radius;
+
+                                    // Calculate percentage
+                                    const income = user?.salary ? parseInt(user.salary.replace(/,/g, '')) : yearlyIncome;
+                                    const percentage = income > 0 ? Math.min((yearlyExpense / income) * 100, 100) : 0;
+                                    const progress = (percentage / 100) * circumference;
+
+                                    return (
+                                        <Svg width={size} height={size}>
+                                            <G rotation="-90" origin={`${center}, ${center}`}>
+                                                {/* Background Circle */}
+                                                <Circle
+                                                    cx={center}
+                                                    cy={center}
+                                                    r={radius}
+                                                    stroke="#8B5CF6"
+                                                    strokeWidth={strokeWidth}
+                                                    strokeOpacity={0.2}
+                                                    fill="transparent"
+                                                />
+                                                {/* Progress Circle */}
+                                                <Circle
+                                                    cx={center}
+                                                    cy={center}
+                                                    r={radius}
+                                                    stroke="#FF7043"
+                                                    strokeWidth={strokeWidth}
+                                                    strokeDasharray={circumference}
+                                                    strokeDashoffset={circumference - progress}
+                                                    strokeLinecap="round"
+                                                    fill="transparent"
+                                                />
+                                            </G>
+                                            {/* Inner White Circle (for donut effect) */}
+                                            <Circle
+                                                cx={center}
+                                                cy={center}
+                                                r={radius - strokeWidth / 2}
+                                                fill={isDarkMode ? '#1F2937' : '#fff'}
+                                            />
+                                        </Svg>
+                                    );
+                                })()}
                             </View>
                         </View>
                     )}
@@ -145,29 +202,51 @@ const DashboardScreen = ({ navigation }: { navigation: any }) => {
 
                     {/* Dropdown Menu */}
                     {showYearDropdown && (
-                        <View style={[styles.dropdownMenu, { backgroundColor: isDarkMode ? '#374151' : '#fff', borderColor: isDarkMode ? '#4B5563' : '#F3F4F6' }]}>
-                            {[2026, 2025, 2024].map(year => (
-                                <TouchableOpacity
-                                    key={year}
-                                    style={styles.dropdownItem}
-                                    onPress={() => {
-                                        changeYear(year);
-                                        setShowYearDropdown(false);
-                                    }}
-                                >
-                                    <Text style={[
-                                        styles.dropdownItemText,
-                                        { color: isDarkMode ? '#D1D5DB' : '#4B5563' },
-                                        selectedYear === year && styles.dropdownItemTextSelected
-                                    ]}>
-                                        {year}
-                                    </Text>
-                                    {selectedYear === year && (
-                                        <Icon name="checkmark" size={14} color="#8B5CF6" />
-                                    )}
-                                </TouchableOpacity>
-                            ))}
-                        </View>
+                        <>
+                            <TouchableOpacity
+                                style={{
+                                    position: 'absolute',
+                                    top: -1000,
+                                    bottom: -1000,
+                                    left: -1000,
+                                    right: -1000,
+                                    backgroundColor: 'transparent',
+                                    zIndex: 19
+                                }}
+                                onPress={() => setShowYearDropdown(false)}
+                                activeOpacity={1}
+                            />
+                            <View style={[styles.dropdownMenu, { backgroundColor: isDarkMode ? '#374151' : '#fff', borderColor: isDarkMode ? '#4B5563' : '#F3F4F6', zIndex: 20 }]}>
+                                {(() => {
+                                    const currentYear = new Date().getFullYear();
+                                    const startYear = user?.createdAt ? new Date(user.createdAt).getFullYear() : currentYear;
+                                    // generate years from current down to startYear
+                                    const years = Array.from({ length: currentYear - startYear + 1 }, (_, i) => currentYear - i);
+
+                                    return years.map(year => (
+                                        <TouchableOpacity
+                                            key={year}
+                                            style={styles.dropdownItem}
+                                            onPress={() => {
+                                                changeYear(year);
+                                                setShowYearDropdown(false);
+                                            }}
+                                        >
+                                            <Text style={[
+                                                styles.dropdownItemText,
+                                                { color: isDarkMode ? '#D1D5DB' : '#4B5563' },
+                                                selectedYear === year && styles.dropdownItemTextSelected
+                                            ]}>
+                                                {year}
+                                            </Text>
+                                            {selectedYear === year && (
+                                                <Icon name="checkmark" size={14} color="#8B5CF6" />
+                                            )}
+                                        </TouchableOpacity>
+                                    ))
+                                })()}
+                            </View>
+                        </>
                     )}
 
                     {/* Chart Card */}
@@ -423,33 +502,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         position: 'relative',
-    },
-    ringBackground: {
-        width: 140,
-        height: 140,
-        borderRadius: 70,
-        borderWidth: 15,
-        borderColor: '#8B5CF6',
-        position: 'absolute',
-        opacity: 0.2,
-    },
-    ringProgress: {
-        width: 140,
-        height: 140,
-        borderRadius: 70,
-        borderWidth: 15,
-        borderColor: '#FF7043',
-        position: 'absolute',
-        borderLeftColor: 'transparent',
-        borderBottomColor: 'transparent',
-        transform: [{ rotate: '-45deg' }],
-    },
-    ringInner: {
-        width: 110,
-        height: 110,
-        borderRadius: 55,
-        backgroundColor: '#fff',
-        position: 'absolute',
     },
 
     // Empty State

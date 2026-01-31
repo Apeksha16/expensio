@@ -33,7 +33,7 @@ const QuickActionModal = ({ visible, onClose, onNavigate }: QuickActionModalProp
                                 style={styles.menuItem}
                                 onPress={() => {
                                     onClose();
-                                    onNavigate('AddExpense');
+                                    onNavigate('AddTransaction');
                                 }}
                             >
                                 <View style={styles.iconContainer}>

@@ -16,7 +16,12 @@ exports.getUserProfile = async (req, res) => {
             return res.status(404).json({ error: 'User profile not found' });
         }
 
-        res.json(userDoc.data());
+        const userData = userDoc.data();
+        // Add auth metadata
+        userData.createdAt = userRecord.metadata.creationTime;
+
+        // Return ID explicitly
+        res.json({ id: userRecord.uid, ...userData });
     } catch (error) {
         console.error('Error fetching user profile:', error);
         res.status(500).json({ error: 'Failed to fetch profile' });

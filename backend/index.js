@@ -29,6 +29,8 @@ const userRoutes = require('./routes/users');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/transactions', require('./routes/transactions'));
+app.use('/api/budgets', require('./routes/budgets'));
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

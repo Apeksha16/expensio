@@ -12,6 +12,7 @@ export interface User {
     goals?: number;
     theme?: 'light' | 'dark' | 'system';
     salary?: string;
+    createdAt?: string;
 }
 
 interface UserContextType {

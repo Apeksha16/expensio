@@ -9,12 +9,14 @@ import {
     Dimensions,
 } from 'react-native';
 import { useTransactions } from '../context/TransactionContext';
+import { useTheme } from '../context/ThemeContext';
 import Icon from '@expo/vector-icons/Ionicons';
 
 const { width } = Dimensions.get('window');
 
 const BudgetSettingsScreen = ({ navigation }: { navigation: any }) => {
     const { budgets, getCategorySpend } = useTransactions();
+    const { isDarkMode } = useTheme();
 
     const categories = Object.keys(budgets);
 
@@ -56,13 +58,14 @@ const BudgetSettingsScreen = ({ navigation }: { navigation: any }) => {
         <ScreenWrapper
             title="My Budgets"
             showBack={true}
+            backgroundColor={isDarkMode ? '#111827' : '#F9FAFB'}
         >
 
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
                 <View style={styles.headerRow}>
-                    <Text style={styles.subtitle}>Track your monthly spending limits.</Text>
+                    <Text style={[styles.subtitle, { color: isDarkMode ? '#9CA3AF' : '#6B7280' }]}>Track your monthly spending limits.</Text>
                     <TouchableOpacity onPress={handleAddNew}>
-                        <Text style={styles.addText}>+ Add New</Text>
+                        <Text style={[styles.addText, { color: '#8B5CF6' }]}>+ Add New</Text>
                     </TouchableOpacity>
                 </View>
 
@@ -76,7 +79,7 @@ const BudgetSettingsScreen = ({ navigation }: { navigation: any }) => {
                     return (
                         <TouchableOpacity
                             key={category}
-                            style={styles.budgetCard}
+                            style={[styles.budgetCard, { backgroundColor: isDarkMode ? '#1F2937' : '#fff' }]}
                             activeOpacity={0.9}
                             onPress={() => handleEdit(category)}
                         >
@@ -85,29 +88,29 @@ const BudgetSettingsScreen = ({ navigation }: { navigation: any }) => {
                                     <Icon name={getIconName(category)} size={24} color={color} />
                                 </View>
                                 <View style={styles.cardLabels}>
-                                    <Text style={styles.categoryTitle}>{category}</Text>
-                                    <Text style={styles.categorySubtitle}>Monthly Limit</Text>
+                                    <Text style={[styles.categoryTitle, { color: isDarkMode ? '#F9FAFB' : '#1F2937' }]}>{category}</Text>
+                                    <Text style={[styles.categorySubtitle, { color: isDarkMode ? '#9CA3AF' : '#9CA3AF' }]}>Monthly Limit</Text>
                                 </View>
                                 <TouchableOpacity onPress={() => handleEdit(category)}>
-                                    <Icon name="create-outline" size={20} color="#9CA3AF" />
+                                    <Icon name="create-outline" size={20} color={isDarkMode ? '#9CA3AF' : '#9CA3AF'} />
                                 </TouchableOpacity>
                             </View>
 
                             <View style={styles.statsRow}>
                                 <View>
-                                    <Text style={styles.statLabel}>Total Spend</Text>
-                                    <Text style={[styles.statValue, { color: isOverBudget ? '#EF4444' : '#1F2937' }]}>
+                                    <Text style={[styles.statLabel, { color: isDarkMode ? '#9CA3AF' : '#9CA3AF' }]}>Total Spend</Text>
+                                    <Text style={[styles.statValue, { color: isOverBudget ? '#EF4444' : (isDarkMode ? '#F9FAFB' : '#1F2937') }]}>
                                         ₹{spend.toLocaleString()}
                                     </Text>
                                 </View>
                                 <View style={{ alignItems: 'flex-end' }}>
-                                    <Text style={styles.statLabel}>Total Budget</Text>
-                                    <Text style={styles.statValue}>₹{limit.toLocaleString()}</Text>
+                                    <Text style={[styles.statLabel, { color: isDarkMode ? '#9CA3AF' : '#9CA3AF' }]}>Total Budget</Text>
+                                    <Text style={[styles.statValue, { color: isDarkMode ? '#F9FAFB' : '#1F2937' }]}>₹{limit.toLocaleString()}</Text>
                                 </View>
                             </View>
 
                             {/* Progress Bar */}
-                            <View style={styles.progressContainer}>
+                            <View style={[styles.progressContainer, { backgroundColor: isDarkMode ? '#374151' : '#F3F4F6' }]}>
                                 <View style={[
                                     styles.progressBar,
                                     {
@@ -140,16 +143,13 @@ const styles = StyleSheet.create({
     },
     subtitle: {
         fontSize: 14,
-        color: '#6B7280',
         marginBottom: 0,
     },
     addText: {
         fontSize: 14,
         fontWeight: '700',
-        color: '#8B5CF6',
     },
     budgetCard: {
-        backgroundColor: '#fff',
         borderRadius: 24,
         padding: 20,
         marginBottom: 16,
@@ -178,11 +178,9 @@ const styles = StyleSheet.create({
     categoryTitle: {
         fontSize: 18,
         fontWeight: '700',
-        color: '#1F2937',
     },
     categorySubtitle: {
         fontSize: 12,
-        color: '#9CA3AF',
     },
     statsRow: {
         flexDirection: 'row',
@@ -191,17 +189,14 @@ const styles = StyleSheet.create({
     },
     statLabel: {
         fontSize: 12,
-        color: '#9CA3AF',
         marginBottom: 4,
     },
     statValue: {
         fontSize: 18,
         fontWeight: '700',
-        color: '#1F2937',
     },
     progressContainer: {
         height: 8,
-        backgroundColor: '#F3F4F6',
         borderRadius: 4,
         overflow: 'hidden',
     },

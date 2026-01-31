@@ -9,7 +9,9 @@ import {
     ActivityIndicator,
     KeyboardAvoidingView,
     Platform,
-    Alert
+    Alert,
+    TouchableWithoutFeedback,
+    Keyboard
 } from 'react-native';
 import Icon from '@expo/vector-icons/Ionicons';
 import { useTheme } from '../context/ThemeContext';
@@ -35,8 +37,8 @@ const SetSalaryScreen = ({ navigation, route }: { navigation: any, route: any })
     };
 
     const formatSalary = (value: string) => {
-        // Remove non-digits and limit to 5 digits (max 99,999)
-        const cleaned = value.replace(/\D/g, '').substring(0, 5);
+        // Remove non-digits and limit to 6 digits (max 999,999)
+        const cleaned = value.replace(/\D/g, '').substring(0, 6);
 
         // Format with Indian Number System
         let x = cleaned;
@@ -114,48 +116,51 @@ const SetSalaryScreen = ({ navigation, route }: { navigation: any, route: any })
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={{ flex: 1 }}
             >
+                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                    <View style={{ flex: 1 }}>
+                        <View style={styles.content}>
+                            <View style={styles.iconContainer}>
+                                <Icon name="wallet-outline" size={64} color="#8B5CF6" />
+                            </View>
 
-                <View style={styles.content}>
-                    <View style={styles.iconContainer}>
-                        <Icon name="wallet-outline" size={64} color="#8B5CF6" />
+                            <Text style={[styles.label, themeStyles.subText]}>
+                                What is your monthly income?
+                            </Text>
+
+                            <View style={[styles.inputContainer, { borderColor: isDarkMode ? '#4B5563' : '#E5E7EB' }]}>
+                                <Text style={[styles.currencySymbol, themeStyles.text]}>₹</Text>
+                                <TextInput
+                                    style={[styles.input, themeStyles.text]}
+                                    placeholder="0"
+                                    placeholderTextColor={isDarkMode ? '#6B7280' : '#9CA3AF'}
+                                    keyboardType="numeric"
+                                    value={salary}
+                                    onChangeText={handleChangeText}
+                                    autoFocus
+                                    numberOfLines={1}
+                                />
+                            </View>
+
+                            <Text style={[styles.hint, themeStyles.subText]}>
+                                This helps us calculate your savings and goals accurately.
+                            </Text>
+                        </View>
+
+                        <View style={styles.footer}>
+                            <TouchableOpacity
+                                style={[styles.saveButton, themeStyles.button, loading && { opacity: 0.7 }]}
+                                onPress={handleSave}
+                                disabled={loading}
+                            >
+                                {loading ? (
+                                    <ActivityIndicator color="#fff" />
+                                ) : (
+                                    <Text style={styles.saveButtonText}>Save Salary</Text>
+                                )}
+                            </TouchableOpacity>
+                        </View>
                     </View>
-
-                    <Text style={[styles.label, themeStyles.subText]}>
-                        What is your monthly income?
-                    </Text>
-
-                    <View style={[styles.inputContainer, { borderColor: isDarkMode ? '#4B5563' : '#E5E7EB' }]}>
-                        <Text style={[styles.currencySymbol, themeStyles.text]}>₹</Text>
-                        <TextInput
-                            style={[styles.input, themeStyles.text]}
-                            placeholder="0"
-                            placeholderTextColor={isDarkMode ? '#6B7280' : '#9CA3AF'}
-                            keyboardType="numeric"
-                            value={salary}
-                            onChangeText={handleChangeText}
-                            autoFocus
-                            numberOfLines={1}
-                        />
-                    </View>
-
-                    <Text style={[styles.hint, themeStyles.subText]}>
-                        This helps us calculate your savings and goals accurately.
-                    </Text>
-                </View>
-
-                <View style={styles.footer}>
-                    <TouchableOpacity
-                        style={[styles.saveButton, themeStyles.button, loading && { opacity: 0.7 }]}
-                        onPress={handleSave}
-                        disabled={loading}
-                    >
-                        {loading ? (
-                            <ActivityIndicator color="#fff" />
-                        ) : (
-                            <Text style={styles.saveButtonText}>Save Salary</Text>
-                        )}
-                    </TouchableOpacity>
-                </View>
+                </TouchableWithoutFeedback>
             </KeyboardAvoidingView>
         </ScreenWrapper>
     );
