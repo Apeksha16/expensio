@@ -18,19 +18,35 @@ import {
     ImageBackground,
     ScrollView,
 } from 'react-native';
+import Constants from 'expo-constants';
+import * as WebBrowser from 'expo-web-browser';
+import * as Google from 'expo-auth-session/providers/google';
+import { makeRedirectUri } from 'expo-auth-session';
 import { useToast } from '../components/Toast';
 import Icon from '@expo/vector-icons/Ionicons';
-import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import { sendOtp, verifyOtp, googleLogin, getUserProfile } from '../services/auth';
 import loginBackground from '../assets/login/login_background.png';
 import emailIcon from '../assets/icons/icon_email.png';
 
 import { APP_VERSION } from '../constants/app';
 
+WebBrowser.maybeCompleteAuthSession();
+
 const { width, height } = Dimensions.get('window');
 
 const WEB_CLIENT_ID = '820921044814-8fdnvo1193aki6t29kv5lpcdfffr8g6j.apps.googleusercontent.com';
 const IOS_CLIENT_ID = '820921044814-tmgitqep6hp6qd44qrn1i3sh1790osov.apps.googleusercontent.com';
+
+// Expo Go doesn't include RNGoogleSignin - must use expo-auth-session. Dev builds use native.
+const isExpoGo = Constants.appOwnership === 'expo';
+let GoogleSigninModule: { GoogleSignin: any; statusCodes: any } | null = null;
+if (!isExpoGo) {
+    try {
+        GoogleSigninModule = require('@react-native-google-signin/google-signin');
+    } catch {
+        GoogleSigninModule = null;
+    }
+}
 
 interface LoginScreenProps {
     onLoginSuccess: (user: any) => void;
@@ -43,12 +59,34 @@ const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
     const [loading, setLoading] = useState(false);
     const { showToast } = useToast();
 
-    useEffect(() => {
-        GoogleSignin.configure({
-            webClientId: WEB_CLIENT_ID,
+    // Expo Go: use expo-auth-session with preferLocalhost for stable redirect URI (exp://localhost:8081)
+    const [expoRequest, expoResponse, expoPromptAsync] = Google.useIdTokenAuthRequest(
+        {
+            clientId: WEB_CLIENT_ID,
             iosClientId: IOS_CLIENT_ID,
-        });
+            webClientId: WEB_CLIENT_ID,
+            redirectUri: makeRedirectUri({ preferLocalhost: true }),
+        },
+        { preferLocalhost: true }
+    );
+
+    useEffect(() => {
+        if (GoogleSigninModule && !isExpoGo) {
+            GoogleSigninModule!.GoogleSignin.configure({
+                webClientId: WEB_CLIENT_ID,
+                iosClientId: IOS_CLIENT_ID,
+            });
+        }
     }, []);
+
+    useEffect(() => {
+        if (!isExpoGo) return;
+        if (expoResponse?.type === 'success' && expoResponse.params?.id_token) {
+            handleBackendLogin(expoResponse.params.id_token);
+        } else if (expoResponse?.type === 'error') {
+            Alert.alert('Login Failed', 'Google Sign-In could not be completed.');
+        }
+    }, [expoResponse]);
 
     // Animation Values
     const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -137,7 +175,20 @@ const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
     }, []);
 
     const handleGoogleLogin = async () => {
+        if (isExpoGo) {
+            if (expoRequest) {
+                expoPromptAsync();
+            } else {
+                Alert.alert('Loading...', 'Please wait a moment and try again.');
+            }
+            return;
+        }
+        if (!GoogleSigninModule) {
+            Alert.alert('Login Failed', 'Google Sign-In is not available.');
+            return;
+        }
         try {
+            const { GoogleSignin, statusCodes } = GoogleSigninModule;
             if (Platform.OS !== 'web') {
                 await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
             }
@@ -155,7 +206,7 @@ const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
             }
         } catch (error: any) {
             console.error('Google Sign-In Error:', error);
-            if (error?.code === statusCodes?.SIGN_IN_CANCELLED) return;
+            if (error?.code === GoogleSigninModule?.statusCodes?.SIGN_IN_CANCELLED) return;
             Alert.alert('Login Failed', error?.message || 'Google Sign-In could not be completed.');
         }
     };

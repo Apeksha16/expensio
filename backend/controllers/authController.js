@@ -4,6 +4,12 @@ const admin = require('firebase-admin');
 // In-memory OTP store (Use Redis for production)
 const otpStore = new Map();
 
+// Static credentials for development
+const STATIC_CREDENTIALS = {
+    'demo@expensio.com': '123456',
+    'test@expensio.com': '000000'
+};
+
 exports.sendOtp = async (req, res) => {
     const { email } = req.body;
     if (!email) {
@@ -11,7 +17,13 @@ exports.sendOtp = async (req, res) => {
     }
 
     // Generate 6-digit OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    let otp;
+    if (STATIC_CREDENTIALS[email]) {
+        otp = STATIC_CREDENTIALS[email];
+        console.log(`[DEV] Using static OTP for ${email}`);
+    } else {
+        otp = Math.floor(100000 + Math.random() * 900000).toString();
+    }
 
     // Store OTP with expiration (5 minutes)
     otpStore.set(email, {
