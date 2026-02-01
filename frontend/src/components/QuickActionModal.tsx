@@ -28,21 +28,7 @@ const QuickActionModal = ({ visible, onClose, onNavigate }: QuickActionModalProp
                 <View style={styles.overlay}>
                     <TouchableWithoutFeedback>
                         <View style={styles.menuContainer}>
-                            {/* Add Income */}
-                            <TouchableOpacity
-                                style={styles.menuItem}
-                                onPress={() => {
-                                    onClose();
-                                    onNavigate('AddTransaction', { type: 'income' });
-                                }}
-                            >
-                                <View style={styles.iconContainer}>
-                                    <Icon name="cash-outline" size={20} color="#fff" />
-                                </View>
-                                <Text style={styles.menuText}>Add Income</Text>
-                            </TouchableOpacity>
 
-                            <View style={styles.divider} />
 
                             {/* Add Expense */}
                             <TouchableOpacity

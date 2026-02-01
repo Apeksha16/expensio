@@ -80,6 +80,12 @@ exports.verifyOtp = async (req, res) => {
 
         const customToken = await admin.auth().createCustomToken(user.uid);
 
+        // Ensure user document exists in Firestore
+        await admin.firestore().collection('users').doc(user.uid).set({
+            email: user.email,
+            lastLogin: admin.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+
         // Clear OTP
         otpStore.delete(email);
 
