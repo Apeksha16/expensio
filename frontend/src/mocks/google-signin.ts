@@ -69,14 +69,17 @@ export const GoogleSignin = {
                     const payload = JSON.parse(atob(idToken.split('.')[1]));
 
                     resolve({
-                        idToken: idToken,
-                        user: {
-                            id: payload.sub,
-                            name: payload.name,
-                            email: payload.email,
-                            photo: payload.picture,
-                            familyName: payload.family_name,
-                            givenName: payload.given_name,
+                        type: 'success',
+                        data: {
+                            idToken,
+                            user: {
+                                id: payload.sub,
+                                name: payload.name,
+                                email: payload.email,
+                                photo: payload.picture,
+                                familyName: payload.family_name,
+                                givenName: payload.given_name,
+                            }
                         }
                     });
                 } else {

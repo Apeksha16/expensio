@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import {
     View,
@@ -21,8 +20,7 @@ import {
 } from 'react-native';
 import { useToast } from '../components/Toast';
 import Icon from '@expo/vector-icons/Ionicons';
-import * as Google from 'expo-auth-session/providers/google';
-import * as WebBrowser from 'expo-web-browser';
+import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import { sendOtp, verifyOtp, googleLogin, getUserProfile } from '../services/auth';
 import loginBackground from '../assets/login/login_background.png';
 import emailIcon from '../assets/icons/icon_email.png';
@@ -31,7 +29,8 @@ import { APP_VERSION } from '../constants/app';
 
 const { width, height } = Dimensions.get('window');
 
-WebBrowser.maybeCompleteAuthSession();
+const WEB_CLIENT_ID = '820921044814-8fdnvo1193aki6t29kv5lpcdfffr8g6j.apps.googleusercontent.com';
+const IOS_CLIENT_ID = '820921044814-tmgitqep6hp6qd44qrn1i3sh1790osov.apps.googleusercontent.com';
 
 interface LoginScreenProps {
     onLoginSuccess: (user: any) => void;
@@ -44,33 +43,18 @@ const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
     const [loading, setLoading] = useState(false);
     const { showToast } = useToast();
 
-    // preferLocalhost: true → uses exp://localhost:8081 instead of exp://YOUR_IP:8081 (machine-specific).
-    // Add "exp://localhost:8081" to Google Cloud Console → Credentials → OAuth Client → Authorized redirect URIs
-    // so all developers (simulator) get the same URI. For physical device, use dev build (expo run:ios) or add
-    // your exp://IP:8081 to Google Console.
-    const [request, response, promptAsync] = Google.useIdTokenAuthRequest(
-        {
-            clientId: '820921044814-8fdnvo1193aki6t29kv5lpcdfffr8g6j.apps.googleusercontent.com',
-            iosClientId: '820921044814-tmgitqep6hp6qd44qrn1i3sh1790osov.apps.googleusercontent.com',
-            webClientId: '820921044814-8fdnvo1193aki6t29kv5lpcdfffr8g6j.apps.googleusercontent.com',
-        },
-        { preferLocalhost: true }
-    );
+    useEffect(() => {
+        GoogleSignin.configure({
+            webClientId: WEB_CLIENT_ID,
+            iosClientId: IOS_CLIENT_ID,
+        });
+    }, []);
 
     // Animation Values
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const slideAnim = useRef(new Animated.Value(100)).current; // Start from further down
     const blob1Anim = useRef(new Animated.Value(0)).current;
     const blob2Anim = useRef(new Animated.Value(0)).current;
-
-    useEffect(() => {
-        if (response?.type === 'success') {
-            const { id_token } = response.params;
-            handleBackendLogin(id_token);
-        } else if (response?.type === 'error') {
-            Alert.alert('Login Failed', 'Google Sign-In could not be completed.');
-        }
-    }, [response]);
 
     const handleBackendLogin = async (idToken: string) => {
         try {
@@ -154,10 +138,25 @@ const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
 
     const handleGoogleLogin = async () => {
         try {
-            promptAsync();
-        } catch (error) {
+            if (Platform.OS !== 'web') {
+                await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+            }
+            const result = await GoogleSignin.signIn();
+            if (result.type === 'cancelled') return;
+            let idToken = result.type === 'success' ? result.data?.idToken ?? null : null;
+            if (!idToken && result.type === 'success' && result.data) {
+                const tokens = await GoogleSignin.getTokens();
+                idToken = tokens.idToken;
+            }
+            if (idToken) {
+                await handleBackendLogin(idToken);
+            } else {
+                Alert.alert('Login Failed', 'Could not get Google Sign-In token.');
+            }
+        } catch (error: any) {
             console.error('Google Sign-In Error:', error);
-            Alert.alert('Login Failed', 'Google Sign-In could not be initiated.');
+            if (error?.code === statusCodes?.SIGN_IN_CANCELLED) return;
+            Alert.alert('Login Failed', error?.message || 'Google Sign-In could not be completed.');
         }
     };
 
