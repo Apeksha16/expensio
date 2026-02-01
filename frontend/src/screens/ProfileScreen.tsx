@@ -14,6 +14,7 @@ import { useToast } from '../components/Toast';
 import Icon from '@expo/vector-icons/Ionicons';
 import { useTheme } from '../context/ThemeContext';
 import { useUser } from '../context/UserContext';
+import { APP_VERSION } from '../constants/app';
 
 const ProfileScreen = ({ navigation, onLogout }: { navigation: any; onLogout: () => void }) => {
     const { showToast } = useToast();
@@ -167,6 +168,8 @@ const ProfileScreen = ({ navigation, onLogout }: { navigation: any; onLogout: ()
                     <Icon name="log-out-outline" size={20} color="#EF4444" />
                     <Text style={styles.logoutText}>Log Out</Text>
                 </TouchableOpacity>
+
+                <Text style={[styles.versionText, subTextStyle]}>{APP_VERSION}</Text>
 
                 <View style={{ height: 40 }} />
             </ScrollView>
@@ -338,6 +341,12 @@ const styles = StyleSheet.create({
         color: '#EF4444',
         fontSize: 16,
         fontWeight: '700',
+    },
+    versionText: {
+        textAlign: 'center',
+        fontSize: 12,
+        marginTop: -10,
+        marginBottom: 20,
     },
 });
 

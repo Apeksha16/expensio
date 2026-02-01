@@ -27,6 +27,8 @@ import { sendOtp, verifyOtp, googleLogin, getUserProfile } from '../services/aut
 import loginBackground from '../assets/login/login_background.png';
 import emailIcon from '../assets/icons/icon_email.png';
 
+import { APP_VERSION } from '../constants/app';
+
 const { width, height } = Dimensions.get('window');
 
 WebBrowser.maybeCompleteAuthSession();
@@ -330,6 +332,7 @@ const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
                             </View>
                         </Animated.View>
                     </KeyboardAvoidingView>
+                    <Text style={styles.versionText}>{APP_VERSION}</Text>
                 </SafeAreaView>
             </ImageBackground>
         </View >
@@ -522,6 +525,13 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '600',
         color: '#1F2937',
+    },
+    versionText: {
+        textAlign: 'center',
+        color: 'rgba(0,0,0,0.3)',
+        fontSize: 12,
+        marginBottom: 10,
+        fontWeight: '500',
     },
 });
 
