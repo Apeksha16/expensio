@@ -398,7 +398,7 @@ const ExpensesScreen = ({ navigation }: { navigation: any }) => {
                         ) : (
                             transactions.map(item => (
                                 <View key={item.id} style={[styles.transactionCard, { backgroundColor: isDarkMode ? '#1F2937' : '#fff' }]}>
-                                    <View style={[styles.transHeader, { marginBottom: item.subtitle === 'Others' ? 0 : 20 }]}>
+                                    <View style={[styles.transHeader, { marginBottom: item.subtitle === 'Others' || item.subtitle === 'Subscription' ? 0 : 20 }]}>
                                         <View style={{ flexDirection: 'row', flex: 1 }}>
                                             <View style={[styles.iconContainer, { backgroundColor: isDarkMode ? '#374151' : `${item.color}15` }]}>
                                                 <Icon name={item.icon} size={24} color={item.color} />

@@ -1,4 +1,9 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { Platform } from 'react-native';
+import { useUser } from './UserContext';
+
+// Basic configuration for API URL
+const API_URL = Platform.OS === 'android' ? 'http://10.0.2.2:5001/api' : 'http://localhost:5001/api';
 
 export interface Subscription {
     id: string;
@@ -12,10 +17,11 @@ export interface Subscription {
 
 interface SubscriptionContextType {
     subscriptions: Subscription[];
-    addSubscription: (sub: Omit<Subscription, 'id'>) => void;
-    deleteSubscription: (id: string) => void;
-    updateSubscription: (id: string, sub: Omit<Subscription, 'id'>) => void;
+    addSubscription: (sub: Omit<Subscription, 'id'>) => Promise<void>;
+    deleteSubscription: (id: string) => Promise<void>;
+    updateSubscription: (id: string, sub: Omit<Subscription, 'id'>) => Promise<void>;
     totalMonthlyCost: number;
+    loading: boolean;
 }
 
 const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined);
@@ -29,25 +35,107 @@ export const useSubscriptions = () => {
 };
 
 export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [subscriptions, setSubscriptions] = useState<Subscription[]>([
-        // Initial Dummy Data
-        // { id: '1', name: 'Netflix', amount: 499, frequency: 'Monthly', nextBillDate: new Date('2023-05-15'), icon: 'logo-youtube', color: '#E50914' },
-    ]);
+    const { user } = useUser();
+    const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+    const [loading, setLoading] = useState(false);
 
-    const addSubscription = (sub: Omit<Subscription, 'id'>) => {
-        const newSub: Subscription = {
-            ...sub,
-            id: Math.random().toString(36).substr(2, 9),
-        };
-        setSubscriptions(prev => [...prev, newSub]);
+    const fetchSubscriptions = async (userId: string) => {
+        setLoading(true);
+        try {
+            const response = await fetch(`${API_URL}/subscriptions/${userId}`);
+            if (response.ok) {
+                const data = await response.json();
+                const parsedData = data.map((sub: any) => ({
+                    ...sub,
+                    nextBillDate: new Date(sub.nextBillDate),
+                }));
+                // Sort by next bill date asc? or created? Let's do next bill date
+                parsedData.sort((a: any, b: any) => a.nextBillDate.getTime() - b.nextBillDate.getTime());
+                setSubscriptions(parsedData);
+            } else {
+                console.error('Failed to fetch subscriptions');
+            }
+        } catch (error) {
+            console.error('Error fetching subscriptions:', error);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const deleteSubscription = (id: string) => {
-        setSubscriptions(prev => prev.filter(s => s.id !== id));
+    useEffect(() => {
+        if (user?.id) {
+            fetchSubscriptions(user.id);
+        } else {
+            setSubscriptions([]);
+        }
+    }, [user?.id]);
+
+    const addSubscription = async (sub: Omit<Subscription, 'id'>) => {
+        if (!user?.id) return;
+        setLoading(true);
+        try {
+            const response = await fetch(`${API_URL}/subscriptions`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId: user.id,
+                    ...sub,
+                    nextBillDate: sub.nextBillDate.toISOString(), // Ensure ISO string
+                }),
+            });
+
+            if (response.ok) {
+                const { subscription } = await response.json();
+                const newSub: Subscription = {
+                    ...subscription,
+                    nextBillDate: new Date(subscription.nextBillDate),
+                };
+                setSubscriptions(prev => [...prev, newSub]);
+            }
+        } catch (error) {
+            console.error('Error adding subscription:', error);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const updateSubscription = (id: string, updatedSub: Omit<Subscription, 'id'>) => {
-        setSubscriptions(prev => prev.map(s => s.id === id ? { ...updatedSub, id } : s));
+    const deleteSubscription = async (id: string) => {
+        setLoading(true);
+        try {
+            const response = await fetch(`${API_URL}/subscriptions/${id}`, {
+                method: 'DELETE',
+            });
+
+            if (response.ok) {
+                setSubscriptions(prev => prev.filter(s => s.id !== id));
+            }
+        } catch (error) {
+            console.error('Error deleting subscription:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const updateSubscription = async (id: string, updatedSub: Omit<Subscription, 'id'>) => {
+        setLoading(true);
+        try {
+            const response = await fetch(`${API_URL}/subscriptions/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    ...updatedSub,
+                    nextBillDate: updatedSub.nextBillDate.toISOString(),
+                }),
+            });
+
+            if (response.ok) {
+                setSubscriptions(prev => prev.map(s => s.id === id ? { ...s, ...updatedSub } : s));
+            }
+        } catch (error) {
+            console.error('Error updating subscription:', error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     const totalMonthlyCost = subscriptions.reduce((sum, sub) => {
@@ -61,6 +149,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
             deleteSubscription,
             updateSubscription,
             totalMonthlyCost,
+            loading,
         }}>
             {children}
         </SubscriptionContext.Provider>

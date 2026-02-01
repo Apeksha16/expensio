@@ -108,35 +108,43 @@ const AddSubscriptionScreen = ({ navigation, route }: { navigation: any, route: 
         setDate(selectedDate);
     };
 
-    const handleSave = () => {
+    const [isSaving, setIsSaving] = useState(false);
+
+    const handleSave = async () => {
         if (!name || !amount) {
             showToast('Please enter name and amount', 'error');
             return;
         }
 
-        if (editingSubscription) {
-            updateSubscription(editingSubscription.id, {
-                name,
-                amount: parseFloat(amount),
-                frequency,
-                nextBillDate: date,
-                icon: editingSubscription.icon,
-                color: editingSubscription.color,
-            });
-            showToast('Subscription Updated', 'success');
-        } else {
-            addSubscription({
-                name,
-                amount: parseFloat(amount),
-                frequency,
-                nextBillDate: date,
-                icon: 'card-outline',
-                color: getRandomColor(),
-            });
-            showToast('Subscription Added', 'success');
+        setIsSaving(true);
+        try {
+            if (editingSubscription) {
+                await updateSubscription(editingSubscription.id, {
+                    name,
+                    amount: parseFloat(amount),
+                    frequency,
+                    nextBillDate: date,
+                    icon: editingSubscription.icon,
+                    color: editingSubscription.color,
+                });
+                showToast('Subscription Updated', 'success');
+            } else {
+                await addSubscription({
+                    name,
+                    amount: parseFloat(amount),
+                    frequency,
+                    nextBillDate: date,
+                    icon: 'card-outline',
+                    color: getRandomColor(),
+                });
+                showToast('Subscription Added', 'success');
+            }
+            navigation.goBack();
+        } catch (error) {
+            showToast('Failed to save subscription', 'error');
+        } finally {
+            setIsSaving(false);
         }
-
-        navigation.goBack();
     };
 
     const getRandomColor = () => {
@@ -154,10 +162,14 @@ const AddSubscriptionScreen = ({ navigation, route }: { navigation: any, route: 
                 {
                     text: 'Delete',
                     style: 'destructive',
-                    onPress: () => {
-                        deleteSubscription(editingSubscription.id);
-                        showToast('Subscription deleted', 'success');
-                        navigation.goBack();
+                    onPress: async () => {
+                        try {
+                            await deleteSubscription(editingSubscription.id);
+                            showToast('Subscription deleted', 'success');
+                            navigation.goBack();
+                        } catch (error) {
+                            showToast('Failed to delete subscription', 'error');
+                        }
                     },
                 },
             ]
@@ -401,10 +413,15 @@ const AddSubscriptionScreen = ({ navigation, route }: { navigation: any, route: 
                                 { backgroundColor: isDarkMode ? '#FF7043' : '#1F2937' }
                             ]}
                             onPress={handleSave}
+                            disabled={isSaving}
                         >
-                            <Text style={styles.saveButtonText}>
-                                {editingSubscription ? 'Update Subscription' : 'Save Subscription'}
-                            </Text>
+                            {isSaving ? (
+                                <ActivityIndicator color="#fff" />
+                            ) : (
+                                <Text style={styles.saveButtonText}>
+                                    {editingSubscription ? 'Update Subscription' : 'Save Subscription'}
+                                </Text>
+                            )}
                         </TouchableOpacity>
                     ) : (
                         <View style={styles.actionButtonsRow}>
