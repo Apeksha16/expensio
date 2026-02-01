@@ -13,7 +13,7 @@ import Icon from '@expo/vector-icons/Ionicons';
 interface QuickActionModalProps {
     visible: boolean;
     onClose: () => void;
-    onNavigate: (screen: string) => void;
+    onNavigate: (screen: string, params?: any) => void;
 }
 
 const QuickActionModal = ({ visible, onClose, onNavigate }: QuickActionModalProps) => {
@@ -28,12 +28,28 @@ const QuickActionModal = ({ visible, onClose, onNavigate }: QuickActionModalProp
                 <View style={styles.overlay}>
                     <TouchableWithoutFeedback>
                         <View style={styles.menuContainer}>
+                            {/* Add Income */}
+                            <TouchableOpacity
+                                style={styles.menuItem}
+                                onPress={() => {
+                                    onClose();
+                                    onNavigate('AddTransaction', { type: 'income' });
+                                }}
+                            >
+                                <View style={styles.iconContainer}>
+                                    <Icon name="cash-outline" size={20} color="#fff" />
+                                </View>
+                                <Text style={styles.menuText}>Add Income</Text>
+                            </TouchableOpacity>
+
+                            <View style={styles.divider} />
+
                             {/* Add Expense */}
                             <TouchableOpacity
                                 style={styles.menuItem}
                                 onPress={() => {
                                     onClose();
-                                    onNavigate('AddTransaction');
+                                    onNavigate('AddTransaction', { type: 'expense' });
                                 }}
                             >
                                 <View style={styles.iconContainer}>
@@ -44,43 +60,57 @@ const QuickActionModal = ({ visible, onClose, onNavigate }: QuickActionModalProp
 
                             <View style={styles.divider} />
 
-                            {/* Group Splits */}
+                            {/* Add Subscription */}
                             <TouchableOpacity
                                 style={styles.menuItem}
                                 onPress={() => {
                                     onClose();
-                                    onNavigate('Split'); // Navigate to SplitBillScreen
+                                    onNavigate('AddSubscription');
                                 }}
                             >
                                 <View style={styles.iconContainer}>
-                                    <Icon name="people-outline" size={20} color="#fff" />
+                                    <Icon name="calendar-outline" size={20} color="#fff" />
                                 </View>
-                                <Text style={styles.menuText}>Group splits</Text>
+                                <Text style={styles.menuText}>Add Subscription</Text>
                             </TouchableOpacity>
 
                             <View style={styles.divider} />
 
-                            {/* Add Income */}
+                            {/* Add Budget */}
                             <TouchableOpacity
                                 style={styles.menuItem}
                                 onPress={() => {
                                     onClose();
-                                    // onNavigate('AddIncome'); 
-                                    console.log("Add Income clicked");
+                                    onNavigate('BudgetForm');
                                 }}
                             >
                                 <View style={styles.iconContainer}>
-                                    <Icon name="card-outline" size={20} color="#fff" />
+                                    <Icon name="pie-chart-outline" size={20} color="#fff" />
                                 </View>
-                                <Text style={styles.menuText}>Add Income</Text>
+                                <Text style={styles.menuText}>Add Budget</Text>
                             </TouchableOpacity>
+
+                            <View style={styles.divider} />
+
+                            {/* Add Goals */}
+                            <TouchableOpacity
+                                style={styles.menuItem}
+                                onPress={() => {
+                                    onClose();
+                                    onNavigate('AddGoal');
+                                }}
+                            >
+                                <View style={styles.iconContainer}>
+                                    <Icon name="trophy-outline" size={20} color="#fff" />
+                                </View>
+                                <Text style={styles.menuText}>Add Goals</Text>
+                            </TouchableOpacity>
+
+
                         </View>
                     </TouchableWithoutFeedback>
 
-                    {/* Close Button at bottom, aligned with FAB location */}
-                    <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-                        <Icon name="close" size={24} color="#fff" />
-                    </TouchableOpacity>
+                    {/* Close Button Removed as per request */}
                 </View>
             </TouchableWithoutFeedback>
         </Modal>
@@ -100,7 +130,7 @@ const styles = StyleSheet.create({
         width: 250,
         borderRadius: 16,
         paddingVertical: 8,
-        marginBottom: 80, // Space above the close button/FAB
+        marginBottom: 80, // Keep space above where the FAB would be
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
@@ -125,23 +155,6 @@ const styles = StyleSheet.create({
         height: 1,
         backgroundColor: 'rgba(255,255,255,0.1)',
         marginHorizontal: 16,
-    },
-    closeButton: {
-        width: 64,
-        height: 64,
-        borderRadius: 32,
-        backgroundColor: '#FF7043',
-        justifyContent: 'center',
-        alignItems: 'center',
-        position: 'absolute',
-        bottom: 46, // Align with tab bar fab position (80 height - 30 offset roughly)
-        borderWidth: 4,
-        borderColor: '#fff',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
-        elevation: 5,
     },
 });
 

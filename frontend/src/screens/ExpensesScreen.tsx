@@ -91,7 +91,7 @@ const ExpensesScreen = ({ navigation }: { navigation: any }) => {
             const year = currentDate.getFullYear();
             const month = currentDate.getMonth();
             const startDate = new Date(year, month, 1).toISOString();
-            const endDate = new Date(year, month + 1, 0).toISOString();
+            const endDate = new Date(year, month + 1, 0, 23, 59, 59, 999).toISOString();
 
             console.log(`[ExpensesScreen] Date Range: ${startDate} - ${endDate}`);
             await fetchTransactions(user.id, { startDate, endDate });
@@ -207,6 +207,7 @@ const ExpensesScreen = ({ navigation }: { navigation: any }) => {
             case 'transport': return 'car-outline';
             case 'gym': return 'barbell-outline';
             case 'others': return 'grid-outline';
+            case 'subscription': return 'repeat-outline';
             default: return 'cart-outline';
         }
     };
@@ -223,6 +224,7 @@ const ExpensesScreen = ({ navigation }: { navigation: any }) => {
             case 'transport': return '#F97316';
             case 'gym': return '#84CC16';
             case 'others': return '#6366F1';
+            case 'subscription': return '#0EA5E9';
             default: return '#10B981';
         }
     };
@@ -422,8 +424,8 @@ const ExpensesScreen = ({ navigation }: { navigation: any }) => {
                                         </View>
                                     </View>
 
-                                    {/* Only show budget/progress if NOT Others */}
-                                    {item.subtitle !== 'Others' && (
+                                    {/* Only show budget/progress if NOT Others or Subscription */}
+                                    {item.subtitle !== 'Others' && item.subtitle !== 'Subscription' && (
                                         <>
                                             <View style={styles.budgetRow}>
                                                 <View>

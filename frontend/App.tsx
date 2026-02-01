@@ -12,6 +12,7 @@ import { UserProvider, useUser } from './src/context/UserContext';
 import { ToastProvider } from './src/components/Toast';
 import { TransactionProvider } from './src/context/TransactionContext';
 import { SubscriptionProvider } from './src/context/SubscriptionContext';
+import { GoalProvider } from './src/context/GoalContext';
 
 // Screens
 import LoginScreen from './src/screens/LoginScreen';
@@ -35,6 +36,7 @@ import BudgetSettingsScreen from './src/screens/BudgetSettingsScreen';
 import BudgetFormScreen from './src/screens/BudgetFormScreen';
 import AddGoalScreen from './src/screens/AddGoalScreen';
 import SetSalaryScreen from './src/screens/SetSalaryScreen';
+import GoalDetailsView from './src/screens/GoalDetailsScreen';
 import PWAInstallPrompt from './src/components/PWAInstallPrompt';
 
 import QuickActionModal from './src/components/QuickActionModal';
@@ -170,7 +172,9 @@ const MainTabs = ({ onLogout }: { onLogout: () => void }) => {
               <Icon name="add" size={32} color="#fff" />
             ),
             tabBarButton: (props) => (
-              <CustomTabBarButton {...props} onPress={() => setModalVisible(true)} />
+              <CustomTabBarButton {...props} onPress={() => setModalVisible(true)}>
+                <Icon name="add" size={32} color="#fff" />
+              </CustomTabBarButton>
             ),
             tabBarStyle: { display: 'none' }
           }}
@@ -206,7 +210,7 @@ const MainTabs = ({ onLogout }: { onLogout: () => void }) => {
       <QuickActionModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
-        onNavigate={(screen) => navigation.navigate(screen)}
+        onNavigate={(screen, params) => navigation.navigate(screen, params)}
       />
     </>
   );
@@ -294,6 +298,7 @@ const AppContent = () => {
               options={{ presentation: 'modal' }}
             />
             <Stack.Screen name="AddGoal" component={AddGoalScreen} />
+            <Stack.Screen name="GoalDetails" component={GoalDetailsView} />
             <Stack.Screen
               name="TotalExpense"
               component={TotalExpenseScreen}
@@ -358,7 +363,9 @@ function App() {
           <ToastProvider>
             <TransactionProvider>
               <SubscriptionProvider>
-                <AppWithTheme />
+                <GoalProvider>
+                  <AppWithTheme />
+                </GoalProvider>
               </SubscriptionProvider>
             </TransactionProvider>
           </ToastProvider>

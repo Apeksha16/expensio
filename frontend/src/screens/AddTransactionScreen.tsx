@@ -17,10 +17,11 @@ import { useTheme } from '../context/ThemeContext';
 import Icon from '@expo/vector-icons/Ionicons';
 
 const AddTransactionScreen = ({ navigation, route }: { navigation: any; route: any }) => {
-    const { friendName = 'Friend', date: dateParam } = route.params || {};
+    const { friendName = 'Friend', date: dateParam, type: initialType = 'expense' } = route.params || {};
     const { addTransaction, budgets, loading, selectedDate } = useTransactions();
     const [amount, setAmount] = useState('');
     const [note, setNote] = useState('');
+    const [transactionType, setTransactionType] = useState<'expense' | 'income'>(initialType);
     const { isDarkMode } = useTheme();
 
     // Determine initial date: Route param > Context Selected Date > Today
@@ -88,13 +89,13 @@ const AddTransactionScreen = ({ navigation, route }: { navigation: any; route: a
         await addTransaction({
             title: note, // Note acts as title/label
             amount: cleanAmount,
-            type: 'expense', // Default to expense as requested
+            type: transactionType, // Use state
             category: selectedCategory,
             note: note,
             date: finalDate,
         } as any);
 
-        showToast('Expense Saved', 'success');
+        showToast(`${transactionType === 'income' ? 'Income' : 'Expense'} Saved`, 'success');
         navigation.goBack();
     };
 
@@ -110,6 +111,8 @@ const AddTransactionScreen = ({ navigation, route }: { navigation: any; route: a
             case 'transport': return 'car';
             case 'gym': return 'barbell';
             case 'others': return 'grid';
+            case 'salary': return 'cash';
+            case 'investment': return 'trending-up';
             default: return 'wallet';
         }
     };
@@ -126,6 +129,8 @@ const AddTransactionScreen = ({ navigation, route }: { navigation: any; route: a
             case 'transport': return '#F97316';
             case 'gym': return '#84CC16';
             case 'others': return '#6366F1';
+            case 'salary': return '#10B981';
+            case 'investment': return '#3B82F6';
             default: return '#10B981';
         }
     };
@@ -138,7 +143,7 @@ const AddTransactionScreen = ({ navigation, route }: { navigation: any; route: a
 
     return (
         <ScreenWrapper
-            title="Add Expense"
+            title={transactionType === 'income' ? "Add Income" : "Add Expense"}
             alignment="center"
             backgroundColor={containerBg}
             leftAction={
@@ -278,7 +283,9 @@ const AddTransactionScreen = ({ navigation, route }: { navigation: any; route: a
                         {loading ? (
                             <ActivityIndicator color="#fff" />
                         ) : (
-                            <Text style={styles.saveButtonText}>Save Expense</Text>
+                            <Text style={styles.saveButtonText}>
+                                {transactionType === 'income' ? 'Save Income' : 'Save Expense'}
+                            </Text>
                         )}
                     </TouchableOpacity>
                 </View>

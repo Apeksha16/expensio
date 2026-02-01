@@ -7,28 +7,52 @@ import {
     TouchableOpacity,
     ScrollView,
     Dimensions,
-    TextInput,
-    Modal,
 } from 'react-native';
 import Icon from '@expo/vector-icons/Ionicons';
+import { useTheme } from '../context/ThemeContext';
+import { useGoals } from '../context/GoalContext';
 
 const { width } = Dimensions.get('window');
 
 const GoalsScreen = ({ navigation }: { navigation: any }) => {
-    const [modalVisible, setModalVisible] = useState(false);
-
-    // Mock Data based on user request and image style
-    const [goals, setGoals] = useState<any[]>([]);
+    const { isDarkMode } = useTheme();
+    const { goals } = useGoals();
 
     const calculateProgress = (saved: number, target: number) => {
+        if (target === 0) return 0;
         return (saved / target) * 100;
     };
+
+    // Helper to generate consistent color/icon based on goal title
+    const getGoalStyle = (title: string) => {
+        const colors = ['#8B5CF6', '#EC4899', '#10B981', '#F59E0B', '#3B82F6'];
+        const icons = ['trophy-outline', 'star-outline', 'rocket-outline', 'gift-outline', 'airplane-outline'];
+        // Simple hash function
+        let hash = 0;
+        for (let i = 0; i < title.length; i++) {
+            hash = title.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        const index = Math.abs(hash % colors.length);
+        return { color: colors[index], icon: icons[index] };
+    };
+
+    // Theme Colors
+    const containerBg = isDarkMode ? '#111827' : '#F9FAFB';
+    const textColor = isDarkMode ? '#F9FAFB' : '#1F2937';
+    const subTextColor = isDarkMode ? '#9CA3AF' : '#6B7280';
+    const cardBg = isDarkMode ? '#1F2937' : '#fff';
+    const borderColor = isDarkMode ? '#374151' : '#F3F4F6';
+    const iconCircleBg = isDarkMode ? '#374151' : '#F3F4F6';
 
     return (
         <ScreenWrapper
             title="Goals"
+            backgroundColor={containerBg}
             rightAction={
-                <TouchableOpacity onPress={() => navigation.navigate('AddGoal')} style={styles.addButton}>
+                <TouchableOpacity
+                    onPress={() => navigation.navigate('AddGoal')}
+                    style={[styles.addButton, { backgroundColor: isDarkMode ? '#374151' : '#1F2937' }]}
+                >
                     <Icon name="add" size={24} color="#fff" />
                 </TouchableOpacity>
             }
@@ -37,15 +61,15 @@ const GoalsScreen = ({ navigation }: { navigation: any }) => {
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
 
                 {/* Featured / Active Goals */}
-                <Text style={styles.sectionTitle}>Active Goals</Text>
+                <Text style={[styles.sectionTitle, { color: textColor }]}>Active Goals</Text>
 
                 {goals.length === 0 ? (
-                    <View style={styles.emptyStateContainer}>
-                        <View style={styles.emptyIconCircle}>
-                            <Icon name="trophy-outline" size={40} color="#8B5CF6" />
+                    <View style={[styles.emptyStateContainer, { backgroundColor: cardBg, borderColor: borderColor }]}>
+                        <View style={[styles.emptyIconCircle, { backgroundColor: iconCircleBg }]}>
+                            <Icon name="trophy-outline" size={40} color={isDarkMode ? '#A78BFA' : '#8B5CF6'} />
                         </View>
-                        <Text style={styles.emptyTitle}>No Goals Yet</Text>
-                        <Text style={styles.emptySubtitle}>Create a goal to start saving for your dreams.</Text>
+                        <Text style={[styles.emptyTitle, { color: textColor }]}>No Goals Yet</Text>
+                        <Text style={[styles.emptySubtitle, { color: subTextColor }]}>Create a goal to start saving for your dreams.</Text>
                         <TouchableOpacity
                             style={styles.createGoalButton}
                             onPress={() => navigation.navigate('AddGoal')}
@@ -56,33 +80,56 @@ const GoalsScreen = ({ navigation }: { navigation: any }) => {
                 ) : (
                     <View style={styles.gridContainer}>
                         {goals.map((goal) => {
-                            const progress = calculateProgress(goal.savedAmount, goal.targetAmount);
+                            const progress = calculateProgress(goal.savedAmount || 0, goal.targetAmount);
+                            const style = getGoalStyle(goal.title);
+
                             return (
-                                <TouchableOpacity key={goal.id} style={[styles.goalCard, { backgroundColor: goal.color }]}>
+                                <TouchableOpacity
+                                    key={goal.id}
+                                    style={[styles.goalCard, { backgroundColor: style.color }]}
+                                    onPress={() => navigation.navigate('GoalDetails', {
+                                        goal: {
+                                            ...goal,
+                                            targetDate: goal.targetDate.toISOString()
+                                        }
+                                    })}
+                                >
                                     <View style={styles.cardHeader}>
                                         <View style={styles.iconCircle}>
-                                            <Icon name={goal.icon} size={20} color={goal.color} />
+                                            <Icon name={style.icon} size={20} color={style.color} />
                                         </View>
-                                        <TouchableOpacity>
-                                            <Icon name="ellipsis-vertical" size={20} color="#fff" />
-                                        </TouchableOpacity>
                                     </View>
 
                                     <View style={styles.cardBody}>
-                                        <Text style={styles.goalTitle}>{goal.title}</Text>
-                                        <Text style={styles.goalDeadline}>by {goal.deadline}</Text>
+                                        <Text style={styles.goalTitle} numberOfLines={2}>{goal.title}</Text>
+                                        <Text style={styles.goalDeadline}>by {new Date(goal.targetDate).toLocaleDateString()}</Text>
 
                                         <View style={styles.amountRow}>
-                                            <Text style={styles.savedText}>₹{(goal.savedAmount / 1000).toFixed(0)}k</Text>
+                                            <Text style={styles.savedText}>₹{((goal.savedAmount || 0) / 1000).toFixed(0)}k</Text>
                                             <Text style={styles.targetText}>/ ₹{(goal.targetAmount / 1000).toFixed(0)}k</Text>
                                         </View>
                                     </View>
 
                                     {/* Progress Bar */}
                                     <View style={styles.progressContainer}>
-                                        <View style={[styles.progressBar, { width: `${progress}%` }]} />
+                                        <View style={[
+                                            styles.progressBar,
+                                            {
+                                                width: `${Math.min(progress, 100)}%`,
+                                                backgroundColor: progress >= 100 ? '#10B981' : '#fff'
+                                            }
+                                        ]} />
                                     </View>
-                                    <Text style={styles.progressText}>{progress.toFixed(0)}% completed</Text>
+                                    <Text style={[
+                                        styles.progressText,
+                                        progress >= 100 && { color: '#10B981', fontWeight: '700' }
+                                    ]}>{progress >= 100 ? 'Completed 🎉' : `${progress.toFixed(0)}% completed`}</Text>
+
+                                    {progress >= 100 && (
+                                        <View style={styles.completedBadge}>
+                                            <Icon name="checkmark-circle" size={16} color="#10B981" />
+                                        </View>
+                                    )}
                                 </TouchableOpacity>
                             );
                         })}
@@ -92,12 +139,6 @@ const GoalsScreen = ({ navigation }: { navigation: any }) => {
                 <View style={{ height: 100 }} />
             </ScrollView>
 
-            {/* Empty State Action */}
-            {goals.length === 0 && (
-                <View /> // Placeholder or removal of duplicate button logic if handled in header, 
-                // but let's keep the empty state button functional too.
-            )}
-
         </ScreenWrapper>
     );
 };
@@ -105,7 +146,6 @@ const GoalsScreen = ({ navigation }: { navigation: any }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F9FAFB',
     },
     header: {
         flexDirection: 'row',
@@ -118,13 +158,11 @@ const styles = StyleSheet.create({
     headerTitle: {
         fontSize: 24,
         fontWeight: '700',
-        color: '#1F2937',
     },
     addButton: {
         width: 40,
         height: 40,
         borderRadius: 12,
-        backgroundColor: '#1F2937',
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -134,7 +172,6 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 18,
         fontWeight: '700',
-        color: '#1F2937',
         marginBottom: 20,
     },
     gridContainer: {
@@ -148,8 +185,9 @@ const styles = StyleSheet.create({
         borderRadius: 24,
         padding: 16,
         marginBottom: 0,
-        minHeight: 180,
+        minHeight: 160,
         justifyContent: 'space-between',
+        backgroundColor: '#fff', // Default for shadow calculation
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.1,
@@ -226,23 +264,19 @@ const styles = StyleSheet.create({
     },
     modalContent: {
         width: '100%',
-        backgroundColor: '#fff',
         borderRadius: 24,
         padding: 24,
     },
     modalTitle: {
         fontSize: 20,
         fontWeight: '700',
-        color: '#1F2937',
         marginBottom: 24,
         textAlign: 'center',
     },
     input: {
-        backgroundColor: '#F3F4F6',
         borderRadius: 16,
         padding: 16,
         fontSize: 16,
-        color: '#1F2937',
         marginBottom: 16,
     },
     saveGoalButton: {
@@ -270,17 +304,14 @@ const styles = StyleSheet.create({
     emptyStateContainer: {
         alignItems: 'center',
         paddingVertical: 40,
-        backgroundColor: '#fff',
         borderRadius: 24,
         borderWidth: 1,
-        borderColor: '#F3F4F6',
         borderStyle: 'dashed',
     },
     emptyIconCircle: {
         width: 80,
         height: 80,
         borderRadius: 40,
-        backgroundColor: '#F3F4F6',
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: 16,
@@ -288,12 +319,10 @@ const styles = StyleSheet.create({
     emptyTitle: {
         fontSize: 18,
         fontWeight: '700',
-        color: '#1F2937',
         marginBottom: 8,
     },
     emptySubtitle: {
         fontSize: 14,
-        color: '#6B7280',
         textAlign: 'center',
         marginBottom: 24,
         paddingHorizontal: 32,
@@ -308,6 +337,14 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 14,
         fontWeight: '600',
+    },
+    completedBadge: {
+        position: 'absolute',
+        top: 12,
+        right: 12,
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        padding: 2,
     },
 });
 

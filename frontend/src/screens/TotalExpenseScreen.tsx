@@ -150,6 +150,7 @@ const TotalExpenseScreen = ({ navigation }: { navigation: any }) => {
             case 'bills': return '#EF4444';
             case 'shopping': return '#8B5CF6';
             case 'healthcare': return '#10B981';
+            case 'subscription': return '#0EA5E9';
             default: return '#6B7280';
         }
     }
@@ -162,6 +163,7 @@ const TotalExpenseScreen = ({ navigation }: { navigation: any }) => {
             case 'bills': return 'receipt';
             case 'credit card': return 'card';
             case 'others': return 'grid';
+            case 'subscription': return 'repeat';
             default: return 'wallet';
         }
     }
@@ -324,8 +326,8 @@ const TotalExpenseScreen = ({ navigation }: { navigation: any }) => {
                                         <Text style={[styles.transAmount, { color: '#EF4444' }]}>-₹{item.amount}</Text>
                                     </View>
 
-                                    {/* Only Show Category Budget Progress if NOT Others */}
-                                    {category !== 'Others' && (
+                                    {/* Only Show Category Budget Progress if NOT Others or Subscription */}
+                                    {category !== 'Others' && category !== 'Subscription' && (
                                         <View style={styles.budgetRow}>
                                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
                                                 <Text style={[styles.budgetLabel, { color: subTextColor }]}>Category Budget</Text>

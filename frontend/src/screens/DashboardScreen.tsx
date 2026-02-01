@@ -8,7 +8,6 @@ import {
     TouchableOpacity,
     ScrollView,
     Dimensions,
-    Alert,
 } from 'react-native';
 import Icon from '@expo/vector-icons/Ionicons';
 import Svg, { Circle, G } from 'react-native-svg';
@@ -23,7 +22,7 @@ const { width } = Dimensions.get('window');
 
 const DashboardScreen = ({ navigation }: { navigation: any }) => {
     // State for empty state simulation
-    const { totalIncome, totalExpense, chartData, selectedYear, changeYear, transactions } = useTransactions();
+    const { totalIncome, totalExpense, chartData, selectedYear, changeYear, transactions, addTransaction } = useTransactions();
     const { subscriptions } = useSubscriptions();
 
     const [selectedMonthIndex, setSelectedMonthIndex] = useState(new Date().getMonth()); // Default to current month index
@@ -342,12 +341,7 @@ const DashboardScreen = ({ navigation }: { navigation: any }) => {
                                 key={item.id}
                                 style={[styles.paymentCard, { backgroundColor: item.color || '#F3F4F6' }]}
                                 activeOpacity={0.9}
-                                onPress={() => {
-                                    Alert.alert(item.name, 'Payment details', [
-                                        { text: 'Cancel', style: 'cancel' },
-                                        { text: 'Pay Now', onPress: () => console.log('Pay Now') }
-                                    ]);
-                                }}
+                                onPress={() => navigation.navigate('AddSubscription', { subscription: item })}
                             >
                                 <View style={styles.paymentHeader}>
                                     <View style={[
@@ -356,23 +350,6 @@ const DashboardScreen = ({ navigation }: { navigation: any }) => {
                                     ]}>
                                         <Icon name={item.icon || 'card-outline'} size={24} color={'#fff'} />
                                     </View>
-                                    <TouchableOpacity
-                                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                                        onPress={() => {
-                                            Alert.alert(
-                                                'Payment Options',
-                                                `Manage ${item.name}`,
-                                                [
-                                                    { text: 'Pay Now', onPress: () => console.log('Paid') },
-                                                    { text: 'Edit', onPress: () => console.log('Edit') },
-                                                    { text: 'Delete', style: 'destructive', onPress: () => console.log('Delete') },
-                                                    { text: 'Cancel', style: 'cancel' }
-                                                ]
-                                            );
-                                        }}
-                                    >
-                                        <Icon name="ellipsis-vertical" size={20} color={'#fff'} />
-                                    </TouchableOpacity>
                                 </View>
                                 <View style={{ marginTop: 16 }}>
                                     <Text style={[styles.paymentName, { color: '#fff' }]}>{item.name}</Text>
@@ -785,6 +762,13 @@ const styles = StyleSheet.create({
         color: '#9CA3AF',
         marginBottom: 24,
         textAlign: 'center',
+    },
+    versionText: {
+        textAlign: 'center',
+        marginTop: 20,
+        marginBottom: 40,
+        color: '#9CA3AF',
+        fontSize: 12,
     },
     actionButton: {
         backgroundColor: '#fff',

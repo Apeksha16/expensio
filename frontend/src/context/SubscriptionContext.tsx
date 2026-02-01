@@ -14,6 +14,7 @@ interface SubscriptionContextType {
     subscriptions: Subscription[];
     addSubscription: (sub: Omit<Subscription, 'id'>) => void;
     deleteSubscription: (id: string) => void;
+    updateSubscription: (id: string, sub: Omit<Subscription, 'id'>) => void;
     totalMonthlyCost: number;
 }
 
@@ -45,6 +46,10 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         setSubscriptions(prev => prev.filter(s => s.id !== id));
     };
 
+    const updateSubscription = (id: string, updatedSub: Omit<Subscription, 'id'>) => {
+        setSubscriptions(prev => prev.map(s => s.id === id ? { ...updatedSub, id } : s));
+    };
+
     const totalMonthlyCost = subscriptions.reduce((sum, sub) => {
         return sum + (sub.frequency === 'Monthly' ? sub.amount : sub.amount / 12);
     }, 0);
@@ -54,6 +59,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
             subscriptions,
             addSubscription,
             deleteSubscription,
+            updateSubscription,
             totalMonthlyCost,
         }}>
             {children}
