@@ -44,11 +44,18 @@ const LoginScreen = ({ onLoginSuccess }: LoginScreenProps) => {
     const [loading, setLoading] = useState(false);
     const { showToast } = useToast();
 
-    const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
-        clientId: '820921044814-8fdnvo1193aki6t29kv5lpcdfffr8g6j.apps.googleusercontent.com',
-        iosClientId: '820921044814-tmgitqep6hp6qd44qrn1i3sh1790osov.apps.googleusercontent.com',
-        webClientId: '820921044814-8fdnvo1193aki6t29kv5lpcdfffr8g6j.apps.googleusercontent.com',
-    });
+    // preferLocalhost: true → uses exp://localhost:8081 instead of exp://YOUR_IP:8081 (machine-specific).
+    // Add "exp://localhost:8081" to Google Cloud Console → Credentials → OAuth Client → Authorized redirect URIs
+    // so all developers (simulator) get the same URI. For physical device, use dev build (expo run:ios) or add
+    // your exp://IP:8081 to Google Console.
+    const [request, response, promptAsync] = Google.useIdTokenAuthRequest(
+        {
+            clientId: '820921044814-8fdnvo1193aki6t29kv5lpcdfffr8g6j.apps.googleusercontent.com',
+            iosClientId: '820921044814-tmgitqep6hp6qd44qrn1i3sh1790osov.apps.googleusercontent.com',
+            webClientId: '820921044814-8fdnvo1193aki6t29kv5lpcdfffr8g6j.apps.googleusercontent.com',
+        },
+        { preferLocalhost: true }
+    );
 
     // Animation Values
     const fadeAnim = useRef(new Animated.Value(0)).current;
