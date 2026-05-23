@@ -1,0 +1,24 @@
+{
+  "name": "expensio-monorepo",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Expensio Monorepo - Expense tracker and management platform",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build:shared": "npm run build --workspace=@expensio/shared-types && npm run build --workspace=@expensio/shared-utils",
+    "prebuild": "npm run build:shared",
+    "postinstall": "npm run build:shared",
+    "dev:web": "npm run dev --workspace=web",
+    "dev:api": "npm run dev --workspace=api",
+    "build:web": "npm run build --workspace=web",
+    "build:api": "npm run build --workspace=api",
+    "build": "npm run build --workspaces --if-present",
+    "type-check": "npm run type-check --workspaces --if-present"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5"
+  }
+}
