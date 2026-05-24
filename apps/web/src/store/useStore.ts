@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { User } from '@expensio/shared-types';
+import { User } from '@expensio/types';
 
 interface AppState {
   currentUser: User | null;

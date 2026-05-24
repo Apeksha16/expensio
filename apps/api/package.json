@@ -10,25 +10,31 @@
     "start": "node dist/index.js",
     "start:worker": "node dist/worker.js",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate"
+    "db:migrate": "drizzle-kit migrate",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@expensio/shared-types": "*",
-    "@expensio/shared-utils": "*",
-    "fastify": "^4.28.1",
+    "@expensio/shared": "*",
+    "@expensio/types": "*",
+    "@expensio/validation": "*",
     "@fastify/cors": "^9.0.1",
-    "socket.io": "^4.7.5",
+    "@supabase/supabase-js": "^2.43.4",
     "bullmq": "^5.8.5",
-    "ioredis": "^5.4.1",
+    "dotenv": "^16.4.5",
     "drizzle-orm": "^0.31.2",
+    "fastify": "^4.28.1",
+    "ioredis": "^5.4.1",
     "postgres": "^3.4.4",
-    "dotenv": "^16.4.5"
+    "socket.io": "^4.7.5",
+    "ws": "^8.21.0",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
-    "typescript": "^5.4.5",
     "@types/node": "^20.14.9",
-    "tsx": "^4.16.0",
+    "@types/ws": "^8.18.1",
     "drizzle-kit": "^0.22.7",
-    "pino-pretty": "^11.0.0"
+    "pino-pretty": "^11.0.0",
+    "tsx": "^4.16.0",
+    "typescript": "^5.4.5"
   }
 }

@@ -1,6 +1,5 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
-import * as dotenv from 'dotenv';
 import Redis from 'ioredis';
 import { Queue } from 'bullmq';
 import { db } from './db/index.js';
@@ -8,11 +7,13 @@ import { sql } from 'drizzle-orm';
 import { healthRoutes } from './routes/health.js';
 import { expenseRoutes } from './routes/expense.js';
 import { SocketManager } from './sockets/socket.manager.js';
+import { env } from './config/env.js';
+import authPlugin from './plugins/auth.plugin.js';
+import { authRoutes } from './modules/auth/index.js';
+import { usersRoutes } from './modules/users/index.js';
 
-dotenv.config();
-
-const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001;
-const host = process.env.HOST || '0.0.0.0';
+const port = env.PORT;
+const host = env.HOST;
 
 const fastify = Fastify({
   logger: {
@@ -27,7 +28,7 @@ const fastify = Fastify({
 });
 
 // Setup Redis & BullMQ Queue (Producer)
-const redisUrl = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
+const redisUrl = env.REDIS_URL;
 let redisConnection: Redis | null = null;
 let emailQueue: Queue | null = null;
 
@@ -47,12 +48,17 @@ try {
 
 // Register CORS
 fastify.register(cors, {
-  origin: process.env.FRONTEND_URL || '*',
+  origin: env.FRONTEND_URL,
 });
+
+// Register Auth Plugin
+fastify.register(authPlugin);
 
 // Register Modular Routes
 fastify.register(healthRoutes);
 fastify.register(expenseRoutes);
+fastify.register(authRoutes);
+fastify.register(usersRoutes);
 
 // Start the Fastify Server
 const start = async () => {

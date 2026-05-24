@@ -2,18 +2,23 @@ import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Expensio - Expense & Budget Management',
+    name: 'Expensio',
     short_name: 'Expensio',
-    description: 'A modern, realtime full-stack expense tracker and budget management platform.',
+    description: 'Track Every Expense, Create Smart Budgets, and Split with Friends',
     start_url: '/',
     display: 'standalone',
-    background_color: '#ffffff',
+    background_color: '#09090b',
     theme_color: '#09090b',
     icons: [
       {
-        src: '/favicon.ico',
-        sizes: 'any',
-        type: 'image/x-icon',
+        src: '/icons/icon-192.png',
+        sizes: '192x192',
+        type: 'image/png',
+      },
+      {
+        src: '/icons/icon-512.png',
+        sizes: '512x512',
+        type: 'image/png',
       },
     ],
   };

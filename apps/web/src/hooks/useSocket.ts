@@ -1,23 +1,20 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 
 const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3001';
 
 export function useSocket(roomId?: string) {
-  const socketRef = useRef<Socket | null>(null);
+  const [socket] = useState<Socket>(() =>
+    io(SOCKET_URL, {
+      transports: ['websocket'],
+      autoConnect: true,
+    })
+  );
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    // Initialize socket connection using websocket transport primarily
-    const socket = io(SOCKET_URL, {
-      transports: ['websocket'],
-      autoConnect: true,
-    });
-
-    socketRef.current = socket;
-
     socket.on('connect', () => {
       setIsConnected(true);
       console.log('Socket connected successfully:', socket.id);
@@ -38,14 +35,14 @@ export function useSocket(roomId?: string) {
 
     // Clean up on component unmount
     return () => {
-      if (socket) {
-        socket.disconnect();
-      }
+      socket.off('connect');
+      socket.off('disconnect');
+      socket.off('connect_error');
     };
-  }, [roomId]);
+  }, [socket, roomId]);
 
   return {
-    socket: socketRef.current,
+    socket,
     isConnected,
   };
 }
