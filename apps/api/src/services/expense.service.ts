@@ -1,5 +1,5 @@
-import { User, Expense } from '@expensio/shared-types';
-import { formatCurrency, formatDate } from '@expensio/shared-utils';
+import { User, Expense } from '@expensio/types';
+import { formatCurrency, formatDate } from '@expensio/shared';
 
 export class ExpenseService {
   async getSampleExpense() {
