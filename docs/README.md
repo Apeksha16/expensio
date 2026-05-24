@@ -65,3 +65,20 @@ npm run dev:api
 ```bash
 npm run build
 ```
+### ---------------------------------------------- ###
+
+FEATURES- 
+1. Expense Tracking
+2. Budget Management
+3. Friends Management
+4. Split Expense With Friends
+5. Real-time Friends Add/ Remove/ Update notification System
+6. Real-time Expense Add/ Remove/ Update notification System
+7. Real-time Budget Add/ Remove/ Update notification System
+8. PWA Capabilities
+9. Mobile-first Design
+10. Offline Support
+11. Clean Authentication & Authorization System
+12. Expense Groups & Events Tracking & Sharing with Friends.
+13. Dark Light Mode
+14. Onboarding Journey with Lottie Animations
