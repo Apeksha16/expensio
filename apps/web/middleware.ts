@@ -33,9 +33,30 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let user = null;
+  const isPlaceholder = supabaseUrl.includes('placeholder') || !supabaseUrl;
+
+  if (isPlaceholder) {
+    // Development Mock Bypass: Read custom expensio secure mock session cookie directly!
+    const mockSessionCookie = request.cookies.get('expensio-session');
+    if (mockSessionCookie?.value) {
+      try {
+        user = JSON.parse(decodeURIComponent(mockSessionCookie.value));
+      } catch (e) {
+        user = null;
+      }
+    }
+  } else {
+    // Standard Production Supabase Authenticated Session retrieval
+    try {
+      const {
+        data: { user: supabaseUser },
+      } = await supabase.auth.getUser();
+      user = supabaseUser;
+    } catch (e) {
+      user = null;
+    }
+  }
 
   const publicRoutes = ['/login', '/register', '/forgot-password', '/reset-password', '/offline'];
   const path = request.nextUrl.pathname;
