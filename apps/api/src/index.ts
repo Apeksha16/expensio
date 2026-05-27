@@ -27,24 +27,10 @@ const fastify = Fastify({
   },
 });
 
-// Setup Redis & BullMQ Queue (Producer)
+// Redis & BullMQ queue handles are created at startup inside `start()`.
 const redisUrl = env.REDIS_URL;
 let redisConnection: Redis | null = null;
 let emailQueue: Queue | null = null;
-
-try {
-  redisConnection = new Redis(redisUrl, {
-    maxRetriesPerRequest: null,
-  });
-  
-  emailQueue = new Queue('emails', {
-    connection: redisConnection,
-  });
-
-  fastify.log.info('Redis connection and BullMQ queue publisher initialized successfully');
-} catch (error) {
-  fastify.log.warn('Redis/BullMQ publisher setup failed. Provide REDIS_URL to enable.');
-}
 
 // Register CORS
 fastify.register(cors, {
@@ -63,6 +49,36 @@ fastify.register(usersRoutes);
 // Start the Fastify Server
 const start = async () => {
   try {
+    // Attempt to initialize Redis connection and BullMQ queue publisher safely.
+    if (redisUrl) {
+      try {
+        redisConnection = new Redis(redisUrl, {
+          maxRetriesPerRequest: null,
+          lazyConnect: true,
+        });
+
+        redisConnection.on('error', (err) => {
+          fastify.log.warn(`Redis connection error: ${err?.message || err}`);
+        });
+
+        // Try to connect but don't crash the server if Redis is unavailable.
+        try {
+          await redisConnection.connect();
+          emailQueue = new Queue('emails', { connection: redisConnection });
+          fastify.log.info('Redis connection and BullMQ queue publisher initialized successfully');
+        } catch (connErr: any) {
+          fastify.log.warn(`Redis/BullMQ publisher setup failed: ${connErr?.message || connErr}`);
+          await redisConnection.quit().catch(() => {});
+          redisConnection = null;
+          emailQueue = null;
+        }
+      } catch (err) {
+        fastify.log.warn('Redis/BullMQ publisher setup failed. Provide REDIS_URL to enable.');
+        redisConnection = null;
+        emailQueue = null;
+      }
+    }
+
     await fastify.listen({ port, host });
     
     // Test Database Connection
