@@ -2,34 +2,31 @@
 > web@0.1.0 build
 > next build --webpack
 
-⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
- We detected multiple lockfiles and selected the directory of /Users/pranavkatiyar/Documents/FULLSTACK/package-lock.json as the root directory.
- To silence this warning, set `outputFileTracingRoot` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
-   See https://nextjs.org/docs/app/api-reference/config/next-config-js/output#caveats for more information.
- Detected additional lockfiles: 
-   * /Users/pranavkatiyar/Documents/FULLSTACK/expensio/package-lock.json
-
 ▲ Next.js 16.2.6 (webpack)
-- Environments: .env
+- Environments: .env.local
 
   Creating an optimized production build ...
 ✓ (serwist) Bundling the service worker script with the URL '/sw.js' and the scope '/'...
-✓ Compiled successfully in 5.8s
+✓ Compiled successfully in 2.9min
   Running TypeScript ...
-  Finished TypeScript in 2.7s ...
+  Finished TypeScript in 91s ...
   Collecting page data using 7 workers ...
-  Generating static pages using 7 workers (0/11) ...
-  Generating static pages using 7 workers (2/11) 
-  Generating static pages using 7 workers (5/11) 
-  Generating static pages using 7 workers (8/11) 
-✓ Generating static pages using 7 workers (11/11) in 291ms
+  Generating static pages using 7 workers (0/15) ...
+  Generating static pages using 7 workers (3/15) 
+  Generating static pages using 7 workers (7/15) 
+  Generating static pages using 7 workers (11/15) 
+✓ Generating static pages using 7 workers (15/15) in 6.2s
   Finalizing page optimization ...
   Collecting build traces ...
 
 Route (app)
 ┌ ○ /
 ├ ○ /_not-found
+├ ○ /budgets
+├ ○ /expenses
 ├ ○ /forgot-password
+├ ○ /friends
+├ ○ /groups
 ├ ○ /login
 ├ ○ /manifest.webmanifest
 ├ ○ /offline
