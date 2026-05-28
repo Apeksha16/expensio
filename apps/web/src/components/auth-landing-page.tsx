@@ -11,6 +11,7 @@ import {
   WalletCards,
   WifiOff,
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 type AuthProvider = 'Google' | 'Zoho';
@@ -40,6 +41,7 @@ const features = [
 ];
 
 export function AuthLandingPage() {
+  const router = useRouter();
   const reduceMotion = useReducedMotion();
   const [loadingProvider, setLoadingProvider] = useState<AuthProvider | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -83,7 +85,13 @@ export function AuthLandingPage() {
       return;
     }
 
-    const timer = window.setTimeout(() => setLoadingProvider(null), 2200);
+    const timer = window.setTimeout(() => {
+      localStorage.setItem(
+        'expensio_auth_user',
+        JSON.stringify({ name: 'Pranav', provider: loadingProvider })
+      );
+      router.push('/onboarding');
+    }, 2200);
     return () => window.clearTimeout(timer);
   }, [loadingProvider]);
 
@@ -124,7 +132,7 @@ export function AuthLandingPage() {
 
   return (
     <main
-      className="min-h-[100svh] overflow-hidden bg-[#F8F8FC] text-[#0F172A] dark:bg-[#09090B] dark:text-[#F8FAFC]"
+      className="min-h-[100svh] overflow-hidden bg-background text-foreground"
       onTouchEnd={handleTouchEnd}
       onTouchMove={handleTouchMove}
       onTouchStart={handleTouchStart}
@@ -135,7 +143,7 @@ export function AuthLandingPage() {
           opacity: pullDistance > 8 || isRefreshing ? 1 : 0,
           y: pullDistance > 8 ? pullDistance - 42 : -18,
         }}
-        className="fixed left-1/2 top-[calc(env(safe-area-inset-top,0px)+8px)] z-40 flex -translate-x-1/2 items-center gap-2 rounded-full border border-white/80 bg-white/80 px-4 py-2 text-[13px] font-black text-[#64748B] shadow-[0_20px_50px_rgba(124,92,255,0.18)] backdrop-blur-2xl dark:border-white/10 dark:bg-[#111827]/85 dark:text-[#94A3B8]"
+        className="fixed left-1/2 top-[calc(env(safe-area-inset-top,0px)+8px)] z-40 flex -translate-x-1/2 items-center gap-2 rounded-full border border-white/80 bg-white/80 px-4 py-2 text-[13px] font-black text-muted shadow-[0_20px_50px_rgba(124,92,255,0.18)] backdrop-blur-2xl dark:border-white/10 dark:bg-[#111827]/85"
         transition={{ duration: reduceMotion ? 0 : 0.18 }}
       >
         <RefreshCw className={isRefreshing ? 'animate-spin' : ''} size={15} />
@@ -152,7 +160,7 @@ export function AuthLandingPage() {
           {!isOnline ? (
             <motion.div
               animate={{ opacity: 1, y: 0 }}
-              className="mt-2 flex items-center gap-2 rounded-full border border-[#FCA5A5]/30 bg-white/75 px-4 py-2 text-[12px] font-bold text-[#64748B] shadow-[0_16px_40px_rgba(15,23,42,0.07)] backdrop-blur-xl dark:border-[#FCA5A5]/15 dark:bg-[#111827]/75 dark:text-[#94A3B8]"
+              className="mt-2 flex items-center gap-2 rounded-full border border-[#FCA5A5]/30 bg-white/75 px-4 py-2 text-[12px] font-bold text-muted shadow-[0_16px_40px_rgba(15,23,42,0.07)] backdrop-blur-xl dark:border-[#FCA5A5]/15 dark:bg-[#111827]/75"
               exit={{ opacity: 0, y: -8 }}
               initial={{ opacity: 0, y: -8 }}
             >
@@ -186,12 +194,12 @@ function BrandHeader() {
         </svg>
       </div>
 
-      <h1 className="mt-2.5 text-[clamp(38px,10.4vw,48px)] font-black leading-[0.95] tracking-[-0.02em] text-[#0A1024] dark:text-[#F8FAFC]">
+      <h1 className="mt-2.5 text-[clamp(38px,10.4vw,48px)] font-black leading-[0.95] tracking-[-0.02em] text-foreground">
         Expensio
       </h1>
-      <p className="mx-auto mt-3.5 max-w-[330px] text-center text-[16px] font-semibold leading-[1.36] text-[#64748B] dark:text-[#94A3B8]">
-        A simple and smart way to manage your <span className="font-black text-[#7C5CFF] dark:text-[#A58BFF]">money</span> and{' '}
-        <span className="font-black text-[#7C5CFF] dark:text-[#A58BFF]">expenses.</span>
+      <p className="mx-auto mt-3.5 max-w-[330px] text-center text-[16px] font-semibold leading-[1.36] text-muted">
+        A simple and smart way to manage your <span className="font-black text-primary dark:text-[#A58BFF]">money</span> and{' '}
+        <span className="font-black text-primary dark:text-[#A58BFF]">expenses.</span>
       </p>
     </header>
   );
@@ -203,8 +211,8 @@ function WalletHero() {
       <div
         className="absolute left-3 top-2 z-10 h-[104px] w-[100px] -rotate-[10deg] rounded-[20px] bg-white/78 p-3.5 shadow-[0_26px_65px_rgba(124,92,255,0.16)] backdrop-blur-xl dark:bg-[#111827]/76 dark:shadow-[0_26px_65px_rgba(0,0,0,0.28)]"
       >
-        <p className="text-[11px] font-black text-[#64748B] dark:text-[#94A3B8]">This Month</p>
-        <p className="mt-2 text-[19px] font-black leading-none text-[#0F172A] dark:text-[#F8FAFC]">₹ 2,184.50</p>
+        <p className="text-[11px] font-black text-muted">This Month</p>
+        <p className="mt-2 text-[19px] font-black leading-none text-foreground">₹ 2,184.50</p>
         <svg aria-hidden="true" className="mt-3 h-12 w-full" viewBox="0 0 90 48" fill="none">
           <path d="M2 42H88" stroke="#E7E8F1" strokeWidth="1" />
           <path d="M2 28H88" stroke="#E7E8F1" strokeWidth="1" />
@@ -218,8 +226,8 @@ function WalletHero() {
       <div
         className="absolute right-1 top-2 z-10 h-[104px] w-[100px] rotate-[9deg] rounded-[20px] bg-white/78 p-3.5 shadow-[0_26px_65px_rgba(124,92,255,0.16)] backdrop-blur-xl dark:bg-[#111827]/76 dark:shadow-[0_26px_65px_rgba(0,0,0,0.28)]"
       >
-        <p className="text-[11px] font-black text-[#64748B] dark:text-[#94A3B8]">Budget Left</p>
-        <p className="mt-2 text-[18px] font-black leading-none text-[#0F172A] dark:text-[#F8FAFC]">₹815.20</p>
+        <p className="text-[11px] font-black text-muted">Budget Left</p>
+        <p className="mt-2 text-[18px] font-black leading-none text-foreground">₹815.20</p>
         <div className="relative mx-auto mt-4 grid h-[58px] w-[58px] place-items-center rounded-full bg-[#F2EEFF] dark:bg-[#241A46]">
           <svg aria-hidden="true" className="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 64 64">
             <circle cx="32" cy="32" r="23" stroke="#DCD4FF" strokeWidth="8" fill="none" />
@@ -280,8 +288,8 @@ function FeatureHighlights() {
           <div className={`grid h-[44px] w-[44px] place-items-center rounded-[16px] ${feature.shell}`}>
             <feature.icon className={feature.iconClass} size={23} strokeWidth={2.5} />
           </div>
-          <h2 className="mt-2 text-[20px] font-black leading-none text-[#0F172A] dark:text-[#F8FAFC]">{feature.title}</h2>
-          <p className="mt-1 text-[13px] font-semibold leading-tight text-[#64748B] dark:text-[#94A3B8]">{feature.subtitle}</p>
+          <h2 className="mt-2 text-[20px] font-black leading-none text-foreground">{feature.title}</h2>
+          <p className="mt-1 text-[13px] font-semibold leading-tight text-muted">{feature.subtitle}</p>
         </div>
       ))}
     </section>
@@ -293,7 +301,7 @@ function AuthSection({ onSelectProvider }: { onSelectProvider: (provider: AuthPr
     <section className="mt-auto mb-6" aria-labelledby="auth-heading">
       <div className="flex items-center gap-4">
         <div className="h-px flex-1 bg-[#E6E8F1] dark:bg-white/10" />
-        <h2 id="auth-heading" className="text-[15px] font-bold text-[#64748B] dark:text-[#94A3B8]">
+        <h2 id="auth-heading" className="text-[15px] font-bold text-muted">
           Sign in securely
         </h2>
         <div className="h-px flex-1 bg-[#E6E8F1] dark:bg-white/10" />
@@ -310,14 +318,14 @@ function AuthSection({ onSelectProvider }: { onSelectProvider: (provider: AuthPr
 function AuthButton({ label, logo, onClick }: { label: string; logo: React.ReactNode; onClick: () => void }) {
   return (
     <motion.button
-      className="grid min-h-[58px] grid-cols-[96px_1fr_28px] items-center rounded-full border border-white/80 bg-white px-5 text-center text-[16px] font-black text-[#0F172A] shadow-[0_24px_60px_rgba(15,23,42,0.08)] outline-none transition hover:-translate-y-0.5 hover:shadow-[0_28px_68px_rgba(124,92,255,0.16)] focus-visible:ring-4 focus-visible:ring-[#7C5CFF]/25 active:shadow-[0_16px_40px_rgba(15,23,42,0.08)] dark:border-white/10 dark:bg-[#111827] dark:text-[#F8FAFC] dark:shadow-[0_24px_60px_rgba(0,0,0,0.35)]"
+      className="grid min-h-[58px] grid-cols-[96px_1fr_28px] items-center rounded-full border border-white/80 bg-white px-5 text-center text-[16px] font-black text-foreground shadow-[0_24px_60px_rgba(15,23,42,0.08)] outline-none transition hover:-translate-y-0.5 hover:shadow-[0_28px_68px_rgba(124,92,255,0.16)] focus-visible:ring-4 focus-visible:ring-[#7C5CFF]/25 active:shadow-[0_16px_40px_rgba(15,23,42,0.08)] dark:border-white/10 dark:bg-[#111827] dark:shadow-[0_24px_60px_rgba(0,0,0,0.35)]"
       onClick={onClick}
       type="button"
       whileTap={{ scale: 0.98 }}
     >
       <span className="justify-self-start">{logo}</span>
       <span>{label}</span>
-      <ArrowRight className="justify-self-end text-[#64748B]" size={25} strokeWidth={3} />
+      <ArrowRight className="justify-self-end text-muted" size={25} strokeWidth={3} />
     </motion.button>
   );
 }
@@ -349,8 +357,8 @@ function SecureLoader({ provider, reduceMotion }: { provider: AuthProvider; redu
             ₹
           </motion.span>
         </div>
-        <h2 className="mt-8 text-[24px] font-black text-[#0F172A] dark:text-[#F8FAFC]">Preparing your secure workspace...</h2>
-        <p className="mt-3 max-w-[280px] text-[16px] font-semibold leading-relaxed text-[#64748B] dark:text-[#94A3B8]">
+        <h2 className="mt-8 text-[24px] font-black text-foreground">Preparing your secure workspace...</h2>
+        <p className="mt-3 max-w-[280px] text-[16px] font-semibold leading-relaxed text-muted">
           Authenticating with {provider}
         </p>
       </motion.div>

@@ -1,8 +1,19 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-primary: var(--primary);
+}
+
 :root {
   color-scheme: light;
+  --background: #f8f8fc;
+  --foreground: #0f172a;
+  --muted: #64748b;
+  --primary: #7c5cff;
 }
 
 * {
@@ -23,8 +34,8 @@ body {
     "SF Pro Display",
     "Segoe UI",
     sans-serif;
-  background: #f8f8fc;
-  color: #111827;
+  background: var(--background);
+  color: var(--foreground);
   letter-spacing: 0;
   overscroll-behavior-y: none;
   -webkit-font-smoothing: antialiased;
@@ -43,6 +54,9 @@ button {
 
 .dark {
   color-scheme: dark;
+  --background: #09090b;
+  --foreground: #f8fafc;
+  --muted: #94a3b8;
 }
 
 @media (prefers-reduced-motion: reduce) {
