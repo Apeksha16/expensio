@@ -1,3 +1,5 @@
+import { AuthLandingPage } from '../components/auth-landing-page';
+
 export default function HomePage() {
-  return <>hello word</>;
+  return <AuthLandingPage />;
 }
