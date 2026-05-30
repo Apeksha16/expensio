@@ -25,9 +25,18 @@ import {
   Coffee,
   Car,
   ShoppingBag,
+  ReceiptText,
+  Clapperboard,
+  Tag,
   Utensils,
   HelpCircle,
+  HeartPulse,
+  GraduationCap,
   TrendingUp as GainIcon,
+  CreditCard,
+  Users,
+  Target,
+  UserCheck,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
@@ -38,7 +47,7 @@ interface Expense {
   id: string;
   title: string;
   amount: number;
-  category: 'Food' | 'Transport' | 'Shopping' | 'Bills' | 'Entertainment' | 'Others';
+  category: 'Food' | 'Transport' | 'Shopping' | 'Bills' | 'Entertainment' | 'Health' | 'Education' | 'Others';
   date: string; // 'Today' | 'Yesterday' | string
   time: string;
   note?: string;
@@ -103,6 +112,7 @@ export function DashboardPage() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [activeTab, setActiveTab] = useState<'home' | 'expenses' | 'groups' | 'friends' | 'profile'>('home');
   const [isAddSheetOpen, setIsAddSheetOpen] = useState(false);
+  const [expenseToDelete, setExpenseToDelete] = useState<Expense | null>(null);
   
   // Custom Pull to Refresh states
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -112,10 +122,18 @@ export function DashboardPage() {
   const pullOpacity = useTransform(pullY, [0, 30, pullLimit], [0, 0.4, 1]);
   const pullScale = useTransform(pullY, [0, pullLimit], [0.8, 1]);
 
+  // Tooltip states
+  const [tooltip, setTooltip] = useState<{ expenseId: string; text: string; visible: boolean; field?: 'title' | 'category' | 'time'; x?: number | null; y?: number | null }>({ expenseId: '', text: '', visible: false, x: null, y: null });
+  const tooltipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Quick action icon click animations
+  const [activeQuickAction, setActiveQuickAction] = useState<'add-expense' | 'split-bill' | 'create-budget' | 'add-friend' | null>(null);
+  const quickActionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   // Form states for new expense
   const [newTitle, setNewTitle] = useState('');
   const [newAmount, setNewAmount] = useState('');
-  const [newCategory, setNewCategory] = useState<'Food' | 'Transport' | 'Shopping' | 'Bills' | 'Entertainment' | 'Others'>('Food');
+  const [newCategory, setNewCategory] = useState<'Food' | 'Transport' | 'Shopping' | 'Bills' | 'Entertainment' | 'Health' | 'Education' | 'Others'>('Food');
   const [newNote, setNewNote] = useState('');
 
   // Load profile & initial state
@@ -155,6 +173,25 @@ export function DashboardPage() {
       localStorage.setItem('expensio_expenses', JSON.stringify(DEFAULT_EXPENSES));
     }
   }, [router]);
+
+  useEffect(() => {
+    if (typeof document === 'undefined') {
+      return;
+    }
+
+    const originalBodyOverflow = document.body.style.overflow;
+    const originalHtmlOverflow = document.documentElement.style.overflow;
+
+    if (isAddSheetOpen || expenseToDelete) {
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+    }
+
+    return () => {
+      document.body.style.overflow = originalBodyOverflow;
+      document.documentElement.style.overflow = originalHtmlOverflow;
+    };
+  }, [expenseToDelete, isAddSheetOpen]);
 
   // Keep input focused if locked
   useEffect(() => {
@@ -225,6 +262,7 @@ export function DashboardPage() {
     const updated = expenses.filter((e) => e.id !== id);
     setExpenses(updated);
     localStorage.setItem('expensio_expenses', JSON.stringify(updated));
+    setExpenseToDelete(null);
   };
 
   // Simulate pull-to-refresh loading sequence
@@ -236,6 +274,56 @@ export function DashboardPage() {
       }, 1500);
     }
   };
+
+  const showTooltip = (
+    expenseId: string,
+    text: string,
+    field: 'title' | 'category' | 'time',
+    target?: HTMLElement | null
+  ) => {
+    // Clear any existing timeout
+    if (tooltipTimeoutRef.current) {
+      clearTimeout(tooltipTimeoutRef.current);
+    }
+    // compute coordinates from target if available
+    let x: number | null = null;
+    let y: number | null = null;
+    if (target) {
+      const rect = target.getBoundingClientRect();
+      x = Math.round(rect.left + rect.width / 2);
+      y = Math.round(rect.top);
+    }
+
+    setTooltip({ expenseId, text, visible: true, field, x, y });
+    
+    // Hide tooltip after 2 seconds
+    tooltipTimeoutRef.current = setTimeout(() => {
+      setTooltip({ expenseId: '', text: '', visible: false, x: null, y: null });
+    }, 2000);
+  };
+
+  const triggerQuickActionMotion = (action: 'add-expense' | 'split-bill' | 'create-budget' | 'add-friend') => {
+    if (quickActionTimeoutRef.current) {
+      clearTimeout(quickActionTimeoutRef.current);
+    }
+
+    setActiveQuickAction(action);
+    quickActionTimeoutRef.current = setTimeout(() => {
+      setActiveQuickAction(null);
+    }, 420);
+  };
+
+  // Cleanup tooltip on unmount
+  useEffect(() => {
+    return () => {
+      if (tooltipTimeoutRef.current) {
+        clearTimeout(tooltipTimeoutRef.current);
+      }
+      if (quickActionTimeoutRef.current) {
+        clearTimeout(quickActionTimeoutRef.current);
+      }
+    };
+  }, []);
 
   if (!profile) {
     return (
@@ -266,6 +354,10 @@ export function DashboardPage() {
         return <Wallet size={18} className="text-[#10B981]" strokeWidth={1.5} />;
       case 'Entertainment':
         return <Coffee size={18} className="text-[#8B5CF6]" strokeWidth={1.5} />;
+      case 'Health':
+        return <HeartPulse size={18} className="text-[#EF4444]" strokeWidth={1.5} />;
+      case 'Education':
+        return <GraduationCap size={18} className="text-[#14B8A6]" strokeWidth={1.5} />;
       default:
         return <HelpCircle size={18} className="text-[#6B7280]" strokeWidth={1.5} />;
     }
@@ -283,6 +375,10 @@ export function DashboardPage() {
         return 'from-emerald-500/10 to-emerald-500/20 text-[#10B981] border-emerald-500/10';
       case 'Entertainment':
         return 'from-purple-500/10 to-purple-500/20 text-[#8B5CF6] border-purple-500/10';
+      case 'Health':
+        return 'from-red-500/10 to-red-500/20 text-[#EF4444] border-red-500/10';
+      case 'Education':
+        return 'from-teal-500/10 to-teal-500/20 text-[#14B8A6] border-teal-500/10';
       default:
         return 'from-gray-500/10 to-gray-500/20 text-gray-500 border-gray-500/10';
     }
@@ -298,18 +394,18 @@ export function DashboardPage() {
   // Insight calculation
   const getInsightText = () => {
     if (expenses.length === 0) {
-      return "Your wallet is fresh and ready to grow ✨";
+      return 'Your wallet is fresh and ready to grow';
     }
     if (groceriesSpent > 8000) {
-      return "Weekend spending increased slightly. Watch out! ⚠️";
+      return 'Weekend spending increased slightly. Watch out.';
     }
-    return "You spent less on food this week 🍃";
+    return 'You spent less on food this week';
   };
 
   return (
-    <div className="relative mx-auto flex min-h-[100svh] w-full max-w-[430px] flex-col bg-[#FAF9F5] dark:bg-[#0C0C0E] text-[#0F172A] dark:text-[#F8FAF6] overflow-x-hidden font-sans">
+    <div className="relative mx-auto flex min-h-svh w-full max-w-107.5 flex-col bg-[#FAF9F5] dark:bg-[#0C0C0E] text-[#0F172A] dark:text-[#F8FAF6] overflow-x-hidden font-sans">
       {/* Film grain noise effect for premium organic touch */}
-      <div className="pointer-events-none fixed inset-0 z-50 opacity-[0.015] bg-[radial-gradient(#000_1px,transparent_0)] dark:bg-[radial-gradient(#fff_1px,transparent_0)] bg-[size:16px_16px]" />
+      <div className="pointer-events-none fixed inset-0 z-50 opacity-[0.015] bg-[radial-gradient(#000_1px,transparent_0)] dark:bg-[radial-gradient(#fff_1px,transparent_0)] bg-size-[16px_16px]" />
 
       {/* MPIN Lockscreen Interceptor Overlay */}
       <AnimatePresence>
@@ -319,12 +415,12 @@ export function DashboardPage() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, y: -30 }}
             transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
-            className="fixed inset-0 z-50 flex flex-col justify-between bg-[#FAF9F5] dark:bg-[#0C0C0E] px-8 pb-[calc(env(safe-area-inset-bottom,0px)+24px)] pt-[calc(env(safe-area-inset-top,0px)+32px)]"
+            className="fixed inset-0 z-50 flex flex-col justify-between bg-[#FAF9F5] dark:bg-[#0C0C0E] px-8 pb-[calc(env(safe-area-inset-bottom,0)+24px)] pt-[calc(env(safe-area-inset-top,0)+32px)]"
           >
             <div className="flex flex-col items-center mt-12 text-center" onClick={() => lockInputRef.current?.focus()}>
               {/* Premium double bezel squircle logo */}
-              <div className="p-1 bg-black/[0.03] dark:bg-white/[0.04] rounded-[24px] border border-black/[0.05] dark:border-white/[0.05] shadow-[0_8px_20px_rgba(0,0,0,0.02)]">
-                <div className="grid h-12 w-12 place-items-center rounded-[20px] bg-gradient-to-tr from-[#7C5CFF] to-[#B894FF] text-white shadow-md">
+              <div className="rounded-3xl bg-black/3 dark:bg-white/4 p-1 shadow-[0_8px_20px_rgba(0,0,0,0.02)]">
+                <div className="grid h-12 w-12 place-items-center rounded-[20px] bg-linear-to-tr from-[#7C5CFF] to-[#B894FF] text-white shadow-md">
                   <Wallet size={22} strokeWidth={1.5} />
                 </div>
               </div>
@@ -362,7 +458,7 @@ export function DashboardPage() {
                           ? 'border-red-500 bg-red-50/50 dark:bg-red-500/5'
                           : isFilled
                           ? 'border-[#7C5CFF] bg-[#7C5CFF]/5 text-[#7C5CFF]'
-                          : 'border-black/[0.06] bg-white dark:border-white/10 dark:bg-white/5'
+                          : 'border-black/6 bg-white dark:border-white/10 dark:bg-white/5'
                       }`}
                     >
                       {isFilled ? (
@@ -415,16 +511,11 @@ export function DashboardPage() {
             )}
           </div>
 
-          <div className="px-6 pt-[calc(env(safe-area-inset-top,0px)+12px)] pb-[calc(env(safe-area-inset-bottom,0px)+96px)]">
+          <div className="px-6 pt-[calc(env(safe-area-inset-top,0)+6px)] pb-[calc(env(safe-area-inset-bottom,0)+140px)]">
             {/* 1. TOP APP BAR */}
             <header className="sticky top-0 z-30 flex items-center justify-between py-3 bg-[#FAF9F5]/85 dark:bg-[#0C0C0E]/85 backdrop-blur-md">
               <div className="flex flex-col">
-                <h2 className="text-[18px] font-black leading-tight flex items-center gap-1.5">
-                  Good evening, {profile.name} <span className="animate-pulse">✨</span>
-                </h2>
-                <p className="text-[11px] font-bold text-[#64748B] dark:text-[#94A3B8]">
-                  Your wallet looks healthy today.
-                </p>
+                <h2 className="text-[18px] font-black leading-tight">Dashboard</h2>
               </div>
 
               <div className="flex items-center gap-2.5">
@@ -432,7 +523,7 @@ export function DashboardPage() {
                 <button
                   onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                   aria-label="Toggle Theme"
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white dark:bg-white/5 border border-black/[0.04] dark:border-white/10 shadow-[0_4px_12px_rgba(0,0,0,0.02)] text-[#0F172A] dark:text-[#F8FAF6] active:scale-90 transition-all duration-300"
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white dark:bg-white/5 border border-black/4 dark:border-white/10 shadow-[0_4px_12px_rgba(0,0,0,0.02)] text-[#0F172A] dark:text-[#F8FAF6] active:scale-90 transition-all duration-300"
                 >
                   {theme === 'dark' ? <Sun size={18} strokeWidth={1.5} /> : <Moon size={18} strokeWidth={1.5} />}
                 </button>
@@ -440,7 +531,7 @@ export function DashboardPage() {
                 {/* Profile avatar / lock indicator */}
                 <button
                   onClick={() => setIsLocked(true)}
-                  className="relative h-10 w-10 rounded-full p-[2px] bg-gradient-to-tr from-[#7C5CFF] to-[#EC4899] active:scale-95 transition-all duration-300 shadow-sm"
+                  className="relative h-10 w-10 rounded-full p-0.5 bg-linear-to-tr from-[#7C5CFF] to-[#EC4899] active:scale-95 transition-all duration-300 shadow-sm"
                   aria-label="Lock Dashboard"
                 >
                   <div className="h-full w-full rounded-full bg-white dark:bg-zinc-950 flex items-center justify-center font-black text-[12px]">
@@ -461,47 +552,16 @@ export function DashboardPage() {
               className="flex flex-col flex-1"
             >
               {/* 2. HERO WALLET CARD */}
-              <section className="mt-4">
+              <section className="mt-2.5">
                 <motion.div
-                  animate={{ y: [0, -4, 0] }}
-                  transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
                   whileTap={{ scale: 0.98 }}
-                  className="p-1 bg-black/[0.03] dark:bg-white/[0.04] rounded-[2.5rem] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_16px_36px_rgba(124,92,255,0.06)] dark:shadow-[0_16px_36px_rgba(0,0,0,0.4)]"
+                  className="rounded-[2.5rem] bg-linear-to-br from-[#6366F1] via-[#8B5CF6] to-[#EC4899] p-6 text-white shadow-[0_14px_28px_rgba(124,92,255,0.12)]"
                 >
-                  <div className="bg-gradient-to-br from-[#6366F1] via-[#8B5CF6] to-[#EC4899] rounded-[calc(2.5rem-0.25rem)] p-6 relative overflow-hidden text-white shadow-[inset_0_1px_2px_rgba(255,255,255,0.25)]">
-                    {/* Floating Rupee Particles Engine */}
-                    <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
-                      {[1, 2, 3, 4, 5].map((id) => (
-                        <motion.div
-                          key={id}
-                          className="absolute text-[24px] font-black"
-                          style={{
-                            top: `${id * 18}%`,
-                            left: `${id * 16}%`,
-                          }}
-                          animate={{
-                            y: [0, -15, 0],
-                            x: [0, id % 2 === 0 ? 8 : -8, 0],
-                            opacity: [0.15, 0.4, 0.15],
-                          }}
-                          transition={{
-                            duration: 5 + id,
-                            repeat: Infinity,
-                            ease: 'easeInOut',
-                            delay: id * 0.4,
-                          }}
-                        >
-                          ₹
-                        </motion.div>
-                      ))}
-                    </div>
-
-                    {/* Glossy top overlay card light ray */}
-                    <div className="absolute -top-[50%] -left-[10%] w-[120%] h-[80%] bg-[linear-gradient(to_bottom,rgba(255,255,255,0.15),transparent)] -rotate-[15deg] pointer-events-none" />
+                  <div className="relative overflow-visible rounded-[2.25rem]">
 
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1.5 opacity-80">
-                        <span className="text-[11px] font-black uppercase tracking-[0.1em]">Current Balance</span>
+                        <span className="text-[11px] font-black uppercase tracking-widest">Current Balance</span>
                       </div>
                       <button
                         onClick={() => setShowBalance(!showBalance)}
@@ -521,6 +581,20 @@ export function DashboardPage() {
                       <div>
                         <p className="text-[9px] font-bold uppercase tracking-wider opacity-70">Monthly Salary</p>
                         <p className="mt-0.5 text-[15px] font-black">₹{parsedSalary.toLocaleString('en-IN')}</p>
+                  <AnimatePresence>
+                    {tooltip.visible && tooltip.x != null && tooltip.y != null && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 6 }}
+                        transition={{ duration: 0.18 }}
+                        style={{ position: 'fixed', left: tooltip.x, top: tooltip.y, transform: 'translate(-50%,-110%)' }}
+                        className={`bg-[#0F172A] dark:bg-[#F8FAF6] text-[#F8FAF6] dark:text-[#0F172A] px-3 py-2 rounded-lg text-[11px] font-semibold whitespace-nowrap z-50 shadow-lg`}
+                      >
+                        {tooltip.text}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                       </div>
                       <div className="border-l border-white/15 pl-4">
                         <p className="text-[9px] font-bold uppercase tracking-wider opacity-70">Daily Safe Spend</p>
@@ -534,64 +608,119 @@ export function DashboardPage() {
               </section>
 
               {/* 3. QUICK ACTIONS */}
-              <section className="mt-6">
-                <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-none snap-x snap-mandatory">
+              <section className="mt-8">
+                <div className="grid grid-cols-4 gap-4">
+                  {/* Add Expense */}
                   <motion.button
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => setIsAddSheetOpen(true)}
-                    className="snap-start shrink-0 flex items-center gap-2 rounded-full px-5 py-3 bg-[#0F172A] text-white dark:bg-[#F8FAF6] dark:text-[#0C0C0E] shadow-[0_8px_20px_rgba(0,0,0,0.06)] active:scale-95 transition-all duration-300"
+                    whileTap={{ scale: 0.92 }}
+                    onClick={() => {
+                      triggerQuickActionMotion('add-expense');
+                      setIsAddSheetOpen(true);
+                    }}
+                    className="flex flex-col items-center gap-3 py-4 rounded-2xl border border-white/6 bg-[#12141B]/85 hover:bg-[#151823]/95 transition-all duration-300 active:scale-90"
                   >
-                    {/* Button-in-button icon design */}
-                    <span className="p-1 rounded-full bg-white/20 dark:bg-black/10">
-                      <Plus size={14} strokeWidth={2} />
+                    <div className="flex items-center justify-center h-14 w-14 rounded-full bg-linear-to-br from-[#B388FF] via-[#8B5CF6] to-[#6D28D9] shadow-[0_0_22px_rgba(139,92,246,0.45)]">
+                      <motion.span
+                        animate={
+                          activeQuickAction === 'add-expense'
+                            ? { scale: [1, 1.18, 1], rotate: [0, -10, 8, 0] }
+                            : { scale: 1, rotate: 0 }
+                        }
+                        transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+                        className="inline-flex"
+                      >
+                        <Wallet size={27} strokeWidth={2.3} className="text-white" />
+                      </motion.span>
+                    </div>
+                    <span className="text-[12px] font-bold text-[#0F172A] dark:text-[#F8FAF6] text-center leading-tight">
+                      Add<br />Expense
                     </span>
-                    <span className="text-[13px] font-black">Add Expense</span>
                   </motion.button>
 
+                  {/* Split Bill */}
                   <motion.button
-                    whileTap={{ scale: 0.95 }}
-                    className="snap-start shrink-0 flex items-center gap-2 rounded-full px-5 py-3 bg-white dark:bg-white/5 border border-black/[0.04] dark:border-white/10 shadow-sm text-[#0F172A] dark:text-[#F8FAF6]"
+                    whileTap={{ scale: 0.92 }}
+                    onClick={() => triggerQuickActionMotion('split-bill')}
+                    className="flex flex-col items-center gap-3 py-4 rounded-2xl border border-white/6 bg-[#12141B]/85 hover:bg-[#151823]/95 transition-all duration-300 active:scale-90"
                   >
-                    <span className="p-1 rounded-full bg-black/5 dark:bg-white/15">
-                      <Share2 size={13} strokeWidth={1.5} />
+                    <div className="flex items-center justify-center h-14 w-14 rounded-full bg-linear-to-br from-[#4ADE80] via-[#10B981] to-[#047857] shadow-[0_0_22px_rgba(16,185,129,0.4)]">
+                      <motion.span
+                        animate={
+                          activeQuickAction === 'split-bill'
+                            ? { x: [0, -5, 5, -3, 3, 0], scale: [1, 1.1, 1] }
+                            : { x: 0, scale: 1 }
+                        }
+                        transition={{ duration: 0.42, ease: 'easeInOut' }}
+                        className="inline-flex"
+                      >
+                        <Share2 size={26} strokeWidth={2.3} className="text-white" />
+                      </motion.span>
+                    </div>
+                    <span className="text-[12px] font-bold text-[#0F172A] dark:text-[#F8FAF6] text-center leading-tight">
+                      Split<br />Bill
                     </span>
-                    <span className="text-[13px] font-bold">Split Bill</span>
                   </motion.button>
 
+                  {/* Create Budget */}
                   <motion.button
-                    whileTap={{ scale: 0.95 }}
-                    className="snap-start shrink-0 flex items-center gap-2 rounded-full px-5 py-3 bg-white dark:bg-white/5 border border-black/[0.04] dark:border-white/10 shadow-sm text-[#0F172A] dark:text-[#F8FAF6]"
+                    whileTap={{ scale: 0.92 }}
+                    onClick={() => triggerQuickActionMotion('create-budget')}
+                    className="flex flex-col items-center gap-3 py-4 rounded-2xl border border-white/6 bg-[#12141B]/85 hover:bg-[#151823]/95 transition-all duration-300 active:scale-90"
                   >
-                    <span className="p-1 rounded-full bg-black/5 dark:bg-white/15">
-                      <Sliders size={13} strokeWidth={1.5} />
+                    <div className="flex items-center justify-center h-14 w-14 rounded-full bg-linear-to-br from-[#FDE047] via-[#FBBF24] to-[#D97706] shadow-[0_0_22px_rgba(251,191,36,0.42)]">
+                      <motion.span
+                        animate={
+                          activeQuickAction === 'create-budget'
+                            ? { rotate: [0, 18, -12, 6, 0], scale: [1, 1.12, 1] }
+                            : { rotate: 0, scale: 1 }
+                        }
+                        transition={{ duration: 0.42, ease: [0.32, 0.72, 0, 1] }}
+                        className="inline-flex"
+                      >
+                        <Sliders size={26} strokeWidth={2.3} className="text-white" />
+                      </motion.span>
+                    </div>
+                    <span className="text-[12px] font-bold text-[#0F172A] dark:text-[#F8FAF6] text-center leading-tight">
+                      Create<br />Budget
                     </span>
-                    <span className="text-[13px] font-bold">Create Budget</span>
                   </motion.button>
 
+                  {/* Add Friend */}
                   <motion.button
-                    whileTap={{ scale: 0.95 }}
-                    className="snap-start shrink-0 flex items-center gap-2 rounded-full px-5 py-3 bg-white dark:bg-white/5 border border-black/[0.04] dark:border-white/10 shadow-sm text-[#0F172A] dark:text-[#F8FAF6]"
+                    whileTap={{ scale: 0.92 }}
+                    onClick={() => triggerQuickActionMotion('add-friend')}
+                    className="flex flex-col items-center gap-3 py-4 rounded-2xl border border-white/6 bg-[#12141B]/85 hover:bg-[#151823]/95 transition-all duration-300 active:scale-90"
                   >
-                    <span className="p-1 rounded-full bg-black/5 dark:bg-white/15">
-                      <UserPlus size={13} strokeWidth={1.5} />
+                    <div className="flex items-center justify-center h-14 w-14 rounded-full bg-linear-to-br from-[#60A5FA] via-[#3B82F6] to-[#1E40AF] shadow-[0_0_22px_rgba(59,130,246,0.42)]">
+                      <motion.span
+                        animate={
+                          activeQuickAction === 'add-friend'
+                            ? { y: [0, -6, 0, -3, 0], scale: [1, 1.1, 1] }
+                            : { y: 0, scale: 1 }
+                        }
+                        transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
+                        className="inline-flex"
+                      >
+                        <UserPlus size={26} strokeWidth={2.3} className="text-white" />
+                      </motion.span>
+                    </div>
+                    <span className="text-[12px] font-bold text-[#0F172A] dark:text-[#F8FAF6] text-center leading-tight">
+                      Add<br />Friend
                     </span>
-                    <span className="text-[13px] font-bold">Add Friend</span>
                   </motion.button>
                 </div>
               </section>
 
               {/* 4. TODAY INSIGHT SECTION */}
               <section className="mt-6">
-                <div className="p-1 bg-black/[0.03] dark:bg-white/[0.04] rounded-[24px] border border-black/[0.06] dark:border-white/[0.08] shadow-[0_8px_20px_rgba(0,0,0,0.01)]">
-                  <div className="bg-white dark:bg-zinc-900 rounded-[20px] p-5 flex items-center justify-between shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
+                <div className="rounded-3xl bg-white dark:bg-zinc-900 p-5 shadow-[0_10px_24px_rgba(15,23,42,0.04)] dark:shadow-[0_10px_24px_rgba(0,0,0,0.24)]">
+                  <div className="flex items-center justify-between">
                     <div className="flex-1 pr-4">
                       <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#7C5CFF]/10 text-[#7C5CFF] text-[10px] font-black uppercase tracking-wider mb-2.5">
                         <Sparkles size={10} strokeWidth={2} />
-                        Smart Companion
+                        Insight
                       </div>
-                      <h4 className="text-[14px] font-bold leading-snug">
-                        {getInsightText()}
-                      </h4>
+                      <h4 className="text-[14px] font-bold leading-snug">{getInsightText()}</h4>
                     </div>
 
                     {/* Progress Circle Visual Ring (replacing traditional charts) */}
@@ -602,7 +731,7 @@ export function DashboardPage() {
                           cx="32"
                           cy="32"
                           r="26"
-                          className="stroke-black/[0.04] dark:stroke-white/10"
+                          className="stroke-black/4 dark:stroke-white/10"
                           strokeWidth="5"
                           fill="transparent"
                         />
@@ -635,15 +764,13 @@ export function DashboardPage() {
               {/* 6. BUDGET PROGRESS EXPERIENCE (Circular Streaks) */}
               {expenses.length > 0 && (
                 <section className="mt-6">
-                  <div className="p-1 bg-black/[0.03] dark:bg-white/[0.04] rounded-[24px] border border-black/[0.06] dark:border-white/[0.08]">
-                    <div className="bg-white dark:bg-zinc-900 rounded-[20px] p-5">
+                  <div className="rounded-3xl bg-white dark:bg-zinc-900 p-5 shadow-[0_10px_24px_rgba(15,23,42,0.04)] dark:shadow-[0_10px_24px_rgba(0,0,0,0.24)]">
+                    <div>
                       <div className="flex items-center justify-between mb-4">
                         <h4 className="text-[12px] font-black text-[#64748B] dark:text-[#94A3B8] uppercase tracking-wider">
                           Active Budgets
                         </h4>
-                        <span className="text-[11px] font-bold text-[#7C5CFF] bg-[#7C5CFF]/10 px-2 py-0.5 rounded-full">
-                          Duolingo Streak Style
-                        </span>
+                        <span className="text-[11px] font-bold text-[#7C5CFF] bg-[#7C5CFF]/10 px-2 py-0.5 rounded-full">Progress</span>
                       </div>
 
                       <div className="flex items-center gap-4">
@@ -654,7 +781,7 @@ export function DashboardPage() {
                               cx="28"
                               cy="28"
                               r="22"
-                              className="stroke-black/[0.04] dark:stroke-white/10"
+                              className="stroke-black/4 dark:stroke-white/10"
                               strokeWidth="4"
                               fill="transparent"
                             />
@@ -671,7 +798,7 @@ export function DashboardPage() {
                               transition={{ duration: 1.2, ease: 'easeOut', delay: 0.2 }}
                             />
                           </svg>
-                          <span className="absolute text-[12px] font-black text-[#F59E0B]">🍔</span>
+                          <span className="absolute text-[10px] font-black text-[#F59E0B]">Food</span>
                         </div>
 
                         <div className="flex-1">
@@ -698,7 +825,7 @@ export function DashboardPage() {
                   </h4>
                   {expenses.length > 0 && (
                     <span className="text-[10px] font-bold text-[#64748B] dark:text-[#94A3B8] uppercase tracking-wider flex items-center gap-1">
-                      Swipe left to delete <span className="text-[12px]">←</span>
+                      Tap delete to remove
                     </span>
                   )}
                 </div>
@@ -712,27 +839,26 @@ export function DashboardPage() {
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.95 }}
-                      className="p-1 bg-black/[0.02] dark:bg-white/[0.02] rounded-[24px] border border-dashed border-black/[0.1] dark:border-white/10"
+                      className="rounded-3xl bg-white dark:bg-zinc-900 p-1 shadow-[0_10px_24px_rgba(15,23,42,0.04)] dark:shadow-[0_10px_24px_rgba(0,0,0,0.24)]"
                     >
-                      <div className="bg-white/50 dark:bg-zinc-900/50 rounded-[20px] p-8 flex flex-col items-center text-center shadow-inner">
+                      <div className="rounded-[20px] p-8 flex flex-col items-center text-center bg-transparent">
                         {/* Elegant CSS Wallet Illustration */}
                         <div className="relative h-20 w-20 flex items-center justify-center mb-5">
                           <div className="absolute inset-0 bg-[#7C5CFF]/10 rounded-full blur-xl animate-pulse" />
-                          <div className="relative z-10 p-4 rounded-[22px] bg-gradient-to-tr from-[#7C5CFF] to-[#B894FF] text-white shadow-md">
+                          <div className="relative z-10 p-4 rounded-[22px] bg-linear-to-tr from-[#7C5CFF] to-[#B894FF] text-white shadow-md">
                             <Wallet size={28} strokeWidth={1.5} />
                           </div>
-                          <span className="absolute -top-1 -right-1 text-[16px]">✨</span>
                         </div>
 
-                        <h5 className="text-[16px] font-black">Your wallet is ready ✨</h5>
-                        <p className="mt-1.5 max-w-[220px] text-[12px] font-semibold text-[#64748B] dark:text-[#94A3B8] leading-relaxed">
+                        <h5 className="text-[16px] font-black">Your wallet is ready</h5>
+                        <p className="mt-1.5 max-w-55 text-[12px] font-semibold text-[#64748B] dark:text-[#94A3B8] leading-relaxed">
                           Start by adding your first expense.
                         </p>
 
                         <motion.button
                           whileTap={{ scale: 0.95 }}
                           onClick={() => setIsAddSheetOpen(true)}
-                          className="mt-5 px-5 py-2.5 rounded-full bg-[#7C5CFF] text-white font-black text-[13px] shadow-[0_4px_12px_rgba(124,92,255,0.2)] active:scale-95 transition-all duration-300"
+                          className="mt-5 px-5 py-2.5 rounded-full bg-[#7C5CFF] text-[#0F172A] dark:text-white font-black text-[13px] shadow-none active:scale-95 transition-all duration-300"
                         >
                           Add Expense
                         </motion.button>
@@ -749,54 +875,61 @@ export function DashboardPage() {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95 }}
                             transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
-                            className="relative overflow-hidden rounded-[20px] shadow-sm select-none"
+                            className="rounded-[20px] bg-white dark:bg-zinc-900 p-4 shadow-[0_8px_20px_rgba(15,23,42,0.04)] dark:shadow-[0_8px_20px_rgba(0,0,0,0.24)] relative"
                           >
-                            {/* Underlay swipe background holding delete action */}
-                            <div className="absolute inset-0 bg-red-500 flex items-center justify-end px-5 rounded-[20px] pointer-events-none">
-                              <div className="flex flex-col items-center text-white mr-1 opacity-90">
-                                <Trash2 size={16} strokeWidth={2} />
-                                <span className="text-[8px] font-black uppercase tracking-wider mt-0.5">Delete</span>
-                              </div>
-                            </div>
-
-                            {/* Front interactive draggable panel */}
-                            <motion.div
-                              drag="x"
-                              dragDirectionLock
-                              dragConstraints={{ left: -100, right: 0 }}
-                              dragElastic={0.15}
-                              onDragEnd={(event, info) => {
-                                // If swiped far enough, trigger delete instantly
-                                if (info.offset.x < -70) {
-                                  handleDeleteExpense(expense.id);
-                                }
-                              }}
-                              className="bg-white dark:bg-zinc-900 border border-black/[0.03] dark:border-white/5 p-4 rounded-[20px] flex items-center justify-between relative z-10 cursor-grab active:cursor-grabbing shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]"
-                            >
-                              <div className="flex items-center gap-3">
-                                {/* Floating category icon orb */}
-                                <div className={`h-11 w-11 rounded-full bg-gradient-to-tr ${getCategoryColor(expense.category)} flex items-center justify-center border shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] shrink-0`}>
+                            <div className="flex items-center justify-between gap-4">
+                              <div className="flex items-center gap-3 min-w-0 flex-1">
+                                <div className={`h-11 w-11 rounded-full bg-linear-to-tr ${getCategoryColor(expense.category)} flex items-center justify-center border-0 shrink-0`}>
                                   {getCategoryIcon(expense.category)}
                                 </div>
-                                <div>
-                                  <h5 className="text-[14px] font-black leading-tight text-[#0F172A] dark:text-[#F8FAF6]">
+                                <div className="min-w-0 flex-1">
+                                  <h5
+                                    onClick={(e) =>
+                                      expense.title.length > 20 && showTooltip(expense.id, expense.title, 'title', e.currentTarget as HTMLElement)
+                                    }
+                                    className={`text-[14px] font-black leading-tight text-[#0F172A] dark:text-[#F8FAF6] truncate ${expense.title.length > 20 ? 'cursor-pointer hover:opacity-70' : ''}`}
+                                    title={expense.title}
+                                  >
                                     {expense.title}
                                   </h5>
-                                  <p className="mt-0.5 text-[11px] font-semibold text-[#64748B] dark:text-[#94A3B8]">
+                                  <p
+                                    onClick={(e) => {
+                                      const categoryDate = `${expense.category} • ${expense.date}`;
+                                      categoryDate.length > 25 && showTooltip(expense.id, categoryDate, 'category', e.currentTarget as HTMLElement);
+                                    }}
+                                    className={`mt-0.5 text-[11px] font-semibold text-[#64748B] dark:text-[#94A3B8] truncate ${`${expense.category} • ${expense.date}`.length > 25 ? 'cursor-pointer hover:opacity-70' : ''}`}
+                                    title={`${expense.category} • ${expense.date}`}
+                                  >
                                     {expense.category} • {expense.date}
                                   </p>
                                 </div>
                               </div>
 
-                              <div className="text-right">
-                                <p className="text-[15px] font-black text-[#0F172A] dark:text-[#F8FAF6]">
-                                  -₹{expense.amount.toLocaleString('en-IN')}
-                                </p>
-                                <p className="text-[9px] font-bold text-[#64748B] dark:text-[#94A3B8] opacity-75 mt-0.5">
-                                  {expense.time}
-                                </p>
+                              <div className="flex items-center gap-3 shrink-0">
+                                <div className="text-right">
+                                  <p className="text-[15px] font-black text-[#0F172A] dark:text-[#F8FAF6]">
+                                    -₹{expense.amount.toLocaleString('en-IN')}
+                                  </p>
+                                  <p
+                                    onClick={(e) => expense.time.length > 10 && showTooltip(expense.id, expense.time, 'time', e.currentTarget as HTMLElement)}
+                                    className={`text-[9px] font-bold text-[#64748B] dark:text-[#94A3B8] opacity-75 mt-0.5 ${expense.time.length > 10 ? 'cursor-pointer hover:opacity-100' : ''}`}
+                                    title={expense.time}
+                                  >
+                                    {expense.time}
+                                  </p>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => setExpenseToDelete(expense)}
+                                  className="grid h-10 w-10 place-items-center rounded-full bg-black/5 text-[#EF4444] transition active:scale-95 dark:bg-white/5"
+                                  aria-label={`Delete ${expense.title}`}
+                                >
+                                  <Trash2 size={16} strokeWidth={2} />
+                                </button>
                               </div>
-                            </motion.div>
+                            </div>
+
+                            {/* tooltip removed from per-item render */}
                           </motion.div>
                         ))}
                       </AnimatePresence>
@@ -808,7 +941,7 @@ export function DashboardPage() {
           </div>
 
           {/* 8. BOTTOM FLOATING NAVIGATION DOCK */}
-          <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-[380px] bg-white/70 dark:bg-zinc-950/75 border border-black/[0.04] dark:border-white/10 backdrop-blur-xl rounded-full px-4 py-3 flex items-center justify-between shadow-[0_12px_32px_rgba(0,0,0,0.05)] z-40">
+          <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-95 bg-white/70 dark:bg-zinc-950/75 border border-black/4 dark:border-white/10 backdrop-blur-xl rounded-full px-4 py-3 flex items-center justify-between shadow-[0_12px_32px_rgba(0,0,0,0.05)] z-40">
             {[
               { id: 'home', label: 'Home', icon: <Wallet size={18} strokeWidth={1.5} /> },
               { id: 'expenses', label: 'Expenses', icon: <TrendingDown size={18} strokeWidth={1.5} /> },
@@ -826,7 +959,7 @@ export function DashboardPage() {
                       setIsAddSheetOpen(true);
                     }
                   }}
-                  className="relative flex flex-col items-center justify-center p-2 rounded-full text-[#64748B] dark:text-[#94A3B8] hover:text-[#0F172A] dark:hover:text-[#F8FAF6] active:scale-95 transition-all duration-300 min-w-[48px]"
+                  className="relative flex min-w-12 flex-col items-center justify-center rounded-full p-2 text-[#64748B] dark:text-[#94A3B8] hover:text-[#0F172A] dark:hover:text-[#F8FAF6] active:scale-95 transition-all duration-300"
                   aria-label={tab.label}
                 >
                   {/* Sliding glowing layoutId indicator pill */}
@@ -866,15 +999,10 @@ export function DashboardPage() {
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', stiffness: 280, damping: 28 }}
-              className="fixed bottom-0 inset-x-0 mx-auto w-full max-w-[430px] bg-[#FAF9F5] dark:bg-[#0E0E10] border-t border-black/5 dark:border-white/10 rounded-t-[32px] p-6 pb-[calc(env(safe-area-inset-bottom,0px)+24px)] z-50 shadow-2xl"
+              className="fixed bottom-0 inset-x-0 mx-auto w-full max-w-107.5 bg-[#FAF9F5] dark:bg-[#0E0E10] border-t border-black/5 dark:border-white/10 rounded-t-4xl p-6 pb-[calc(env(safe-area-inset-bottom,0)+24px)] z-50 shadow-2xl"
             >
               <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-2">
-                  <div className="h-8 w-8 rounded-full bg-[#7C5CFF]/10 flex items-center justify-center text-[#7C5CFF]">
-                    <Plus size={16} strokeWidth={2} />
-                  </div>
-                  <h3 className="text-[18px] font-black">Add Expense</h3>
-                </div>
+                <h3 className="text-[18px] font-black">Add Expense</h3>
                 <button
                   onClick={() => setIsAddSheetOpen(false)}
                   className="h-8 w-8 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center text-[#64748B] hover:text-[#0F172A] active:scale-90 transition-all duration-300"
@@ -884,14 +1012,14 @@ export function DashboardPage() {
                 </button>
               </div>
 
-              <form onSubmit={handleAddExpense} className="space-y-4">
+                <form onSubmit={handleAddExpense} className="space-y-5">
                 {/* Large Premium Numeric Amount display */}
-                <div className="space-y-1">
+                <div className="space-y-4 mt-2">
                   <label htmlFor="modal-amount-input" className="text-[11px] font-black text-[#64748B] dark:text-[#94A3B8] uppercase tracking-wider">
                     Amount
                   </label>
                   <div className="relative flex items-center">
-                    <span className="absolute left-5 text-[28px] font-black text-[#64748B] dark:text-[#94A3B8]">₹</span>
+                    <span className="absolute left-5 top-1/2 -translate-y-1/2 text-[28px] font-black text-[#64748B] dark:text-[#94A3B8]">₹</span>
                     <input
                       id="modal-amount-input"
                       type="text"
@@ -903,13 +1031,13 @@ export function DashboardPage() {
                         const val = e.target.value.replace(/[^0-9]/g, '');
                         setNewAmount(val ? Number(val).toLocaleString('en-IN') : '');
                       }}
-                      className="w-full rounded-[22px] border border-black/[0.06] bg-white px-5 py-4 pb-4.5 pl-12 text-[28px] font-black text-foreground shadow-[inset_0_1px_1px_rgba(0,0,0,0.02)] outline-none transition focus:border-[#7C5CFF]/50 focus:ring-4 focus:ring-[#7C5CFF]/10 dark:border-white/10 dark:bg-white/5"
+                      className="w-full mt-1.5 rounded-[22px] border border-black/6 bg-white px-5 py-4 pb-4.5 pl-12 text-[28px] font-black text-foreground shadow-[inset_0_1px_1px_rgba(0,0,0,0.02)] outline-none transition focus:border-[#7C5CFF]/50 focus:ring-4 focus:ring-[#7C5CFF]/10 dark:border-white/10 dark:bg-white/5"
                     />
                   </div>
                 </div>
 
                 {/* Expense Title */}
-                <div className="space-y-1">
+                <div className="space-y-4 mt-2">
                   <label htmlFor="modal-title-input" className="text-[11px] font-black text-[#64748B] dark:text-[#94A3B8] uppercase tracking-wider">
                     Description
                   </label>
@@ -920,23 +1048,25 @@ export function DashboardPage() {
                     placeholder="e.g. Starbucks Coffee"
                     value={newTitle}
                     onChange={(e) => setNewTitle(e.target.value)}
-                    className="w-full rounded-[18px] border border-black/[0.06] bg-white px-4 py-3.5 text-[14px] font-bold text-foreground shadow-[inset_0_1px_1px_rgba(0,0,0,0.02)] outline-none transition focus:border-[#7C5CFF]/50 focus:ring-4 focus:ring-[#7C5CFF]/10 dark:border-white/10 dark:bg-white/5"
+                    className="w-full mt-1.5 rounded-[18px] border border-black/6 bg-white px-4 py-3.5 text-[14px] font-bold text-foreground shadow-[inset_0_1px_1px_rgba(0,0,0,0.02)] outline-none transition focus:border-[#7C5CFF]/50 focus:ring-4 focus:ring-[#7C5CFF]/10 dark:border-white/10 dark:bg-white/5"
                   />
                 </div>
 
                 {/* Category selectors */}
-                <div className="space-y-1">
-                  <span className="text-[11px] font-black text-[#64748B] dark:text-[#94A3B8] uppercase tracking-wider">
+                <div className="space-y-4 mt-2">
+                  <span className="block mb-1.5 text-[11px] font-black text-[#64748B] dark:text-[#94A3B8] uppercase tracking-wider">
                     Category
                   </span>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-4 gap-x-4 gap-y-4 place-items-center">
                     {[
-                      { id: 'Food', label: 'Food 🍔' },
-                      { id: 'Transport', label: 'Transport 🚗' },
-                      { id: 'Shopping', label: 'Shopping 🛍️' },
-                      { id: 'Bills', label: 'Bills 🧾' },
-                      { id: 'Entertainment', label: 'Fun 🎬' },
-                      { id: 'Others', label: 'Other 🏷️' },
+                      { id: 'Food', label: 'Food', icon: <Utensils size={20} strokeWidth={1.5} /> },
+                      { id: 'Transport', label: 'Transport', icon: <Car size={20} strokeWidth={1.5} /> },
+                      { id: 'Shopping', label: 'Shopping', icon: <ShoppingBag size={20} strokeWidth={1.5} /> },
+                      { id: 'Bills', label: 'Bills', icon: <ReceiptText size={20} strokeWidth={1.5} /> },
+                      { id: 'Entertainment', label: 'Fun', icon: <Clapperboard size={20} strokeWidth={1.5} /> },
+                      { id: 'Health', label: 'Health', icon: <HeartPulse size={20} strokeWidth={1.5} /> },
+                      { id: 'Education', label: 'Education', icon: <GraduationCap size={20} strokeWidth={1.5} /> },
+                      { id: 'Others', label: 'Other', icon: <Tag size={20} strokeWidth={1.5} /> },
                     ].map((cat) => {
                       const isSelected = newCategory === cat.id;
                       return (
@@ -944,13 +1074,14 @@ export function DashboardPage() {
                           key={cat.id}
                           type="button"
                           onClick={() => setNewCategory(cat.id as any)}
-                          className={`py-2 px-3 rounded-full border text-[12px] font-bold transition-all duration-300 active:scale-95 ${
+                          className={`h-14 w-14 rounded-full border flex items-center justify-center transition-all duration-300 active:scale-95 ${
                             isSelected
-                              ? 'border-[#7C5CFF] bg-[#7C5CFF]/10 text-[#7C5CFF]'
-                              : 'border-black/[0.05] bg-white dark:border-white/5 dark:bg-white/5 text-[#0F172A] dark:text-[#F8FAF6]'
+                              ? 'border-[#7C5CFF] bg-[#7C5CFF]/20 text-[#7C5CFF]'
+                              : 'border-black/5 bg-white dark:border-white/5 dark:bg-white/5 text-[#64748B] dark:text-[#94A3B8]'
                           }`}
+                          title={cat.label}
                         >
-                          {cat.label}
+                          {cat.icon}
                         </button>
                       );
                     })}
@@ -958,7 +1089,7 @@ export function DashboardPage() {
                 </div>
 
                 {/* Note details */}
-                <div className="space-y-1">
+                <div className="space-y-4 mt-2">
                   <label htmlFor="modal-note-input" className="text-[11px] font-black text-[#64748B] dark:text-[#94A3B8] uppercase tracking-wider">
                     Notes (Optional)
                   </label>
@@ -968,7 +1099,7 @@ export function DashboardPage() {
                     placeholder="Add a remark..."
                     value={newNote}
                     onChange={(e) => setNewNote(e.target.value)}
-                    className="w-full rounded-[18px] border border-black/[0.06] bg-white px-4 py-3 text-[13px] font-semibold text-foreground outline-none transition focus:border-[#7C5CFF]/50 focus:ring-4 focus:ring-[#7C5CFF]/10 dark:border-white/10 dark:bg-white/5"
+                    className="w-full mt-1.5 rounded-[18px] border border-black/6 bg-white px-4 py-3 text-[13px] font-semibold text-foreground outline-none transition focus:border-[#7C5CFF]/50 focus:ring-4 focus:ring-[#7C5CFF]/10 dark:border-white/10 dark:bg-white/5"
                   />
                 </div>
 
@@ -980,9 +1111,59 @@ export function DashboardPage() {
                   className="mt-6 w-full flex items-center justify-center gap-2 rounded-full bg-[#7C5CFF] text-white py-4 text-[15px] font-black shadow-[0_12px_28px_rgba(124,92,255,0.25)] active:scale-95 disabled:opacity-50 disabled:shadow-none transition-all duration-300"
                 >
                   <span>Confirm Expense</span>
-                  <Check size={16} strokeWidth={2.5} />
                 </motion.button>
               </form>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {expenseToDelete && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-60 bg-black/60 backdrop-blur-sm"
+              onClick={() => setExpenseToDelete(null)}
+            />
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: 20 }}
+              transition={{ type: 'spring', stiffness: 280, damping: 26 }}
+              className="fixed left-1/2 top-1/2 z-70 w-[calc(100%-32px)] max-w-90 -translate-x-1/2 -translate-y-1/2 rounded-[28px] bg-[#FAF9F5] p-6 text-[#0F172A] shadow-[0_24px_60px_rgba(0,0,0,0.28)] dark:bg-[#0E0E10] dark:text-[#F8FAF6]"
+            >
+              <div className="flex items-center gap-3">
+                <div className="grid h-11 w-11 place-items-center rounded-full bg-red-500/10 text-red-500">
+                  <Trash2 size={18} strokeWidth={2.25} />
+                </div>
+                <div>
+                  <h3 className="text-[18px] font-black">Delete expense?</h3>
+                  <p className="text-[12px] font-medium text-[#64748B] dark:text-[#94A3B8]">
+                    This will remove “{expenseToDelete.title}” permanently.
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-6 flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setExpenseToDelete(null)}
+                  className="flex-1 rounded-full border border-black/10 bg-white px-4 py-3 text-[14px] font-bold text-[#0F172A] transition active:scale-95 dark:border-white/10 dark:bg-white/5 dark:text-[#F8FAF6]"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDeleteExpense(expenseToDelete.id)}
+                  className="flex-1 rounded-full bg-red-500 px-4 py-3 text-[14px] font-black text-white transition active:scale-95"
+                >
+                  Delete
+                </button>
+              </div>
             </motion.div>
           </>
         )}

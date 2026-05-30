@@ -1,4 +1,12 @@
 @import "tailwindcss";
+/*
+  Design tokens + typography
+  - Primary font pairing: Satoshi (headings/numbers) + Inter (body)
+  - If Satoshi isn't available via Google Fonts for your environment,
+    drop local files into /public/fonts and add @font-face entries.
+*/
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Satoshi:ital,wght@0,300;0,400;0,600;0,700;0,800;1,400&display=swap');
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
@@ -10,10 +18,65 @@
 
 :root {
   color-scheme: light;
-  --background: #f8f8fc;
-  --foreground: #0f172a;
-  --muted: #64748b;
-  --primary: #7c5cff;
+  /* Colors */
+  --color-primary: 124 92 255; /* rgb components, use with rgb(var(--color-primary)/ <alpha>) */
+  --color-accent: 184 148 255;
+  --color-background: 248 248 252; /* warm white */
+  --color-surface: 255 255 255; /* cards */
+  --color-muted: 100 116 139;
+  --color-foreground: 15 23 42;
+  --color-success: 16 185 129;
+  --color-warning: 250 204 21;
+  --color-destructive: 239 68 68;
+
+  /* Gradients */
+  --gradient-wallet-from: 99 102 241;
+  --gradient-wallet-via: 139 92 246;
+  --gradient-wallet-to: 236 72 153;
+
+  /* Radius */
+  --radius-1: 6px;   /* small */
+  --radius-2: 12px;  /* buttons, pills */
+  --radius-3: 20px;  /* cards */
+  --radius-4: 28px;  /* large containers */
+
+  /* Shadows (use as e.g. box-shadow: var(--shadow-soft)) */
+  --shadow-soft: 0 6px 18px rgba(15,23,42,0.06);
+  --shadow-medium: 0 12px 40px rgba(15,23,42,0.08);
+  --shadow-floating: 0 24px 60px rgba(0,0,0,0.16);
+  --shadow-glass: 0 8px 30px rgba(124,92,255,0.08);
+
+  /* Spacing scale */
+  --space-0: 4px;
+  --space-1: 8px;
+  --space-2: 12px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 32px;
+
+  /* Typography */
+  --font-heading: "Satoshi", Inter, ui-rounded, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  --font-body: Inter, ui-rounded, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+
+  /* Type scale (mobile-first) */
+  --type-display-1-size: 44px;
+  --type-display-1-line: 48px;
+  --type-heading-1-size: 28px;
+  --type-heading-1-line: 34px;
+  --type-heading-2-size: 22px;
+  --type-heading-2-line: 28px;
+  --type-body-lg-size: 16px;
+  --type-body-lg-line: 24px;
+  --type-body-size: 14px;
+  --type-caption-size: 12px;
+
+  /* Number styles */
+  --number-tracking-tight: -0.02em;
+  --number-weight: 700;
+
+  /* other app tokens */
+  --safe-area-inset-top: env(safe-area-inset-top);
+  --safe-area-inset-bottom: env(safe-area-inset-bottom);
 }
 
 * {
@@ -27,15 +90,9 @@ body {
 
 body {
   margin: 0;
-  font-family:
-    ui-rounded,
-    -apple-system,
-    BlinkMacSystemFont,
-    "SF Pro Display",
-    "Segoe UI",
-    sans-serif;
-  background: var(--background);
-  color: var(--foreground);
+  font-family: var(--font-body);
+  background: rgb(var(--color-background));
+  color: rgb(var(--color-foreground));
   letter-spacing: 0;
   overscroll-behavior-y: none;
   -webkit-font-smoothing: antialiased;
@@ -54,9 +111,15 @@ button {
 
 .dark {
   color-scheme: dark;
-  --background: #09090b;
-  --foreground: #f8fafc;
-  --muted: #94a3b8;
+  /* Dark-mode color tokens */
+  --color-background: 10 10 12; /* charcoal, not pure black */
+  --color-surface: 18 18 20;
+  --color-surface-2: 28 28 30;
+  --color-foreground: 248 250 252;
+  --color-muted: 148 163 184;
+
+  /* Accent glow for dark mode */
+  --shadow-glow: 40 44 122;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -69,4 +132,66 @@ button {
     transition-duration: 0.001ms !important;
   }
 }
+
+/* Design-system utility classes */
+:root {
+  /* small helper tokens for legacy classes */
+  --ds-radius-card: var(--radius-3);
+  --ds-radius-pill: var(--radius-2);
+}
+
+/* Typography helpers */
+.ds-display {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: var(--type-display-1-size);
+  line-height: var(--type-display-1-line);
+  letter-spacing: -0.01em;
+}
+
+.ds-h1 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: var(--type-heading-1-size);
+  line-height: var(--type-heading-1-line);
+}
+
+.ds-h2 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: var(--type-heading-2-size);
+  line-height: var(--type-heading-2-line);
+}
+
+.ds-body {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-lg-line);
+}
+
+.ds-number-primary {
+  font-family: var(--font-heading);
+  font-weight: var(--number-weight);
+  letter-spacing: var(--number-tracking-tight);
+}
+
+/* Surface utilities */
+.ds-surface {
+  background: rgb(var(--color-surface));
+  box-shadow: var(--shadow-soft);
+  border-radius: var(--ds-radius-card);
+}
+
+.ds-card {
+  background: linear-gradient(180deg, rgba(var(--gradient-wallet-from),0.06), rgba(var(--gradient-wallet-to),0.02));
+  border-radius: var(--ds-radius-card);
+  box-shadow: var(--shadow-medium);
+}
+
+/* Minimal motion policy: subtle transitions only */
+.ds-transition {
+  transition: transform 160ms cubic-bezier(.2,.9,.2,1), box-shadow 180ms ease;
+}
+
 

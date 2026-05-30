@@ -31,7 +31,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body>
+      <body className="antialiased selection:bg-primary/20">
         <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>

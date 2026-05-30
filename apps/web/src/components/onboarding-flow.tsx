@@ -118,10 +118,10 @@ export function OnboardingFlow() {
   };
 
   return (
-    <div className="relative mx-auto flex min-h-[100svh] w-full max-w-[430px] flex-col bg-background px-7 pb-[calc(env(safe-area-inset-bottom,0px)+20px)] pt-[calc(env(safe-area-inset-top,0px)+16px)] text-foreground">
+    <div className="relative mx-auto flex min-h-[100svh] w-full max-w-[430px] flex-col bg-background px-7 pb-[calc(env(safe-area-inset-bottom,0px)+20px)] pt-[calc(env(safe-area-inset-top,0px)+8px)] text-foreground">
       {/* Top Navbar */}
       {!isFinishing && (
-        <header className="flex items-center justify-between py-2">
+        <header className="flex items-center justify-between py-1.5">
           <button
             onClick={handleGoBack}
             className="flex h-11 w-11 items-center justify-center rounded-full border border-white/80 bg-white/70 shadow-sm backdrop-blur-md transition-all active:scale-95 dark:border-white/10 dark:bg-white/5"
@@ -157,7 +157,7 @@ export function OnboardingFlow() {
             className="flex flex-1 flex-col"
           >
             {/* Header */}
-            <div className="mt-4 text-center">
+            <div className="mt-2 text-center">
               <h1 className="text-[28px] font-black tracking-tight">Let’s set up your wallet ✨</h1>
               <p className="mt-1.5 text-[15px] font-medium text-muted">
                 This helps personalize your budgets and insights.
@@ -165,15 +165,15 @@ export function OnboardingFlow() {
             </div>
 
             {/* Premium Wallet Illustration */}
-            <div className="my-6 flex justify-center">
+            <div className="my-4 flex justify-center">
               <WalletIllustration />
             </div>
 
             {/* Form */}
             <form onSubmit={handleStep1Submit} className="flex flex-1 flex-col justify-between">
-              <div className="space-y-5">
+              <div className="space-y-4.5">
                 {/* Name Field */}
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <label htmlFor="name-input" className="text-[14px] font-black text-muted">
                     Your name
                   </label>
@@ -196,7 +196,7 @@ export function OnboardingFlow() {
                 </div>
 
                 {/* Salary Field */}
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <label htmlFor="salary-input" className="text-[14px] font-black text-muted">
                     Current monthly salary
                   </label>
@@ -262,7 +262,7 @@ export function OnboardingFlow() {
             className="flex flex-1 flex-col"
           >
             {/* Header */}
-            <div className="mt-4 text-center" onClick={() => focusInput(2)}>
+            <div className="mt-2 text-center" onClick={() => focusInput(2)}>
               <h1 className="text-[28px] font-black tracking-tight">Create your MPIN 🔐</h1>
               <p className="mt-1.5 text-[15px] font-medium text-muted">
                 This keeps your wallet secure every time you open Expensio.
@@ -270,13 +270,13 @@ export function OnboardingFlow() {
             </div>
 
             {/* Lock Illustration */}
-            <div className="my-6 flex justify-center" onClick={() => focusInput(2)}>
+            <div className="my-4 flex justify-center" onClick={() => focusInput(2)}>
               <LockIllustration />
             </div>
 
             {/* MPIN Entry Area */}
             <div className="flex flex-1 flex-col justify-between">
-              <div className="flex flex-col items-center space-y-6">
+              <div className="flex flex-col items-center space-y-5">
                 <p className="text-[14px] font-black text-muted uppercase tracking-wider">Create 4-digit MPIN</p>
 
                 {/* Hidden Native Input */}
@@ -345,7 +345,7 @@ export function OnboardingFlow() {
             className="flex flex-1 flex-col"
           >
             {/* Header */}
-            <div className="mt-4 text-center" onClick={() => focusInput(3)}>
+            <div className="mt-2 text-center" onClick={() => focusInput(3)}>
               <h1 className="text-[28px] font-black tracking-tight">Confirm your MPIN</h1>
               <p className="mt-1.5 text-[15px] font-medium text-muted">
                 Re-enter your secure PIN to continue.
@@ -353,13 +353,13 @@ export function OnboardingFlow() {
             </div>
 
             {/* Shield Illustration */}
-            <div className="my-6 flex justify-center" onClick={() => focusInput(3)}>
+            <div className="my-4 flex justify-center" onClick={() => focusInput(3)}>
               <ShieldIllustration />
             </div>
 
             {/* Confirm PIN Entry */}
             <div className="flex flex-1 flex-col justify-between">
-              <div className="flex flex-col items-center space-y-6">
+              <div className="flex flex-col items-center space-y-5">
                 <p className="text-[14px] font-black text-muted uppercase tracking-wider">Confirm 4-digit MPIN</p>
 
                 {/* Hidden Native Input */}
