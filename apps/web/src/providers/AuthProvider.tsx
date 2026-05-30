@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import { Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/auth-store';
@@ -12,15 +13,19 @@ const AuthContext = createContext({});
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { setSession, clearSession, setInitialized, setLoading } = useAuthStore();
+  const pathname = usePathname();
+  const router = useRouter();
+  const { user, isInitialized, isLoading } = useAuthStore();
 
   const syncUserWithBackend = async (session: Session) => {
     try {
-      const response = await fetch(`₹{API_URL}/auth/sync`, {
+      const response = await fetch(`${API_URL}/auth/sync`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ₹{session.access_token}`,
+          'Authorization': `Bearer ${session.access_token}`,
         },
+        body: JSON.stringify({}),
       });
 
       if (!response.ok) {
@@ -39,6 +44,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         email: user.email || '',
         name: user.user_metadata?.name || user.user_metadata?.full_name || '',
         avatarUrl: user.user_metadata?.avatar_url || '',
+        monthlySalary: user.user_metadata?.monthlySalary || (user as any).monthlySalary || null,
+        isOnboarded: user.user_metadata?.isOnboarded || (user as any).isOnboarded || false,
         createdAt: new Date(user.created_at),
       };
       setSession(session, fallbackUser);
@@ -85,6 +92,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // REDIRECTION GUARD
+  useEffect(() => {
+    if (!isInitialized || isLoading) return;
+
+    const publicRoutes = ['/login', '/register', '/forgot-password', '/reset-password', '/offline'];
+    const isPublicRoute = publicRoutes.includes(pathname);
+
+    if (!user) {
+      if (!isPublicRoute) {
+        router.push('/login');
+      }
+    } else {
+      // User is logged in
+      const isOnboarded = user.isOnboarded && user.monthlySalary;
+      
+      if (!isOnboarded) {
+        if (pathname !== '/onboarding') {
+          router.push('/onboarding');
+        }
+      } else {
+        // User is onboarded
+        if (pathname === '/onboarding' || pathname === '/login' || pathname === '/register') {
+          router.push('/');
+        }
+      }
+    }
+  }, [user, isInitialized, isLoading, pathname, router]);
 
   return (
     <AuthContext.Provider value={{}}>

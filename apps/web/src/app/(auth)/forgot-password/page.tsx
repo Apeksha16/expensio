@@ -31,7 +31,7 @@ export default function ForgotPasswordPage() {
 
     try {
       const { error: authError } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `₹{window.location.origin}/reset-password`,
+        redirectTo: `${window.location.origin}/reset-password`,
       });
 
       if (authError) {
@@ -52,7 +52,7 @@ export default function ForgotPasswordPage() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-[#09090b] text-gray-100 px-4 relative overflow-hidden select-none">
       {/* Background glow effects */}
-      <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
 
       <motion.div
@@ -64,7 +64,7 @@ export default function ForgotPasswordPage() {
         <div className="mb-6">
           <Link
             href="/login"
-            className="inline-flex items-center gap-2 text-xs font-semibold text-zinc-400 hover:text-emerald-400 transition-colors uppercase tracking-wider"
+            className="inline-flex items-center gap-2 text-xs font-semibold text-zinc-400 hover:text-cyan-400 transition-colors uppercase tracking-wider"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             Back to Sign In
@@ -96,7 +96,7 @@ export default function ForgotPasswordPage() {
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium"
+              className="p-3.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-cyan-400 text-xs font-medium"
             >
               {success}
             </motion.div>
@@ -114,9 +114,9 @@ export default function ForgotPasswordPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                className={`w-full bg-zinc-950 border ₹{
+                className={`w-full bg-zinc-950 border ${
                   validationError ? 'border-red-500/50' : 'border-zinc-800 hover:border-zinc-700'
-                } focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 outline-none rounded-xl py-3 pl-11 pr-4 text-sm transition-all text-white placeholder-zinc-600`}
+                } focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 outline-none rounded-xl py-3 pl-11 pr-4 text-sm transition-all text-white placeholder-zinc-600`}
                 disabled={loading}
               />
             </div>
@@ -130,7 +130,7 @@ export default function ForgotPasswordPage() {
           {/* Submit button */}
           <button
             type="submit"
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-zinc-950 font-bold active:scale-[0.98] transition-all shadow-lg shadow-emerald-500/10 cursor-pointer disabled:opacity-50 disabled:pointer-events-none text-sm mt-2"
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-emerald-400 hover:to-teal-400 text-zinc-950 font-bold active:scale-[0.98] transition-all shadow-lg shadow-indigo-500/10 cursor-pointer disabled:opacity-50 disabled:pointer-events-none text-sm mt-2"
             disabled={loading}
           >
             {loading ? (

@@ -56,9 +56,9 @@ export default function SettingsPage() {
       if (!session?.access_token) {
         throw new Error('Not authenticated');
       }
-      const response = await fetch(`₹{API_URL}/users/me`, {
+      const response = await fetch(`${API_URL}/users/me`, {
         headers: {
-          'Authorization': `Bearer ₹{session.access_token}`,
+          'Authorization': `Bearer ${session.access_token}`,
         },
       });
       if (!response.ok) {
@@ -120,11 +120,11 @@ export default function SettingsPage() {
       if (!session?.access_token) {
         throw new Error('Not authenticated');
       }
-      const response = await fetch(`₹{API_URL}/users/me`, {
+      const response = await fetch(`${API_URL}/users/me`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ₹{session.access_token}`,
+          'Authorization': `Bearer ${session.access_token}`,
         },
         body: JSON.stringify(formData),
       });
@@ -158,7 +158,7 @@ export default function SettingsPage() {
     return (
       <div className="min-h-screen bg-[#09090b] flex items-center justify-center text-gray-100">
         <div className="text-center flex flex-col items-center gap-3">
-          <Loader2 className="w-8 h-8 animate-spin text-emerald-400" />
+          <Loader2 className="w-8 h-8 animate-spin text-cyan-400" />
           <p className="text-zinc-400 text-sm">Loading your profile preferences...</p>
         </div>
       </div>
@@ -186,7 +186,7 @@ export default function SettingsPage() {
   return (
     <div className="min-h-screen bg-[#09090b] text-gray-100 px-4 py-8 relative overflow-hidden select-none flex justify-center items-start">
       {/* Background glow effect */}
-      <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-emerald-500/5 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-indigo-600/5 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-[120px] pointer-events-none" />
 
       <motion.div
@@ -199,7 +199,7 @@ export default function SettingsPage() {
         <div className="flex items-center justify-between mb-8">
           <Link
             href="/"
-            className="p-2 rounded-xl bg-zinc-950 border border-zinc-850 text-zinc-400 hover:text-emerald-400 hover:border-emerald-500/25 transition-all"
+            className="p-2 rounded-xl bg-zinc-950 border border-zinc-850 text-zinc-400 hover:text-cyan-400 hover:border-indigo-500/25 transition-all"
           >
             <ArrowLeft className="w-5 h-5" />
           </Link>
@@ -216,7 +216,7 @@ export default function SettingsPage() {
               initial={{ opacity: 0, height: 0, y: -10 }}
               animate={{ opacity: 1, height: 'auto', y: 0 }}
               exit={{ opacity: 0, height: 0, y: -10 }}
-              className="mb-5 p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold flex items-center gap-2"
+              className="mb-5 p-3.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-cyan-400 text-xs font-semibold flex items-center gap-2"
             >
               <Check className="w-4 h-4 shrink-0" />
               {successMsg}
@@ -267,16 +267,16 @@ export default function SettingsPage() {
                       key={idx}
                       type="button"
                       onClick={() => selectPresetAvatar(preset)}
-                      className={`relative w-full aspect-square rounded-xl bg-zinc-950 border ₹{
+                      className={`relative w-full aspect-square rounded-xl bg-zinc-950 border ${
                         watchedAvatarUrl === preset
                           ? 'border-emerald-400 ring-2 ring-emerald-400/15'
                           : 'border-zinc-850 hover:border-zinc-700'
                       } overflow-hidden p-1 transition-all active:scale-95`}
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={preset} alt={`Preset ₹{idx}`} className="w-full h-full object-contain" />
+                      <img src={preset} alt={`Preset ${idx}`} className="w-full h-full object-contain" />
                       {watchedAvatarUrl === preset && (
-                        <div className="absolute top-1 right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full flex items-center justify-center">
+                        <div className="absolute top-1 right-1 w-3.5 h-3.5 bg-indigo-600 rounded-full flex items-center justify-center">
                           <Check className="w-2.5 h-2.5 text-zinc-950 stroke-[3]" />
                         </div>
                       )}
@@ -295,7 +295,7 @@ export default function SettingsPage() {
                         setIsCustomMode(true);
                       }
                     }}
-                    className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 transition-colors"
+                    className="text-xs font-semibold text-cyan-400 hover:text-cyan-300 transition-colors"
                   >
                     {showCustomAvatarInput ? 'Use Preset Avatars' : 'Use Custom Image URL'}
                   </button>
@@ -317,7 +317,7 @@ export default function SettingsPage() {
                     value={isCustomAvatar ? watchedAvatarUrl : ''}
                     onChange={(e) => setValue('avatarUrl', e.target.value, { shouldDirty: true })}
                     placeholder="https://example.com/avatar.png"
-                    className="w-full bg-zinc-950 border border-zinc-800 focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 outline-none rounded-xl py-2.5 px-4 text-xs transition-all text-white placeholder-zinc-650"
+                    className="w-full bg-zinc-950 border border-zinc-800 focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 outline-none rounded-xl py-2.5 px-4 text-xs transition-all text-white placeholder-zinc-650"
                   />
                   {errors.avatarUrl && (
                     <span className="text-red-400 text-[10px] font-medium block mt-1">
@@ -343,9 +343,9 @@ export default function SettingsPage() {
                     type="text"
                     {...register('name')}
                     placeholder="Enter your name"
-                    className={`w-full bg-zinc-950 border ₹{
+                    className={`w-full bg-zinc-950 border ${
                       errors.name ? 'border-red-500/50' : 'border-zinc-800 hover:border-zinc-700'
-                    } focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 outline-none rounded-xl py-3 pl-11 pr-4 text-sm transition-all text-white placeholder-zinc-650`}
+                    } focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 outline-none rounded-xl py-3 pl-11 pr-4 text-sm transition-all text-white placeholder-zinc-650`}
                   />
                 </div>
                 {errors.name && (
@@ -368,9 +368,9 @@ export default function SettingsPage() {
                     type="text"
                     {...register('username')}
                     placeholder="username"
-                    className={`w-full bg-zinc-950 border ₹{
+                    className={`w-full bg-zinc-950 border ${
                       errors.username ? 'border-red-500/50' : 'border-zinc-800 hover:border-zinc-700'
-                    } focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 outline-none rounded-xl py-3 pl-8 pr-4 text-sm transition-all text-white placeholder-zinc-655`}
+                    } focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 outline-none rounded-xl py-3 pl-8 pr-4 text-sm transition-all text-white placeholder-zinc-655`}
                   />
                 </div>
                 {errors.username && (
@@ -410,7 +410,7 @@ export default function SettingsPage() {
                 </label>
                 <select
                   {...register('currency')}
-                  className="w-full bg-zinc-950 border border-zinc-800 focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 outline-none rounded-xl py-3 px-4 text-sm text-white appearance-none cursor-pointer transition-all hover:border-zinc-700"
+                  className="w-full bg-zinc-950 border border-zinc-800 focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 outline-none rounded-xl py-3 px-4 text-sm text-white appearance-none cursor-pointer transition-all hover:border-zinc-700"
                 >
                   {CURRENCIES.map((c) => (
                     <option key={c.code} value={c.code} className="bg-[#09090b] text-white">
@@ -427,7 +427,7 @@ export default function SettingsPage() {
                 </label>
                 <select
                   {...register('timezone')}
-                  className="w-full bg-zinc-950 border border-zinc-800 focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 outline-none rounded-xl py-3 px-4 text-sm text-white appearance-none cursor-pointer transition-all hover:border-zinc-700"
+                  className="w-full bg-zinc-950 border border-zinc-800 focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 outline-none rounded-xl py-3 px-4 text-sm text-white appearance-none cursor-pointer transition-all hover:border-zinc-700"
                 >
                   {TIMEZONES.map((t) => (
                     <option key={t.value} value={t.value} className="bg-[#09090b] text-white">
@@ -443,7 +443,7 @@ export default function SettingsPage() {
           <button
             type="submit"
             disabled={updateMutation.isPending || !isDirty}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-zinc-950 font-bold active:scale-[0.98] transition-all shadow-lg shadow-emerald-500/10 cursor-pointer disabled:opacity-35 disabled:pointer-events-none text-sm mt-4"
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-emerald-400 hover:to-teal-400 text-zinc-950 font-bold active:scale-[0.98] transition-all shadow-lg shadow-indigo-500/10 cursor-pointer disabled:opacity-35 disabled:pointer-events-none text-sm mt-4"
           >
             {updateMutation.isPending ? (
               <>

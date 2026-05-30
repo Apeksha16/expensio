@@ -44,7 +44,7 @@ export default function BudgetCard({ budget, onDelete, onEdit }: BudgetCardProps
   return (
     <div
       onClick={() => onEdit && onEdit(budget)}
-      className={`p-4 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 backdrop-blur-xl relative overflow-hidden group flex flex-col gap-3 ₹{
+      className={`p-4 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 backdrop-blur-xl relative overflow-hidden group flex flex-col gap-3 ${
         onEdit
           ? 'cursor-pointer hover:border-zinc-700/80 active:scale-[0.99] transition-all duration-200'
           : ''
@@ -56,8 +56,8 @@ export default function BudgetCard({ budget, onDelete, onEdit }: BudgetCardProps
         
         {/* Left side squircle category and details */}
         <div className="flex items-center gap-3">
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ₹{meta.bg}`}>
-            <IconComponent className={`w-5 h-5 ₹{meta.color}`} />
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${meta.bg}`}>
+            <IconComponent className={`w-5 h-5 ${meta.color}`} />
           </div>
 
           <div className="flex flex-col">
@@ -122,14 +122,14 @@ export default function BudgetCard({ budget, onDelete, onEdit }: BudgetCardProps
       <div className="space-y-1.5">
         <div className="h-1.5 w-full bg-zinc-950 rounded-full p-[1px] border border-zinc-850 overflow-hidden">
           <div
-            className={`h-full rounded-full transition-all duration-700 ₹{
+            className={`h-full rounded-full transition-all duration-700 ${
               isExceeded 
                 ? 'bg-rose-500' 
                 : isWarning 
                 ? 'bg-amber-500' 
                 : 'bg-emerald-400'
             }`}
-            style={{ width: `₹{Math.min(100, percent)}%` }}
+            style={{ width: `${Math.min(100, percent)}%` }}
           />
         </div>
         

@@ -67,12 +67,12 @@ interface FinanceState {
 
 // Initial mockup-aligned dark fintech data
 const initialExpenses: Expense[] = [
-  { id: '1', title: "McDonald's 🍔", amount: 25.50, category: 'Food', date: '2026-05-26', paidBy: 'me', paymentMethod: 'Credit Card', note: 'Lunch with friends 🤤' },
-  { id: '2', title: 'Starbucks ☕', amount: 4.25, category: 'Food', date: '2026-05-26', paidBy: 'me', paymentMethod: 'Credit Card' },
-  { id: '3', title: 'Fuel ⛽', amount: 35.20, category: 'Transport', date: '2026-05-25', paidBy: 'me', paymentMethod: 'Credit Card' },
-  { id: '4', title: 'Uber 🚗', amount: 12.40, category: 'Transport', date: '2026-05-25', paidBy: 'me', paymentMethod: 'Credit Card' },
-  { id: '5', title: 'Amazon 📦', amount: 45.00, category: 'Shopping', date: '2026-05-24', paidBy: 'me', paymentMethod: 'Credit Card' },
-  { id: '6', title: 'Netflix 🎬', amount: 15.99, category: 'Entertainment', date: '2026-05-24', paidBy: 'me', paymentMethod: 'Credit Card' },
+  { id: '1', title: "McDonald's", amount: 25.50, category: 'Food', date: '2026-05-26', paidBy: 'me', paymentMethod: 'Credit Card', note: 'Lunch with friends' },
+  { id: '2', title: 'Starbucks', amount: 4.25, category: 'Food', date: '2026-05-26', paidBy: 'me', paymentMethod: 'Credit Card' },
+  { id: '3', title: 'Fuel', amount: 35.20, category: 'Transport', date: '2026-05-25', paidBy: 'me', paymentMethod: 'Credit Card' },
+  { id: '4', title: 'Uber', amount: 12.40, category: 'Transport', date: '2026-05-25', paidBy: 'me', paymentMethod: 'Credit Card' },
+  { id: '5', title: 'Amazon', amount: 45.00, category: 'Shopping', date: '2026-05-24', paidBy: 'me', paymentMethod: 'Credit Card' },
+  { id: '6', title: 'Netflix', amount: 15.99, category: 'Entertainment', date: '2026-05-24', paidBy: 'me', paymentMethod: 'Credit Card' },
   // Historical transactions to match exact spent sum breakdowns in budgets
   { id: '7', title: 'Trattoria Italian Dinner', amount: 125.25, category: 'Food', date: '2026-05-18', paidBy: 'me', paymentMethod: 'Credit Card' },
   { id: '8', title: 'Zara Apparel', amount: 75.00, category: 'Shopping', date: '2026-05-15', paidBy: 'me', paymentMethod: 'Credit Card' },
@@ -103,9 +103,9 @@ const initialFriends: Friend[] = [
 ];
 
 const initialGroups: Group[] = [
-  { id: 'g1', name: 'Trip to Goa 🏖️', description: '6 members • Created by You', coverImage: 'from-emerald-500 to-teal-400', coverUrl: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80', members: ['Rahul Sharma', 'Amit Verma', 'Pranav Singh', 'Neha Kapoor', 'Sarthak Jain'] },
-  { id: 'g2', name: 'Weekend Dinner', description: '4 members', coverImage: 'from-orange-500 to-rose-500', coverUrl: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=600&q=80', members: ['Rahul Sharma', 'Amit Verma', 'Pranav Singh'] },
-  { id: 'g3', name: 'Office Team', description: '12 members', coverImage: 'from-indigo-600 to-cyan-500', coverUrl: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=600&q=80', members: ['Rahul Sharma', 'Amit Verma', 'Pranav Singh', 'Neha Kapoor', 'Sarthak Jain'] }
+  { id: 'g1', name: 'Trip to Goa 🏖️', description: '6 members • Created by You', coverImage: 'from-indigo-600 via-purple-600 to-cyan-500', coverUrl: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80', members: ['Rahul Sharma', 'Amit Verma', 'Pranav Singh', 'Neha Kapoor', 'Sarthak Jain'] },
+  { id: 'g2', name: 'Weekend Dinner', description: '4 members', coverImage: 'from-violet-600 to-pink-500', coverUrl: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=600&q=80', members: ['Rahul Sharma', 'Amit Verma', 'Pranav Singh'] },
+  { id: 'g3', name: 'Office Team', description: '12 members', coverImage: 'from-blue-600 to-teal-500', coverUrl: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=600&q=80', members: ['Rahul Sharma', 'Amit Verma', 'Pranav Singh', 'Neha Kapoor', 'Sarthak Jain'] }
 ];
 
 export const useFinanceStore = create<FinanceState>()(

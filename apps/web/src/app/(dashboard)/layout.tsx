@@ -7,6 +7,7 @@ import BottomSheet from '../../components/shared/BottomSheet';
 import { useFinanceStore } from '../../store/finance-store';
 import { supabase } from '../../lib/supabase';
 import { Coffee, Car, Tv, ShoppingBag, Zap, HelpCircle, Calendar, Heart, GraduationCap, CreditCard, Share2, User, Mail, Shield, LogOut, Settings, Check, AlertTriangle, Smartphone, Sparkles, Plus } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { 
@@ -31,10 +32,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   // Notifications interactive state
   const [notifications, setNotifications] = useState([
-    { id: 'n1', title: 'Owe Split Request 💸', desc: 'Rahul Sharma owes you ₹37.50 for Goa trip splits.', time: '1h ago', category: 'split', dismissed: false },
-    { id: 'n2', title: 'Budget Limit Warning ⚠️', desc: 'You used 34% of your Transport monthly allocation.', time: '4h ago', category: 'alert', dismissed: false },
-    { id: 'n3', title: 'Transaction Confirmed ✅', desc: 'Verified direct salary deposit credit of +₹2,800.00.', time: '1d ago', category: 'income', dismissed: false },
-    { id: 'n4', title: 'Active Goa Group splits 🏖️', desc: 'Rahul Sharma added Hotel Booking (₹600.00) in Goa group.', time: '2d ago', category: 'group', dismissed: false }
+    { id: 'n1', title: 'Owe Split Request', desc: 'Rahul Sharma owes you ₹37.50 for Goa trip splits.', time: '1h ago', category: 'split', dismissed: false },
+    { id: 'n2', title: 'Budget Limit Warning', desc: 'You used 34% of your Transport monthly allocation.', time: '4h ago', category: 'alert', dismissed: false },
+    { id: 'n3', title: 'Transaction Confirmed', desc: 'Verified direct salary deposit credit of +₹2,800.00.', time: '1d ago', category: 'income', dismissed: false },
+    { id: 'n4', title: 'Active Goa Group splits', desc: 'Rahul Sharma added Hotel Booking (₹600.00) in Goa group.', time: '2d ago', category: 'group', dismissed: false }
   ]);
 
   // Profile preferences
@@ -82,7 +83,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (isSplit && splitType === 'percentage') {
       const totalSum = Object.values(splitPercentages).reduce((acc, curr) => acc + curr, 0);
       if (totalSum !== 100) {
-        alert(`Split percentage sum must be exactly 100% (currently ₹{totalSum}%). Please balance the split!`);
+        alert(`Split percentage sum must be exactly 100% (currently ${totalSum}%). Please balance the split!`);
         return;
       }
     }
@@ -126,7 +127,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   // 3x3/4x2 Squircle selector categories matching mockup screen exactly!
   const categories = [
-    { name: 'Food', icon: Coffee, bg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
+    { name: 'Food', icon: Coffee, bg: 'bg-indigo-500/10 text-cyan-400 border-indigo-500/20' },
     { name: 'Shopping', icon: ShoppingBag, bg: 'bg-purple-500/10 text-purple-400 border-purple-500/20' },
     { name: 'Transport', icon: Car, bg: 'bg-amber-500/10 text-amber-500 border-amber-500/20' },
     { name: 'Entertainment', icon: Tv, bg: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' },
@@ -137,27 +138,27 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   ];
 
   return (
-    <div className="min-h-screen bg-[#070708] text-zinc-100 flex justify-center overflow-x-hidden relative">
+    <div className="h-full w-full bg-background text-theme-text flex justify-center overflow-hidden relative transition-colors duration-300">
       
       {/* ambient glows */}
-      <div className="absolute top-[-20%] left-[-20%] w-[600px] h-[600px] bg-emerald-500/5 rounded-full blur-[160px] pointer-events-none" />
+      <div className="absolute top-[-20%] left-[-20%] w-[600px] h-[600px] bg-indigo-600/5 rounded-full blur-[160px] pointer-events-none" />
       <div className="absolute bottom-[-20%] right-[-20%] w-[600px] h-[600px] bg-indigo-500/5 rounded-full blur-[160px] pointer-events-none" />
 
       {/* Responsive Canvas PWA Frame Shell */}
-      <div className="w-full max-w-md h-screen h-[100dvh] flex flex-col bg-[#09090b] border-x border-zinc-900 shadow-2xl relative pb-20 overflow-hidden">
+      <div className="w-full max-w-md h-full flex flex-col bg-shell border-x border-theme-border shadow-2xl relative overflow-hidden transition-colors duration-300">
         
         {/* Mobile Header */}
         <MobileHeader />
 
         {/* Child Screen */}
-        <main className="flex-1 px-6 py-6 overflow-y-auto">
+        <main className="flex-1 min-h-0 px-6 py-6 pb-24 overflow-y-auto">
           {children}
         </main>
 
         {/* Floating Action Button (FAB) in Bottom Right (Fixed Viewport Docked) */}
         <button
           onClick={() => setIsAddExpenseOpen(true)}
-          className="fixed bottom-20 right-5 sm:right-auto sm:left-[calc(50%+156px)] w-14 h-14 rounded-full bg-gradient-to-br from-teal-400 via-emerald-400 to-emerald-500 flex items-center justify-center text-zinc-950 shadow-[0_8px_32px_rgba(16,185,129,0.35)] hover:shadow-[0_8px_32px_rgba(20,184,166,0.55)] active:scale-90 hover:scale-110 active:shadow-[0_4px_16px_rgba(16,185,129,0.6)] transition-all duration-300 border border-teal-300/50 z-40 cursor-pointer group"
+          className="fixed bottom-20 right-5 sm:right-auto sm:left-[calc(50%+156px)] w-14 h-14 rounded-full bg-gradient-to-br from-indigo-400 via-violet-500 to-cyan-500 flex items-center justify-center text-zinc-950 shadow-[0_8px_32px_rgba(99,102,241,0.35)] hover:shadow-[0_8px_32px_rgba(34,211,238,0.55)] active:scale-90 hover:scale-110 active:shadow-[0_4px_16px_rgba(99,102,241,0.6)] transition-all duration-300 border border-indigo-300/50 z-40 cursor-pointer group"
           aria-label="Add Expense"
         >
           {/* Internal neon ambient glow aura */}
@@ -177,20 +178,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         onClose={() => setIsAddExpenseOpen(false)}
         title="Add Expense"
       >
-        <form onSubmit={handleAddExpenseSubmit} className="space-y-6">
+        <form onSubmit={handleAddExpenseSubmit} className="space-y-8">
           
           {/* Big Amount font */}
-          <div className="flex flex-col items-center gap-1.5 py-4 border-b border-zinc-900">
+          <div className="flex flex-col items-center gap-2 py-5 border-b border-zinc-900/60">
             <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Bill Value</span>
-            <div className="flex items-center gap-1">
-              <span className="text-3xl font-extrabold text-emerald-400">₹</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-3xl font-extrabold text-cyan-400">₹</span>
               <input
                 type="number"
                 step="0.01"
                 placeholder="0.00"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="text-5xl font-black text-zinc-100 bg-transparent text-center focus:outline-none placeholder-zinc-800 w-64 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="text-5xl font-black text-zinc-100 bg-transparent text-center focus:outline-none placeholder-zinc-900 w-64 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 required
                 autoFocus
               />
@@ -198,9 +199,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
 
           {/* Squircle 4x2 Category Grid exactly from the mockup screenshot! */}
-          <div className="flex flex-col gap-2.5">
-            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Select Category</label>
-            <div className="grid grid-cols-4 gap-3">
+          <div className="flex flex-col gap-3">
+            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 tracking-wider">Select Category</label>
+            <div className="grid grid-cols-4 gap-3.5">
               {categories.map((cat) => {
                 const isSelected = category === cat.name;
                 const Icon = cat.icon;
@@ -209,16 +210,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     key={cat.name}
                     type="button"
                     onClick={() => setCategory(cat.name)}
-                    className={`flex flex-col items-center justify-center p-3 rounded-2xl border transition-all cursor-pointer gap-1.5 ₹{
+                    className={`flex flex-col items-center justify-center p-3.5 rounded-[22px] border transition-all duration-300 cursor-pointer gap-2 ${
                       isSelected
-                        ? cat.bg + ' ring-1 ring-emerald-500/30 scale-105 shadow-[0_0_8px_rgba(16,185,129,0.1)]'
-                        : 'bg-zinc-900/40 border-zinc-850 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900/60'
+                        ? cat.bg + ' ring-2 ring-emerald-500/20 scale-105 shadow-[0_4px_20px_rgba(16,185,129,0.15)] border-emerald-500/30'
+                        : 'bg-zinc-900/20 border-zinc-850/60 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900/40'
                     }`}
                   >
-                    <div className="w-8 h-8 rounded-lg bg-zinc-950 border border-zinc-800/40 flex items-center justify-center">
-                      <Icon className="w-4 h-4" />
-                    </div>
-                    <span className="text-[9px] font-black uppercase tracking-tight">{cat.name}</span>
+                    <motion.div 
+                      className="w-9 h-9 rounded-[14px] bg-zinc-950/80 border border-zinc-800/40 flex items-center justify-center shadow-inner"
+                      whileTap={{ scale: 0.8 }}
+                      transition={{ type: 'spring', stiffness: 500, damping: 15 }}
+                    >
+                      <Icon className="w-4.5 h-4.5" />
+                    </motion.div>
+                    <span className="text-[9.5px] font-black uppercase tracking-wider">{cat.name}</span>
                   </button>
                 );
               })}
@@ -226,25 +231,25 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
 
           {/* Description */}
-          <div className="flex flex-col gap-2">
-            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Merchant / Description</label>
+          <div className="flex flex-col gap-3">
+            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 tracking-wider">Merchant / Description</label>
             <input
               type="text"
-              placeholder="e.g. McDonald's 🍔"
+              placeholder="e.g. McDonald's"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-zinc-900/60 border border-zinc-800 focus:border-emerald-500/40 text-sm font-semibold text-zinc-100 placeholder-zinc-600 focus:outline-none transition-colors"
+              className="w-full px-5 py-3.5 rounded-2xl bg-zinc-900/20 border border-zinc-850/60 focus:border-indigo-500/40 text-sm font-semibold text-zinc-100 placeholder-zinc-600 focus:outline-none transition-colors"
               required
             />
           </div>
 
           {/* Split checks */}
-          <div className="flex flex-col gap-2.5">
-            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Split Expense (Equally)</label>
+          <div className="flex flex-col gap-3">
+            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 tracking-wider">Split Expense (Equally)</label>
             {friends.length === 0 ? (
               <span className="text-xs text-zinc-600 italic">No friend contacts found. Add friends first!</span>
             ) : (
-              <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+              <div className="flex gap-2.5 overflow-x-auto pb-1.5 scrollbar-none">
                 {friends.map((friend) => {
                   const isChecked = splitWith.includes(friend.name);
                   return (
@@ -252,15 +257,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       key={friend.id}
                       type="button"
                       onClick={() => handleFriendToggle(friend.name)}
-                      className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border font-semibold text-xs transition-all shrink-0 cursor-pointer ₹{
+                      className={`flex items-center gap-2.5 px-4 py-2.5 rounded-2xl border font-bold text-xs transition-all duration-300 shrink-0 cursor-pointer ${
                         isChecked
-                          ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30 ring-1 ring-indigo-500/30'
-                          : 'bg-zinc-900/40 border-zinc-850 text-zinc-500 hover:text-zinc-300'
+                          ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/35 ring-1 ring-indigo-500/30 shadow-[0_2px_12px_rgba(99,102,241,0.08)]'
+                          : 'bg-zinc-900/20 border-zinc-850/60 text-zinc-500 hover:text-zinc-300'
                       }`}
                     >
-                      <div className="w-5 h-5 rounded-md bg-zinc-950 flex items-center justify-center text-[9px] font-black">
+                      <motion.div 
+                        className="w-5.5 h-5.5 rounded-lg bg-zinc-950/80 flex items-center justify-center text-[9px] font-black shadow-inner"
+                        whileTap={{ scale: 0.8 }}
+                        transition={{ type: 'spring', stiffness: 500, damping: 15 }}
+                      >
                         {friend.avatar}
-                      </div>
+                      </motion.div>
                       <span>{friend.name.split(' ')[0]}</span>
                     </button>
                   );
@@ -270,27 +279,27 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
 
           {/* Date, payment method, note grid */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Date & Time</label>
+          <div className="grid grid-cols-2 gap-5">
+            <div className="flex flex-col gap-3">
+              <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 tracking-wider">Date & Time</label>
               <div className="relative">
-                <Calendar className="w-4 h-4 text-zinc-500 absolute left-3 top-3.5" />
+                <Calendar className="w-4 h-4 text-zinc-500 absolute left-3.5 top-4" />
                 <input
                   type="date"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  className="w-full pl-9 pr-4 py-3 rounded-xl bg-zinc-900/60 border border-zinc-800 focus:border-emerald-500/40 text-xs font-semibold text-zinc-100 focus:outline-none transition-colors"
+                  className="w-full pl-10 pr-4 py-3.5 rounded-2xl bg-zinc-900/20 border border-zinc-850/60 focus:border-indigo-500/40 text-xs font-semibold text-zinc-100 focus:outline-none transition-colors"
                   required
                 />
               </div>
             </div>
 
-            <div className="flex flex-col gap-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Payment Method</label>
+            <div className="flex flex-col gap-3">
+              <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 tracking-wider">Payment Method</label>
               <select
                 value={paymentMethod}
                 onChange={(e) => setPaymentMethod(e.target.value)}
-                className="w-full px-3 py-3 rounded-xl bg-zinc-900/60 border border-zinc-800 text-xs font-semibold text-zinc-100 focus:outline-none"
+                className="w-full px-4 py-3.5 rounded-2xl bg-zinc-900/20 border border-zinc-850/60 text-xs font-semibold text-zinc-100 focus:outline-none transition-colors"
               >
                 <option value="Credit Card">Credit Card</option>
                 <option value="Debit Card">Debit Card</option>
@@ -300,20 +309,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
           </div>
 
-          <div className="flex flex-col gap-2">
-            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Add Note (optional)</label>
+          <div className="flex flex-col gap-3">
+            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 tracking-wider">Add Note (optional)</label>
             <input
               type="text"
-              placeholder="e.g. Lunch with friends 🤤"
+              placeholder="e.g. Lunch with friends"
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-zinc-900/60 border border-zinc-800 focus:border-emerald-500/40 text-sm font-semibold text-zinc-100 placeholder-zinc-650 focus:outline-none"
+              className="w-full px-5 py-3.5 rounded-2xl bg-zinc-900/20 border border-zinc-850/60 focus:border-indigo-500/40 text-sm font-semibold text-zinc-100 placeholder-zinc-650 focus:outline-none transition-colors"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full py-4 rounded-xl bg-gradient-to-tr from-emerald-400 to-emerald-600 text-zinc-950 font-bold hover:shadow-lg hover:shadow-emerald-500/10 active:scale-98 transition-all border border-emerald-300/30 cursor-pointer"
+            className="w-full py-4.5 rounded-2xl bg-gradient-to-tr from-indigo-500 to-cyan-500 text-zinc-950 font-black text-xs uppercase tracking-widest hover:shadow-lg hover:shadow-indigo-500/10 active:scale-98 transition-all border border-emerald-300/20 cursor-pointer shadow-md"
           >
             Save Expense
           </button>
@@ -334,7 +343,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 setNotifications(notifications.map(n => ({ ...n, dismissed: true })));
                 showToast("All notifications cleared!");
               }}
-              className="text-[9px] font-bold text-zinc-500 hover:text-emerald-400 uppercase tracking-wide cursor-pointer border-0 bg-transparent"
+              className="text-[9px] font-bold text-zinc-500 hover:text-cyan-400 uppercase tracking-wide cursor-pointer border-0 bg-transparent"
             >
               Clear All
             </button>
@@ -344,7 +353,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {notifications.filter(n => !n.dismissed).length === 0 ? (
               <div className="p-12 rounded-2xl border border-zinc-800/60 bg-zinc-900/20 backdrop-blur-md flex flex-col items-center justify-center gap-3.5 text-center">
                 <div className="w-12 h-12 rounded-2xl bg-zinc-950 flex items-center justify-center text-zinc-650 border border-zinc-800/60">
-                  <Check className="w-6 h-6 text-emerald-400" />
+                  <Check className="w-6 h-6 text-cyan-400" />
                 </div>
                 <div className="space-y-0.5">
                   <span className="text-xs font-bold text-zinc-300">All caught up!</span>
@@ -377,7 +386,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             handleDismissNotification(item.id);
                             showToast("Splits settled successfully!");
                           }}
-                          className="px-2.5 py-1 rounded bg-emerald-500 text-zinc-950 font-black uppercase tracking-wider text-[8px] hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                          className="px-2.5 py-1 rounded bg-indigo-600 text-zinc-950 font-black uppercase tracking-wider text-[8px] hover:scale-105 active:scale-95 transition-all cursor-pointer"
                         >
                           Settle
                         </button>
@@ -409,10 +418,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="space-y-6 relative">
           {/* Avatar Card */}
           <div className="p-5 rounded-3xl border border-zinc-800/80 bg-zinc-900/40 backdrop-blur-xl relative overflow-hidden flex items-center gap-4 shadow-sm">
-            <div className="absolute top-[-30%] right-[-10%] w-24 h-24 bg-emerald-500/10 rounded-full blur-xl pointer-events-none" />
+            <div className="absolute top-[-30%] right-[-10%] w-24 h-24 bg-indigo-500/10 rounded-full blur-xl pointer-events-none" />
             
             {/* Glowing avatar ring */}
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-400 to-indigo-500 p-0.5 relative shrink-0 shadow-md">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-500 to-cyan-500 p-0.5 relative shrink-0 shadow-md">
               <div className="w-full h-full rounded-[14px] bg-zinc-950 flex items-center justify-center">
                 <span className="text-base font-black text-zinc-100 tracking-tight">AP</span>
               </div>
@@ -421,7 +430,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div className="flex flex-col gap-0.5">
               <div className="flex items-center gap-1.5">
                 <span className="text-base font-black tracking-tight text-zinc-100">Apeksha</span>
-                <span className="w-3.5 h-3.5 rounded-full bg-emerald-400/15 border border-emerald-500/30 flex items-center justify-center text-[7px] font-black text-emerald-400 uppercase tracking-widest shrink-0">
+                <span className="w-3.5 h-3.5 rounded-full bg-emerald-400/15 border border-indigo-500/30 flex items-center justify-center text-[7px] font-black text-cyan-400 uppercase tracking-widest shrink-0">
                   ✓
                 </span>
               </div>
@@ -434,7 +443,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="grid grid-cols-3 gap-3">
             <div className="p-3 rounded-2xl border border-zinc-850 bg-zinc-950/40 text-center flex flex-col gap-0.5">
               <span className="text-[8px] font-black uppercase text-zinc-550 tracking-wider">Total Saved</span>
-              <span className="text-sm font-black text-emerald-400">₹2,800</span>
+              <span className="text-sm font-black text-cyan-400">₹2,800</span>
             </div>
             <div className="p-3 rounded-2xl border border-zinc-850 bg-zinc-950/40 text-center flex flex-col gap-0.5">
               <span className="text-[8px] font-black uppercase text-zinc-550 tracking-wider">Active Splits</span>
@@ -469,7 +478,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     setBiometricsActive(!biometricsActive);
                     showToast(biometricsActive ? "Biometrics turned off" : "Biometrics activated!");
                   }}
-                  className={`w-9 h-5 rounded-full p-0.5 transition-colors duration-200 focus:outline-none flex items-center cursor-pointer border-0 ₹{biometricsActive ? 'bg-emerald-500 justify-end' : 'bg-zinc-850 justify-start'}`}
+                  className={`w-9 h-5 rounded-full p-0.5 transition-colors duration-200 focus:outline-none flex items-center cursor-pointer border-0 ${biometricsActive ? 'bg-indigo-600 justify-end' : 'bg-zinc-850 justify-start'}`}
                 >
                   <div className="w-4 h-4 rounded-full bg-zinc-950" />
                 </button>
@@ -493,7 +502,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     setHighContrastActive(!highContrastActive);
                     showToast(highContrastActive ? "High Contrast deactivated" : "High Contrast active!");
                   }}
-                  className={`w-9 h-5 rounded-full p-0.5 transition-colors duration-200 focus:outline-none flex items-center cursor-pointer border-0 ₹{highContrastActive ? 'bg-emerald-500 justify-end' : 'bg-zinc-850 justify-start'}`}
+                  className={`w-9 h-5 rounded-full p-0.5 transition-colors duration-200 focus:outline-none flex items-center cursor-pointer border-0 ${highContrastActive ? 'bg-indigo-600 justify-end' : 'bg-zinc-850 justify-start'}`}
                 >
                   <div className="w-4 h-4 rounded-full bg-zinc-950" />
                 </button>
@@ -517,7 +526,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     setOfflineCacheActive(!offlineCacheActive);
                     showToast(offlineCacheActive ? "Offline cache disabled" : "Offline PWA caching active!");
                   }}
-                  className={`w-9 h-5 rounded-full p-0.5 transition-colors duration-200 focus:outline-none flex items-center cursor-pointer border-0 ₹{offlineCacheActive ? 'bg-emerald-500 justify-end' : 'bg-zinc-850 justify-start'}`}
+                  className={`w-9 h-5 rounded-full p-0.5 transition-colors duration-200 focus:outline-none flex items-center cursor-pointer border-0 ${offlineCacheActive ? 'bg-indigo-600 justify-end' : 'bg-zinc-850 justify-start'}`}
                 >
                   <div className="w-4 h-4 rounded-full bg-zinc-950" />
                 </button>
@@ -551,7 +560,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Global Interactive Notification Toast overlay */}
       {toastMessage && (
         <div className="fixed bottom-20 left-6 right-6 z-[200] max-w-sm mx-auto p-4 rounded-xl border border-zinc-850 bg-[#09090b]/95 backdrop-blur-xl flex items-center gap-3 shadow-[0_10px_25px_rgba(0,0,0,0.5)] animate-slide-up">
-          <div className="w-5 h-5 rounded-md bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+          <div className="w-5 h-5 rounded-md bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-cyan-400 shrink-0">
             <Check className="w-3 h-3 stroke-[3]" />
           </div>
           <span className="text-xs font-bold text-zinc-200">{toastMessage}</span>

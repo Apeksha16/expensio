@@ -20,7 +20,7 @@ export class UsersController {
       return reply.send({ user });
     } catch (err) {
       const error = err as Error;
-      request.log.error(`Failed to fetch user: ₹{error.message}`);
+      request.log.error(`Failed to fetch user: ${error.message}`);
       return reply.status(500).send({ error: 'Internal server error' });
     }
   }
@@ -47,7 +47,7 @@ export class UsersController {
       });
     }
 
-    const { name, username, avatarUrl, currency, timezone } = result.data;
+    const { name, username, avatarUrl, currency, timezone, monthlySalary, isOnboarded } = result.data;
 
     try {
       // Validate username uniqueness if provided
@@ -64,12 +64,14 @@ export class UsersController {
         avatarUrl,
         currency,
         timezone,
+        monthlySalary,
+        isOnboarded,
       });
 
       return reply.send({ user: updatedUser });
     } catch (err) {
       const error = err as Error;
-      request.log.error(`Failed to update user profile: ₹{error.message}`);
+      request.log.error(`Failed to update user profile: ${error.message}`);
       return reply.status(500).send({ error: 'Internal server error' });
     }
   }

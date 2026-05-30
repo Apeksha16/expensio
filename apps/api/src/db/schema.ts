@@ -8,6 +8,8 @@ export const users = pgTable('users', {
   avatarUrl: text('avatar_url'),
   currency: text('currency').default('USD').notNull(),
   timezone: text('timezone').default('UTC').notNull(),
+  monthlySalary: doublePrecision('monthly_salary'),
+  isOnboarded: boolean('is_onboarded').default(false).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
@@ -50,7 +52,7 @@ export const budgets = pgTable('budgets', {
   userId: text('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
   categoryId: text('category_id').notNull(),
   amount: doublePrecision('amount').notNull(),
-  period: text('period').₹type<'monthly' | 'yearly'>().default('monthly').notNull(),
+  period: text('period').$type<'monthly' | 'yearly'>().default('monthly').notNull(),
   startDate: timestamp('start_date').notNull(),
   endDate: timestamp('end_date').notNull(),
 }, (table) => {
@@ -64,7 +66,7 @@ export const friendships = pgTable('friendships', {
   id: text('id').primaryKey(),
   senderId: text('sender_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
   receiverId: text('receiver_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
-  status: text('status').₹type<'pending' | 'accepted' | 'rejected' | 'blocked'>().default('pending').notNull(),
+  status: text('status').$type<'pending' | 'accepted' | 'rejected' | 'blocked'>().default('pending').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 }, (table) => {
   return {
@@ -91,7 +93,7 @@ export const groupMembers = pgTable('group_members', {
   id: text('id').primaryKey(),
   groupId: text('group_id').references(() => groups.id, { onDelete: 'cascade' }).notNull(),
   userId: text('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
-  role: text('role').₹type<'owner' | 'admin' | 'member'>().default('member').notNull(),
+  role: text('role').$type<'owner' | 'admin' | 'member'>().default('member').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 }, (table) => {
   return {
@@ -122,7 +124,7 @@ export const splits = pgTable('splits', {
   userId: text('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
   amount: doublePrecision('amount').notNull(),
   percentage: doublePrecision('percentage'),
-  status: text('status').₹type<'pending' | 'settled'>().default('pending').notNull(),
+  status: text('status').$type<'pending' | 'settled'>().default('pending').notNull(),
 }, (table) => {
   return {
     splitsExpenseIdIdx: index('splits_expense_id_idx').on(table.expenseId),
@@ -151,7 +153,7 @@ export const settlements = pgTable('settlements', {
   payerId: text('payer_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
   receiverId: text('receiver_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
   amount: doublePrecision('amount').notNull(),
-  status: text('status').₹type<'pending' | 'settled'>().default('pending').notNull(),
+  status: text('status').$type<'pending' | 'settled'>().default('pending').notNull(),
   settledAt: timestamp('settled_at'),
 }, (table) => {
   return {
@@ -164,7 +166,7 @@ export const syncQueue = pgTable('sync_queue', {
   id: text('id').primaryKey(),
   type: text('type').notNull(),
   payload: text('payload').notNull(),
-  status: text('status').₹type<'pending' | 'completed' | 'failed'>().default('pending').notNull(),
+  status: text('status').$type<'pending' | 'completed' | 'failed'>().default('pending').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 }, (table) => {
   return {

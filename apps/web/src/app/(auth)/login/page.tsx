@@ -89,9 +89,9 @@ export default function LoginPage() {
       };
 
       // Set session cookie
-      document.cookie = `expensio-session=₹{encodeURIComponent(JSON.stringify(mockUser))}; path=/; max-age=604800; SameSite=Lax;`;
+      document.cookie = `expensio-session=${encodeURIComponent(JSON.stringify(mockUser))}; path=/; max-age=604800; SameSite=Lax;`;
 
-      showToast(`Welcome back, ₹{account.name}!`);
+      showToast(`Welcome back, ${account.name}!`);
       
       setTimeout(() => {
         setGoogleSigningIn(false);
@@ -105,7 +105,7 @@ export default function LoginPage() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-[#09090b] text-gray-100 px-4 relative overflow-hidden select-none">
       {/* Background glow effects */}
-      <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
 
       <motion.div
@@ -147,9 +147,9 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                className={`w-full bg-zinc-950 border ₹{
+                className={`w-full bg-zinc-950 border ${
                   validationErrors.email ? 'border-red-500/50' : 'border-zinc-800 hover:border-zinc-700'
-                } focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 outline-none rounded-xl py-3 pl-11 pr-4 text-sm transition-all text-white placeholder-zinc-600`}
+                } focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 outline-none rounded-xl py-3 pl-11 pr-4 text-sm transition-all text-white placeholder-zinc-600`}
                 disabled={loading}
               />
             </div>
@@ -168,7 +168,7 @@ export default function LoginPage() {
               </label>
               <Link
                 href="/forgot-password"
-                className="text-xs font-medium text-emerald-400 hover:text-emerald-300 transition-colors"
+                className="text-xs font-medium text-cyan-400 hover:text-cyan-300 transition-colors"
               >
                 Forgot Password?
               </Link>
@@ -180,9 +180,9 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className={`w-full bg-zinc-950 border ₹{
+                className={`w-full bg-zinc-950 border ${
                   validationErrors.password ? 'border-red-500/50' : 'border-zinc-800 hover:border-zinc-700'
-                } focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 outline-none rounded-xl py-3 pl-11 pr-11 text-sm transition-all text-white placeholder-zinc-600`}
+                } focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 outline-none rounded-xl py-3 pl-11 pr-11 text-sm transition-all text-white placeholder-zinc-600`}
                 disabled={loading}
               />
               <button
@@ -204,7 +204,7 @@ export default function LoginPage() {
           {/* Submit button */}
           <button
             type="submit"
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-zinc-950 font-bold active:scale-[0.98] transition-all shadow-lg shadow-emerald-500/10 cursor-pointer disabled:opacity-50 disabled:pointer-events-none text-sm mt-2"
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-emerald-400 hover:to-teal-400 text-zinc-950 font-bold active:scale-[0.98] transition-all shadow-lg shadow-indigo-500/10 cursor-pointer disabled:opacity-50 disabled:pointer-events-none text-sm mt-2"
             disabled={loading}
           >
             {loading ? (
@@ -259,7 +259,7 @@ export default function LoginPage() {
           Don&apos;t have an account?{' '}
           <Link
             href="/register"
-            className="font-medium text-emerald-400 hover:text-emerald-300 transition-colors"
+            className="font-medium text-cyan-400 hover:text-cyan-300 transition-colors"
           >
             Sign Up
           </Link>
@@ -293,12 +293,12 @@ export default function LoginPage() {
                   </svg>
                 </div>
                 <h2 className="text-base font-black text-zinc-100 tracking-tight">Sign in with Google</h2>
-                <p className="text-xs text-zinc-550 leading-relaxed">Choose an account to continue to <span className="text-emerald-400 font-bold">Expensio</span></p>
+                <p className="text-xs text-zinc-550 leading-relaxed">Choose an account to continue to <span className="text-cyan-400 font-bold">Expensio</span></p>
               </div>
 
               {googleSigningIn ? (
                 <div className="py-12 flex flex-col items-center justify-center gap-4">
-                  <Loader2 className="w-8 h-8 text-emerald-400 animate-spin" />
+                  <Loader2 className="w-8 h-8 text-cyan-400 animate-spin" />
                   <span className="text-xs text-zinc-400 font-bold">Signing in with Google...</span>
                 </div>
               ) : (
@@ -324,7 +324,7 @@ export default function LoginPage() {
                           <div className="flex items-center gap-1.5">
                             <span className="text-xs font-black text-zinc-200">{account.name}</span>
                             {account.verified && (
-                              <span className="w-3.5 h-3.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-[7px] font-black text-emerald-400 uppercase tracking-widest shrink-0">
+                              <span className="w-3.5 h-3.5 rounded-full bg-indigo-500/10 border border-indigo-500/25 flex items-center justify-center text-[7px] font-black text-cyan-400 uppercase tracking-widest shrink-0">
                                 ✓
                               </span>
                             )}
@@ -333,7 +333,7 @@ export default function LoginPage() {
                         </div>
                       </div>
                       
-                      <span className="text-[9px] font-black uppercase text-zinc-550 tracking-wider group-hover:text-emerald-400 transition-colors">
+                      <span className="text-[9px] font-black uppercase text-zinc-550 tracking-wider group-hover:text-cyan-400 transition-colors">
                         Use Account
                       </span>
                     </button>
@@ -361,7 +361,7 @@ export default function LoginPage() {
       {/* Global Interactive Toast Notification */}
       {toastMessage && (
         <div className="fixed bottom-6 left-6 right-6 z-[250] max-w-sm mx-auto p-4 rounded-xl border border-zinc-850 bg-[#09090b]/95 backdrop-blur-xl flex items-center gap-3 shadow-[0_10px_25px_rgba(0,0,0,0.5)] animate-slide-up">
-          <div className="w-5 h-5 rounded-md bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+          <div className="w-5 h-5 rounded-md bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-cyan-400 shrink-0">
             <Check className="w-3 h-3 stroke-[3]" />
           </div>
           <span className="text-xs font-bold text-zinc-200">{toastMessage}</span>

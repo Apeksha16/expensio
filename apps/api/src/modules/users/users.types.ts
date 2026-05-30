@@ -6,4 +6,6 @@ export interface UpdateUserProfileDto {
   avatarUrl?: string | null;
   currency?: string;
   timezone?: string;
+  monthlySalary?: number | null;
+  isOnboarded?: boolean;
 }

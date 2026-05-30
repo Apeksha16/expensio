@@ -75,7 +75,7 @@ export default function BottomSheet({ isOpen, onClose, title, children }: Bottom
             </div>
 
             {/* Scrollable Form Area */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+            <div className="flex-1 min-h-0 overflow-y-auto p-6 pb-16 space-y-8 scrollbar-thin">
               {children}
             </div>
           </motion.div>

@@ -29,7 +29,7 @@ export default function BottomNavigation({}: BottomNavigationProps) {
             <Link
               key={item.href}
               href={item.href}
-              className="flex flex-col items-center justify-center flex-1 h-full py-1 relative text-zinc-400 active:scale-95 transition-all group"
+              className="flex flex-col items-center justify-center flex-1 h-full py-1 relative text-zinc-400 group outline-none"
             >
               {/* Highlight Slide Background */}
               {isActive && (
@@ -40,16 +40,21 @@ export default function BottomNavigation({}: BottomNavigationProps) {
                 />
               )}
 
-              <item.icon
-                className={`w-5 h-5 mb-0.5 transition-colors ₹{
-                  isActive 
-                    ? 'text-emerald-400' 
-                    : 'group-hover:text-zinc-100'
-                }`}
-              />
+              <motion.div
+                whileTap={{ scale: 0.85 }}
+                transition={{ type: 'spring', stiffness: 500, damping: 20 }}
+              >
+                <item.icon
+                  className={`w-5 h-5 mb-0.5 transition-colors ${
+                    isActive 
+                      ? 'text-cyan-400' 
+                      : 'group-hover:text-zinc-100'
+                  }`}
+                />
+              </motion.div>
               
               <span
-                className={`text-[10px] font-medium tracking-tight transition-colors ₹{
+                className={`text-[10px] font-medium tracking-tight transition-colors ${
                   isActive 
                     ? 'text-zinc-100 font-semibold' 
                     : 'group-hover:text-zinc-100'

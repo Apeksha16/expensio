@@ -130,7 +130,7 @@ export default function FriendsPage() {
             setSearchQuery('');
             setIsAddFriendOpen(true);
           }}
-          className="p-2.5 rounded-xl bg-emerald-500 text-zinc-950 font-bold hover:scale-105 active:scale-95 transition-all shadow-md shadow-emerald-500/10 cursor-pointer"
+          className="p-2.5 rounded-xl bg-indigo-600 text-zinc-950 font-bold hover:scale-105 active:scale-95 transition-all shadow-md shadow-indigo-500/10 cursor-pointer"
           aria-label="Add Friend"
         >
           <UserPlus className="w-4 h-4 stroke-[3]" />
@@ -139,53 +139,71 @@ export default function FriendsPage() {
 
       {/* Aggregate Debt balances */}
       <div className="grid grid-cols-2 gap-4 px-1">
-        <div className="p-4 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 backdrop-blur-xl flex flex-col gap-1">
-          <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">You are owed</span>
-          <span className="text-xl font-extrabold text-emerald-400">₹{totalYouAreOwed.toFixed(2)}</span>
+        <div className="p-4 rounded-2xl border border-zinc-850 bg-zinc-900/20 backdrop-blur-xl flex flex-col gap-1.5 shadow-[0_4px_20px_rgba(0,0,0,0.15)]">
+          <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">You are owed</span>
+          <span className="text-xl font-black text-cyan-400 tracking-tight">₹{totalYouAreOwed.toFixed(2)}</span>
         </div>
-        <div className="p-4 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 backdrop-blur-xl flex flex-col gap-1">
-          <span className="text-[10px] font-bold text-rose-400 uppercase tracking-wider">You owe</span>
-          <span className="text-xl font-extrabold text-rose-400">₹{totalYouOwe.toFixed(2)}</span>
+        <div className="p-4 rounded-2xl border border-zinc-850 bg-zinc-900/20 backdrop-blur-xl flex flex-col gap-1.5 shadow-[0_4px_20px_rgba(0,0,0,0.15)]">
+          <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">You owe</span>
+          <span className="text-xl font-black text-rose-400 tracking-tight">₹{totalYouOwe.toFixed(2)}</span>
         </div>
       </div>
 
       {/* Mockup-Exact Filter Navigation Tabs */}
       <div className="px-1">
-        <div className="flex bg-zinc-950 border border-zinc-850 p-1.5 rounded-2xl justify-between">
+        <div className="flex bg-zinc-950 border border-zinc-850 p-1 rounded-2xl justify-between items-center gap-1">
           <button
             onClick={() => setActiveTab('all')}
-            className={`flex-1 py-2 text-center text-xs font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer ₹{
+            className={`flex-1 py-2.5 px-1.5 flex items-center justify-center gap-1.5 text-center text-xs font-black uppercase tracking-wider rounded-xl transition-all duration-300 cursor-pointer outline-none ${
               activeTab === 'all'
-                ? 'bg-zinc-900 border border-zinc-800 text-zinc-100 shadow-[0_4px_10px_rgba(0,0,0,0.4)]'
-                : 'text-zinc-500 hover:text-zinc-300'
+                ? 'bg-zinc-900 border border-zinc-800 text-zinc-100 shadow-[0_4px_12px_rgba(0,0,0,0.4)] scale-[1.02]'
+                : 'text-zinc-500 hover:text-zinc-300 border border-transparent'
             }`}
           >
-            All ({friends.length})
+            <span>All</span>
+            <span className={`px-2 py-0.5 rounded-full text-[9px] font-black tracking-normal transition-colors ${
+              activeTab === 'all'
+                ? 'bg-zinc-850 text-zinc-300 border border-zinc-800'
+                : 'bg-zinc-900/60 text-zinc-500 border border-zinc-850/40'
+            }`}>
+              {friends.length}
+            </span>
           </button>
           
           <button
             onClick={() => setActiveTab('online')}
-            className={`flex-1 py-2 text-center text-xs font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer ₹{
+            className={`flex-1 py-2.5 px-1.5 flex items-center justify-center gap-1.5 text-center text-xs font-black uppercase tracking-wider rounded-xl transition-all duration-300 cursor-pointer outline-none ${
               activeTab === 'online'
-                ? 'bg-zinc-900 border border-zinc-800 text-zinc-100 shadow-[0_4px_10px_rgba(0,0,0,0.4)]'
-                : 'text-zinc-500 hover:text-zinc-300'
+                ? 'bg-zinc-900 border border-zinc-800 text-zinc-100 shadow-[0_4px_12px_rgba(0,0,0,0.4)] scale-[1.02]'
+                : 'text-zinc-500 hover:text-zinc-300 border border-transparent'
             }`}
           >
-            Online ({friends.filter(f => f.online).length})
+            <span>Online</span>
+            <span className={`px-2 py-0.5 rounded-full text-[9px] font-black tracking-normal transition-colors ${
+              activeTab === 'online'
+                ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/25'
+                : 'bg-cyan-500/5 text-cyan-500/60 border border-cyan-500/10'
+            }`}>
+              {friends.filter(f => f.online).length}
+            </span>
           </button>
 
           <button
             onClick={() => setActiveTab('requests')}
-            className={`flex-1 py-2 text-center text-xs font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer relative ₹{
+            className={`flex-1 py-2.5 px-1.5 flex items-center justify-center gap-1.5 text-center text-xs font-black uppercase tracking-wider rounded-xl transition-all duration-300 cursor-pointer outline-none ${
               activeTab === 'requests'
-                ? 'bg-zinc-900 border border-zinc-800 text-zinc-100 shadow-[0_4px_10px_rgba(0,0,0,0.4)]'
-                : 'text-zinc-500 hover:text-zinc-300'
+                ? 'bg-zinc-900 border border-zinc-800 text-zinc-100 shadow-[0_4px_12px_rgba(0,0,0,0.4)] scale-[1.02]'
+                : 'text-zinc-500 hover:text-zinc-300 border border-transparent'
             }`}
           >
-            Requests ({requests.length})
-            {requests.length > 0 && (
-              <span className="w-1.5 h-1.5 rounded-full bg-rose-500 absolute top-2 right-4" />
-            )}
+            <span>Requests</span>
+            <span className={`px-2 py-0.5 rounded-full text-[9px] font-black tracking-normal transition-colors ${
+              activeTab === 'requests'
+                ? 'bg-rose-500/20 text-rose-300 border border-rose-500/25'
+                : 'bg-rose-500/10 text-rose-400/80 border border-rose-500/15'
+            }`}>
+              {requests.length}
+            </span>
           </button>
         </div>
       </div>
@@ -224,7 +242,7 @@ export default function FriendsPage() {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleAcceptRequest(req)}
-                      className="px-3 py-1.5 rounded-lg bg-emerald-500 text-zinc-950 text-[10px] font-black uppercase hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                      className="px-3 py-1.5 rounded-lg bg-indigo-600 text-zinc-950 text-[10px] font-black uppercase hover:scale-105 active:scale-95 transition-all cursor-pointer"
                     >
                       Accept
                     </button>
@@ -281,7 +299,7 @@ export default function FriendsPage() {
                 placeholder="Search @username or name..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 rounded-xl bg-zinc-900/60 border border-zinc-800 focus:border-emerald-500/40 text-sm font-semibold text-zinc-100 placeholder-zinc-500 focus:outline-none transition-colors"
+                className="w-full pl-10 pr-4 py-3 rounded-xl bg-zinc-900/60 border border-zinc-800 focus:border-indigo-500/40 text-sm font-semibold text-zinc-100 placeholder-zinc-500 focus:outline-none transition-colors"
               />
             </div>
           </div>
@@ -305,7 +323,7 @@ export default function FriendsPage() {
                         <span className="text-[9px] text-zinc-500">@{user.username}</span>
                       </div>
                     </div>
-                    <button className="px-3 py-1.5 rounded-lg bg-emerald-500 text-zinc-950 text-[10px] font-black uppercase group-hover:scale-105 active:scale-95 transition-all">
+                    <button className="px-3 py-1.5 rounded-lg bg-indigo-600 text-zinc-950 text-[10px] font-black uppercase group-hover:scale-105 active:scale-95 transition-all">
                       Add
                     </button>
                   </div>
@@ -325,7 +343,7 @@ export default function FriendsPage() {
                   placeholder="e.g. Divya Sharma"
                   value={customName}
                   onChange={(e) => setCustomName(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-zinc-900/60 border border-zinc-800 focus:border-emerald-500/40 text-xs font-semibold text-zinc-100 placeholder-zinc-650 focus:outline-none transition-colors"
+                  className="w-full px-4 py-3 rounded-xl bg-zinc-900/60 border border-zinc-800 focus:border-indigo-500/40 text-xs font-semibold text-zinc-100 placeholder-zinc-650 focus:outline-none transition-colors"
                   required
                 />
               </div>
@@ -337,14 +355,14 @@ export default function FriendsPage() {
                   placeholder="divyas"
                   value={customUsername}
                   onChange={(e) => setCustomUsername(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-zinc-900/60 border border-zinc-800 focus:border-emerald-500/40 text-xs font-semibold text-zinc-100 placeholder-zinc-650 focus:outline-none transition-colors"
+                  className="w-full px-4 py-3 rounded-xl bg-zinc-900/60 border border-zinc-800 focus:border-indigo-500/40 text-xs font-semibold text-zinc-100 placeholder-zinc-650 focus:outline-none transition-colors"
                   required
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full py-4 rounded-xl bg-gradient-to-tr from-emerald-400 to-emerald-600 text-zinc-950 font-bold hover:shadow-lg active:scale-98 transition-all cursor-pointer text-xs"
+                className="w-full py-4 rounded-xl bg-gradient-to-tr from-indigo-500 to-cyan-500 text-zinc-950 font-bold hover:shadow-lg active:scale-98 transition-all cursor-pointer text-xs"
               >
                 Add Friend Contact
               </button>
@@ -364,7 +382,7 @@ export default function FriendsPage() {
             
             {showSuccessOverlay && (
               <div className="absolute inset-0 z-50 bg-[#09090b]/95 flex flex-col items-center justify-center gap-3.5 text-center animate-fade-in">
-                <div className="w-14 h-14 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.2)] animate-pulse">
+                <div className="w-14 h-14 rounded-full bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-cyan-400 shadow-[0_0_15px_rgba(16,185,129,0.2)] animate-pulse">
                   <Check className="w-7 h-7 stroke-[3]" />
                 </div>
                 <div className="space-y-0.5">
@@ -389,7 +407,7 @@ export default function FriendsPage() {
 
               <div className="flex flex-col items-center justify-center gap-1.5 py-2">
                 <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Settlement Sum</span>
-                <span className={`text-4xl font-extrabold tracking-tight ₹{activeSettleFriend.balance > 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                <span className={`text-4xl font-extrabold tracking-tight ₹{activeSettleFriend.balance > 0 ? 'text-cyan-400' : 'text-rose-400'}`}>
                   ₹{Math.abs(activeSettleFriend.balance).toFixed(2)}
                 </span>
               </div>
@@ -419,7 +437,7 @@ export default function FriendsPage() {
             <div className="grid grid-cols-2 gap-4">
               <button
                 onClick={handleConfirmSettle}
-                className="py-4 rounded-xl bg-gradient-to-tr from-emerald-400 to-emerald-600 text-zinc-950 font-bold hover:shadow-lg active:scale-98 transition-all text-xs cursor-pointer flex items-center justify-center gap-1.5"
+                className="py-4 rounded-xl bg-gradient-to-tr from-indigo-500 to-cyan-500 text-zinc-950 font-bold hover:shadow-lg active:scale-98 transition-all text-xs cursor-pointer flex items-center justify-center gap-1.5"
               >
                 <Sparkles className="w-3.5 h-3.5 fill-zinc-950" />
                 <span>Execute Settlement</span>

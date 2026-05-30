@@ -36,11 +36,17 @@ export const supabase = isPlaceholder ? {
       if (cookieValue) {
         try {
           const user = JSON.parse(decodeURIComponent(cookieValue));
+          let encodedUser = '';
+          try {
+            encodedUser = btoa(unescape(encodeURIComponent(JSON.stringify(user))));
+          } catch (e) {
+            encodedUser = btoa(JSON.stringify({ id: user.id, email: user.email }));
+          }
           return { 
             data: { 
               session: {
                 user,
-                access_token: 'mock-token',
+                access_token: `mock-token:${encodedUser}`,
                 refresh_token: 'mock-refresh',
                 expires_in: 3600,
                 token_type: 'bearer'
@@ -69,7 +75,7 @@ export const supabase = isPlaceholder ? {
       };
       
       if (typeof window !== 'undefined') {
-        document.cookie = `expensio-session=₹{encodeURIComponent(JSON.stringify(mockUser))}; path=/; max-age=604800; SameSite=Lax;`;
+        document.cookie = `expensio-session=${encodeURIComponent(JSON.stringify(mockUser))}; path=/; max-age=604800; SameSite=Lax;`;
       }
       
       return { data: { user: mockUser, session: {} }, error: null };
@@ -89,7 +95,7 @@ export const supabase = isPlaceholder ? {
       };
       
       if (typeof window !== 'undefined') {
-        document.cookie = `expensio-session=₹{encodeURIComponent(JSON.stringify(mockUser))}; path=/; max-age=604800; SameSite=Lax;`;
+        document.cookie = `expensio-session=${encodeURIComponent(JSON.stringify(mockUser))}; path=/; max-age=604800; SameSite=Lax;`;
       }
       
       return { data: { user: mockUser, session: { user: mockUser } }, error: null };
@@ -109,9 +115,15 @@ export const supabase = isPlaceholder ? {
         if (cookieValue) {
           try {
             const user = JSON.parse(decodeURIComponent(cookieValue));
+            let encodedUser = '';
+            try {
+              encodedUser = btoa(unescape(encodeURIComponent(JSON.stringify(user))));
+            } catch (e) {
+              encodedUser = btoa(JSON.stringify({ id: user.id, email: user.email }));
+            }
             const mockSession = {
               user,
-              access_token: 'mock-token',
+              access_token: `mock-token:${encodedUser}`,
               refresh_token: 'mock-refresh',
               expires_in: 3600,
               token_type: 'bearer'

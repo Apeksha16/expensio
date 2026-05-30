@@ -3,6 +3,7 @@
 import React from 'react';
 import { Plus, Users, PieChart, UserPlus, FolderPlus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 
 interface QuickActionsProps {
   onAddExpenseClick: () => void;
@@ -24,7 +25,7 @@ export default function QuickActions({
       label: 'Add Expense', 
       icon: Plus, 
       action: onAddExpenseClick, 
-      color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
+      color: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' 
     },
     { 
       label: 'Split Bill', 
@@ -36,13 +37,13 @@ export default function QuickActions({
       label: 'New Budget', 
       icon: PieChart, 
       action: onAddBudgetClick || (() => router.push('/budgets')), 
-      color: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' 
+      color: 'bg-violet-500/10 text-violet-400 border-violet-500/20' 
     },
     { 
       label: 'Add Friend', 
       icon: UserPlus, 
       action: onAddFriendClick || (() => router.push('/friends')), 
-      color: 'bg-amber-500/10 text-amber-400 border-amber-500/20' 
+      color: 'bg-teal-500/10 text-teal-400 border-teal-500/20' 
     },
     { 
       label: 'New Group', 
@@ -53,19 +54,34 @@ export default function QuickActions({
   ];
 
   return (
-    <div className="flex flex-col gap-2">
-      <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-500 px-1">Quick Actions</h3>
+    <div className="flex flex-col gap-3">
+      <div className="flex items-center justify-between px-1">
+        <h3 className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Quick Actions</h3>
+        <span className="text-[8px] font-black uppercase text-zinc-600 tracking-wider">Swipe for more</span>
+      </div>
       
-      {/* Horizontal Scrollable Touch Pill List */}
-      <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none snap-x snap-mandatory px-1">
+      {/* Premium Horizontal Swipeable Pill Capsule Carousel */}
+      <div className="flex gap-3 overflow-x-auto pb-3 pt-0.5 px-1 scrollbar-none snap-x snap-mandatory">
         {actions.map((act, index) => (
           <button
             key={index}
             onClick={act.action}
-            className={`flex items-center gap-2.5 px-4 py-3 rounded-2xl border backdrop-blur-md active:scale-95 transition-all snap-start shrink-0 font-semibold text-xs cursor-pointer ₹{act.color}`}
+            className="flex items-center gap-3 px-5 py-3 rounded-2xl border border-zinc-800/85 bg-zinc-900/40 backdrop-blur-xl hover:border-zinc-700/80 hover:bg-zinc-900/60 transition-all cursor-pointer snap-start shrink-0 outline-none shadow-sm"
           >
-            <act.icon className="w-4 h-4" />
-            <span>{act.label}</span>
+            {/* Elegant glassmorphic circular icon container */}
+            <div className={`w-8 h-8 rounded-xl flex items-center justify-center border ${act.color} shrink-0`}>
+              <motion.div
+                whileTap={{ scale: 0.8 }}
+                transition={{ type: 'spring', stiffness: 500, damping: 20 }}
+              >
+                <act.icon className="w-4 h-4 stroke-[2.5]" />
+              </motion.div>
+            </div>
+            
+            {/* Inline Title text */}
+            <span className="text-xs font-extrabold text-zinc-200 tracking-tight shrink-0 whitespace-nowrap">
+              {act.label}
+            </span>
           </button>
         ))}
       </div>

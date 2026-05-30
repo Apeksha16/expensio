@@ -32,10 +32,10 @@ export default function BalanceHeroCard() {
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="relative p-6 rounded-[28px] bg-gradient-to-br from-emerald-950/40 via-zinc-900/80 to-zinc-950/90 border border-emerald-500/10 backdrop-blur-xl overflow-hidden shadow-[0_15px_30px_rgba(16,185,129,0.06)] active:scale-[0.99] transition-transform cursor-pointer group"
+      className="relative p-6 rounded-[28px] bg-gradient-to-br from-indigo-950/30 via-zinc-900/85 to-zinc-950/95 border border-indigo-500/10 backdrop-blur-xl overflow-hidden shadow-[0_15px_30px_rgba(99,102,241,0.06)] active:scale-[0.99] transition-transform cursor-pointer group"
     >
       {/* Glow highlight */}
-      <div className="absolute top-[-30%] right-[-10%] w-64 h-64 bg-emerald-500/10 rounded-full blur-[70px] pointer-events-none group-hover:bg-emerald-500/15 transition-all duration-500" />
+      <div className="absolute top-[-30%] right-[-10%] w-64 h-64 bg-indigo-500/10 rounded-full blur-[70px] pointer-events-none group-hover:bg-indigo-500/15 transition-all duration-500" />
       <div className="absolute bottom-[-30%] left-[-10%] w-64 h-64 bg-zinc-800/10 rounded-full blur-[70px] pointer-events-none" />
 
       {/* Main Grid: Left Side Numbers, Right Side Slider Wallet */}
@@ -50,7 +50,7 @@ export default function BalanceHeroCard() {
               <span className="text-3xl font-black tracking-tight text-zinc-100">
                 ₹{currentBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </span>
-              <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/15 px-2 py-0.5 rounded-full border border-emerald-500/20 flex items-center gap-0.5">
+              <span className="text-[10px] font-bold text-cyan-400 bg-cyan-500/15 px-2 py-0.5 rounded-full border border-cyan-500/20 flex items-center gap-0.5">
                 <ArrowUpRight className="w-2.5 h-2.5" />
                 <span>12.5%</span>
               </span>
@@ -63,8 +63,8 @@ export default function BalanceHeroCard() {
             <svg width="100%" height="100%" className="overflow-visible">
               <defs>
                 <linearGradient id="sparkGlow" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#10b981" stopOpacity="0.2" />
-                  <stop offset="100%" stopColor="#10b981" stopOpacity="0.9" />
+                  <stop offset="0%" stopColor="#6366f1" stopOpacity="0.2" />
+                  <stop offset="100%" stopColor="#22d3ee" stopOpacity="0.9" />
                 </linearGradient>
               </defs>
               {/* Glowing trend line */}
@@ -74,11 +74,11 @@ export default function BalanceHeroCard() {
                 stroke="url(#sparkGlow)"
                 strokeWidth="2.5"
                 strokeLinecap="round"
-                className="drop-shadow-[0_0_4px_rgba(16,185,129,0.5)]"
+                className="drop-shadow-[0_0_4px_rgba(34,211,238,0.5)]"
               />
               {/* Endpoint glow pulse circle */}
-              <circle cx="180" cy="2" r="3" className="fill-emerald-400 stroke-emerald-300 stroke-2 animate-ping" />
-              <circle cx="180" cy="2" r="2" className="fill-emerald-400" />
+              <circle cx="180" cy="2" r="3" className="fill-cyan-400 stroke-cyan-300 stroke-2 animate-ping" />
+              <circle cx="180" cy="2" r="2" className="fill-cyan-400" />
             </svg>
           </div>
 
@@ -88,7 +88,7 @@ export default function BalanceHeroCard() {
         <div className="relative w-28 h-28 shrink-0 flex items-center justify-end z-10">
           
           {/* Card 1 (Sliding out) */}
-          <div className="w-16 h-10 rounded-lg bg-gradient-to-tr from-emerald-500 to-teal-400 absolute right-2 top-2 rotate-[-25deg] shadow-lg flex flex-col justify-between p-1.5 border border-emerald-300/30 transform group-hover:-translate-y-2 group-hover:-translate-x-2 transition-transform duration-300">
+          <div className="w-16 h-10 rounded-lg bg-gradient-to-tr from-indigo-500 to-cyan-400 absolute right-2 top-2 rotate-[-25deg] shadow-lg flex flex-col justify-between p-1.5 border border-indigo-300/30 transform group-hover:-translate-y-2 group-hover:-translate-x-2 transition-transform duration-300">
             <CreditCard className="w-3 h-3 text-zinc-950 stroke-[2]" />
             <div className="w-8 h-1 rounded bg-zinc-950/40" />
           </div>
@@ -105,7 +105,7 @@ export default function BalanceHeroCard() {
             <div className="w-8 h-3 rounded bg-zinc-900 border-b border-zinc-800 absolute right-0 top-3" />
             <div className="flex items-center justify-between text-[6px] font-black uppercase text-zinc-500 tracking-wider">
               <span>Expensio</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
             </div>
           </div>
           
@@ -130,8 +130,8 @@ export default function BalanceHeroCard() {
           <div className="flex items-center gap-2 mt-1">
             <div className="flex-1 h-1.5 rounded-full bg-zinc-950 p-[1px] border border-zinc-850 overflow-hidden">
               <div 
-                className="h-full rounded-full bg-emerald-400"
-                style={{ width: `₹{budgetUsagePercent}%` }}
+                className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-cyan-400"
+                style={{ width: `${budgetUsagePercent}%` }}
               />
             </div>
             <span className="text-[9px] font-bold text-zinc-500 whitespace-nowrap">of ₹950</span>

@@ -24,8 +24,8 @@ export default function GroupCard({ group }: GroupCardProps) {
       
       {/* Top Banner Cover with Vibrant Gradients or High-Res Cover Photo */}
       <div 
-        className={`h-32 flex items-end p-4 relative bg-cover bg-center ₹{!group.coverUrl ? `bg-gradient-to-tr ₹{group.coverImage}` : ''}`}
-        style={group.coverUrl ? { backgroundImage: `url(₹{group.coverUrl})` } : undefined}
+        className={`h-32 flex items-end p-4 relative bg-cover bg-center ${!group.coverUrl ? `bg-gradient-to-tr ${group.coverImage}` : ''}`}
+        style={group.coverUrl ? { backgroundImage: `url(${group.coverUrl})` } : undefined}
       >
         {/* Dark overlay for contrast */}
         <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/30 to-transparent pointer-events-none" />
@@ -33,7 +33,7 @@ export default function GroupCard({ group }: GroupCardProps) {
         
         {/* Floating folder circle tag */}
         <div className="w-10 h-10 rounded-xl bg-zinc-900/90 border border-zinc-800/65 backdrop-blur-md flex items-center justify-center text-zinc-100 z-10 shadow-lg">
-          <FolderOpen className="w-5 h-5 text-emerald-400" />
+          <FolderOpen className="w-5 h-5 text-cyan-400" />
         </div>
       </div>
 
@@ -42,7 +42,7 @@ export default function GroupCard({ group }: GroupCardProps) {
         
         <div className="flex justify-between items-start gap-4">
           <div className="space-y-1 flex-1">
-            <h4 className="text-base font-black text-zinc-100 group-hover:text-emerald-400 transition-colors leading-snug">
+            <h4 className="text-base font-black text-zinc-100 group-hover:text-cyan-400 transition-colors leading-snug">
               {group.name}
             </h4>
             <p className="text-[11px] text-zinc-450 line-clamp-2 leading-relaxed">
@@ -64,7 +64,7 @@ export default function GroupCard({ group }: GroupCardProps) {
               </div>
             ))}
             {group.members.length > 2 && (
-              <div className="w-6 h-6 rounded-full bg-zinc-950 border border-zinc-800 flex items-center justify-center text-[7px] font-black text-emerald-400">
+              <div className="w-6 h-6 rounded-full bg-zinc-950 border border-zinc-800 flex items-center justify-center text-[7px] font-black text-cyan-400">
                 +{group.members.length - 2}
               </div>
             )}
@@ -80,7 +80,7 @@ export default function GroupCard({ group }: GroupCardProps) {
 
           <div className="flex items-center gap-1 text-[11px] font-black text-zinc-300">
             <span className="text-zinc-500 font-normal">Spend:</span>
-            <span className="text-emerald-400">₹{totalSpend.toFixed(0)}</span>
+            <span className="text-cyan-400">₹{totalSpend.toFixed(0)}</span>
           </div>
 
           <div className="flex items-center gap-1">

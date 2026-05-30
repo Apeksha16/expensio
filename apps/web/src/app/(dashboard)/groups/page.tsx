@@ -116,8 +116,8 @@ export default function GroupsPage() {
 
           {/* Glowing Gradient Header Banner with Unsplash photography */}
           <div 
-            className={`rounded-3xl p-6 bg-cover bg-center relative overflow-hidden flex flex-col justify-end gap-2.5 min-h-40 border border-zinc-500/10 shadow-lg ₹{!activeGroup.coverUrl ? `bg-gradient-to-tr ₹{activeGroup.coverImage}` : ''}`}
-            style={activeGroup.coverUrl ? { backgroundImage: `url(₹{activeGroup.coverUrl})` } : undefined}
+            className={`rounded-3xl p-6 bg-cover bg-center relative overflow-hidden flex flex-col justify-end gap-2.5 min-h-40 border border-zinc-500/10 shadow-lg ${!activeGroup.coverUrl ? `bg-gradient-to-tr ${activeGroup.coverImage}` : ''}`}
+            style={activeGroup.coverUrl ? { backgroundImage: `url(${activeGroup.coverUrl})` } : undefined}
           >
             {/* Dark glass backdrop overlay */}
             <div className="absolute inset-0 bg-zinc-950/30 backdrop-blur-[1px]" />
@@ -148,7 +148,7 @@ export default function GroupsPage() {
             <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-500">Expenses Feed</h3>
             <button
               onClick={() => setIsAddGroupExpenseOpen(true)}
-              className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-emerald-500 text-zinc-950 font-bold active:scale-95 hover:scale-105 transition-all text-xs cursor-pointer shadow-md shadow-emerald-500/10"
+              className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-indigo-600 text-zinc-950 font-bold active:scale-95 hover:scale-105 transition-all text-xs cursor-pointer shadow-md shadow-indigo-500/10"
             >
               <Plus className="w-3.5 h-3.5 stroke-[3]" />
               <span>Add Group Bill</span>
@@ -210,7 +210,7 @@ export default function GroupsPage() {
             </div>
             <button
               onClick={() => setIsAddGroupOpen(true)}
-              className="p-2.5 rounded-xl bg-emerald-500 text-zinc-950 font-bold hover:scale-105 active:scale-95 transition-all shadow-md shadow-emerald-500/10 cursor-pointer"
+              className="p-2.5 rounded-xl bg-indigo-600 text-zinc-950 font-bold hover:scale-105 active:scale-95 transition-all shadow-md shadow-indigo-500/10 cursor-pointer"
               aria-label="Add Group"
             >
               <Plus className="w-4 h-4 stroke-[3]" />
@@ -256,7 +256,7 @@ export default function GroupsPage() {
               placeholder="e.g. Flatmates 402"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-zinc-900/60 border border-zinc-800 focus:border-emerald-500/40 text-sm font-semibold text-zinc-100 placeholder-zinc-500 focus:outline-none transition-colors"
+              className="w-full px-4 py-3 rounded-xl bg-zinc-900/60 border border-zinc-800 focus:border-indigo-500/40 text-sm font-semibold text-zinc-100 placeholder-zinc-500 focus:outline-none transition-colors"
               required
             />
           </div>
@@ -268,7 +268,7 @@ export default function GroupsPage() {
               placeholder="Rent, utilities, groceries splits..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-zinc-900/60 border border-zinc-800 focus:border-emerald-500/40 text-sm font-semibold text-zinc-100 placeholder-zinc-500 focus:outline-none transition-colors"
+              className="w-full px-4 py-3 rounded-xl bg-zinc-900/60 border border-zinc-800 focus:border-indigo-500/40 text-sm font-semibold text-zinc-100 placeholder-zinc-500 focus:outline-none transition-colors"
               required
             />
           </div>
@@ -284,7 +284,7 @@ export default function GroupsPage() {
                     key={idx}
                     type="button"
                     onClick={() => setCoverIndex(idx)}
-                    className={`w-10 h-10 rounded-xl bg-gradient-to-tr ₹{cov} border transition-all shrink-0 cursor-pointer ₹{
+                    className={`w-10 h-10 rounded-xl bg-gradient-to-tr ${cov} border transition-all shrink-0 cursor-pointer ${
                       isSelected 
                         ? 'border-zinc-100 scale-105 shadow-[0_0_8px_rgba(255,255,255,0.2)]'
                         : 'border-transparent opacity-60'
@@ -309,7 +309,7 @@ export default function GroupsPage() {
                       key={friend.id}
                       type="button"
                       onClick={() => handleMemberToggle(friend.name)}
-                      className={`flex items-center gap-2 px-3 py-2 rounded-xl border font-semibold text-xs transition-all shrink-0 cursor-pointer ₹{
+                      className={`flex items-center gap-2 px-3 py-2 rounded-xl border font-semibold text-xs transition-all shrink-0 cursor-pointer ${
                         isChecked
                           ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30'
                           : 'bg-zinc-900/40 border-zinc-800 text-zinc-500'
@@ -325,7 +325,7 @@ export default function GroupsPage() {
 
           <button
             type="submit"
-            className="w-full py-4 rounded-xl bg-gradient-to-tr from-emerald-400 to-emerald-600 text-zinc-950 font-bold hover:shadow-lg active:scale-98 transition-all cursor-pointer text-xs"
+            className="w-full py-4 rounded-xl bg-gradient-to-tr from-indigo-500 to-cyan-500 text-zinc-950 font-bold hover:shadow-lg active:scale-98 transition-all cursor-pointer text-xs"
           >
             Create Shared Group
           </button>
@@ -342,7 +342,7 @@ export default function GroupsPage() {
           <div className="flex flex-col items-center gap-1.5 py-4 border-b border-zinc-900">
             <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Bill Amount</span>
             <div className="flex items-center gap-1">
-              <span className="text-3xl font-extrabold text-emerald-400">₹</span>
+              <span className="text-3xl font-extrabold text-cyan-400">₹</span>
               <input
                 type="number"
                 step="0.01"
@@ -362,7 +362,7 @@ export default function GroupsPage() {
               placeholder="Rent booking, hotel stay, team lunch..."
               value={groupExpenseTitle}
               onChange={(e) => setGroupExpenseTitle(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-zinc-900/60 border border-zinc-800 focus:border-emerald-500/40 text-sm font-semibold text-zinc-100 focus:outline-none placeholder-zinc-500"
+              className="w-full px-4 py-3 rounded-xl bg-zinc-900/60 border border-zinc-800 focus:border-indigo-500/40 text-sm font-semibold text-zinc-100 focus:outline-none placeholder-zinc-500"
               required
             />
           </div>
@@ -402,7 +402,7 @@ export default function GroupsPage() {
               placeholder="e.g. Split equally among members"
               value={groupExpenseNote}
               onChange={(e) => setGroupExpenseNote(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-zinc-900/60 border border-zinc-800 focus:border-emerald-500/40 text-sm font-semibold text-zinc-100 focus:outline-none placeholder-zinc-500"
+              className="w-full px-4 py-3 rounded-xl bg-zinc-900/60 border border-zinc-800 focus:border-indigo-500/40 text-sm font-semibold text-zinc-100 focus:outline-none placeholder-zinc-500"
             />
           </div>
 
@@ -418,7 +418,7 @@ export default function GroupsPage() {
 
           <button
             type="submit"
-            className="w-full py-4 rounded-xl bg-gradient-to-tr from-emerald-400 to-emerald-600 text-zinc-950 font-bold hover:shadow-lg active:scale-98 transition-all cursor-pointer text-xs"
+            className="w-full py-4 rounded-xl bg-gradient-to-tr from-indigo-500 to-cyan-500 text-zinc-950 font-bold hover:shadow-lg active:scale-98 transition-all cursor-pointer text-xs"
           >
             Distribute Bill Splits
           </button>

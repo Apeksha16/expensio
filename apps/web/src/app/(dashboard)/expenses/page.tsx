@@ -5,6 +5,7 @@ import { Expense, useFinanceStore } from '../../../store/finance-store';
 import ExpenseCard from '../../../components/shared/ExpenseCard';
 import BottomSheet from '../../../components/shared/BottomSheet';
 import { Search, ShoppingBag, Trash2, Edit2, Calendar, CheckSquare, X, Info } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export default function ExpensesPage() {
   const { expenses, deleteExpense, editExpense, batchDeleteExpenses } = useFinanceStore();
@@ -90,13 +91,18 @@ export default function ExpensesPage() {
             setIsSelectionMode(!isSelectionMode);
             setSelectedIds([]);
           }}
-          className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-[10px] font-black uppercase tracking-wider active:scale-95 transition-all cursor-pointer ₹{
+          className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-[10px] font-black uppercase tracking-wider cursor-pointer outline-none ${
             isSelectionMode 
               ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30' 
               : 'bg-zinc-900/60 border-zinc-800 text-zinc-400'
           }`}
         >
-          <CheckSquare className="w-3.5 h-3.5" />
+          <motion.div
+            whileTap={{ scale: 0.7, rotate: -8 }}
+            transition={{ type: 'spring', stiffness: 500, damping: 12 }}
+          >
+            <CheckSquare className="w-3.5 h-3.5" />
+          </motion.div>
           <span>{isSelectionMode ? 'Cancel' : 'Select'}</span>
         </button>
       </div>
@@ -109,7 +115,7 @@ export default function ExpensesPage() {
           placeholder="Search descriptions, memos..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-10 pr-4 py-3 rounded-xl bg-zinc-900/60 border border-zinc-800/80 focus:border-emerald-500/40 text-xs font-semibold text-zinc-100 placeholder-zinc-500 focus:outline-none transition-colors"
+          className="w-full pl-10 pr-4 py-3 rounded-xl bg-zinc-900/60 border border-zinc-800/80 focus:border-indigo-500/40 text-xs font-semibold text-zinc-100 placeholder-zinc-500 focus:outline-none transition-colors"
         />
       </div>
 
@@ -121,9 +127,9 @@ export default function ExpensesPage() {
             <button
               key={pill}
               onClick={() => setSelectedCategory(pill)}
-              className={`px-4 py-2 rounded-xl border font-bold text-xs transition-all shrink-0 cursor-pointer ₹{
+              className={`px-4 py-2 rounded-xl border font-bold text-xs transition-all shrink-0 cursor-pointer ${
                 isActive
-                  ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 ring-1 ring-emerald-500/30'
+                  ? 'bg-indigo-500/10 text-cyan-400 border-indigo-500/30 ring-1 ring-emerald-500/30'
                   : 'bg-zinc-900/40 border-zinc-800 text-zinc-500 hover:text-zinc-300'
               }`}
             >
@@ -152,24 +158,26 @@ export default function ExpensesPage() {
               <span>{filteredExpenses.length} transactions</span>
             </div>
 
-            {filteredExpenses.map((expense: Expense) => (
-              <ExpenseCard
-                key={expense.id}
-                expense={expense}
-                onDelete={deleteExpense}
-                onEdit={(exp) => {
-                  setActiveDetailExpense(exp);
-                  startEditing(exp);
-                }}
-                onTap={(exp) => {
-                  setActiveDetailExpense(exp);
-                  setIsEditing(false);
-                }}
-                isSelectionMode={isSelectionMode}
-                isSelected={selectedIds.includes(expense.id)}
-                onSelectToggle={handleSelectToggle}
-              />
-            ))}
+            <div className="bg-zinc-900/30 border border-zinc-800/40 rounded-[28px] overflow-hidden divide-y divide-zinc-900/50 px-3.5 py-1.5 shadow-[0_8px_32px_rgba(0,0,0,0.15)]">
+              {filteredExpenses.map((expense: Expense) => (
+                <ExpenseCard
+                  key={expense.id}
+                  expense={expense}
+                  onDelete={deleteExpense}
+                  onEdit={(exp) => {
+                    setActiveDetailExpense(exp);
+                    startEditing(exp);
+                  }}
+                  onTap={(exp) => {
+                    setActiveDetailExpense(exp);
+                    setIsEditing(false);
+                  }}
+                  isSelectionMode={isSelectionMode}
+                  isSelected={selectedIds.includes(expense.id)}
+                  onSelectToggle={handleSelectToggle}
+                />
+              ))}
+            </div>
           </div>
         )}
       </div>
@@ -220,7 +228,7 @@ export default function ExpensesPage() {
               <div className="flex flex-col items-center gap-1 py-2 border-b border-zinc-900">
                 <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Edit Value</span>
                 <div className="flex items-center gap-1">
-                  <span className="text-3xl font-bold text-emerald-400">₹</span>
+                  <span className="text-3xl font-bold text-cyan-400">₹</span>
                   <input
                     type="number"
                     step="0.01"
@@ -238,7 +246,7 @@ export default function ExpensesPage() {
                   type="text"
                   value={editTitle}
                   onChange={(e) => setEditTitle(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-zinc-900/60 border border-zinc-800 focus:border-emerald-500/40 text-sm font-semibold text-zinc-100 placeholder-zinc-600 focus:outline-none"
+                  className="w-full px-4 py-3 rounded-xl bg-zinc-900/60 border border-zinc-800 focus:border-indigo-500/40 text-sm font-semibold text-zinc-100 placeholder-zinc-600 focus:outline-none"
                   required
                 />
               </div>
@@ -277,14 +285,14 @@ export default function ExpensesPage() {
                   type="text"
                   value={editNote}
                   onChange={(e) => setEditNote(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-zinc-900/60 border border-zinc-800 focus:border-emerald-500/40 text-sm font-semibold text-zinc-100 placeholder-zinc-600 focus:outline-none"
+                  className="w-full px-4 py-3 rounded-xl bg-zinc-900/60 border border-zinc-800 focus:border-indigo-500/40 text-sm font-semibold text-zinc-100 placeholder-zinc-600 focus:outline-none"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <button
                   type="submit"
-                  className="py-3.5 rounded-xl bg-gradient-to-tr from-emerald-400 to-emerald-600 text-zinc-950 font-bold hover:shadow-lg active:scale-98 transition-all text-xs cursor-pointer"
+                  className="py-3.5 rounded-xl bg-gradient-to-tr from-indigo-500 to-cyan-500 text-zinc-950 font-bold hover:shadow-lg active:scale-98 transition-all text-xs cursor-pointer"
                 >
                   Save Modifications
                 </button>
@@ -351,9 +359,14 @@ export default function ExpensesPage() {
               <div className="grid grid-cols-3 gap-3">
                 <button
                   onClick={() => startEditing(activeDetailExpense)}
-                  className="py-3.5 rounded-xl bg-indigo-500 text-zinc-950 font-bold active:scale-95 transition-all text-xs cursor-pointer flex items-center justify-center gap-1.5"
+                  className="py-3.5 rounded-xl bg-indigo-500 text-zinc-950 font-bold text-xs cursor-pointer flex items-center justify-center gap-1.5 outline-none"
                 >
-                  <Edit2 className="w-3.5 h-3.5 stroke-[2.5]" />
+                  <motion.div
+                    whileTap={{ scale: 0.65, rotate: -15 }}
+                    transition={{ type: 'spring', stiffness: 500, damping: 10 }}
+                  >
+                    <Edit2 className="w-3.5 h-3.5 stroke-[2.5]" />
+                  </motion.div>
                   <span>Modify</span>
                 </button>
                 <button
@@ -361,13 +374,13 @@ export default function ExpensesPage() {
                     deleteExpense(activeDetailExpense.id);
                     setActiveDetailExpense(null);
                   }}
-                  className="py-3.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 font-bold active:scale-95 transition-all text-xs cursor-pointer"
+                  className="py-3.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 font-bold text-xs cursor-pointer outline-none"
                 >
                   Delete
                 </button>
                 <button
                   onClick={() => setActiveDetailExpense(null)}
-                  className="py-3.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 font-bold active:scale-95 transition-all text-xs cursor-pointer"
+                  className="py-3.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 font-bold text-xs cursor-pointer outline-none"
                 >
                   Close
                 </button>

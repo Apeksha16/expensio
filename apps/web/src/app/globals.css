@@ -1,26 +1,97 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Default: Dark Theme */
+  --background: #070708;
+  --shell-bg: #09090b;
+  --foreground: #fafafa;
+  --text-primary: #fafafa;
+  --text-secondary: #a1a1aa;
+  --text-muted: #52525b;
+  --border-color: #1f1f23;
+  --border-muted: rgba(39, 39, 42, 0.4);
+  --card-bg: rgba(24, 24, 27, 0.35);
+  --card-border: rgba(39, 39, 42, 0.4);
+  --btn-bg: rgba(39, 39, 42, 0.6);
+  --btn-border: rgba(63, 63, 70, 0.8);
+  --glow-opacity: 0.05;
+}
+
+html.light {
+  /* Light Theme - Color Scale Inversion */
+  --background: #f4f4f5;
+  --shell-bg: #ffffff;
+  --foreground: #09090b;
+  --text-primary: #09090b;
+  --text-secondary: #71717a;
+  --text-muted: #a1a1aa;
+  --border-color: #e4e4e7;
+  --border-muted: rgba(228, 228, 231, 0.8);
+  --card-bg: rgba(244, 244, 245, 0.5);
+  --card-border: rgba(228, 228, 231, 0.8);
+  --btn-bg: rgba(244, 244, 245, 0.8);
+  --btn-border: rgba(228, 228, 231, 0.9);
+  --glow-opacity: 0.02;
+
+  /* Overwrite zinc family color scales for absolute automatic inversion */
+  --color-zinc-950: #ffffff;
+  --color-zinc-900: #f4f4f5;
+  --color-zinc-850: #e4e4e7;
+  --color-zinc-800: #d4d4d8;
+  --color-zinc-700: #a1a1aa;
+  --color-zinc-650: #71717a;
+  --color-zinc-550: #52525b;
+  --color-zinc-500: #3f3f46;
+  --color-zinc-400: #27272a;
+  --color-zinc-300: #18181b;
+  --color-zinc-200: #0f0f11;
+  --color-zinc-100: #09090b;
+  --color-white: #09090b;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-shell: var(--shell-bg);
+  --color-theme-text: var(--text-primary);
+  --color-theme-secondary: var(--text-secondary);
+  --color-theme-muted: var(--text-muted);
+  --color-theme-border: var(--border-color);
+  --color-theme-border-muted: var(--border-muted);
+  --color-theme-card: var(--card-bg);
+  --color-theme-card-border: var(--card-border);
+  --color-theme-btn: var(--btn-bg);
+  --color-theme-btn-border: var(--btn-border);
+  --font-sans: var(--font-plus-jakarta-sans);
+  --font-mono: var(--font-plus-jakarta-sans);
+  
+  /* Bind overridden tailwind variables to ensure compiler picks them up */
+  --color-zinc-950: var(--color-zinc-950);
+  --color-zinc-900: var(--color-zinc-900);
+  --color-zinc-850: var(--color-zinc-850);
+  --color-zinc-800: var(--color-zinc-800);
+  --color-zinc-700: var(--color-zinc-700);
+  --color-zinc-650: var(--color-zinc-650);
+  --color-zinc-550: var(--color-zinc-550);
+  --color-zinc-500: var(--color-zinc-500);
+  --color-zinc-400: var(--color-zinc-400);
+  --color-zinc-300: var(--color-zinc-300);
+  --color-zinc-200: var(--color-zinc-200);
+  --color-zinc-100: var(--color-zinc-100);
+  --color-white: var(--color-white);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+body, input, select, textarea, button {
+  font-family: var(--font-plus-jakarta-sans), sans-serif;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Enable smooth momentum touch scrolling inside all sub-scrollers for iOS & WebViews */
+.overflow-y-auto, .overflow-auto {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
 }

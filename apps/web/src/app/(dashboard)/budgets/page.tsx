@@ -104,8 +104,8 @@ export default function BudgetsPage() {
           {/* Neon green progress bar */}
           <div className="h-2 w-full bg-zinc-950 rounded-full overflow-hidden p-[1px] border border-zinc-850">
             <div 
-              className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.3)] transition-all duration-700" 
-              style={{ width: `₹{Math.min(100, budgetUsagePercent)}%` }}
+              className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-cyan-400 shadow-[0_0_8px_rgba(16,185,129,0.3)] transition-all duration-700" 
+              style={{ width: `${Math.min(100, budgetUsagePercent)}%` }}
             />
           </div>
           <div className="flex items-baseline justify-between text-xs text-zinc-400 font-medium">
@@ -124,7 +124,7 @@ export default function BudgetsPage() {
         <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-500">Category Budgets</h3>
         <button
           onClick={handleOpenAddBudget}
-          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-500 text-zinc-950 font-bold active:scale-95 hover:scale-105 transition-all text-xs cursor-pointer shadow-md shadow-emerald-500/10"
+          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-600 text-zinc-950 font-bold active:scale-95 hover:scale-105 transition-all text-xs cursor-pointer shadow-md shadow-indigo-500/10"
         >
           <Plus className="w-3.5 h-3.5 stroke-[3]" />
           <span>New Budget</span>
@@ -214,7 +214,7 @@ export default function BudgetsPage() {
                   placeholder="200"
                   value={limitAmount}
                   onChange={(e) => setLimitAmount(e.target.value)}
-                  className="w-full pl-8 pr-4 py-3 rounded-xl bg-zinc-900/60 border border-zinc-800 focus:border-emerald-500/40 text-sm font-semibold text-zinc-100 placeholder-zinc-500 focus:outline-none transition-colors"
+                  className="w-full pl-8 pr-4 py-3 rounded-xl bg-zinc-900/60 border border-zinc-800 focus:border-indigo-500/40 text-sm font-semibold text-zinc-100 placeholder-zinc-500 focus:outline-none transition-colors"
                   required
                 />
               </div>
@@ -222,7 +222,7 @@ export default function BudgetsPage() {
 
             <button
               type="submit"
-              className="w-full py-4 rounded-xl bg-gradient-to-tr from-emerald-400 to-emerald-600 text-zinc-950 font-bold hover:shadow-lg active:scale-98 transition-all cursor-pointer"
+              className="w-full py-4 rounded-xl bg-gradient-to-tr from-indigo-500 to-cyan-500 text-zinc-950 font-bold hover:shadow-lg active:scale-98 transition-all cursor-pointer"
             >
               Save Budget
             </button>
@@ -254,7 +254,7 @@ export default function BudgetsPage() {
                   placeholder="200"
                   value={editLimitAmount}
                   onChange={(e) => setEditLimitAmount(e.target.value)}
-                  className="w-full pl-8 pr-4 py-3 rounded-xl bg-zinc-900/60 border border-zinc-800 focus:border-emerald-500/40 text-sm font-semibold text-zinc-100 placeholder-zinc-500 focus:outline-none transition-colors"
+                  className="w-full pl-8 pr-4 py-3 rounded-xl bg-zinc-900/60 border border-zinc-800 focus:border-indigo-500/40 text-sm font-semibold text-zinc-100 placeholder-zinc-500 focus:outline-none transition-colors"
                   required
                 />
               </div>
@@ -263,7 +263,7 @@ export default function BudgetsPage() {
             <div className="grid grid-cols-2 gap-4">
               <button
                 type="submit"
-                className="py-4 rounded-xl bg-gradient-to-tr from-emerald-400 to-emerald-600 text-zinc-950 font-bold hover:shadow-lg active:scale-98 transition-all cursor-pointer text-xs"
+                className="py-4 rounded-xl bg-gradient-to-tr from-indigo-500 to-cyan-500 text-zinc-950 font-bold hover:shadow-lg active:scale-98 transition-all cursor-pointer text-xs"
               >
                 Apply Changes
               </button>

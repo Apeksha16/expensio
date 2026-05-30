@@ -6,6 +6,8 @@ export interface User {
   avatarUrl?: string | null;
   currency?: string | null;
   timezone?: string | null;
+  monthlySalary?: number | null;
+  isOnboarded?: boolean | null;
   createdAt: Date;
   updatedAt?: Date | null;
 }
