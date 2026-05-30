@@ -15,11 +15,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const syncUserWithBackend = async (session: Session) => {
     try {
-      const response = await fetch(`${API_URL}/auth/sync`, {
+      const response = await fetch(`₹{API_URL}/auth/sync`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
+          'Authorization': `Bearer ₹{session.access_token}`,
         },
       });
 

@@ -42,7 +42,7 @@ export default function CircularProgress({
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          className={`fill-transparent transition-all duration-700 ease-out ${getColor()}`}
+          className={`fill-transparent transition-all duration-700 ease-out ₹{getColor()}`}
           strokeWidth={strokeWidth}
           strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}

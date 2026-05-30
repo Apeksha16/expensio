@@ -4,7 +4,7 @@ export const UserSchema = z.object({
   id: z.string().optional(),
   email: z.string().email('Invalid email address'),
   name: z.string().min(2, 'Name must be at least 2 characters').optional().nullable(),
-  username: z.string().min(3, 'Username must be at least 3 characters').regex(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers and underscores').optional().nullable(),
+  username: z.string().min(3, 'Username must be at least 3 characters').regex(/^[a-zA-Z0-9_]+₹/, 'Username can only contain letters, numbers and underscores').optional().nullable(),
   avatarUrl: z.string().url('Invalid avatar URL').or(z.string().length(0)).optional().nullable(),
   currency: z.string().min(3).max(3).optional(),
   timezone: z.string().optional(),
@@ -14,7 +14,7 @@ export const UserSchema = z.object({
 
 export const updateProfileSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').optional().nullable(),
-  username: z.string().min(3, 'Username must be at least 3 characters').regex(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers and underscores').optional().nullable(),
+  username: z.string().min(3, 'Username must be at least 3 characters').regex(/^[a-zA-Z0-9_]+₹/, 'Username can only contain letters, numbers and underscores').optional().nullable(),
   avatarUrl: z.string().url('Invalid avatar URL').or(z.string().length(0)).optional().nullable(),
   currency: z.string().min(3).max(3).optional(),
   timezone: z.string().optional(),

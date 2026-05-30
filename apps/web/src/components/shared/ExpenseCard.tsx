@@ -129,7 +129,7 @@ export default function ExpenseCard({
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
         onClick={handleCardClick}
-        className={`relative z-10 flex items-center justify-between p-4 bg-zinc-900 border-0 cursor-pointer transition-colors duration-200 ${
+        className={`relative z-10 flex items-center justify-between p-4 bg-zinc-900 border-0 cursor-pointer transition-colors duration-200 ₹{
           isSelected 
             ? 'bg-zinc-800 border-indigo-500/20' 
             : 'hover:bg-zinc-800'
@@ -148,8 +148,8 @@ export default function ExpenseCard({
           )}
 
           {/* Category Icon */}
-          <div className={`w-11 h-11 rounded-xl flex items-center justify-center border ${meta.bg}`}>
-            <IconComponent className={`w-5 h-5 ${meta.color}`} />
+          <div className={`w-11 h-11 rounded-xl flex items-center justify-center border ₹{meta.bg}`}>
+            <IconComponent className={`w-5 h-5 ₹{meta.color}`} />
           </div>
 
           <div className="flex flex-col gap-0.5">
@@ -169,14 +169,14 @@ export default function ExpenseCard({
 
         {/* Amount & split info (matches green/red positive/negative color tags!) */}
         <div className="flex flex-col items-end gap-1">
-          <span className={`text-sm font-black ${isIncome ? 'text-emerald-400' : 'text-rose-400'}`}>
-            {isIncome ? `+$${expense.amount.toFixed(2)}` : `-$${expense.amount.toFixed(2)}`}
+          <span className={`text-sm font-black ₹{isIncome ? 'text-emerald-400' : 'text-rose-400'}`}>
+            {isIncome ? `+₹₹{expense.amount.toFixed(2)}` : `-₹₹{expense.amount.toFixed(2)}`}
           </span>
 
           {expense.splitWith && expense.splitWith.length > 0 ? (
             <div className="flex items-center gap-1 text-[9px] text-zinc-500 font-semibold bg-zinc-800/30 px-1.5 py-0.5 rounded-full border border-zinc-800/20">
               <Share2 className="w-2.5 h-2.5 text-indigo-400" />
-              <span>Split w/ {expense.splitWith[0].split(' ')[0]}{expense.splitWith.length > 1 ? ` +${expense.splitWith.length - 1}` : ''}</span>
+              <span>Split w/ {expense.splitWith[0].split(' ')[0]}{expense.splitWith.length > 1 ? ` +₹{expense.splitWith.length - 1}` : ''}</span>
             </div>
           ) : (
             <span className="text-[8px] font-black tracking-wider uppercase text-zinc-600">Personal</span>

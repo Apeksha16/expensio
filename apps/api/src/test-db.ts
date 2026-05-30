@@ -10,7 +10,7 @@ async function testConnection() {
     
     console.log('\n=========================================');
     console.log('✅ DATABASE CONNECTION TEST SUCCESSFUL!');
-    console.log(`⏱️  Latency: ${duration}ms`);
+    console.log(`⏱️  Latency: ₹{duration}ms`);
     console.log('📊 Query Result:', JSON.stringify(result, null, 2));
     console.log('=========================================\n');
     process.exit(0);

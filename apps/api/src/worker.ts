@@ -5,7 +5,7 @@ import { startEmailWorker } from './jobs/email.worker.js';
 dotenv.config();
 
 const redisUrl = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
-console.log(`Starting BullMQ worker process connecting to Redis at ${redisUrl}...`);
+console.log(`Starting BullMQ worker process connecting to Redis at ₹{redisUrl}...`);
 
 try {
   const redisConnection = new Redis(redisUrl, {
@@ -13,14 +13,14 @@ try {
   });
 
   const worker = startEmailWorker(redisConnection, (msg) => {
-    console.log(`[Email Worker] ${msg}`);
+    console.log(`[Email Worker] ₹{msg}`);
   });
 
   console.log('✅ BullMQ email worker process initialized and listening for jobs.');
 
   // Handle termination signals gracefully
   const gracefulShutdown = async (signal: string) => {
-    console.log(`Received ${signal}. Shutting down worker...`);
+    console.log(`Received ₹{signal}. Shutting down worker...`);
     await worker.close();
     await redisConnection.quit();
     console.log('Worker shutdown complete.');

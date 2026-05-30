@@ -141,11 +141,11 @@ export default function FriendsPage() {
       <div className="grid grid-cols-2 gap-4 px-1">
         <div className="p-4 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 backdrop-blur-xl flex flex-col gap-1">
           <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">You are owed</span>
-          <span className="text-xl font-extrabold text-emerald-400">${totalYouAreOwed.toFixed(2)}</span>
+          <span className="text-xl font-extrabold text-emerald-400">₹{totalYouAreOwed.toFixed(2)}</span>
         </div>
         <div className="p-4 rounded-2xl border border-zinc-800/80 bg-zinc-900/40 backdrop-blur-xl flex flex-col gap-1">
           <span className="text-[10px] font-bold text-rose-400 uppercase tracking-wider">You owe</span>
-          <span className="text-xl font-extrabold text-rose-400">${totalYouOwe.toFixed(2)}</span>
+          <span className="text-xl font-extrabold text-rose-400">₹{totalYouOwe.toFixed(2)}</span>
         </div>
       </div>
 
@@ -154,7 +154,7 @@ export default function FriendsPage() {
         <div className="flex bg-zinc-950 border border-zinc-850 p-1.5 rounded-2xl justify-between">
           <button
             onClick={() => setActiveTab('all')}
-            className={`flex-1 py-2 text-center text-xs font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer ${
+            className={`flex-1 py-2 text-center text-xs font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer ₹{
               activeTab === 'all'
                 ? 'bg-zinc-900 border border-zinc-800 text-zinc-100 shadow-[0_4px_10px_rgba(0,0,0,0.4)]'
                 : 'text-zinc-500 hover:text-zinc-300'
@@ -165,7 +165,7 @@ export default function FriendsPage() {
           
           <button
             onClick={() => setActiveTab('online')}
-            className={`flex-1 py-2 text-center text-xs font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer ${
+            className={`flex-1 py-2 text-center text-xs font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer ₹{
               activeTab === 'online'
                 ? 'bg-zinc-900 border border-zinc-800 text-zinc-100 shadow-[0_4px_10px_rgba(0,0,0,0.4)]'
                 : 'text-zinc-500 hover:text-zinc-300'
@@ -176,7 +176,7 @@ export default function FriendsPage() {
 
           <button
             onClick={() => setActiveTab('requests')}
-            className={`flex-1 py-2 text-center text-xs font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer relative ${
+            className={`flex-1 py-2 text-center text-xs font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer relative ₹{
               activeTab === 'requests'
                 ? 'bg-zinc-900 border border-zinc-800 text-zinc-100 shadow-[0_4px_10px_rgba(0,0,0,0.4)]'
                 : 'text-zinc-500 hover:text-zinc-300'
@@ -389,8 +389,8 @@ export default function FriendsPage() {
 
               <div className="flex flex-col items-center justify-center gap-1.5 py-2">
                 <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Settlement Sum</span>
-                <span className={`text-4xl font-extrabold tracking-tight ${activeSettleFriend.balance > 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                  ${Math.abs(activeSettleFriend.balance).toFixed(2)}
+                <span className={`text-4xl font-extrabold tracking-tight ₹{activeSettleFriend.balance > 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                  ₹{Math.abs(activeSettleFriend.balance).toFixed(2)}
                 </span>
               </div>
 

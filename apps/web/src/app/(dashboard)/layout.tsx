@@ -31,10 +31,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   // Notifications interactive state
   const [notifications, setNotifications] = useState([
-    { id: 'n1', title: 'Owe Split Request 💸', desc: 'Rahul Sharma owes you $37.50 for Goa trip splits.', time: '1h ago', category: 'split', dismissed: false },
+    { id: 'n1', title: 'Owe Split Request 💸', desc: 'Rahul Sharma owes you ₹37.50 for Goa trip splits.', time: '1h ago', category: 'split', dismissed: false },
     { id: 'n2', title: 'Budget Limit Warning ⚠️', desc: 'You used 34% of your Transport monthly allocation.', time: '4h ago', category: 'alert', dismissed: false },
-    { id: 'n3', title: 'Transaction Confirmed ✅', desc: 'Verified direct salary deposit credit of +$2,800.00.', time: '1d ago', category: 'income', dismissed: false },
-    { id: 'n4', title: 'Active Goa Group splits 🏖️', desc: 'Rahul Sharma added Hotel Booking ($600.00) in Goa group.', time: '2d ago', category: 'group', dismissed: false }
+    { id: 'n3', title: 'Transaction Confirmed ✅', desc: 'Verified direct salary deposit credit of +₹2,800.00.', time: '1d ago', category: 'income', dismissed: false },
+    { id: 'n4', title: 'Active Goa Group splits 🏖️', desc: 'Rahul Sharma added Hotel Booking (₹600.00) in Goa group.', time: '2d ago', category: 'group', dismissed: false }
   ]);
 
   // Profile preferences
@@ -82,7 +82,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (isSplit && splitType === 'percentage') {
       const totalSum = Object.values(splitPercentages).reduce((acc, curr) => acc + curr, 0);
       if (totalSum !== 100) {
-        alert(`Split percentage sum must be exactly 100% (currently ${totalSum}%). Please balance the split!`);
+        alert(`Split percentage sum must be exactly 100% (currently ₹{totalSum}%). Please balance the split!`);
         return;
       }
     }
@@ -183,7 +183,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="flex flex-col items-center gap-1.5 py-4 border-b border-zinc-900">
             <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Bill Value</span>
             <div className="flex items-center gap-1">
-              <span className="text-3xl font-extrabold text-emerald-400">$</span>
+              <span className="text-3xl font-extrabold text-emerald-400">₹</span>
               <input
                 type="number"
                 step="0.01"
@@ -209,7 +209,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     key={cat.name}
                     type="button"
                     onClick={() => setCategory(cat.name)}
-                    className={`flex flex-col items-center justify-center p-3 rounded-2xl border transition-all cursor-pointer gap-1.5 ${
+                    className={`flex flex-col items-center justify-center p-3 rounded-2xl border transition-all cursor-pointer gap-1.5 ₹{
                       isSelected
                         ? cat.bg + ' ring-1 ring-emerald-500/30 scale-105 shadow-[0_0_8px_rgba(16,185,129,0.1)]'
                         : 'bg-zinc-900/40 border-zinc-850 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900/60'
@@ -252,7 +252,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       key={friend.id}
                       type="button"
                       onClick={() => handleFriendToggle(friend.name)}
-                      className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border font-semibold text-xs transition-all shrink-0 cursor-pointer ${
+                      className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border font-semibold text-xs transition-all shrink-0 cursor-pointer ₹{
                         isChecked
                           ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30 ring-1 ring-indigo-500/30'
                           : 'bg-zinc-900/40 border-zinc-850 text-zinc-500 hover:text-zinc-300'
@@ -434,7 +434,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="grid grid-cols-3 gap-3">
             <div className="p-3 rounded-2xl border border-zinc-850 bg-zinc-950/40 text-center flex flex-col gap-0.5">
               <span className="text-[8px] font-black uppercase text-zinc-550 tracking-wider">Total Saved</span>
-              <span className="text-sm font-black text-emerald-400">$2,800</span>
+              <span className="text-sm font-black text-emerald-400">₹2,800</span>
             </div>
             <div className="p-3 rounded-2xl border border-zinc-850 bg-zinc-950/40 text-center flex flex-col gap-0.5">
               <span className="text-[8px] font-black uppercase text-zinc-550 tracking-wider">Active Splits</span>
@@ -469,7 +469,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     setBiometricsActive(!biometricsActive);
                     showToast(biometricsActive ? "Biometrics turned off" : "Biometrics activated!");
                   }}
-                  className={`w-9 h-5 rounded-full p-0.5 transition-colors duration-200 focus:outline-none flex items-center cursor-pointer border-0 ${biometricsActive ? 'bg-emerald-500 justify-end' : 'bg-zinc-850 justify-start'}`}
+                  className={`w-9 h-5 rounded-full p-0.5 transition-colors duration-200 focus:outline-none flex items-center cursor-pointer border-0 ₹{biometricsActive ? 'bg-emerald-500 justify-end' : 'bg-zinc-850 justify-start'}`}
                 >
                   <div className="w-4 h-4 rounded-full bg-zinc-950" />
                 </button>
@@ -493,7 +493,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     setHighContrastActive(!highContrastActive);
                     showToast(highContrastActive ? "High Contrast deactivated" : "High Contrast active!");
                   }}
-                  className={`w-9 h-5 rounded-full p-0.5 transition-colors duration-200 focus:outline-none flex items-center cursor-pointer border-0 ${highContrastActive ? 'bg-emerald-500 justify-end' : 'bg-zinc-850 justify-start'}`}
+                  className={`w-9 h-5 rounded-full p-0.5 transition-colors duration-200 focus:outline-none flex items-center cursor-pointer border-0 ₹{highContrastActive ? 'bg-emerald-500 justify-end' : 'bg-zinc-850 justify-start'}`}
                 >
                   <div className="w-4 h-4 rounded-full bg-zinc-950" />
                 </button>
@@ -517,7 +517,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     setOfflineCacheActive(!offlineCacheActive);
                     showToast(offlineCacheActive ? "Offline cache disabled" : "Offline PWA caching active!");
                   }}
-                  className={`w-9 h-5 rounded-full p-0.5 transition-colors duration-200 focus:outline-none flex items-center cursor-pointer border-0 ${offlineCacheActive ? 'bg-emerald-500 justify-end' : 'bg-zinc-850 justify-start'}`}
+                  className={`w-9 h-5 rounded-full p-0.5 transition-colors duration-200 focus:outline-none flex items-center cursor-pointer border-0 ₹{offlineCacheActive ? 'bg-emerald-500 justify-end' : 'bg-zinc-850 justify-start'}`}
                 >
                   <div className="w-4 h-4 rounded-full bg-zinc-950" />
                 </button>

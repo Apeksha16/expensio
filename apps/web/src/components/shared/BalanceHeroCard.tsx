@@ -22,7 +22,7 @@ export default function BalanceHeroCard() {
     .filter(e => e.category === 'Income')
     .reduce((acc, curr) => acc + curr.amount, 0);
 
-  // We set baseBalance and offsets so that the result is EXACTLY $4,932.51 matching the mockup screenshot
+  // We set baseBalance and offsets so that the result is EXACTLY ₹4,932.51 matching the mockup screenshot
   const currentBalance = 4932.51; 
   const monthlyExpenses = 374.99; // Matching mockup Spent this month exactly
   const budgetUsagePercent = 39; // Matching mockup exactly
@@ -48,7 +48,7 @@ export default function BalanceHeroCard() {
             <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Total Balance</span>
             <div className="flex items-center gap-2">
               <span className="text-3xl font-black tracking-tight text-zinc-100">
-                ${currentBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                ₹{currentBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </span>
               <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/15 px-2 py-0.5 rounded-full border border-emerald-500/20 flex items-center gap-0.5">
                 <ArrowUpRight className="w-2.5 h-2.5" />
@@ -118,7 +118,7 @@ export default function BalanceHeroCard() {
         <div className="flex flex-col gap-0.5">
           <span className="text-[9px] font-black uppercase tracking-wider text-zinc-500">Spent this month</span>
           <div className="flex items-baseline gap-1 text-zinc-100 font-extrabold text-base">
-            <span>${monthlyExpenses.toFixed(2)}</span>
+            <span>₹{monthlyExpenses.toFixed(2)}</span>
           </div>
         </div>
 
@@ -131,10 +131,10 @@ export default function BalanceHeroCard() {
             <div className="flex-1 h-1.5 rounded-full bg-zinc-950 p-[1px] border border-zinc-850 overflow-hidden">
               <div 
                 className="h-full rounded-full bg-emerald-400"
-                style={{ width: `${budgetUsagePercent}%` }}
+                style={{ width: `₹{budgetUsagePercent}%` }}
               />
             </div>
-            <span className="text-[9px] font-bold text-zinc-500 whitespace-nowrap">of $950</span>
+            <span className="text-[9px] font-bold text-zinc-500 whitespace-nowrap">of ₹950</span>
           </div>
         </div>
       </div>

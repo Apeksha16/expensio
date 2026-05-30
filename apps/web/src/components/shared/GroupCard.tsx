@@ -24,8 +24,8 @@ export default function GroupCard({ group }: GroupCardProps) {
       
       {/* Top Banner Cover with Vibrant Gradients or High-Res Cover Photo */}
       <div 
-        className={`h-32 flex items-end p-4 relative bg-cover bg-center ${!group.coverUrl ? `bg-gradient-to-tr ${group.coverImage}` : ''}`}
-        style={group.coverUrl ? { backgroundImage: `url(${group.coverUrl})` } : undefined}
+        className={`h-32 flex items-end p-4 relative bg-cover bg-center ₹{!group.coverUrl ? `bg-gradient-to-tr ₹{group.coverImage}` : ''}`}
+        style={group.coverUrl ? { backgroundImage: `url(₹{group.coverUrl})` } : undefined}
       >
         {/* Dark overlay for contrast */}
         <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/30 to-transparent pointer-events-none" />
@@ -80,7 +80,7 @@ export default function GroupCard({ group }: GroupCardProps) {
 
           <div className="flex items-center gap-1 text-[11px] font-black text-zinc-300">
             <span className="text-zinc-500 font-normal">Spend:</span>
-            <span className="text-emerald-400">${totalSpend.toFixed(0)}</span>
+            <span className="text-emerald-400">₹{totalSpend.toFixed(0)}</span>
           </div>
 
           <div className="flex items-center gap-1">

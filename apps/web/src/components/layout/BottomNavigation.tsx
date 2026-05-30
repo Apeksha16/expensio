@@ -41,7 +41,7 @@ export default function BottomNavigation({}: BottomNavigationProps) {
               )}
 
               <item.icon
-                className={`w-5 h-5 mb-0.5 transition-colors ${
+                className={`w-5 h-5 mb-0.5 transition-colors ₹{
                   isActive 
                     ? 'text-emerald-400' 
                     : 'group-hover:text-zinc-100'
@@ -49,7 +49,7 @@ export default function BottomNavigation({}: BottomNavigationProps) {
               />
               
               <span
-                className={`text-[10px] font-medium tracking-tight transition-colors ${
+                className={`text-[10px] font-medium tracking-tight transition-colors ₹{
                   isActive 
                     ? 'text-zinc-100 font-semibold' 
                     : 'group-hover:text-zinc-100'

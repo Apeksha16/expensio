@@ -69,7 +69,7 @@ export const supabase = isPlaceholder ? {
       };
       
       if (typeof window !== 'undefined') {
-        document.cookie = `expensio-session=${encodeURIComponent(JSON.stringify(mockUser))}; path=/; max-age=604800; SameSite=Lax;`;
+        document.cookie = `expensio-session=₹{encodeURIComponent(JSON.stringify(mockUser))}; path=/; max-age=604800; SameSite=Lax;`;
       }
       
       return { data: { user: mockUser, session: {} }, error: null };
@@ -89,7 +89,7 @@ export const supabase = isPlaceholder ? {
       };
       
       if (typeof window !== 'undefined') {
-        document.cookie = `expensio-session=${encodeURIComponent(JSON.stringify(mockUser))}; path=/; max-age=604800; SameSite=Lax;`;
+        document.cookie = `expensio-session=₹{encodeURIComponent(JSON.stringify(mockUser))}; path=/; max-age=604800; SameSite=Lax;`;
       }
       
       return { data: { user: mockUser, session: { user: mockUser } }, error: null };

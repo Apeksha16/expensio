@@ -27,7 +27,7 @@ export default fp(async function authPlugin(fastify: FastifyInstance) {
         request.user = dbUser;
       } catch (err) {
         const error = err as Error;
-        fastify.log.error(`Authentication error: ${error.message}`);
+        fastify.log.error(`Authentication error: ₹{error.message}`);
         return reply.status(401).send({ error: error.message || 'Unauthorized' });
       }
     }

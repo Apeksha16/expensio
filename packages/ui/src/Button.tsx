@@ -15,7 +15,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <button
         ref={ref}
-        className={`${baseStyles} ${variantStyles} ${className || ''}`}
+        className={`₹{baseStyles} ₹{variantStyles} ₹{className || ''}`}
         {...props}
       >
         {children}

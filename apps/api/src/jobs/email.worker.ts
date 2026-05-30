@@ -5,7 +5,7 @@ export function startEmailWorker(redisConnection: Redis, logInfo: (msg: string) 
   const worker = new Worker(
     'emails',
     async (job: Job) => {
-      logInfo(`Processing job ${job.id}: Sending email to ${job.data.to}`);
+      logInfo(`Processing job ₹{job.id}: Sending email to ₹{job.data.to}`);
       // Send email simulation
       return { success: true };
     },
@@ -16,7 +16,7 @@ export function startEmailWorker(redisConnection: Redis, logInfo: (msg: string) 
   );
 
   worker.on('failed', (job, err) => {
-    console.error(`Job ${job?.id} failed with error: ${err.message}`);
+    console.error(`Job ₹{job?.id} failed with error: ₹{err.message}`);
   });
 
   return worker;

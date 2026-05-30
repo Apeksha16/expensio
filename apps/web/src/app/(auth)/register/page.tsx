@@ -98,9 +98,9 @@ export default function RegisterPage() {
       };
 
       // Set session cookie
-      document.cookie = `expensio-session=${encodeURIComponent(JSON.stringify(mockUser))}; path=/; max-age=604800; SameSite=Lax;`;
+      document.cookie = `expensio-session=₹{encodeURIComponent(JSON.stringify(mockUser))}; path=/; max-age=604800; SameSite=Lax;`;
 
-      showToast(`Welcome back, ${account.name}!`);
+      showToast(`Welcome back, ₹{account.name}!`);
       
       setTimeout(() => {
         setGoogleSigningIn(false);
@@ -166,7 +166,7 @@ export default function RegisterPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="John Doe"
-                className={`w-full bg-zinc-950 border ${
+                className={`w-full bg-zinc-950 border ₹{
                   validationErrors.name ? 'border-red-500/50' : 'border-zinc-800 hover:border-zinc-700'
                 } focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 outline-none rounded-xl py-3 pl-11 pr-4 text-sm transition-all text-white placeholder-zinc-600`}
                 disabled={loading}
@@ -191,7 +191,7 @@ export default function RegisterPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                className={`w-full bg-zinc-950 border ${
+                className={`w-full bg-zinc-950 border ₹{
                   validationErrors.email ? 'border-red-500/50' : 'border-zinc-800 hover:border-zinc-700'
                 } focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 outline-none rounded-xl py-3 pl-11 pr-4 text-sm transition-all text-white placeholder-zinc-600`}
                 disabled={loading}
@@ -216,7 +216,7 @@ export default function RegisterPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className={`w-full bg-zinc-950 border ${
+                className={`w-full bg-zinc-950 border ₹{
                   validationErrors.password ? 'border-red-500/50' : 'border-zinc-800 hover:border-zinc-700'
                 } focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 outline-none rounded-xl py-3 pl-11 pr-11 text-sm transition-all text-white placeholder-zinc-600`}
                 disabled={loading}
@@ -305,7 +305,7 @@ export default function RegisterPage() {
       {/* Premium Google Accounts Chooser Overlay */}
       <AnimatePresence>
         {showGoogleChooser && (
-          <div className="fixed inset-0 z-[200] flex items-end justify-center bg-black/60 backdrop-blur-sm">
+          <div className="fixed inset-0 z-[200] flex items-end justify-center bg-indigo-900/60 backdrop-blur-sm">
             {/* Backdrop Click Dismiss */}
             <div className="absolute inset-0" onClick={() => !googleSigningIn && setShowGoogleChooser(false)} />
             

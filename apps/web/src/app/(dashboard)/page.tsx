@@ -111,7 +111,7 @@ export default function DashboardPage() {
               <span className="text-[9px] font-black uppercase tracking-wider text-zinc-500">Top Category</span>
               <div className="flex items-baseline gap-1.5">
                 <span className="text-base font-bold text-zinc-100">{topCategoryName}</span>
-                <span className="text-sm font-extrabold text-emerald-400">${topCategorySpent.toFixed(2)}</span>
+                <span className="text-sm font-extrabold text-emerald-400">₹{topCategorySpent.toFixed(2)}</span>
               </div>
               <div className="flex items-center gap-1.5 text-[9px] text-emerald-400 font-bold mt-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
@@ -143,11 +143,11 @@ export default function DashboardPage() {
                   cx="56"
                   cy="56"
                   r="40"
-                  className={`fill-transparent ${seg.color}`}
+                  className={`fill-transparent ₹{seg.color}`}
                   strokeWidth="8.5"
                   strokeDasharray="251.2" // circumference: 2 * Math.PI * 40
                   strokeDashoffset={251.2 - seg.length}
-                  style={{ transform: `rotate(${seg.offset}deg)`, transformOrigin: '56px 56px' }}
+                  style={{ transform: `rotate(₹{seg.offset}deg)`, transformOrigin: '56px 56px' }}
                   strokeLinecap="round"
                 />
               ))}
@@ -155,7 +155,7 @@ export default function DashboardPage() {
             
             {/* Center numbers */}
             <div className="absolute flex flex-col items-center justify-center text-center">
-              <span className="text-sm font-black text-zinc-100">${totalSpent.toFixed(2)}</span>
+              <span className="text-sm font-black text-zinc-100">₹{totalSpent.toFixed(2)}</span>
               <span className="text-[7px] font-black uppercase tracking-wider text-zinc-500">This Month</span>
             </div>
           </div>
@@ -212,8 +212,8 @@ export default function DashboardPage() {
               {/* Amount Owed */}
               <div className="flex flex-col items-center justify-center gap-1.5 py-2">
                 <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">Transaction Sum</span>
-                <span className={`text-4xl font-extrabold tracking-tight ${expenseCategoryColor(activeDetailExpense.category)}`}>
-                  {activeDetailExpense.category === 'Income' ? `+$${activeDetailExpense.amount.toFixed(2)}` : `-$${activeDetailExpense.amount.toFixed(2)}`}
+                <span className={`text-4xl font-extrabold tracking-tight ₹{expenseCategoryColor(activeDetailExpense.category)}`}>
+                  {activeDetailExpense.category === 'Income' ? `+₹₹{activeDetailExpense.amount.toFixed(2)}` : `-₹₹{activeDetailExpense.amount.toFixed(2)}`}
                 </span>
                 <span className="text-xs font-bold text-zinc-300 mt-1">{activeDetailExpense.title}</span>
               </div>

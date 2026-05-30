@@ -23,13 +23,13 @@ const AVATAR_PRESETS = [
 ];
 
 const CURRENCIES = [
-  { code: 'USD', name: 'US Dollar ($)' },
+  { code: 'USD', name: 'US Dollar (₹)' },
   { code: 'EUR', name: 'Euro (€)' },
   { code: 'GBP', name: 'British Pound (£)' },
   { code: 'INR', name: 'Indian Rupee (₹)' },
   { code: 'JPY', name: 'Japanese Yen (¥)' },
-  { code: 'CAD', name: 'Canadian Dollar (C$)' },
-  { code: 'AUD', name: 'Australian Dollar (A$)' },
+  { code: 'CAD', name: 'Canadian Dollar (C₹)' },
+  { code: 'AUD', name: 'Australian Dollar (A₹)' },
 ];
 
 const TIMEZONES = [
@@ -56,9 +56,9 @@ export default function SettingsPage() {
       if (!session?.access_token) {
         throw new Error('Not authenticated');
       }
-      const response = await fetch(`${API_URL}/users/me`, {
+      const response = await fetch(`₹{API_URL}/users/me`, {
         headers: {
-          'Authorization': `Bearer ${session.access_token}`,
+          'Authorization': `Bearer ₹{session.access_token}`,
         },
       });
       if (!response.ok) {
@@ -120,11 +120,11 @@ export default function SettingsPage() {
       if (!session?.access_token) {
         throw new Error('Not authenticated');
       }
-      const response = await fetch(`${API_URL}/users/me`, {
+      const response = await fetch(`₹{API_URL}/users/me`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
+          'Authorization': `Bearer ₹{session.access_token}`,
         },
         body: JSON.stringify(formData),
       });
@@ -267,14 +267,14 @@ export default function SettingsPage() {
                       key={idx}
                       type="button"
                       onClick={() => selectPresetAvatar(preset)}
-                      className={`relative w-full aspect-square rounded-xl bg-zinc-950 border ${
+                      className={`relative w-full aspect-square rounded-xl bg-zinc-950 border ₹{
                         watchedAvatarUrl === preset
                           ? 'border-emerald-400 ring-2 ring-emerald-400/15'
                           : 'border-zinc-850 hover:border-zinc-700'
                       } overflow-hidden p-1 transition-all active:scale-95`}
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={preset} alt={`Preset ${idx}`} className="w-full h-full object-contain" />
+                      <img src={preset} alt={`Preset ₹{idx}`} className="w-full h-full object-contain" />
                       {watchedAvatarUrl === preset && (
                         <div className="absolute top-1 right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full flex items-center justify-center">
                           <Check className="w-2.5 h-2.5 text-zinc-950 stroke-[3]" />
@@ -343,7 +343,7 @@ export default function SettingsPage() {
                     type="text"
                     {...register('name')}
                     placeholder="Enter your name"
-                    className={`w-full bg-zinc-950 border ${
+                    className={`w-full bg-zinc-950 border ₹{
                       errors.name ? 'border-red-500/50' : 'border-zinc-800 hover:border-zinc-700'
                     } focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 outline-none rounded-xl py-3 pl-11 pr-4 text-sm transition-all text-white placeholder-zinc-650`}
                   />
@@ -368,7 +368,7 @@ export default function SettingsPage() {
                     type="text"
                     {...register('username')}
                     placeholder="username"
-                    className={`w-full bg-zinc-950 border ${
+                    className={`w-full bg-zinc-950 border ₹{
                       errors.username ? 'border-red-500/50' : 'border-zinc-800 hover:border-zinc-700'
                     } focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 outline-none rounded-xl py-3 pl-8 pr-4 text-sm transition-all text-white placeholder-zinc-655`}
                   />

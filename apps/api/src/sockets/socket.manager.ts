@@ -19,15 +19,15 @@ export class SocketManager {
     });
 
     this.io.on('connection', (socket: Socket) => {
-      this.logger.info(`Client connected: ${socket.id}`);
+      this.logger.info(`Client connected: ₹{socket.id}`);
       
       socket.on('join-room', (roomId: string) => {
         socket.join(roomId);
-        this.logger.info(`Socket ${socket.id} joined room ${roomId}`);
+        this.logger.info(`Socket ₹{socket.id} joined room ₹{roomId}`);
       });
 
       socket.on('disconnect', () => {
-        this.logger.info(`Client disconnected: ${socket.id}`);
+        this.logger.info(`Client disconnected: ₹{socket.id}`);
       });
     });
 

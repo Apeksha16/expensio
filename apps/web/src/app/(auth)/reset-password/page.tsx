@@ -108,7 +108,7 @@ export default function ResetPasswordPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className={`w-full bg-zinc-950 border ${
+                className={`w-full bg-zinc-950 border ₹{
                   validationError ? 'border-red-500/50' : 'border-zinc-800 hover:border-zinc-700'
                 } focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 outline-none rounded-xl py-3 pl-11 pr-11 text-sm transition-all text-white placeholder-zinc-600`}
                 disabled={loading}

@@ -105,15 +105,15 @@ export default function BudgetsPage() {
           <div className="h-2 w-full bg-zinc-950 rounded-full overflow-hidden p-[1px] border border-zinc-850">
             <div 
               className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.3)] transition-all duration-700" 
-              style={{ width: `${Math.min(100, budgetUsagePercent)}%` }}
+              style={{ width: `₹{Math.min(100, budgetUsagePercent)}%` }}
             />
           </div>
           <div className="flex items-baseline justify-between text-xs text-zinc-400 font-medium">
             <span className="text-[10px] font-semibold text-zinc-500">
-              Spent: <span className="font-extrabold text-zinc-300">${totalSpent.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              Spent: <span className="font-extrabold text-zinc-300">₹{totalSpent.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </span>
             <span className="text-[10px] font-semibold text-zinc-500">
-              Limit: <span className="font-bold text-zinc-400">${totalBudgetLimit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              Limit: <span className="font-bold text-zinc-400">₹{totalBudgetLimit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </span>
           </div>
         </div>
@@ -206,9 +206,9 @@ export default function BudgetsPage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Budget Limit Amount ($)</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Budget Limit Amount (₹)</label>
               <div className="relative">
-                <span className="text-sm font-bold text-zinc-400 absolute left-4.5 top-3.5">$</span>
+                <span className="text-sm font-bold text-zinc-400 absolute left-4.5 top-3.5">₹</span>
                 <input
                   type="number"
                   placeholder="200"
@@ -246,9 +246,9 @@ export default function BudgetsPage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Modified Budget Limit ($)</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Modified Budget Limit (₹)</label>
               <div className="relative">
-                <span className="text-sm font-bold text-zinc-400 absolute left-4.5 top-3.5">$</span>
+                <span className="text-sm font-bold text-zinc-400 absolute left-4.5 top-3.5">₹</span>
                 <input
                   type="number"
                   placeholder="200"

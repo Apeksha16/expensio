@@ -90,7 +90,7 @@ export default function ExpensesPage() {
             setIsSelectionMode(!isSelectionMode);
             setSelectedIds([]);
           }}
-          className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-[10px] font-black uppercase tracking-wider active:scale-95 transition-all cursor-pointer ${
+          className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-[10px] font-black uppercase tracking-wider active:scale-95 transition-all cursor-pointer ₹{
             isSelectionMode 
               ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30' 
               : 'bg-zinc-900/60 border-zinc-800 text-zinc-400'
@@ -121,7 +121,7 @@ export default function ExpensesPage() {
             <button
               key={pill}
               onClick={() => setSelectedCategory(pill)}
-              className={`px-4 py-2 rounded-xl border font-bold text-xs transition-all shrink-0 cursor-pointer ${
+              className={`px-4 py-2 rounded-xl border font-bold text-xs transition-all shrink-0 cursor-pointer ₹{
                 isActive
                   ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 ring-1 ring-emerald-500/30'
                   : 'bg-zinc-900/40 border-zinc-800 text-zinc-500 hover:text-zinc-300'
@@ -220,7 +220,7 @@ export default function ExpensesPage() {
               <div className="flex flex-col items-center gap-1 py-2 border-b border-zinc-900">
                 <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Edit Value</span>
                 <div className="flex items-center gap-1">
-                  <span className="text-3xl font-bold text-emerald-400">$</span>
+                  <span className="text-3xl font-bold text-emerald-400">₹</span>
                   <input
                     type="number"
                     step="0.01"
@@ -301,7 +301,7 @@ export default function ExpensesPage() {
             <div className="space-y-6">
               <div className="flex flex-col items-center justify-center py-4 border-b border-zinc-900 gap-1.5">
                 <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Value Details</span>
-                <span className="text-4xl font-extrabold text-rose-400">-${activeDetailExpense.amount.toFixed(2)}</span>
+                <span className="text-4xl font-extrabold text-rose-400">-₹{activeDetailExpense.amount.toFixed(2)}</span>
                 <span className="text-xs font-semibold text-zinc-400 mt-0.5">{activeDetailExpense.title}</span>
               </div>
 
@@ -333,12 +333,12 @@ export default function ExpensesPage() {
                       <div className="p-3.5 rounded-xl bg-zinc-900 border border-zinc-800 space-y-2">
                         <div className="flex justify-between font-bold">
                           <span className="text-zinc-400">Paid by Me</span>
-                          <span className="text-zinc-100">${(activeDetailExpense.amount / (splitWith.length + 1)).toFixed(2)}</span>
+                          <span className="text-zinc-100">₹{(activeDetailExpense.amount / (splitWith.length + 1)).toFixed(2)}</span>
                         </div>
                         {splitWith.map((friend: string) => (
                           <div key={friend} className="flex justify-between font-medium text-zinc-400 text-[11px]">
                             <span>Owes Me: {friend.split(' ')[0]}</span>
-                            <span>${(activeDetailExpense.amount / (splitWith.length + 1)).toFixed(2)}</span>
+                            <span>₹{(activeDetailExpense.amount / (splitWith.length + 1)).toFixed(2)}</span>
                           </div>
                         ))}
                       </div>

@@ -79,7 +79,7 @@ const initialExpenses: Expense[] = [
   { id: '9', title: 'Train Ticket', amount: 20.60, category: 'Transport', date: '2026-05-12', paidBy: 'me', paymentMethod: 'Credit Card' },
   { id: '10', title: 'Movie Tickets', amount: 30.00, category: 'Entertainment', date: '2026-05-10', paidBy: 'me', paymentMethod: 'Credit Card' },
   { id: '11', title: 'Mobile Bill', amount: 35.00, category: 'Utilities', date: '2026-05-08', paidBy: 'me', paymentMethod: 'Credit Card' },
-  // Group shared transaction representing Trip to Goa splits, mathematically summing to exactly $1,248.75 (Your share: $208.12)
+  // Group shared transaction representing Trip to Goa splits, mathematically summing to exactly ₹1,248.75 (Your share: ₹208.12)
   { id: '12', title: 'Hotel Booking', amount: 600.00, category: 'Travel', date: '2026-05-25', paidBy: 'Rahul Sharma', splitWith: ['me', 'Amit Verma', 'Pranav Singh', 'Neha Kapoor', 'Sarthak Jain'], splitType: 'equal', groupId: 'g1' },
   { id: '13', title: 'Dinner at Cafe 1947', amount: 120.50, category: 'Food', date: '2026-05-25', paidBy: 'me', splitWith: ['Rahul Sharma', 'Amit Verma', 'Pranav Singh', 'Neha Kapoor', 'Sarthak Jain'], splitType: 'equal', groupId: 'g1' },
   { id: '14', title: 'Cab to Hotel', amount: 80.00, category: 'Travel', date: '2026-05-25', paidBy: 'Amit Verma', splitWith: ['me', 'Rahul Sharma', 'Pranav Singh', 'Neha Kapoor', 'Sarthak Jain'], splitType: 'equal', groupId: 'g1' },
@@ -95,9 +95,9 @@ const initialBudgets: Budget[] = [
 ];
 
 const initialFriends: Friend[] = [
-  { id: 'f1', name: 'Rahul Sharma', username: 'rahuls', avatar: 'RS', balance: 37.50, online: true }, // Rahul owes me $37.50
-  { id: 'f2', name: 'Amit Verma', username: 'amitv', avatar: 'AV', balance: 120.00, online: true }, // Amit owes me $120.00
-  { id: 'f3', name: 'Pranav Singh', username: 'pranavs', avatar: 'PS', balance: -20.00, online: true }, // I owe Pranav $20.00
+  { id: 'f1', name: 'Rahul Sharma', username: 'rahuls', avatar: 'RS', balance: 37.50, online: true }, // Rahul owes me ₹37.50
+  { id: 'f2', name: 'Amit Verma', username: 'amitv', avatar: 'AV', balance: 120.00, online: true }, // Amit owes me ₹120.00
+  { id: 'f3', name: 'Pranav Singh', username: 'pranavs', avatar: 'PS', balance: -20.00, online: true }, // I owe Pranav ₹20.00
   { id: 'f4', name: 'Neha Kapoor', username: 'nehak', avatar: 'NK', balance: 0.00, online: false }, // Settled
   { id: 'f5', name: 'Sarthak Jain', username: 'sarthakj', avatar: 'SJ', balance: 0.00, online: false }  // Settled
 ];

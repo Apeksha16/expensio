@@ -62,7 +62,7 @@ export default function QuickActions({
           <button
             key={index}
             onClick={act.action}
-            className={`flex items-center gap-2.5 px-4 py-3 rounded-2xl border backdrop-blur-md active:scale-95 transition-all snap-start shrink-0 font-semibold text-xs cursor-pointer ${act.color}`}
+            className={`flex items-center gap-2.5 px-4 py-3 rounded-2xl border backdrop-blur-md active:scale-95 transition-all snap-start shrink-0 font-semibold text-xs cursor-pointer ₹{act.color}`}
           >
             <act.icon className="w-4 h-4" />
             <span>{act.label}</span>

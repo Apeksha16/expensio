@@ -70,7 +70,7 @@ const start = async () => {
       await db.execute(sql`SELECT 1`);
       fastify.log.info('Database connection verified successfully via Drizzle ORM');
     } catch (dbError: any) {
-      fastify.log.warn(`Database connection verification failed: ${dbError.message}`);
+      fastify.log.warn(`Database connection verification failed: ₹{dbError.message}`);
       fastify.log.warn('Booting server anyway. Ensure PostgreSQL is running and DATABASE_URL is correct.');
     }
     

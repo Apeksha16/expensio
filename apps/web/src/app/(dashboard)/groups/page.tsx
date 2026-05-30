@@ -116,8 +116,8 @@ export default function GroupsPage() {
 
           {/* Glowing Gradient Header Banner with Unsplash photography */}
           <div 
-            className={`rounded-3xl p-6 bg-cover bg-center relative overflow-hidden flex flex-col justify-end gap-2.5 min-h-40 border border-zinc-500/10 shadow-lg ${!activeGroup.coverUrl ? `bg-gradient-to-tr ${activeGroup.coverImage}` : ''}`}
-            style={activeGroup.coverUrl ? { backgroundImage: `url(${activeGroup.coverUrl})` } : undefined}
+            className={`rounded-3xl p-6 bg-cover bg-center relative overflow-hidden flex flex-col justify-end gap-2.5 min-h-40 border border-zinc-500/10 shadow-lg ₹{!activeGroup.coverUrl ? `bg-gradient-to-tr ₹{activeGroup.coverImage}` : ''}`}
+            style={activeGroup.coverUrl ? { backgroundImage: `url(₹{activeGroup.coverUrl})` } : undefined}
           >
             {/* Dark glass backdrop overlay */}
             <div className="absolute inset-0 bg-zinc-950/30 backdrop-blur-[1px]" />
@@ -132,13 +132,13 @@ export default function GroupsPage() {
           <div className="grid grid-cols-2 gap-4 px-0.5">
             <div className="p-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 backdrop-blur-md flex flex-col gap-1 shadow-sm">
               <span className="text-[9px] font-black text-zinc-500 uppercase tracking-wider">Group Total Spend</span>
-              <span className="text-xl font-black text-zinc-100">${activeGroupTotalSpend.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+              <span className="text-xl font-black text-zinc-100">₹{activeGroupTotalSpend.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
             </div>
             
             <div className="p-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 backdrop-blur-md flex flex-col gap-1 shadow-sm">
               <span className="text-[9px] font-black text-indigo-400 uppercase tracking-wider">Your Share</span>
               <span className="text-xl font-black text-indigo-400">
-                ${(activeGroupTotalSpend / (activeGroup.members.length + 1)).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                ₹{(activeGroupTotalSpend / (activeGroup.members.length + 1)).toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </span>
             </div>
           </div>
@@ -284,7 +284,7 @@ export default function GroupsPage() {
                     key={idx}
                     type="button"
                     onClick={() => setCoverIndex(idx)}
-                    className={`w-10 h-10 rounded-xl bg-gradient-to-tr ${cov} border transition-all shrink-0 cursor-pointer ${
+                    className={`w-10 h-10 rounded-xl bg-gradient-to-tr ₹{cov} border transition-all shrink-0 cursor-pointer ₹{
                       isSelected 
                         ? 'border-zinc-100 scale-105 shadow-[0_0_8px_rgba(255,255,255,0.2)]'
                         : 'border-transparent opacity-60'
@@ -309,7 +309,7 @@ export default function GroupsPage() {
                       key={friend.id}
                       type="button"
                       onClick={() => handleMemberToggle(friend.name)}
-                      className={`flex items-center gap-2 px-3 py-2 rounded-xl border font-semibold text-xs transition-all shrink-0 cursor-pointer ${
+                      className={`flex items-center gap-2 px-3 py-2 rounded-xl border font-semibold text-xs transition-all shrink-0 cursor-pointer ₹{
                         isChecked
                           ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30'
                           : 'bg-zinc-900/40 border-zinc-800 text-zinc-500'
@@ -342,7 +342,7 @@ export default function GroupsPage() {
           <div className="flex flex-col items-center gap-1.5 py-4 border-b border-zinc-900">
             <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Bill Amount</span>
             <div className="flex items-center gap-1">
-              <span className="text-3xl font-extrabold text-emerald-400">$</span>
+              <span className="text-3xl font-extrabold text-emerald-400">₹</span>
               <input
                 type="number"
                 step="0.01"
