@@ -19,11 +19,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const syncUserWithBackend = async (session: Session) => {
     try {
-      const response = await fetch(`${API_URL}/auth/sync`, {
+      const response = await fetch(`${API_URL}/api/v1/auth/sync`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
+          Authorization: `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({}),
       });
@@ -45,7 +45,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         name: user.user_metadata?.name || user.user_metadata?.full_name || '',
         avatarUrl: user.user_metadata?.avatar_url || '',
         monthlySalary: user.user_metadata?.monthlySalary || (user as any).monthlySalary || null,
-        isOnboarded: user.user_metadata?.isOnboarded || (user as any).isOnboarded || false,
+        isOnboardingCompleted:
+          user.user_metadata?.isOnboardingCompleted ||
+          user.user_metadata?.isOnboarded ||
+          (user as any).isOnboardingCompleted ||
+          (user as any).isOnboarded ||
+          false,
         createdAt: new Date(user.created_at),
       };
       setSession(session, fallbackUser);
@@ -57,7 +62,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const initializeAuth = async () => {
       setLoading(true);
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
         if (session) {
           await syncUserWithBackend(session);
         } else {
@@ -75,7 +82,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     initializeAuth();
 
     // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: any, session: any) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event: any, session: any) => {
       console.log('Supabase auth event:', event);
       if (session) {
         setLoading(true);
@@ -106,8 +115,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     } else {
       // User is logged in
-      const isOnboarded = user.isOnboarded && user.monthlySalary;
-      
+      const isOnboarded =
+        (user.isOnboardingCompleted ?? (user as any).isOnboarded) && user.monthlySalary;
+
       if (!isOnboarded) {
         if (pathname !== '/onboarding') {
           router.push('/onboarding');
@@ -121,11 +131,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [user, isInitialized, isLoading, pathname, router]);
 
-  return (
-    <AuthContext.Provider value={{}}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={{}}>{children}</AuthContext.Provider>;
 }
 
 export const useAuth = () => useContext(AuthContext);

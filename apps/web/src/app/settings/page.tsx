@@ -50,15 +50,19 @@ export default function SettingsPage() {
   const [isCustomMode, setIsCustomMode] = useState<boolean>(false);
 
   // Fetch latest profile from API
-  const { data: serverProfile, isLoading: isProfileLoading, error: profileFetchError } = useQuery({
+  const {
+    data: serverProfile,
+    isLoading: isProfileLoading,
+    error: profileFetchError,
+  } = useQuery({
     queryKey: ['user-profile'],
     queryFn: async () => {
       if (!session?.access_token) {
         throw new Error('Not authenticated');
       }
-      const response = await fetch(`${API_URL}/users/me`, {
+      const response = await fetch(`${API_URL}/api/v1/users/me`, {
         headers: {
-          'Authorization': `Bearer ${session.access_token}`,
+          Authorization: `Bearer ${session.access_token}`,
         },
       });
       if (!response.ok) {
@@ -120,11 +124,11 @@ export default function SettingsPage() {
       if (!session?.access_token) {
         throw new Error('Not authenticated');
       }
-      const response = await fetch(`${API_URL}/users/me`, {
+      const response = await fetch(`${API_URL}/api/v1/users/me`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
+          Authorization: `Bearer ${session.access_token}`,
         },
         body: JSON.stringify(formData),
       });
@@ -251,7 +255,8 @@ export default function SettingsPage() {
                     alt="Profile Avatar"
                     className="w-full h-full object-cover"
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = 'https://api.dicebear.com/7.x/adventurer/svg?seed=default';
+                      (e.target as HTMLImageElement).src =
+                        'https://api.dicebear.com/7.x/adventurer/svg?seed=default';
                     }}
                   />
                 ) : (
@@ -274,7 +279,11 @@ export default function SettingsPage() {
                       } overflow-hidden p-1 transition-all active:scale-95`}
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={preset} alt={`Preset ${idx}`} className="w-full h-full object-contain" />
+                      <img
+                        src={preset}
+                        alt={`Preset ${idx}`}
+                        className="w-full h-full object-contain"
+                      />
                       {watchedAvatarUrl === preset && (
                         <div className="absolute top-1 right-1 w-3.5 h-3.5 bg-indigo-600 rounded-full flex items-center justify-center">
                           <Check className="w-2.5 h-2.5 text-zinc-950 stroke-[3]" />
@@ -369,7 +378,9 @@ export default function SettingsPage() {
                     {...register('username')}
                     placeholder="username"
                     className={`w-full bg-zinc-950 border ${
-                      errors.username ? 'border-red-500/50' : 'border-zinc-800 hover:border-zinc-700'
+                      errors.username
+                        ? 'border-red-500/50'
+                        : 'border-zinc-800 hover:border-zinc-700'
                     } focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 outline-none rounded-xl py-3 pl-8 pr-4 text-sm transition-all text-white placeholder-zinc-655`}
                   />
                 </div>

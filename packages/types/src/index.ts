@@ -7,7 +7,7 @@ export interface User {
   currency?: string | null;
   timezone?: string | null;
   monthlySalary?: number | null;
-  isOnboarded?: boolean | null;
+  isOnboardingCompleted?: boolean | null;
   createdAt: Date;
   updatedAt?: Date | null;
 }

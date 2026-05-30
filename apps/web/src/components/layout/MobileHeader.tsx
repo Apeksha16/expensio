@@ -13,7 +13,7 @@ export default function MobileHeader() {
   const [dateStr, setDateStr] = useState('');
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
 
-  const displayName = user?.name || 'Apeksha';
+  const displayName = user?.name || 'User';
 
   useEffect(() => {
     // Read saved theme
@@ -49,14 +49,12 @@ export default function MobileHeader() {
         <span className="text-[10px] uppercase font-bold tracking-widest text-zinc-500">
           {dateStr}
         </span>
-        <h1 className="text-xl font-black tracking-tight text-theme-text mt-0.5">
-          Dashboard
-        </h1>
+        <h1 className="text-xl font-black tracking-tight text-theme-text mt-0.5">Dashboard</h1>
       </div>
 
       <div className="flex items-center gap-3">
         {/* Sleek Theme Toggle Button */}
-        <button 
+        <button
           onClick={toggleTheme}
           className="p-2.5 rounded-xl bg-theme-btn border border-theme-btn-border/80 text-theme-secondary hover:text-theme-text relative cursor-pointer outline-none transition-colors"
           title="Toggle Theme"
@@ -74,7 +72,7 @@ export default function MobileHeader() {
         </button>
 
         {/* Glowing Notification bell */}
-        <button 
+        <button
           onClick={() => setIsNotificationsOpen(true)}
           className="p-2.5 rounded-xl bg-theme-btn border border-theme-btn-border/80 text-theme-secondary hover:text-theme-text relative cursor-pointer outline-none transition-colors"
         >
@@ -88,12 +86,12 @@ export default function MobileHeader() {
         </button>
 
         {/* User avatar with border gradient */}
-        <button 
+        <button
           onClick={() => setIsProfileOpen(true)}
           className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 to-cyan-500 p-0.5 relative cursor-pointer border-0 flex items-center justify-center outline-none"
         >
           <div className="w-full h-full rounded-[10px] bg-zinc-950 flex items-center justify-center overflow-hidden">
-            <motion.span 
+            <motion.span
               whileTap={{ scale: 0.85 }}
               transition={{ type: 'spring', stiffness: 500, damping: 20 }}
               className="text-xs font-black text-white uppercase tracking-tight block"

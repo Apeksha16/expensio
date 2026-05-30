@@ -1,55 +1,68 @@
-import { db } from '../../db/index.js';
-import { users } from '../../db/schema.js';
-import { eq, and, ne } from 'drizzle-orm';
-import { AuthUser } from '@expensio/types';
-import { UpdateUserProfileDto } from './users.types.js';
+import { User } from '@expensio/types';
+import { userRepository } from './users.repository.js';
 
 export class UsersService {
   /**
-   * Retrieve a user by ID
+   * Get user by ID
    */
-  async getUserById(id: string): Promise<AuthUser | null> {
-    const [user] = await db.select().from(users).where(eq(users.id, id)).limit(1);
-    return user || null;
+  async getUserById(id: string): Promise<User | null> {
+    return userRepository.findById(id);
   }
 
   /**
    * Check if a username is already taken by another user
    */
   async isUsernameTaken(username: string, excludeUserId?: string): Promise<boolean> {
-    const conditions = [eq(users.username, username)];
-    
-    if (excludeUserId) {
-      conditions.push(ne(users.id, excludeUserId));
-    }
-    
-    const [existingUser] = await db
-      .select({ id: users.id })
-      .from(users)
-      .where(and(...conditions))
-      .limit(1);
-      
-    return !!existingUser;
+    return userRepository.isUsernameTaken(username, excludeUserId);
   }
 
   /**
    * Update user profile information
    */
-  async updateUser(id: string, data: UpdateUserProfileDto): Promise<AuthUser> {
-    const [updatedUser] = await db
-      .update(users)
-      .set({
-        ...data,
-        updatedAt: new Date(),
-      })
-      .where(eq(users.id, id))
-      .returning();
+  async updateUser(
+    id: string,
+    data: {
+      name?: string | null;
+      username?: string | null;
+      avatarUrl?: string | null;
+      currency?: string;
+      timezone?: string;
+      monthlySalary?: number | null;
+      isOnboardingCompleted?: boolean;
+    }
+  ): Promise<User> {
+    return userRepository.update(id, data);
+  }
 
-    if (!updatedUser) {
-      throw new Error('User not found or update failed');
+  /**
+   * Complete user onboarding
+   */
+  async completeOnboarding(
+    userId: string,
+    data: {
+      name: string;
+      monthlySalary: number;
+    }
+  ): Promise<User> {
+    // Validate input
+    if (!data.name || data.name.trim().length < 2) {
+      throw new Error('Name must be at least 2 characters');
     }
 
-    return updatedUser;
+    if (data.name.length > 100) {
+      throw new Error('Name must be at most 100 characters');
+    }
+
+    if (typeof data.monthlySalary !== 'number' || data.monthlySalary <= 0) {
+      throw new Error('Monthly salary must be greater than 0');
+    }
+
+    // Update user with onboarding data
+    return userRepository.update(userId, {
+      name: data.name.trim(),
+      monthlySalary: data.monthlySalary,
+      isOnboardingCompleted: true,
+    });
   }
 }
 

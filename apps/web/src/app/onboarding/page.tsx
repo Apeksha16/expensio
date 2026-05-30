@@ -12,13 +12,13 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 export default function OnboardingPage() {
   const router = useRouter();
   const { user, isInitialized, isLoading, updateUser, session } = useAuthStore();
-  
+
   const [name, setName] = useState('');
   const [salary, setSalary] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  
+
   // Prefill name if available in user object
   useEffect(() => {
     if (user && user.name) {
@@ -31,7 +31,7 @@ export default function OnboardingPage() {
     if (isInitialized && !isLoading) {
       if (!user) {
         router.push('/login');
-      } else if (user.isOnboarded && user.monthlySalary) {
+      } else if ((user.isOnboardingCompleted ?? (user as any).isOnboarded) && user.monthlySalary) {
         router.push('/');
       }
     }
@@ -70,17 +70,17 @@ export default function OnboardingPage() {
       const updateData = {
         name: name.trim(),
         monthlySalary: salaryNum,
-        isOnboarded: true,
+        isOnboardingCompleted: true,
       };
 
       // 2. Call the backend if we have a token
       if (session?.access_token) {
         try {
-          const response = await fetch(`${API_URL}/users/me`, {
+          const response = await fetch(`${API_URL}/api/v1/users/me`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${session.access_token}`,
+              Authorization: `Bearer ${session.access_token}`,
             },
             body: JSON.stringify(updateData),
           });
@@ -89,7 +89,10 @@ export default function OnboardingPage() {
             console.warn('Backend profile update failed, falling back to local cookies.');
           }
         } catch (backendErr) {
-          console.warn('Failed to connect to backend user update, falling back to local cookies:', backendErr);
+          console.warn(
+            'Failed to connect to backend user update, falling back to local cookies:',
+            backendErr
+          );
         }
       }
 
@@ -105,30 +108,29 @@ export default function OnboardingPage() {
         email: updatedUser.email,
         name: updatedUser.name,
         monthlySalary: updatedUser.monthlySalary,
-        isOnboarded: updatedUser.isOnboarded,
+        isOnboardingCompleted: updatedUser.isOnboardingCompleted,
         user_metadata: {
           name: updatedUser.name,
           full_name: updatedUser.name,
           avatar_url: updatedUser.name.slice(0, 2).toUpperCase(),
           monthlySalary: updatedUser.monthlySalary,
-          isOnboarded: updatedUser.isOnboarded,
-        }
+          isOnboardingCompleted: updatedUser.isOnboardingCompleted,
+        },
       };
 
       document.cookie = `expensio-session=${encodeURIComponent(JSON.stringify(mockSessionUser))}; path=/; max-age=604800; SameSite=Lax;`;
 
       // 4. Update local Zustand state
       updateUser(updateData);
-      
+
       // 5. Trigger gorgeous success splash!
       setSuccess(true);
-      
+
       setTimeout(() => {
         router.push('/');
         // Force routing refresh to bind new layouts
         window.location.href = '/';
       }, 1500);
-
     } catch (err) {
       const error = err as Error;
       setError(error.message || 'Onboarding failed. Please try again.');
@@ -163,7 +165,7 @@ export default function OnboardingPage() {
                 Personalize Expensio
               </h1>
               <p className="text-zinc-400 text-sm max-w-xs mx-auto">
-                {hasPrefilledName 
+                {hasPrefilledName
                   ? `Welcome, ${name}! Let's define your monthly financial limits.`
                   : "Let's set up your profile details to kickstart your personal dashboard."}
               </p>
@@ -191,7 +193,7 @@ export default function OnboardingPage() {
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g. Apeksha"
+                    placeholder="e.g. Alex"
                     className="w-full bg-zinc-950 border border-zinc-800 hover:border-zinc-700 focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 outline-none rounded-xl py-3.5 pl-11 pr-4 text-sm transition-all text-white placeholder-zinc-650"
                     disabled={isSubmitting}
                     required
@@ -206,7 +208,9 @@ export default function OnboardingPage() {
                 </label>
                 <div className="relative">
                   <Wallet className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-                  <span className="absolute left-10 top-1/2 -translate-y-1/2 text-sm font-bold text-cyan-400">₹</span>
+                  <span className="absolute left-10 top-1/2 -translate-y-1/2 text-sm font-bold text-cyan-400">
+                    ₹
+                  </span>
                   <input
                     type="number"
                     value={salary}
@@ -219,7 +223,8 @@ export default function OnboardingPage() {
                   />
                 </div>
                 <p className="text-[10px] text-zinc-550 pl-1 leading-relaxed">
-                  Used to generate accurate monthly split allowances and dynamic budget cards automatically.
+                  Used to generate accurate monthly split allowances and dynamic budget cards
+                  automatically.
                 </p>
               </div>
 
@@ -276,7 +281,9 @@ export default function OnboardingPage() {
             </div>
 
             <div className="space-y-2">
-              <h2 className="text-2xl font-extrabold text-zinc-100 tracking-tight">You are all set!</h2>
+              <h2 className="text-2xl font-extrabold text-zinc-100 tracking-tight">
+                You are all set!
+              </h2>
               <p className="text-zinc-400 text-sm leading-relaxed">
                 Setup finalized successfully. Redirecting you to your personal financial cockpit...
               </p>

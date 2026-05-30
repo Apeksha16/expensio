@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { User, Mail, Lock, Eye, EyeOff, Loader2, Check } from 'lucide-react';
 import { supabase } from '../../../lib/supabase';
 import { registerSchema } from '@expensio/validation';
@@ -19,9 +19,6 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
-  // Premium Google Login Simulation States
-  const [showGoogleChooser, setShowGoogleChooser] = useState(false);
-  const [googleSigningIn, setGoogleSigningIn] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
@@ -67,8 +64,8 @@ export default function RegisterPage() {
       }
 
       setSuccess('Registration successful! Logging you in...');
-      showToast("Account created successfully!");
-      
+      showToast('Account created successfully!');
+
       setTimeout(() => {
         router.push('/');
         window.location.href = '/';
@@ -81,34 +78,26 @@ export default function RegisterPage() {
     }
   };
 
-  const handleGoogleLoginSelect = (account: { name: string; email: string; avatar: string }) => {
-    setGoogleSigningIn(true);
+  const handleGoogleLoginSelect = async () => {
     setError(null);
+    setLoading(true);
 
-    // Simulate standard Google authentication token resolution delay
-    setTimeout(() => {
-      const mockUser = {
-        id: 'mock-user-id-' + account.avatar.toLowerCase(),
-        email: account.email,
-        user_metadata: {
-          name: account.name,
-          full_name: account.name,
-          avatar_url: account.avatar
-        }
-      };
+    try {
+      const redirectTo = `${window.location.origin}/auth/callback?next=/onboarding`;
+      const { error: authError } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo },
+      } as any);
 
-      // Set session cookie
-      document.cookie = `expensio-session=${encodeURIComponent(JSON.stringify(mockUser))}; path=/; max-age=604800; SameSite=Lax;`;
-
-      showToast(`Welcome back, ${account.name}!`);
-      
-      setTimeout(() => {
-        setGoogleSigningIn(false);
-        setShowGoogleChooser(false);
-        router.push('/');
-        window.location.href = '/';
-      }, 600);
-    }, 1200);
+      if (authError) {
+        throw authError;
+      }
+    } catch (err) {
+      const error = err as Error;
+      console.error(error);
+      setError(error.message || 'Google sign-in failed');
+      setLoading(false);
+    }
   };
 
   return (
@@ -167,7 +156,9 @@ export default function RegisterPage() {
                 onChange={(e) => setName(e.target.value)}
                 placeholder="John Doe"
                 className={`w-full bg-zinc-950 border ${
-                  validationErrors.name ? 'border-red-500/50' : 'border-zinc-800 hover:border-zinc-700'
+                  validationErrors.name
+                    ? 'border-red-500/50'
+                    : 'border-zinc-800 hover:border-zinc-700'
                 } focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 outline-none rounded-xl py-3 pl-11 pr-4 text-sm transition-all text-white placeholder-zinc-600`}
                 disabled={loading}
               />
@@ -192,7 +183,9 @@ export default function RegisterPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
                 className={`w-full bg-zinc-950 border ${
-                  validationErrors.email ? 'border-red-500/50' : 'border-zinc-800 hover:border-zinc-700'
+                  validationErrors.email
+                    ? 'border-red-500/50'
+                    : 'border-zinc-800 hover:border-zinc-700'
                 } focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 outline-none rounded-xl py-3 pl-11 pr-4 text-sm transition-all text-white placeholder-zinc-600`}
                 disabled={loading}
               />
@@ -217,7 +210,9 @@ export default function RegisterPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 className={`w-full bg-zinc-950 border ${
-                  validationErrors.password ? 'border-red-500/50' : 'border-zinc-800 hover:border-zinc-700'
+                  validationErrors.password
+                    ? 'border-red-500/50'
+                    : 'border-zinc-800 hover:border-zinc-700'
                 } focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 outline-none rounded-xl py-3 pl-11 pr-11 text-sm transition-all text-white placeholder-zinc-600`}
                 disabled={loading}
               />
@@ -267,7 +262,8 @@ export default function RegisterPage() {
         {/* Google Sign-In Button */}
         <button
           type="button"
-          onClick={() => setShowGoogleChooser(true)}
+          onClick={handleGoogleLoginSelect}
+          disabled={loading}
           className="w-full flex items-center justify-center gap-3 py-3 rounded-xl bg-zinc-950 border border-zinc-800/80 hover:border-zinc-700 hover:bg-zinc-900/60 active:scale-[0.98] text-zinc-300 hover:text-zinc-100 font-bold transition-all shadow-sm cursor-pointer text-sm"
         >
           <svg className="w-4 h-4" viewBox="0 0 24 24">
@@ -288,7 +284,7 @@ export default function RegisterPage() {
               d="M12 23c3.24 0 5.97-1.07 7.96-2.91l-3.71-2.87c-1.03.69-2.35 1.1-4.25 1.1-3.79 0-6.99-2.56-8.13-6.02L1.27 15.3A11.96 11.96 0 0 0 12 23z"
             />
           </svg>
-          <span>Continue with Google</span>
+          <span>{loading ? 'Signing in...' : 'Continue with Google'}</span>
         </button>
 
         <div className="mt-8 text-center text-sm text-zinc-500">
@@ -301,98 +297,6 @@ export default function RegisterPage() {
           </Link>
         </div>
       </motion.div>
-
-      {/* Premium Google Accounts Chooser Overlay */}
-      <AnimatePresence>
-        {showGoogleChooser && (
-          <div className="fixed inset-0 z-[200] flex items-end justify-center bg-indigo-900/60 backdrop-blur-sm">
-            {/* Backdrop Click Dismiss */}
-            <div className="absolute inset-0" onClick={() => !googleSigningIn && setShowGoogleChooser(false)} />
-            
-            <motion.div
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-              className="w-full max-w-md bg-zinc-900 border-t border-zinc-800 rounded-t-3xl p-6 relative z-10 space-y-6 shadow-2xl max-h-[85vh] overflow-y-auto pb-safe"
-            >
-              {/* Header Drag bar indicator */}
-              <div className="w-12 h-1.5 bg-zinc-800 rounded-full mx-auto" />
-              
-              <div className="text-center space-y-1.5">
-                <div className="w-10 h-10 bg-zinc-950 border border-zinc-850 flex items-center justify-center mx-auto rounded-xl">
-                  <svg className="w-5 h-5" viewBox="0 0 24 24">
-                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.85z" />
-                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.85c.87-2.6 3.3-4.53 6.16-4.53z" />
-                  </svg>
-                </div>
-                <h2 className="text-base font-black text-zinc-100 tracking-tight">Sign up with Google</h2>
-                <p className="text-xs text-zinc-555 leading-relaxed">Choose an account to continue to <span className="text-cyan-400 font-bold">Expensio</span></p>
-              </div>
-
-              {googleSigningIn ? (
-                <div className="py-12 flex flex-col items-center justify-center gap-4">
-                  <Loader2 className="w-8 h-8 text-cyan-400 animate-spin" />
-                  <span className="text-xs text-zinc-400 font-bold">Signing up with Google...</span>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {/* Simulated Google Accounts */}
-                  {[
-                    { name: 'Apeksha', email: 'apeksha@expensio.app', avatar: 'AP', verified: true },
-                    { name: 'Rahul Sharma', email: 'rahul.sharma@gmail.com', avatar: 'RS', verified: false },
-                    { name: 'Amit Verma', email: 'amit.verma@yahoo.com', avatar: 'AV', verified: false },
-                    { name: 'Pranav Singh', email: 'pranav.singh@gmail.com', avatar: 'PS', verified: false }
-                  ].map((account) => (
-                    <button
-                      key={account.email}
-                      type="button"
-                      onClick={() => handleGoogleLoginSelect(account)}
-                      className="w-full flex items-center justify-between p-3.5 rounded-2xl border border-zinc-850 hover:border-zinc-700 bg-zinc-950/40 hover:bg-zinc-950 active:scale-[0.99] transition-all text-left cursor-pointer group"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-850 flex items-center justify-center font-bold text-zinc-250 group-hover:border-zinc-700">
-                          {account.avatar}
-                        </div>
-                        <div className="flex flex-col gap-0.5">
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-xs font-black text-zinc-200">{account.name}</span>
-                            {account.verified && (
-                              <span className="w-3.5 h-3.5 rounded-full bg-emerald-450/15 border border-indigo-500/25 flex items-center justify-center text-[7px] font-black text-cyan-400 uppercase tracking-widest shrink-0">
-                                ✓
-                              </span>
-                            )}
-                          </div>
-                          <span className="text-[10px] text-zinc-555 font-medium">{account.email}</span>
-                        </div>
-                      </div>
-                      
-                      <span className="text-[9px] font-black uppercase text-zinc-555 tracking-wider group-hover:text-cyan-400 transition-colors">
-                        Use Account
-                      </span>
-                    </button>
-                  ))}
-
-                  <div className="pt-2 border-t border-zinc-900/60 mt-1">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowGoogleChooser(false);
-                        showToast("Adding new account is disabled in mock preview.");
-                      }}
-                      className="w-full py-3.5 rounded-xl border border-zinc-800 bg-transparent text-zinc-400 hover:text-zinc-200 font-bold active:scale-98 transition-all text-xs cursor-pointer text-center"
-                    >
-                      Use another account
-                    </button>
-                  </div>
-                </div>
-              )}
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
 
       {/* Global Interactive Toast Notification */}
       {toastMessage && (

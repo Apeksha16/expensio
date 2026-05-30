@@ -5,21 +5,45 @@ import MobileHeader from '../../components/layout/MobileHeader';
 import BottomNavigation from '../../components/layout/BottomNavigation';
 import BottomSheet from '../../components/shared/BottomSheet';
 import { useFinanceStore } from '../../store/finance-store';
+import { useAuthStore } from '../../store/auth-store';
 import { supabase } from '../../lib/supabase';
-import { Coffee, Car, Tv, ShoppingBag, Zap, HelpCircle, Calendar, Heart, GraduationCap, CreditCard, Share2, User, Mail, Shield, LogOut, Settings, Check, AlertTriangle, Smartphone, Sparkles, Plus } from 'lucide-react';
+import {
+  Coffee,
+  Car,
+  Tv,
+  ShoppingBag,
+  Zap,
+  HelpCircle,
+  Calendar,
+  Heart,
+  GraduationCap,
+  CreditCard,
+  Share2,
+  User,
+  Mail,
+  Shield,
+  LogOut,
+  Settings,
+  Check,
+  AlertTriangle,
+  Smartphone,
+  Sparkles,
+  Plus,
+} from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { 
-    friends, 
-    addExpense, 
-    isAddExpenseOpen, 
-    setIsAddExpenseOpen, 
-    isNotificationsOpen, 
-    setIsNotificationsOpen, 
-    isProfileOpen, 
-    setIsProfileOpen 
+  const {
+    friends,
+    addExpense,
+    isAddExpenseOpen,
+    setIsAddExpenseOpen,
+    isNotificationsOpen,
+    setIsNotificationsOpen,
+    isProfileOpen,
+    setIsProfileOpen,
   } = useFinanceStore();
+  const { user } = useAuthStore();
 
   // Form State
   const [amount, setAmount] = useState('');
@@ -32,10 +56,38 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   // Notifications interactive state
   const [notifications, setNotifications] = useState([
-    { id: 'n1', title: 'Owe Split Request', desc: 'Rahul Sharma owes you ₹37.50 for Goa trip splits.', time: '1h ago', category: 'split', dismissed: false },
-    { id: 'n2', title: 'Budget Limit Warning', desc: 'You used 34% of your Transport monthly allocation.', time: '4h ago', category: 'alert', dismissed: false },
-    { id: 'n3', title: 'Transaction Confirmed', desc: 'Verified direct salary deposit credit of +₹2,800.00.', time: '1d ago', category: 'income', dismissed: false },
-    { id: 'n4', title: 'Active Goa Group splits', desc: 'Rahul Sharma added Hotel Booking (₹600.00) in Goa group.', time: '2d ago', category: 'group', dismissed: false }
+    {
+      id: 'n1',
+      title: 'Owe Split Request',
+      desc: 'Rahul Sharma owes you ₹37.50 for Goa trip splits.',
+      time: '1h ago',
+      category: 'split',
+      dismissed: false,
+    },
+    {
+      id: 'n2',
+      title: 'Budget Limit Warning',
+      desc: 'You used 34% of your Transport monthly allocation.',
+      time: '4h ago',
+      category: 'alert',
+      dismissed: false,
+    },
+    {
+      id: 'n3',
+      title: 'Transaction Confirmed',
+      desc: 'Verified direct salary deposit credit of +₹2,800.00.',
+      time: '1d ago',
+      category: 'income',
+      dismissed: false,
+    },
+    {
+      id: 'n4',
+      title: 'Active Goa Group splits',
+      desc: 'Rahul Sharma added Hotel Booking (₹600.00) in Goa group.',
+      time: '2d ago',
+      category: 'group',
+      dismissed: false,
+    },
   ]);
 
   // Profile preferences
@@ -51,11 +103,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const redistributeEqually = (currentSplitWith: string[]) => {
     const totalPeople = currentSplitWith.length + 1; // friends + me
     const equalShare = Math.floor(100 / totalPeople);
-    const remainder = 100 - (equalShare * totalPeople);
+    const remainder = 100 - equalShare * totalPeople;
 
     const newPercentages: Record<string, number> = {};
     newPercentages['me'] = equalShare + remainder; // Give remainder to 'me'
-    currentSplitWith.forEach(name => {
+    currentSplitWith.forEach((name) => {
       newPercentages[name] = equalShare;
     });
 
@@ -63,7 +115,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   };
 
   const handleDismissNotification = (id: string) => {
-    setNotifications(notifications.map(n => n.id === id ? { ...n, dismissed: true } : n));
+    setNotifications(notifications.map((n) => (n.id === id ? { ...n, dismissed: true } : n)));
   };
 
   const showToast = (msg: string) => {
@@ -77,13 +129,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     const isSplit = splitWith.length > 0;
     const finalSplitType = isSplit ? splitType : undefined;
-    const finalSplitPercentages = (isSplit && splitType === 'percentage') ? splitPercentages : undefined;
+    const finalSplitPercentages =
+      isSplit && splitType === 'percentage' ? splitPercentages : undefined;
 
     // Validate percentage split sum equals 100%
     if (isSplit && splitType === 'percentage') {
       const totalSum = Object.values(splitPercentages).reduce((acc, curr) => acc + curr, 0);
       if (totalSum !== 100) {
-        alert(`Split percentage sum must be exactly 100% (currently ${totalSum}%). Please balance the split!`);
+        alert(
+          `Split percentage sum must be exactly 100% (currently ${totalSum}%). Please balance the split!`
+        );
         return;
       }
     }
@@ -98,7 +153,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       splitWith: isSplit ? splitWith : undefined,
       splitType: finalSplitType,
       splitPercentages: finalSplitPercentages,
-      paymentMethod
+      paymentMethod,
     });
 
     // Reset Form
@@ -117,7 +172,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const handleFriendToggle = (friendName: string) => {
     let newSplitWith = [];
     if (splitWith.includes(friendName)) {
-      newSplitWith = splitWith.filter(name => name !== friendName);
+      newSplitWith = splitWith.filter((name) => name !== friendName);
     } else {
       newSplitWith = [...splitWith, friendName];
     }
@@ -128,32 +183,40 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   // 3x3/4x2 Squircle selector categories matching mockup screen exactly!
   const categories = [
     { name: 'Food', icon: Coffee, bg: 'bg-indigo-500/10 text-cyan-400 border-indigo-500/20' },
-    { name: 'Shopping', icon: ShoppingBag, bg: 'bg-purple-500/10 text-purple-400 border-purple-500/20' },
+    {
+      name: 'Shopping',
+      icon: ShoppingBag,
+      bg: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+    },
     { name: 'Transport', icon: Car, bg: 'bg-amber-500/10 text-amber-500 border-amber-500/20' },
-    { name: 'Entertainment', icon: Tv, bg: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' },
+    {
+      name: 'Entertainment',
+      icon: Tv,
+      bg: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
+    },
     { name: 'Bills', icon: CreditCard, bg: 'bg-rose-500/10 text-rose-400 border-rose-500/20' },
     { name: 'Health', icon: Heart, bg: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' },
-    { name: 'Education', icon: GraduationCap, bg: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' },
-    { name: 'Other', icon: HelpCircle, bg: 'bg-zinc-800/40 text-zinc-400 border-zinc-800/40' }
+    {
+      name: 'Education',
+      icon: GraduationCap,
+      bg: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
+    },
+    { name: 'Other', icon: HelpCircle, bg: 'bg-zinc-800/40 text-zinc-400 border-zinc-800/40' },
   ];
 
   return (
     <div className="h-full w-full bg-background text-theme-text flex justify-center overflow-hidden relative transition-colors duration-300">
-      
       {/* ambient glows */}
       <div className="absolute top-[-20%] left-[-20%] w-[600px] h-[600px] bg-indigo-600/5 rounded-full blur-[160px] pointer-events-none" />
       <div className="absolute bottom-[-20%] right-[-20%] w-[600px] h-[600px] bg-indigo-500/5 rounded-full blur-[160px] pointer-events-none" />
 
       {/* Responsive Canvas PWA Frame Shell */}
       <div className="w-full max-w-md h-full flex flex-col bg-shell border-x border-theme-border shadow-2xl relative overflow-hidden transition-colors duration-300">
-        
         {/* Mobile Header */}
         <MobileHeader />
 
         {/* Child Screen */}
-        <main className="flex-1 min-h-0 px-6 py-6 pb-24 overflow-y-auto">
-          {children}
-        </main>
+        <main className="flex-1 min-h-0 px-6 py-6 pb-24 overflow-y-auto">{children}</main>
 
         {/* Floating Action Button (FAB) in Bottom Right (Fixed Viewport Docked) */}
         <button
@@ -163,7 +226,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         >
           {/* Internal neon ambient glow aura */}
           <div className="absolute inset-0.5 rounded-full bg-gradient-to-tr from-white/20 to-transparent opacity-100 border border-white/30 -z-10 group-hover:scale-105 transition-transform duration-300" />
-          
+
           {/* Gorgeous spinning plus icon */}
           <Plus className="w-7 h-7 text-zinc-950 stroke-[3.5] transition-transform duration-500 ease-out group-hover:rotate-180" />
         </button>
@@ -173,16 +236,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </div>
 
       {/* Upgraded Add Expense Bottom Sheet Modal with Squircle Grid */}
-      <BottomSheet 
-        isOpen={isAddExpenseOpen} 
+      <BottomSheet
+        isOpen={isAddExpenseOpen}
         onClose={() => setIsAddExpenseOpen(false)}
         title="Add Expense"
       >
         <form onSubmit={handleAddExpenseSubmit} className="space-y-8">
-          
           {/* Big Amount font */}
           <div className="flex flex-col items-center gap-2 py-5 border-b border-zinc-900/60">
-            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Bill Value</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+              Bill Value
+            </span>
             <div className="flex items-center gap-1.5">
               <span className="text-3xl font-extrabold text-cyan-400">₹</span>
               <input
@@ -200,7 +264,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
           {/* Squircle 4x2 Category Grid exactly from the mockup screenshot! */}
           <div className="flex flex-col gap-3">
-            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 tracking-wider">Select Category</label>
+            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 tracking-wider">
+              Select Category
+            </label>
             <div className="grid grid-cols-4 gap-3.5">
               {categories.map((cat) => {
                 const isSelected = category === cat.name;
@@ -212,18 +278,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     onClick={() => setCategory(cat.name)}
                     className={`flex flex-col items-center justify-center p-3.5 rounded-[22px] border transition-all duration-300 cursor-pointer gap-2 ${
                       isSelected
-                        ? cat.bg + ' ring-2 ring-emerald-500/20 scale-105 shadow-[0_4px_20px_rgba(16,185,129,0.15)] border-emerald-500/30'
+                        ? cat.bg +
+                          ' ring-2 ring-emerald-500/20 scale-105 shadow-[0_4px_20px_rgba(16,185,129,0.15)] border-emerald-500/30'
                         : 'bg-zinc-900/20 border-zinc-850/60 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900/40'
                     }`}
                   >
-                    <motion.div 
+                    <motion.div
                       className="w-9 h-9 rounded-[14px] bg-zinc-950/80 border border-zinc-800/40 flex items-center justify-center shadow-inner"
                       whileTap={{ scale: 0.8 }}
                       transition={{ type: 'spring', stiffness: 500, damping: 15 }}
                     >
                       <Icon className="w-4.5 h-4.5" />
                     </motion.div>
-                    <span className="text-[9.5px] font-black uppercase tracking-wider">{cat.name}</span>
+                    <span className="text-[9.5px] font-black uppercase tracking-wider">
+                      {cat.name}
+                    </span>
                   </button>
                 );
               })}
@@ -232,7 +301,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
           {/* Description */}
           <div className="flex flex-col gap-3">
-            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 tracking-wider">Merchant / Description</label>
+            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 tracking-wider">
+              Merchant / Description
+            </label>
             <input
               type="text"
               placeholder="e.g. McDonald's"
@@ -245,9 +316,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
           {/* Split checks */}
           <div className="flex flex-col gap-3">
-            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 tracking-wider">Split Expense (Equally)</label>
+            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 tracking-wider">
+              Split Expense (Equally)
+            </label>
             {friends.length === 0 ? (
-              <span className="text-xs text-zinc-600 italic">No friend contacts found. Add friends first!</span>
+              <span className="text-xs text-zinc-600 italic">
+                No friend contacts found. Add friends first!
+              </span>
             ) : (
               <div className="flex gap-2.5 overflow-x-auto pb-1.5 scrollbar-none">
                 {friends.map((friend) => {
@@ -263,7 +338,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                           : 'bg-zinc-900/20 border-zinc-850/60 text-zinc-500 hover:text-zinc-300'
                       }`}
                     >
-                      <motion.div 
+                      <motion.div
                         className="w-5.5 h-5.5 rounded-lg bg-zinc-950/80 flex items-center justify-center text-[9px] font-black shadow-inner"
                         whileTap={{ scale: 0.8 }}
                         transition={{ type: 'spring', stiffness: 500, damping: 15 }}
@@ -281,7 +356,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {/* Date, payment method, note grid */}
           <div className="grid grid-cols-2 gap-5">
             <div className="flex flex-col gap-3">
-              <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 tracking-wider">Date & Time</label>
+              <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 tracking-wider">
+                Date & Time
+              </label>
               <div className="relative">
                 <Calendar className="w-4 h-4 text-zinc-500 absolute left-3.5 top-4" />
                 <input
@@ -295,7 +372,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
 
             <div className="flex flex-col gap-3">
-              <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 tracking-wider">Payment Method</label>
+              <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 tracking-wider">
+                Payment Method
+              </label>
               <select
                 value={paymentMethod}
                 onChange={(e) => setPaymentMethod(e.target.value)}
@@ -310,7 +389,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
 
           <div className="flex flex-col gap-3">
-            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 tracking-wider">Add Note (optional)</label>
+            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 tracking-wider">
+              Add Note (optional)
+            </label>
             <input
               type="text"
               placeholder="e.g. Lunch with friends"
@@ -337,11 +418,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       >
         <div className="space-y-4 relative">
           <div className="flex items-center justify-between px-1">
-            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Inbox</span>
-            <button 
+            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+              Inbox
+            </span>
+            <button
               onClick={() => {
-                setNotifications(notifications.map(n => ({ ...n, dismissed: true })));
-                showToast("All notifications cleared!");
+                setNotifications(notifications.map((n) => ({ ...n, dismissed: true })));
+                showToast('All notifications cleared!');
               }}
               className="text-[9px] font-bold text-zinc-500 hover:text-cyan-400 uppercase tracking-wide cursor-pointer border-0 bg-transparent"
             >
@@ -350,60 +433,68 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
 
           <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-0.5 scrollbar-thin">
-            {notifications.filter(n => !n.dismissed).length === 0 ? (
+            {notifications.filter((n) => !n.dismissed).length === 0 ? (
               <div className="p-12 rounded-2xl border border-zinc-800/60 bg-zinc-900/20 backdrop-blur-md flex flex-col items-center justify-center gap-3.5 text-center">
                 <div className="w-12 h-12 rounded-2xl bg-zinc-950 flex items-center justify-center text-zinc-650 border border-zinc-800/60">
                   <Check className="w-6 h-6 text-cyan-400" />
                 </div>
                 <div className="space-y-0.5">
                   <span className="text-xs font-bold text-zinc-300">All caught up!</span>
-                  <p className="text-[10px] text-zinc-500">No unread splits or active warnings found.</p>
+                  <p className="text-[10px] text-zinc-500">
+                    No unread splits or active warnings found.
+                  </p>
                 </div>
               </div>
             ) : (
-              notifications.filter(n => !n.dismissed).map((item) => (
-                <div 
-                  key={item.id}
-                  className="p-4 rounded-2xl border border-zinc-850 bg-zinc-900/20 hover:bg-zinc-900/40 backdrop-blur-md relative overflow-hidden flex flex-col gap-2.5 transition-colors"
-                >
-                  <div className="flex justify-between items-start">
-                    <div className="flex flex-col gap-0.5 max-w-[80%]">
-                      <span className="text-xs font-bold text-zinc-200">{item.title}</span>
-                      <p className="text-[10.5px] text-zinc-450 leading-relaxed mt-0.5">{item.desc}</p>
+              notifications
+                .filter((n) => !n.dismissed)
+                .map((item) => (
+                  <div
+                    key={item.id}
+                    className="p-4 rounded-2xl border border-zinc-850 bg-zinc-900/20 hover:bg-zinc-900/40 backdrop-blur-md relative overflow-hidden flex flex-col gap-2.5 transition-colors"
+                  >
+                    <div className="flex justify-between items-start">
+                      <div className="flex flex-col gap-0.5 max-w-[80%]">
+                        <span className="text-xs font-bold text-zinc-200">{item.title}</span>
+                        <p className="text-[10.5px] text-zinc-450 leading-relaxed mt-0.5">
+                          {item.desc}
+                        </p>
+                      </div>
+                      <span className="text-[8px] font-black uppercase text-zinc-600 tracking-wider shrink-0">
+                        {item.time}
+                      </span>
                     </div>
-                    <span className="text-[8px] font-black uppercase text-zinc-600 tracking-wider shrink-0">{item.time}</span>
-                  </div>
 
-                  <div className="flex items-center justify-between border-t border-zinc-900 pt-2.5 mt-0.5">
-                    <span className="text-[8px] font-black uppercase text-zinc-500 bg-zinc-950 border border-zinc-900 px-2 py-0.5 rounded tracking-wide">
-                      {item.category}
-                    </span>
-                    
-                    <div className="flex items-center gap-2">
-                      {item.category === 'split' && (
-                        <button 
+                    <div className="flex items-center justify-between border-t border-zinc-900 pt-2.5 mt-0.5">
+                      <span className="text-[8px] font-black uppercase text-zinc-500 bg-zinc-950 border border-zinc-900 px-2 py-0.5 rounded tracking-wide">
+                        {item.category}
+                      </span>
+
+                      <div className="flex items-center gap-2">
+                        {item.category === 'split' && (
+                          <button
+                            onClick={() => {
+                              handleDismissNotification(item.id);
+                              showToast('Splits settled successfully!');
+                            }}
+                            className="px-2.5 py-1 rounded bg-indigo-600 text-zinc-950 font-black uppercase tracking-wider text-[8px] hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                          >
+                            Settle
+                          </button>
+                        )}
+                        <button
                           onClick={() => {
                             handleDismissNotification(item.id);
-                            showToast("Splits settled successfully!");
+                            showToast('Notification dismissed');
                           }}
-                          className="px-2.5 py-1 rounded bg-indigo-600 text-zinc-950 font-black uppercase tracking-wider text-[8px] hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                          className="px-2.5 py-1 rounded bg-zinc-900 border border-zinc-800 text-zinc-400 font-bold uppercase tracking-wider text-[8px] hover:text-zinc-200 active:scale-95 transition-all cursor-pointer"
                         >
-                          Settle
+                          Dismiss
                         </button>
-                      )}
-                      <button 
-                        onClick={() => {
-                          handleDismissNotification(item.id);
-                          showToast("Notification dismissed");
-                        }}
-                        className="px-2.5 py-1 rounded bg-zinc-900 border border-zinc-800 text-zinc-400 font-bold uppercase tracking-wider text-[8px] hover:text-zinc-200 active:scale-95 transition-all cursor-pointer"
-                      >
-                        Dismiss
-                      </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))
+                ))
             )}
           </div>
         </div>
@@ -419,46 +510,62 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {/* Avatar Card */}
           <div className="p-5 rounded-3xl border border-zinc-800/80 bg-zinc-900/40 backdrop-blur-xl relative overflow-hidden flex items-center gap-4 shadow-sm">
             <div className="absolute top-[-30%] right-[-10%] w-24 h-24 bg-indigo-500/10 rounded-full blur-xl pointer-events-none" />
-            
+
             {/* Glowing avatar ring */}
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-500 to-cyan-500 p-0.5 relative shrink-0 shadow-md">
               <div className="w-full h-full rounded-[14px] bg-zinc-950 flex items-center justify-center">
-                <span className="text-base font-black text-zinc-100 tracking-tight">AP</span>
+                <span className="text-base font-black text-zinc-100 tracking-tight">
+                  {(user?.name || user?.email || 'User').slice(0, 2).toUpperCase()}
+                </span>
               </div>
             </div>
 
             <div className="flex flex-col gap-0.5">
               <div className="flex items-center gap-1.5">
-                <span className="text-base font-black tracking-tight text-zinc-100">Apeksha</span>
+                <span className="text-base font-black tracking-tight text-zinc-100">
+                  {user?.name || 'User'}
+                </span>
                 <span className="w-3.5 h-3.5 rounded-full bg-emerald-400/15 border border-indigo-500/30 flex items-center justify-center text-[7px] font-black text-cyan-400 uppercase tracking-widest shrink-0">
                   ✓
                 </span>
               </div>
-              <span className="text-xs font-semibold text-zinc-500">@apeksha</span>
-              <span className="text-[10px] text-zinc-650 font-bold tracking-wider mt-0.5">apeksha@expensio.app</span>
+              <span className="text-xs font-semibold text-zinc-500">
+                @{(user?.name || user?.email || 'user').split('@')[0].toLowerCase()}
+              </span>
+              <span className="text-[10px] text-zinc-650 font-bold tracking-wider mt-0.5">
+                {user?.email || 'user@expensio.app'}
+              </span>
             </div>
           </div>
 
           {/* Quick stats grid */}
           <div className="grid grid-cols-3 gap-3">
             <div className="p-3 rounded-2xl border border-zinc-850 bg-zinc-950/40 text-center flex flex-col gap-0.5">
-              <span className="text-[8px] font-black uppercase text-zinc-550 tracking-wider">Total Saved</span>
+              <span className="text-[8px] font-black uppercase text-zinc-550 tracking-wider">
+                Total Saved
+              </span>
               <span className="text-sm font-black text-cyan-400">₹2,800</span>
             </div>
             <div className="p-3 rounded-2xl border border-zinc-850 bg-zinc-950/40 text-center flex flex-col gap-0.5">
-              <span className="text-[8px] font-black uppercase text-zinc-550 tracking-wider">Active Splits</span>
+              <span className="text-[8px] font-black uppercase text-zinc-550 tracking-wider">
+                Active Splits
+              </span>
               <span className="text-sm font-black text-indigo-400">3 Spends</span>
             </div>
             <div className="p-3 rounded-2xl border border-zinc-850 bg-zinc-950/40 text-center flex flex-col gap-0.5">
-              <span className="text-[8px] font-black uppercase text-zinc-550 tracking-wider">Groups Joined</span>
+              <span className="text-[8px] font-black uppercase text-zinc-550 tracking-wider">
+                Groups Joined
+              </span>
               <span className="text-sm font-black text-amber-500">3 Active</span>
             </div>
           </div>
 
           {/* Preferences Settings Lists */}
           <div className="space-y-4">
-            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500 px-1">Security & Preferences</span>
-            
+            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500 px-1">
+              Security & Preferences
+            </span>
+
             <div className="rounded-2xl border border-zinc-850 bg-zinc-900/20 backdrop-blur-md p-4 space-y-4">
               {/* Biometrics Switch */}
               <div className="flex items-center justify-between pb-3.5 border-b border-zinc-900">
@@ -467,16 +574,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     <Shield className="w-4 h-4" />
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-xs font-semibold text-zinc-200">Biometrics Authentication</span>
+                    <span className="text-xs font-semibold text-zinc-200">
+                      Biometrics Authentication
+                    </span>
                     <span className="text-[9px] text-zinc-550">Use Touch ID / Face ID logs</span>
                   </div>
                 </div>
-                
-                <button 
+
+                <button
                   type="button"
                   onClick={() => {
                     setBiometricsActive(!biometricsActive);
-                    showToast(biometricsActive ? "Biometrics turned off" : "Biometrics activated!");
+                    showToast(biometricsActive ? 'Biometrics turned off' : 'Biometrics activated!');
                   }}
                   className={`w-9 h-5 rounded-full p-0.5 transition-colors duration-200 focus:outline-none flex items-center cursor-pointer border-0 ${biometricsActive ? 'bg-indigo-600 justify-end' : 'bg-zinc-850 justify-start'}`}
                 >
@@ -495,12 +604,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     <span className="text-[9px] text-zinc-550">Boost readability metrics</span>
                   </div>
                 </div>
-                
-                <button 
+
+                <button
                   type="button"
                   onClick={() => {
                     setHighContrastActive(!highContrastActive);
-                    showToast(highContrastActive ? "High Contrast deactivated" : "High Contrast active!");
+                    showToast(
+                      highContrastActive ? 'High Contrast deactivated' : 'High Contrast active!'
+                    );
                   }}
                   className={`w-9 h-5 rounded-full p-0.5 transition-colors duration-200 focus:outline-none flex items-center cursor-pointer border-0 ${highContrastActive ? 'bg-indigo-600 justify-end' : 'bg-zinc-850 justify-start'}`}
                 >
@@ -515,16 +626,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     <Smartphone className="w-4 h-4" />
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-xs font-semibold text-zinc-200">Service Worker Offline Cache</span>
+                    <span className="text-xs font-semibold text-zinc-200">
+                      Service Worker Offline Cache
+                    </span>
                     <span className="text-[9px] text-zinc-550">Full PWA capabilities offline</span>
                   </div>
                 </div>
-                
-                <button 
+
+                <button
                   type="button"
                   onClick={() => {
                     setOfflineCacheActive(!offlineCacheActive);
-                    showToast(offlineCacheActive ? "Offline cache disabled" : "Offline PWA caching active!");
+                    showToast(
+                      offlineCacheActive ? 'Offline cache disabled' : 'Offline PWA caching active!'
+                    );
                   }}
                   className={`w-9 h-5 rounded-full p-0.5 transition-colors duration-200 focus:outline-none flex items-center cursor-pointer border-0 ${offlineCacheActive ? 'bg-indigo-600 justify-end' : 'bg-zinc-850 justify-start'}`}
                 >
@@ -535,9 +650,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
 
           {/* Action Log Out */}
-          <button 
+          <button
             onClick={async () => {
-              showToast("Logging out of Expensio...");
+              showToast('Logging out of Expensio...');
               try {
                 await supabase.auth.signOut();
                 // Clear persistent Zustand store

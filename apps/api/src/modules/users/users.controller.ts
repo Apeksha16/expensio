@@ -1,60 +1,81 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { usersService } from './users.service.js';
-import { UpdateUserProfileDto } from './users.types.js';
-import { updateProfileSchema } from '@expensio/validation';
+import { updateProfileSchema, completeOnboardingSchema } from '@expensio/validation';
+import {
+  formatErrorResponse,
+  formatSuccessResponse,
+  ValidationError,
+  UnauthorizedError,
+  NotFoundError,
+  AppError,
+} from '../../utils/errors.js';
 
 export class UsersController {
   /**
    * Get current authenticated user profile
    */
   async getMe(request: FastifyRequest, reply: FastifyReply) {
-    if (!request.user) {
-      return reply.status(401).send({ error: 'Unauthorized' });
-    }
-
     try {
+      if (!request.user) {
+        throw new UnauthorizedError('User not authenticated');
+      }
+
       const user = await usersService.getUserById(request.user.id);
       if (!user) {
-        return reply.status(404).send({ error: 'User profile not found' });
+        throw new NotFoundError('User profile not found');
       }
-      return reply.send({ user });
+
+      return reply.send(
+        formatSuccessResponse({
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          avatarUrl: user.avatarUrl,
+          monthlySalary: user.monthlySalary,
+          isOnboardingCompleted: user.isOnboardingCompleted,
+        })
+      );
     } catch (err) {
-      const error = err as Error;
+      const error = err as Error | AppError;
       request.log.error(`Failed to fetch user: ${error.message}`);
-      return reply.status(500).send({ error: 'Internal server error' });
+
+      if (error instanceof AppError) {
+        return reply.status(error.statusCode).send(formatErrorResponse(error));
+      }
+
+      return reply.status(500).send(formatErrorResponse(error));
     }
   }
 
   /**
    * Update current user profile
    */
-  async updateMe(
-    request: FastifyRequest,
-    reply: FastifyReply
-  ) {
-    if (!request.user) {
-      return reply.status(401).send({ error: 'Unauthorized' });
-    }
-
-    const userId = request.user.id;
-    
-    // Validate inputs using shared Zod schema
-    const result = updateProfileSchema.safeParse(request.body);
-    if (!result.success) {
-      return reply.status(400).send({
-        error: 'Validation failed',
-        details: result.error.errors.map((e: { path: (string | number)[]; message: string }) => ({ path: e.path.join('.'), message: e.message })),
-      });
-    }
-
-    const { name, username, avatarUrl, currency, timezone, monthlySalary, isOnboarded } = result.data;
-
+  async updateMe(request: FastifyRequest, reply: FastifyReply) {
     try {
+      if (!request.user) {
+        throw new UnauthorizedError('User not authenticated');
+      }
+
+      const userId = request.user.id;
+
+      // Validate inputs using shared Zod schema
+      const result = updateProfileSchema.safeParse(request.body);
+      if (!result.success) {
+        throw new ValidationError('Validation failed', {
+          errors: result.error.errors.map((e) => ({
+            path: e.path.join('.'),
+            message: e.message,
+          })),
+        });
+      }
+
+      const { name, username, avatarUrl, currency, timezone, monthlySalary } = result.data;
+
       // Validate username uniqueness if provided
       if (username) {
         const isTaken = await usersService.isUsernameTaken(username, userId);
         if (isTaken) {
-          return reply.status(400).send({ error: 'Username is already taken' });
+          throw new ValidationError('Username is already taken');
         }
       }
 
@@ -65,14 +86,73 @@ export class UsersController {
         currency,
         timezone,
         monthlySalary,
-        isOnboarded,
       });
 
-      return reply.send({ user: updatedUser });
+      return reply.send(formatSuccessResponse(updatedUser, 'Profile updated successfully'));
     } catch (err) {
-      const error = err as Error;
+      const error = err as Error | AppError;
       request.log.error(`Failed to update user profile: ${error.message}`);
-      return reply.status(500).send({ error: 'Internal server error' });
+
+      if (error instanceof AppError) {
+        return reply.status(error.statusCode).send(formatErrorResponse(error));
+      }
+
+      return reply.status(500).send(formatErrorResponse(error));
+    }
+  }
+
+  /**
+   * Complete user onboarding
+   */
+  async completeOnboarding(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      if (!request.user) {
+        throw new UnauthorizedError('User not authenticated');
+      }
+
+      const userId = request.user.id;
+
+      // Validate input
+      const result = completeOnboardingSchema.safeParse(request.body);
+      if (!result.success) {
+        throw new ValidationError('Validation failed', {
+          errors: result.error.errors.map((e) => ({
+            path: e.path.join('.'),
+            message: e.message,
+          })),
+        });
+      }
+
+      const { name, monthlySalary } = result.data;
+
+      // Complete onboarding
+      const updatedUser = await usersService.completeOnboarding(userId, {
+        name,
+        monthlySalary,
+      });
+
+      return reply.status(200).send(
+        formatSuccessResponse(
+          {
+            id: updatedUser.id,
+            email: updatedUser.email,
+            name: updatedUser.name,
+            avatarUrl: updatedUser.avatarUrl,
+            monthlySalary: updatedUser.monthlySalary,
+            isOnboardingCompleted: updatedUser.isOnboardingCompleted,
+          },
+          'Onboarding completed successfully'
+        )
+      );
+    } catch (err) {
+      const error = err as Error | AppError;
+      request.log.error(`Failed to complete onboarding: ${error.message}`);
+
+      if (error instanceof AppError) {
+        return reply.status(error.statusCode).send(formatErrorResponse(error));
+      }
+
+      return reply.status(500).send(formatErrorResponse(error));
     }
   }
 }

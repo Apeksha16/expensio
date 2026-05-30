@@ -3,7 +3,7 @@ import { usersController } from './users.controller.js';
 
 export async function usersRoutes(fastify: FastifyInstance) {
   fastify.get(
-    '/users/me',
+    '/api/v1/users/me',
     {
       preHandler: [fastify.authenticate],
     },
@@ -11,10 +11,18 @@ export async function usersRoutes(fastify: FastifyInstance) {
   );
 
   fastify.put(
-    '/users/me',
+    '/api/v1/users/me',
     {
       preHandler: [fastify.authenticate],
     },
     usersController.updateMe.bind(usersController)
+  );
+
+  fastify.post(
+    '/api/v1/users/onboarding',
+    {
+      preHandler: [fastify.authenticate],
+    },
+    usersController.completeOnboarding.bind(usersController)
   );
 }

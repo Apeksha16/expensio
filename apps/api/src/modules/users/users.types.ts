@@ -1,4 +1,4 @@
-import { AuthUser } from '@expensio/types';
+import { User } from '@expensio/types';
 
 export interface UpdateUserProfileDto {
   name?: string | null;
@@ -7,5 +7,12 @@ export interface UpdateUserProfileDto {
   currency?: string;
   timezone?: string;
   monthlySalary?: number | null;
-  isOnboarded?: boolean;
+  isOnboardingCompleted?: boolean;
 }
+
+export interface CompleteOnboardingDto {
+  name: string;
+  monthlySalary: number;
+}
+
+export type { User };

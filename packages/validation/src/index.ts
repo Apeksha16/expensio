@@ -4,28 +4,54 @@ export const UserSchema = z.object({
   id: z.string().optional(),
   email: z.string().email('Invalid email address'),
   name: z.string().min(2, 'Name must be at least 2 characters').optional().nullable(),
-  username: z.string().min(3, 'Username must be at least 3 characters').regex(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers and underscores').optional().nullable(),
+  username: z
+    .string()
+    .min(3, 'Username must be at least 3 characters')
+    .regex(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers and underscores')
+    .optional()
+    .nullable(),
   avatarUrl: z.string().url('Invalid avatar URL').or(z.string().length(0)).optional().nullable(),
   currency: z.string().min(3).max(3).optional(),
   timezone: z.string().optional(),
-  monthlySalary: z.number().nonnegative('Monthly salary must be a positive number').optional().nullable(),
-  isOnboarded: z.boolean().optional(),
+  monthlySalary: z
+    .number()
+    .nonnegative('Monthly salary must be a positive number')
+    .optional()
+    .nullable(),
+  isOnboardingCompleted: z.boolean().optional(),
   createdAt: z.date().optional(),
   updatedAt: z.date().optional().nullable(),
 });
 
 export const updateProfileSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').optional().nullable(),
-  username: z.string().min(3, 'Username must be at least 3 characters').regex(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers and underscores').optional().nullable(),
+  username: z
+    .string()
+    .min(3, 'Username must be at least 3 characters')
+    .regex(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers and underscores')
+    .optional()
+    .nullable(),
   avatarUrl: z.string().url('Invalid avatar URL').or(z.string().length(0)).optional().nullable(),
   currency: z.string().min(3).max(3).optional(),
   timezone: z.string().optional(),
-  monthlySalary: z.number().nonnegative('Monthly salary must be a positive number').optional().nullable(),
-  isOnboarded: z.boolean().optional(),
+  monthlySalary: z
+    .number()
+    .nonnegative('Monthly salary must be a positive number')
+    .optional()
+    .nullable(),
+  isOnboardingCompleted: z.boolean().optional(),
+});
+
+export const completeOnboardingSchema = z.object({
+  name: z
+    .string()
+    .min(2, 'Name must be at least 2 characters')
+    .max(100, 'Name must be at most 100 characters'),
+  monthlySalary: z.number().positive('Monthly salary must be greater than 0'),
 });
 
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
-
+export type CompleteOnboardingInput = z.infer<typeof completeOnboardingSchema>;
 
 export const ExpenseSchema = z.object({
   id: z.string().optional(),

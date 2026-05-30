@@ -9,6 +9,7 @@ import { expenseRoutes } from './routes/expense.js';
 import { SocketManager } from './sockets/socket.manager.js';
 import { env } from './config/env.js';
 import authPlugin from './plugins/auth.plugin.js';
+import errorHandlerPlugin from './plugins/error-handler.plugin.js';
 import { authRoutes } from './modules/auth/index.js';
 import { usersRoutes } from './modules/users/index.js';
 
@@ -36,7 +37,7 @@ try {
   redisConnection = new Redis(redisUrl, {
     maxRetriesPerRequest: null,
   });
-  
+
   emailQueue = new Queue('emails', {
     connection: redisConnection as any,
   });
@@ -51,6 +52,9 @@ fastify.register(cors, {
   origin: env.FRONTEND_URL,
 });
 
+// Register Error Handler Plugin
+fastify.register(errorHandlerPlugin);
+
 // Register Auth Plugin
 fastify.register(authPlugin);
 
@@ -64,20 +68,21 @@ fastify.register(usersRoutes);
 const start = async () => {
   try {
     await fastify.listen({ port, host });
-    
+
     // Test Database Connection
     try {
       await db.execute(sql`SELECT 1`);
       fastify.log.info('Database connection verified successfully via Drizzle ORM');
     } catch (dbError: any) {
       fastify.log.warn(`Database connection verification failed: ${dbError.message}`);
-      fastify.log.warn('Booting server anyway. Ensure PostgreSQL is running and DATABASE_URL is correct.');
+      fastify.log.warn(
+        'Booting server anyway. Ensure PostgreSQL is running and DATABASE_URL is correct.'
+      );
     }
-    
+
     // Initialize real-time Socket manager
     const socketManager = new SocketManager(fastify.log);
     socketManager.initialize(fastify.server);
-
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);
