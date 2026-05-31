@@ -14,7 +14,7 @@ export class AuthService {
   private supabase: SupabaseClient;
 
   constructor() {
-    this.supabase = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, {
+    this.supabase = createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY, {
       auth: {
         persistSession: false,
         autoRefreshToken: false,
@@ -23,46 +23,6 @@ export class AuthService {
   }
 
   async verifyToken(token: string) {
-    if (
-      token === 'mock-token' ||
-      token.startsWith('mock-token:') ||
-      env.SUPABASE_URL.includes('placeholder') ||
-      !env.SUPABASE_URL
-    ) {
-      let mockUser = {
-        id: 'mock-user-id',
-        email: 'apeksha@expensio.app',
-        user_metadata: {
-          name: 'Apeksha',
-          full_name: 'Apeksha',
-          avatar_url: 'AP',
-        },
-      };
-
-      if (token.startsWith('mock-token:')) {
-        try {
-          const base64 = token.split(':')[1];
-          const json = Buffer.from(base64, 'base64').toString('utf8');
-          mockUser = JSON.parse(json);
-        } catch (e) {
-          console.error('Failed to parse mock token:', e);
-        }
-      }
-
-      return {
-        id: mockUser.id || 'mock-user-id',
-        email: mockUser.email || 'apeksha@expensio.app',
-        user_metadata: mockUser.user_metadata || {
-          name: 'Apeksha',
-          full_name: 'Apeksha',
-          avatar_url: 'AP',
-        },
-        created_at: new Date().toISOString(),
-        aud: 'authenticated',
-        role: 'authenticated',
-      } as any;
-    }
-
     const {
       data: { user },
       error,

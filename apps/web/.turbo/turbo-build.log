@@ -2,36 +2,39 @@
 > web@0.1.0 build
 > next build --webpack
 
-⚠ Attempted to load /Users/pranavkatiyar/Documents/FULLSTACK/expensio/node_modules/next/next-swc-fallback/@next/swc-darwin-arm64/next-swc.darwin-arm64.node, but it was not installed
-⚠ Attempted to load @next/swc-darwin-arm64, but it was not installed
-⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
- We detected multiple lockfiles and selected the directory of /Users/pranavkatiyar/Documents/FULLSTACK/package-lock.json as the root directory.
- To silence this warning, set `outputFileTracingRoot` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
-   See https://nextjs.org/docs/app/api-reference/config/next-config-js/output#caveats for more information.
- Detected additional lockfiles: 
-   * /Users/pranavkatiyar/Documents/FULLSTACK/expensio/package-lock.json
-
-  Skipping creating a lockfile at /Users/pranavkatiyar/Documents/FULLSTACK/expensio/apps/web/.next/lock because we're using WASM bindings
 ▲ Next.js 16.2.6 (webpack)
 - Environments: .env
 
   Creating an optimized production build ...
-⚠ Attempted to load /Users/pranavkatiyar/Documents/FULLSTACK/expensio/node_modules/next/next-swc-fallback/@next/swc-darwin-arm64/next-swc.darwin-arm64.node, but it was not installed
-⚠ Attempted to load @next/swc-darwin-arm64, but it was not installed
-⚠ Attempted to load /Users/pranavkatiyar/Documents/FULLSTACK/expensio/node_modules/next/next-swc-fallback/@next/swc-darwin-arm64/next-swc.darwin-arm64.node, but it was not installed
-⚠ Attempted to load @next/swc-darwin-arm64, but it was not installed
-⚠ Attempted to load /Users/pranavkatiyar/Documents/FULLSTACK/expensio/node_modules/next/next-swc-fallback/@next/swc-darwin-arm64/next-swc.darwin-arm64.node, but it was not installed
-⚠ Attempted to load @next/swc-darwin-arm64, but it was not installed
-✓ Compiled successfully in 3.9s
+✓ Compiled successfully in 10.5s
   Running TypeScript ...
-⚠ Attempted to load /Users/pranavkatiyar/Documents/FULLSTACK/expensio/node_modules/next/next-swc-fallback/@next/swc-darwin-arm64/next-swc.darwin-arm64.node, but it was not installed
-⚠ Attempted to load @next/swc-darwin-arm64, but it was not installed
-Error: invalid type: unit value, expected usize
-Next.js build worker exited with code: 1 and signal: null
-npm error Lifecycle script `build` failed with error:
-npm error code 1
-npm error path /Users/pranavkatiyar/Documents/FULLSTACK/expensio/apps/web
-npm error workspace web@0.1.0
-npm error location /Users/pranavkatiyar/Documents/FULLSTACK/expensio/apps/web
-npm error command failed
-npm error command sh -c next build --webpack
+  Finished TypeScript in 9.6s ...
+  Collecting page data using 3 workers ...
+  Generating static pages using 3 workers (0/17) ...
+  Generating static pages using 3 workers (4/17) 
+  Generating static pages using 3 workers (8/17) 
+  Generating static pages using 3 workers (12/17) 
+✓ Generating static pages using 3 workers (17/17) in 2.4s
+  Finalizing page optimization ...
+  Collecting build traces ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /auth/callback
+├ ○ /budgets
+├ ○ /expenses
+├ ○ /forgot-password
+├ ○ /friends
+├ ○ /groups
+├ ○ /login
+├ ○ /manifest.webmanifest
+├ ○ /offline
+├ ○ /onboarding
+├ ○ /register
+├ ○ /reset-password
+└ ○ /settings
+
+
+○  (Static)  prerendered as static content
+

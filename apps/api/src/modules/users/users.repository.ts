@@ -93,12 +93,16 @@ export class UserRepository {
       timezone?: string;
       monthlySalary?: number | null;
       isOnboardingCompleted?: boolean;
+      supabaseAuthId?: string;
+      provider?: string;
     }
   ): Promise<User> {
     const [updatedUser] = await db
       .update(users)
       .set({
         ...data,
+        supabaseAuthId: data.supabaseAuthId ?? undefined,
+        provider: data.provider ?? undefined,
         updatedAt: new Date(),
       })
       .where(eq(users.id, id))
@@ -137,7 +141,7 @@ export class UserRepository {
     const avatarUrl = typedUser.user_metadata?.avatar_url || null;
 
     // Check if user already exists
-    const existingUser = await this.findById(userId);
+    const existingUser = await this.findBySupabaseId(userId);
 
     if (existingUser) {
       // Update if details changed
@@ -150,9 +154,23 @@ export class UserRepository {
           email,
           name,
           avatarUrl,
+          supabaseAuthId: userId,
+          provider: 'google',
         });
       }
       return existingUser;
+    }
+
+    const existingUserByEmail = await this.findByEmail(email);
+
+    if (existingUserByEmail) {
+      return this.update(existingUserByEmail.id, {
+        email,
+        name,
+        avatarUrl,
+        supabaseAuthId: userId,
+        provider: 'google',
+      });
     }
 
     // Create new user

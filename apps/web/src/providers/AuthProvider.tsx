@@ -15,10 +15,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { setSession, clearSession, setInitialized, setLoading } = useAuthStore();
   const pathname = usePathname();
   const router = useRouter();
-  const { user, isInitialized, isLoading } = useAuthStore();
+  const { user, session, isInitialized, isLoading } = useAuthStore();
+
+  const buildFallbackUser = (session: Session): AuthUser => {
+    const user = session.user;
+    return {
+      id: user.id,
+      email: user.email || '',
+      name: user.user_metadata?.name || user.user_metadata?.full_name || '',
+      avatarUrl: user.user_metadata?.avatar_url || '',
+      monthlySalary: user.user_metadata?.monthlySalary || (user as any).monthlySalary || null,
+      isOnboardingCompleted:
+        user.user_metadata?.isOnboardingCompleted ||
+        user.user_metadata?.isOnboarded ||
+        (user as any).isOnboardingCompleted ||
+        (user as any).isOnboarded ||
+        false,
+      createdAt: new Date(user.created_at),
+    };
+  };
 
   const syncUserWithBackend = async (session: Session) => {
     try {
+      // Temporary debug: log masked access token before calling backend
+      try {
+        const token = session.access_token;
+        const masked = token ? `${token.slice(0, 8)}...${token.slice(-4)}` : 'no-token';
+        console.debug('[AuthProvider] syncUserWithBackend - token:', masked);
+      } catch (err) {
+        console.debug('[AuthProvider] syncUserWithBackend - token masking failed');
+      }
       const response = await fetch(`${API_URL}/api/v1/auth/sync`, {
         method: 'POST',
         headers: {
@@ -29,31 +55,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (!response.ok) {
-        throw new Error('Backend sync failed');
+        console.warn(`Backend sync skipped: ${response.status} ${response.statusText}`);
+        setSession(session, buildFallbackUser(session));
+        return;
       }
 
       const data = await response.json();
       const dbUser: AuthUser = data.user;
       setSession(session, dbUser);
     } catch (err) {
-      console.error('Failed to sync user profile with backend:', err);
-      // Fallback: Use supabase user metadata
-      const user = session.user;
-      const fallbackUser: AuthUser = {
-        id: user.id,
-        email: user.email || '',
-        name: user.user_metadata?.name || user.user_metadata?.full_name || '',
-        avatarUrl: user.user_metadata?.avatar_url || '',
-        monthlySalary: user.user_metadata?.monthlySalary || (user as any).monthlySalary || null,
-        isOnboardingCompleted:
-          user.user_metadata?.isOnboardingCompleted ||
-          user.user_metadata?.isOnboarded ||
-          (user as any).isOnboardingCompleted ||
-          (user as any).isOnboarded ||
-          false,
-        createdAt: new Date(user.created_at),
-      };
-      setSession(session, fallbackUser);
+      console.warn('Backend sync unavailable, using Supabase session data:', err);
+      setSession(session, buildFallbackUser(session));
     }
   };
 
@@ -66,7 +78,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           data: { session },
         } = await supabase.auth.getSession();
         if (session) {
-          await syncUserWithBackend(session);
+          setSession(session, buildFallbackUser(session));
+          void syncUserWithBackend(session);
         } else {
           clearSession();
         }
@@ -85,15 +98,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event: any, session: any) => {
-      console.log('Supabase auth event:', event);
+      console.log('[AuthProvider] Supabase auth event:', event);
       if (session) {
-        setLoading(true);
-        await syncUserWithBackend(session);
+        console.log('[AuthProvider] session received, applying fallback user and syncing backend');
+        setSession(session, buildFallbackUser(session));
+        setLoading(false);
+        void syncUserWithBackend(session);
       } else {
         clearSession();
       }
       setInitialized(true);
-      setLoading(false);
+      console.log('[AuthProvider] initialized=true, isLoading:', false);
     });
 
     return () => {
@@ -104,32 +119,50 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // REDIRECTION GUARD
   useEffect(() => {
-    if (!isInitialized || isLoading) return;
+    if (!isInitialized) return;
 
-    const publicRoutes = ['/login', '/register', '/forgot-password', '/reset-password', '/offline'];
+    const publicRoutes = [
+      '/login',
+      '/register',
+      '/forgot-password',
+      '/reset-password',
+      '/offline',
+      '/auth/callback',
+    ];
     const isPublicRoute = publicRoutes.includes(pathname);
+    const effectiveUser = user ?? (session ? buildFallbackUser(session) : null);
 
-    if (!user) {
+    if (!effectiveUser && !session) {
       if (!isPublicRoute) {
-        router.push('/login');
+        console.debug('[AuthProvider] redirecting to /login from', pathname);
+        router.replace('/login');
       }
     } else {
       // User is logged in
-      const isOnboarded =
-        (user.isOnboardingCompleted ?? (user as any).isOnboarded) && user.monthlySalary;
+      const isOnboarded = effectiveUser
+        ? (effectiveUser.isOnboardingCompleted ?? (effectiveUser as any).isOnboarded) &&
+          effectiveUser.monthlySalary
+        : false;
 
       if (!isOnboarded) {
         if (pathname !== '/onboarding') {
-          router.push('/onboarding');
+          console.debug(
+            '[AuthProvider] user not onboarded, redirecting to /onboarding from',
+            pathname,
+            'user:',
+            effectiveUser
+          );
+          router.replace('/onboarding');
         }
       } else {
         // User is onboarded
         if (pathname === '/onboarding' || pathname === '/login' || pathname === '/register') {
-          router.push('/');
+          console.debug('[AuthProvider] user onboarded, redirecting to / from', pathname);
+          router.replace('/');
         }
       }
     }
-  }, [user, isInitialized, isLoading, pathname, router]);
+  }, [user, session, isInitialized, isLoading, pathname, router]);
 
   return <AuthContext.Provider value={{}}>{children}</AuthContext.Provider>;
 }

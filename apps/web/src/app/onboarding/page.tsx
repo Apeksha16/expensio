@@ -1,298 +1,629 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Wallet, ArrowRight, Sparkles, Loader2, LogOut, Check } from 'lucide-react';
 import { useAuthStore } from '../../store/auth-store';
 import { supabase } from '../../lib/supabase';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
+// ─── Types ───────────────────────────────────────────────────────────────────
+
+type Step = 1 | 2 | 3 | 4;
+
+interface OnboardingData {
+  name: string;
+  salary: string;
+  mpin: string;
+  confirmMpin: string;
+}
+
+// ─── Progress Indicator ───────────────────────────────────────────────────────
+
+function ProgressIndicator({ current, total }: { current: number; total: number }) {
+  return (
+    <div
+      className="flex items-center gap-2"
+      role="progressbar"
+      aria-valuenow={current}
+      aria-valuemin={1}
+      aria-valuemax={total}
+      aria-label={`Step ${current} of ${total}`}
+    >
+      {Array.from({ length: total }, (_, i) => (
+        <div
+          key={i}
+          className={`h-1 rounded-full transition-all duration-300 ${
+            i + 1 === current
+              ? 'w-5 bg-zinc-200'
+              : i + 1 < current
+                ? 'w-2 bg-zinc-500'
+                : 'w-2 bg-zinc-800'
+          }`}
+        />
+      ))}
+    </div>
+  );
+}
+
+// ─── Secure PIN Input (4-dot interface) ──────────────────────────────────────
+
+interface SecurePinInputProps {
+  value: string;
+  onChange: (val: string) => void;
+  disabled?: boolean;
+  error?: boolean;
+  autoFocus?: boolean;
+}
+
+function SecurePinInput({ value, onChange, disabled, error, autoFocus }: SecurePinInputProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (autoFocus) {
+      const t = setTimeout(() => inputRef.current?.focus(), 80);
+      return () => clearTimeout(t);
+    }
+  }, [autoFocus]);
+
+  const handleKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Backspace') {
+      e.preventDefault();
+      onChange(value.slice(0, -1));
+    }
+  };
+
+  const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.replace(/\D/g, '');
+    if (raw.length <= 4) onChange(raw);
+  };
+
+  return (
+    <div className="flex flex-col items-center gap-6">
+      {/* Hidden real input for keyboard activation */}
+      <input
+        ref={inputRef}
+        type="tel"
+        inputMode="numeric"
+        maxLength={4}
+        value={value}
+        onChange={handleInput}
+        onKeyDown={handleKey}
+        disabled={disabled}
+        className="absolute opacity-0 w-0 h-0 pointer-events-none"
+        aria-label="Enter your 4-digit PIN"
+        autoComplete="off"
+      />
+
+      {/* 4-dot visual interface */}
+      <button
+        type="button"
+        onClick={() => inputRef.current?.focus()}
+        className="flex items-center gap-4 p-4 rounded-xl border border-transparent hover:border-zinc-800 transition-colors focus:outline-none"
+        aria-hidden="true"
+        tabIndex={-1}
+      >
+        {Array.from({ length: 4 }, (_, i) => {
+          const filled = i < value.length;
+          return (
+            <motion.div
+              key={i}
+              animate={filled ? { scale: 1 } : { scale: 0.85 }}
+              transition={{ duration: 0.12, ease: 'easeOut' }}
+              className={`h-3.5 w-3.5 rounded-full transition-colors duration-150 ${
+                error
+                  ? filled
+                    ? 'bg-red-400'
+                    : 'border-2 border-red-700'
+                  : filled
+                    ? 'bg-zinc-100'
+                    : 'border-2 border-zinc-700'
+              }`}
+            />
+          );
+        })}
+      </button>
+    </div>
+  );
+}
+
+// ─── Account Setup Loader ─────────────────────────────────────────────────────
+
+const STATUS_MESSAGES = [
+  'Preparing your workspace',
+  'Securing your account',
+  'Setting up preferences',
+  'Almost ready',
+];
+
+function AccountSetupLoader() {
+  const [msgIndex, setMsgIndex] = useState(0);
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setVisible(false);
+      setTimeout(() => {
+        setMsgIndex((prev) => (prev + 1) % STATUS_MESSAGES.length);
+        setVisible(true);
+      }, 300);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="flex flex-col items-center gap-10">
+      {/* Custom animated orbital loader */}
+      <div className="relative h-24 w-24">
+        {/* Outer expanding ring */}
+        <motion.div
+          className="absolute inset-0 rounded-full border border-zinc-700"
+          animate={{ scale: [1, 1.18, 1], opacity: [0.4, 0.1, 0.4] }}
+          transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        {/* Middle ring */}
+        <motion.div
+          className="absolute inset-3 rounded-full border border-zinc-600"
+          animate={{ scale: [1, 1.12, 1], opacity: [0.6, 0.2, 0.6] }}
+          transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }}
+        />
+        {/* Inner solid core */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="h-10 w-10 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center">
+            {/* Geometric Expensio Icon — monochrome */}
+            <svg
+              className="h-5 w-5 text-zinc-200"
+              viewBox="0 0 40 40"
+              fill="none"
+              aria-hidden="true"
+            >
+              <rect x="6" y="8" width="28" height="4" rx="2" fill="currentColor" />
+              <rect x="12" y="18" width="22" height="4" rx="2" fill="currentColor" />
+              <rect x="6" y="28" width="28" height="4" rx="2" fill="currentColor" />
+            </svg>
+          </div>
+        </div>
+        {/* Orbiting particle */}
+        <motion.div
+          className="absolute top-0 left-1/2 -translate-x-1/2 h-1.5 w-1.5 rounded-full bg-zinc-400"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 2.2, repeat: Infinity, ease: 'linear' }}
+          style={{ transformOrigin: '50% 48px' }}
+        />
+      </div>
+
+      {/* Rotating status messages — fade only */}
+      <div className="h-6 flex items-center justify-center">
+        <AnimatePresence mode="wait">
+          {visible && (
+            <motion.p
+              key={msgIndex}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.28, ease: 'easeInOut' }}
+              className="text-[13px] font-medium text-zinc-500 tracking-wide"
+            >
+              {STATUS_MESSAGES[msgIndex]}
+            </motion.p>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+}
+
+// ─── Step 1 — Personal Information ────────────────────────────────────────────
+
+interface Step1Props {
+  data: OnboardingData;
+  onChange: (data: Partial<OnboardingData>) => void;
+  onNext: () => void;
+}
+
+function PersonalInfoStep({ data, onChange, onNext }: Step1Props) {
+  const isValid = data.name.trim().length >= 2 && Number(data.salary) > 0;
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isValid) onNext();
+  };
+
+  // Format salary display
+  const handleSalaryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.replace(/[^0-9]/g, '');
+    onChange({ salary: raw });
+  };
+
+  const displaySalary = data.salary ? Number(data.salary).toLocaleString('en-IN') : '';
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-8 w-full">
+      <header>
+        <h1 className="text-[21px] font-semibold text-zinc-100 tracking-tight">
+          Welcome to Expensio
+        </h1>
+        <p className="mt-1.5 text-[13px] text-zinc-500 leading-relaxed">
+          Let's personalize your experience.
+        </p>
+      </header>
+
+      <div className="flex flex-col gap-5">
+        {/* Full Name */}
+        <div className="flex flex-col gap-1.5">
+          <label
+            htmlFor="fullname"
+            className="text-[11px] font-semibold text-zinc-500 uppercase tracking-widest"
+          >
+            Full Name
+          </label>
+          <input
+            id="fullname"
+            type="text"
+            value={data.name}
+            onChange={(e) => onChange({ name: e.target.value })}
+            placeholder="Enter your full name"
+            autoFocus
+            autoComplete="name"
+            className="w-full rounded-lg border border-zinc-800 bg-zinc-900 px-4 py-3 text-[14px] text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-700 transition-colors"
+          />
+        </div>
+
+        {/* Monthly Salary */}
+        <div className="flex flex-col gap-1.5">
+          <label
+            htmlFor="salary"
+            className="text-[11px] font-semibold text-zinc-500 uppercase tracking-widest"
+          >
+            Monthly Salary
+          </label>
+          <div className="relative">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[14px] font-semibold text-zinc-500 select-none">
+              ₹
+            </span>
+            <input
+              id="salary"
+              type="text"
+              inputMode="numeric"
+              value={displaySalary}
+              onChange={handleSalaryChange}
+              placeholder="50,000"
+              className="w-full rounded-lg border border-zinc-800 bg-zinc-900 pl-8 pr-4 py-3 text-[14px] text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-700 transition-colors"
+            />
+          </div>
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        disabled={!isValid}
+        className="w-full rounded-lg border border-zinc-800 bg-[#18181b] px-4 py-3 text-[13px] font-medium text-zinc-200 transition-all hover:bg-[#202024] hover:text-white focus:outline-none focus:ring-1 focus:ring-zinc-600 disabled:opacity-30 disabled:cursor-not-allowed"
+      >
+        Continue
+      </button>
+    </form>
+  );
+}
+
+// ─── Step 2 — Create MPIN ─────────────────────────────────────────────────────
+
+interface Step2Props {
+  data: OnboardingData;
+  onChange: (data: Partial<OnboardingData>) => void;
+  onNext: () => void;
+}
+
+function CreateMpinStep({ data, onChange, onNext }: Step2Props) {
+  const isValid = data.mpin.length === 4;
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isValid) onNext();
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col items-center gap-8 w-full">
+      <header className="text-center">
+        <h1 className="text-[21px] font-semibold text-zinc-100 tracking-tight">Create Your MPIN</h1>
+        <p className="mt-1.5 text-[13px] text-zinc-500 leading-relaxed">
+          This PIN protects your financial information.
+        </p>
+      </header>
+
+      <SecurePinInput value={data.mpin} onChange={(val) => onChange({ mpin: val })} autoFocus />
+
+      <p className="text-[11px] text-zinc-600 tracking-wide">
+        Used to securely access your account.
+      </p>
+
+      <button
+        type="submit"
+        disabled={!isValid}
+        className="w-full rounded-lg border border-zinc-800 bg-[#18181b] px-4 py-3 text-[13px] font-medium text-zinc-200 transition-all hover:bg-[#202024] hover:text-white focus:outline-none focus:ring-1 focus:ring-zinc-600 disabled:opacity-30 disabled:cursor-not-allowed"
+      >
+        Continue
+      </button>
+    </form>
+  );
+}
+
+// ─── Step 3 — Confirm MPIN ────────────────────────────────────────────────────
+
+interface Step3Props {
+  data: OnboardingData;
+  onChange: (data: Partial<OnboardingData>) => void;
+  onNext: () => void;
+}
+
+function ConfirmMpinStep({ data, onChange, onNext }: Step3Props) {
+  const [touched, setTouched] = useState(false);
+  const isPinFull = data.confirmMpin.length === 4;
+  const isMatch = data.mpin === data.confirmMpin;
+  const showError = touched && isPinFull && !isMatch;
+  const isValid = isPinFull && isMatch;
+
+  const handleChange = (val: string) => {
+    onChange({ confirmMpin: val });
+    if (val.length === 4) setTouched(true);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setTouched(true);
+    if (isValid) onNext();
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col items-center gap-8 w-full">
+      <header className="text-center">
+        <h1 className="text-[21px] font-semibold text-zinc-100 tracking-tight">
+          Confirm Your MPIN
+        </h1>
+        <p className="mt-1.5 text-[13px] text-zinc-500 leading-relaxed">
+          Re-enter your PIN to verify.
+        </p>
+      </header>
+
+      <div className="flex flex-col items-center gap-3">
+        <SecurePinInput
+          value={data.confirmMpin}
+          onChange={handleChange}
+          error={showError}
+          autoFocus
+        />
+        <AnimatePresence>
+          {showError && (
+            <motion.p
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.18 }}
+              role="alert"
+              className="text-[12px] font-medium text-red-400/90"
+            >
+              PINs do not match.
+            </motion.p>
+          )}
+        </AnimatePresence>
+      </div>
+
+      <button
+        type="submit"
+        disabled={!isValid}
+        className="w-full rounded-lg border border-zinc-800 bg-[#18181b] px-4 py-3 text-[13px] font-medium text-zinc-200 transition-all hover:bg-[#202024] hover:text-white focus:outline-none focus:ring-1 focus:ring-zinc-600 disabled:opacity-30 disabled:cursor-not-allowed"
+      >
+        Create Account
+      </button>
+    </form>
+  );
+}
+
+// ─── Main Onboarding Page ─────────────────────────────────────────────────────
+
 export default function OnboardingPage() {
   const router = useRouter();
   const { user, isInitialized, isLoading, updateUser, session } = useAuthStore();
 
-  const [name, setName] = useState('');
-  const [salary, setSalary] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
+  // debug: mount state logged in useEffect to avoid side-effects during render
 
-  // Prefill name if available in user object
+  const [step, setStep] = useState<Step>(1);
+  const [data, setData] = useState<OnboardingData>({
+    name: '',
+    salary: '',
+    mpin: '',
+    confirmMpin: '',
+  });
+  const [apiError, setApiError] = useState<string | null>(null);
+
+  // Prefill name from authenticated user
   useEffect(() => {
-    if (user && user.name) {
-      setName(user.name);
+    if (user?.name) {
+      setData((d) => ({ ...d, name: user.name! }));
     }
   }, [user]);
 
-  // Route protection inside page itself as backup
+  // Route protection
   useEffect(() => {
-    if (isInitialized && !isLoading) {
-      if (!user) {
-        router.push('/login');
-      } else if ((user.isOnboardingCompleted ?? (user as any).isOnboarded) && user.monthlySalary) {
-        router.push('/');
-      }
+    if (!isInitialized || isLoading) return;
+
+    console.debug('[Onboarding] route guard check', { user, sessionPresent: !!session });
+
+    // If Supabase already has a session, stay on onboarding even while the
+    // user object is still hydrating from backend/local fallback.
+    if (session && !user) return;
+
+    if (!session) {
+      router.replace('/login');
+      return;
+    }
+
+    if (user && (user.isOnboardingCompleted ?? (user as any).isOnboarded) && user.monthlySalary) {
+      router.replace('/');
     }
   }, [user, isInitialized, isLoading, router]);
 
-  if (!isInitialized || isLoading || !user) {
+  const updateData = useCallback((patch: Partial<OnboardingData>) => {
+    setData((prev) => ({ ...prev, ...patch }));
+  }, []);
+
+  const goToStep = useCallback((s: Step) => setStep(s), []);
+
+  // Trigger account creation on step 4 entry
+  useEffect(() => {
+    if (step !== 4) return;
+
+    const runSetup = async () => {
+      setApiError(null);
+      try {
+        const updatePayload = {
+          name: data.name.trim(),
+          monthlySalary: Number(data.salary),
+        };
+
+        if (session?.access_token) {
+          try {
+            const res = await fetch(`${API_URL}/api/v1/users/onboarding`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${session.access_token}`,
+              },
+              body: JSON.stringify(updatePayload),
+            });
+
+            if (res.ok) {
+              const data = await res.json();
+              if (data?.user) {
+                updateUser(data.user);
+              } else {
+                updateUser({
+                  name: updatePayload.name,
+                  monthlySalary: updatePayload.monthlySalary,
+                  isOnboardingCompleted: true,
+                });
+              }
+            } else {
+              console.warn('Backend onboarding update failed, using local fallback.');
+              updateUser({
+                name: updatePayload.name,
+                monthlySalary: updatePayload.monthlySalary,
+                isOnboardingCompleted: true,
+              });
+            }
+          } catch {
+            console.warn('Backend unreachable, using local fallback.');
+            updateUser({
+              name: updatePayload.name,
+              monthlySalary: updatePayload.monthlySalary,
+              isOnboardingCompleted: true,
+            });
+          }
+        } else {
+          updateUser({
+            name: updatePayload.name,
+            monthlySalary: updatePayload.monthlySalary,
+            isOnboardingCompleted: true,
+          });
+        }
+
+        // Navigate to the dashboard after the completed state is persisted.
+        router.replace('/');
+      } catch (err) {
+        const e = err as Error;
+        setApiError(e.message || 'Account setup failed. Please try again.');
+        setStep(3);
+      }
+    };
+
+    runSetup();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, data.name, data.salary, session?.access_token, router, updateUser]);
+
+  // Global loading gate
+  if (!isInitialized || isLoading || (!session && !user)) {
     return (
-      <div className="min-h-screen bg-[#09090b] flex items-center justify-center text-zinc-400">
-        <Loader2 className="w-8 h-8 animate-spin text-cyan-400" />
+      <div
+        className="min-h-screen bg-[#09090b] flex items-center justify-center"
+        aria-busy="true"
+        aria-label="Loading"
+      >
+        <motion.div
+          className="h-5 w-5 rounded-full border-2 border-zinc-700 border-t-zinc-300"
+          animate={{ rotate: 360 }}
+          transition={{ repeat: Infinity, duration: 0.75, ease: 'linear' }}
+        />
       </div>
     );
   }
 
-  const hasPrefilledName = !!(user.name && user.name.length > 1);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setIsSubmitting(true);
-
-    if (!name || name.trim().length < 2) {
-      setError('Please provide a valid name (at least 2 characters).');
-      setIsSubmitting(false);
-      return;
-    }
-
-    const salaryNum = Number(salary);
-    if (isNaN(salaryNum) || salaryNum <= 0) {
-      setError('Please provide a valid positive monthly salary.');
-      setIsSubmitting(false);
-      return;
-    }
-
-    try {
-      // 1. Prepare profile update object
-      const updateData = {
-        name: name.trim(),
-        monthlySalary: salaryNum,
-        isOnboardingCompleted: true,
-      };
-
-      // 2. Call the backend if we have a token
-      if (session?.access_token) {
-        try {
-          const response = await fetch(`${API_URL}/api/v1/users/me`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${session.access_token}`,
-            },
-            body: JSON.stringify(updateData),
-          });
-
-          if (!response.ok) {
-            console.warn('Backend profile update failed, falling back to local cookies.');
-          }
-        } catch (backendErr) {
-          console.warn(
-            'Failed to connect to backend user update, falling back to local cookies:',
-            backendErr
-          );
-        }
-      }
-
-      // 3. Update the client session cookie so mock logins are fully persisted
-      const updatedUser = {
-        ...user,
-        ...updateData,
-      };
-
-      // Make sure the mock cookie is updated
-      const mockSessionUser = {
-        id: updatedUser.id,
-        email: updatedUser.email,
-        name: updatedUser.name,
-        monthlySalary: updatedUser.monthlySalary,
-        isOnboardingCompleted: updatedUser.isOnboardingCompleted,
-        user_metadata: {
-          name: updatedUser.name,
-          full_name: updatedUser.name,
-          avatar_url: updatedUser.name.slice(0, 2).toUpperCase(),
-          monthlySalary: updatedUser.monthlySalary,
-          isOnboardingCompleted: updatedUser.isOnboardingCompleted,
-        },
-      };
-
-      document.cookie = `expensio-session=${encodeURIComponent(JSON.stringify(mockSessionUser))}; path=/; max-age=604800; SameSite=Lax;`;
-
-      // 4. Update local Zustand state
-      updateUser(updateData);
-
-      // 5. Trigger gorgeous success splash!
-      setSuccess(true);
-
-      setTimeout(() => {
-        router.push('/');
-        // Force routing refresh to bind new layouts
-        window.location.href = '/';
-      }, 1500);
-    } catch (err) {
-      const error = err as Error;
-      setError(error.message || 'Onboarding failed. Please try again.');
-      setIsSubmitting(false);
-    }
-  };
+  const totalSteps = 3; // Only show progress for steps 1–3; step 4 is full-screen
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-[#09090b] text-gray-100 px-4 relative overflow-hidden select-none font-sans">
-      {/* Premium background glow elements */}
-      <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none" />
-
+    <main className="relative min-h-screen w-full bg-[#09090b] flex flex-col items-center justify-center px-6 py-16 text-zinc-200 selection:bg-zinc-800 selection:text-zinc-100">
       <AnimatePresence mode="wait">
-        {!success ? (
+        {step === 4 ? (
+          /* ── Step 4: Full-Screen Account Setup Loader ── */
           <motion.div
-            key="onboarding-form"
-            initial={{ opacity: 0, scale: 0.95, y: 15 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: -15 }}
-            transition={{ duration: 0.5, ease: 'easeOut' }}
-            className="w-full max-w-md bg-zinc-900/60 backdrop-blur-xl border border-zinc-800/80 rounded-3xl p-8 shadow-2xl relative z-10"
+            key="step-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.35 }}
+            className="flex flex-col items-center gap-0"
           >
-            {/* Logo Icon and Header */}
-            <div className="text-center mb-8">
-              <div className="w-12 h-12 bg-gradient-to-tr from-indigo-500 to-cyan-500 p-0.5 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-500/15">
-                <div className="w-full h-full rounded-[14px] bg-zinc-950 flex items-center justify-center">
-                  <Sparkles className="w-5 h-5 text-cyan-400 animate-pulse" />
-                </div>
-              </div>
-              <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-b from-white to-zinc-400 bg-clip-text text-transparent mb-2">
-                Personalize Expensio
-              </h1>
-              <p className="text-zinc-400 text-sm max-w-xs mx-auto">
-                {hasPrefilledName
-                  ? `Welcome, ${name}! Let's define your monthly financial limits.`
-                  : "Let's set up your profile details to kickstart your personal dashboard."}
+            <AccountSetupLoader />
+            {apiError && (
+              <p className="mt-6 text-xs text-red-400/90 text-center" role="alert">
+                {apiError}
               </p>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-5">
-              {error && (
-                <motion.div
-                  initial={{ opacity: 0, y: -5 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-medium"
-                >
-                  {error}
-                </motion.div>
-              )}
-
-              {/* Name Input - Only if not prefilled or let them review it */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
-                  Your Full Name
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g. Alex"
-                    className="w-full bg-zinc-950 border border-zinc-800 hover:border-zinc-700 focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 outline-none rounded-xl py-3.5 pl-11 pr-4 text-sm transition-all text-white placeholder-zinc-650"
-                    disabled={isSubmitting}
-                    required
-                  />
-                </div>
-              </div>
-
-              {/* Monthly Salary Input */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
-                  Monthly Income (Salary)
-                </label>
-                <div className="relative">
-                  <Wallet className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-                  <span className="absolute left-10 top-1/2 -translate-y-1/2 text-sm font-bold text-cyan-400">
-                    ₹
-                  </span>
-                  <input
-                    type="number"
-                    value={salary}
-                    onChange={(e) => setSalary(e.target.value)}
-                    placeholder="0.00"
-                    className="w-full bg-zinc-950 border border-zinc-800 hover:border-zinc-700 focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 outline-none rounded-xl py-3.5 pl-14 pr-4 text-sm transition-all text-white placeholder-zinc-650"
-                    disabled={isSubmitting}
-                    required
-                    autoFocus={hasPrefilledName}
-                  />
-                </div>
-                <p className="text-[10px] text-zinc-550 pl-1 leading-relaxed">
-                  Used to generate accurate monthly split allowances and dynamic budget cards
-                  automatically.
-                </p>
-              </div>
-
-              {/* Action buttons */}
-              <div className="pt-2">
-                <button
-                  type="submit"
-                  className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-400 hover:to-cyan-400 text-zinc-950 font-bold active:scale-[0.98] transition-all shadow-lg shadow-indigo-500/10 cursor-pointer disabled:opacity-50 disabled:pointer-events-none text-xs uppercase tracking-wider"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Setting Up...
-                    </>
-                  ) : (
-                    <>
-                      Complete Setup
-                      <ArrowRight className="w-4 h-4" />
-                    </>
-                  )}
-                </button>
-              </div>
-            </form>
-
-            <div className="mt-8 border-t border-zinc-850 pt-4 text-center">
-              <button
-                type="button"
-                onClick={async () => {
-                  try {
-                    await supabase.auth.signOut();
-                  } catch (e) {
-                    console.error(e);
-                  }
-                  window.location.href = '/login';
-                }}
-                className="text-zinc-500 hover:text-zinc-350 text-xs font-semibold flex items-center gap-1.5 mx-auto transition-colors cursor-pointer"
-              >
-                <LogOut className="w-3.5 h-3.5" />
-                Sign in with another account
-              </button>
-            </div>
+            )}
           </motion.div>
         ) : (
+          /* ── Steps 1–3: Structured onboarding layout ── */
           <motion.div
-            key="onboarding-success"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ type: 'spring', damping: 15 }}
-            className="w-full max-w-sm bg-zinc-900/60 backdrop-blur-xl border border-zinc-800/80 rounded-3xl p-8 text-center shadow-2xl relative z-10 space-y-6"
+            key={`step-${step}`}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.22, ease: 'easeOut' }}
+            className="w-full max-w-90 flex flex-col gap-10"
           >
-            <div className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto text-emerald-400">
-              <Check className="w-8 h-8 stroke-[3]" />
+            {/* Progress indicator */}
+            <div className="flex items-center justify-between">
+              <ProgressIndicator current={step} total={totalSteps} />
+              <span className="text-[11px] font-medium text-zinc-600 tabular-nums">
+                {step} / {totalSteps}
+              </span>
             </div>
 
-            <div className="space-y-2">
-              <h2 className="text-2xl font-extrabold text-zinc-100 tracking-tight">
-                You are all set!
-              </h2>
-              <p className="text-zinc-400 text-sm leading-relaxed">
-                Setup finalized successfully. Redirecting you to your personal financial cockpit...
-              </p>
-            </div>
+            {/* Step content */}
+            {step === 1 && (
+              <PersonalInfoStep data={data} onChange={updateData} onNext={() => goToStep(2)} />
+            )}
+            {step === 2 && (
+              <CreateMpinStep data={data} onChange={updateData} onNext={() => goToStep(3)} />
+            )}
+            {step === 3 && (
+              <ConfirmMpinStep data={data} onChange={updateData} onNext={() => goToStep(4)} />
+            )}
 
-            <Loader2 className="w-6 h-6 animate-spin text-cyan-400 mx-auto" />
+            {/* Sign out fallback */}
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  await supabase.auth.signOut();
+                } catch {}
+                window.location.href = '/login';
+              }}
+              className="text-[11px] text-zinc-700 hover:text-zinc-500 transition-colors text-center mx-auto focus:outline-none focus:underline"
+            >
+              Sign in with a different account
+            </button>
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </main>
   );
 }

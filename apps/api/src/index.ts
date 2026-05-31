@@ -1,7 +1,5 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
-import Redis from 'ioredis';
-import { Queue } from 'bullmq';
 import { db } from './db/index.js';
 import { sql } from 'drizzle-orm';
 import { healthRoutes } from './routes/health.js';
@@ -28,24 +26,7 @@ const fastify = Fastify({
   },
 });
 
-// Setup Redis & BullMQ Queue (Producer)
-const redisUrl = env.REDIS_URL;
-let redisConnection: Redis | null = null;
-let emailQueue: Queue | null = null;
-
-try {
-  redisConnection = new Redis(redisUrl, {
-    maxRetriesPerRequest: null,
-  });
-
-  emailQueue = new Queue('emails', {
-    connection: redisConnection as any,
-  });
-
-  fastify.log.info('Redis connection and BullMQ queue publisher initialized successfully');
-} catch (error) {
-  fastify.log.warn('Redis/BullMQ publisher setup failed. Provide REDIS_URL to enable.');
-}
+fastify.log.info('BullMQ queue processing is disabled for now.');
 
 // Register CORS
 fastify.register(cors, {
@@ -93,9 +74,6 @@ const start = async () => {
 const shutdown = async () => {
   fastify.log.info('Shutting down server...');
   await fastify.close();
-  if (redisConnection) {
-    await redisConnection.quit();
-  }
   process.exit(0);
 };
 

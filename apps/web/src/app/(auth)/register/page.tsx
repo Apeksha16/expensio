@@ -84,13 +84,17 @@ export default function RegisterPage() {
 
     try {
       const redirectTo = `${window.location.origin}/auth/callback?next=/onboarding`;
-      const { error: authError } = await supabase.auth.signInWithOAuth({
+      const { data, error: authError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: { redirectTo },
       } as any);
 
       if (authError) {
         throw authError;
+      }
+
+      if (data?.url) {
+        window.location.assign(data.url);
       }
     } catch (err) {
       const error = err as Error;

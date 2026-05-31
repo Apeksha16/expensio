@@ -12,15 +12,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ? 'bg-blue-600 text-white hover:bg-blue-700'
         : 'bg-gray-200 text-gray-800 hover:bg-gray-300';
 
-    return (
-      <button
-        ref={ref}
-        className={`${baseStyles} ${variantStyles} ${className || ''}`}
-        {...props}
-      >
-        {children}
-      </button>
-    );
+    return null;
   }
 );
 

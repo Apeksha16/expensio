@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import MobileHeader from '../../components/layout/MobileHeader';
 import BottomNavigation from '../../components/layout/BottomNavigation';
 import BottomSheet from '../../components/shared/BottomSheet';
@@ -43,7 +43,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     isProfileOpen,
     setIsProfileOpen,
   } = useFinanceStore();
-  const { user } = useAuthStore();
+  const { user, session, isInitialized, isLoading } = useAuthStore();
 
   // Form State
   const [amount, setAmount] = useState('');
@@ -95,6 +95,32 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [highContrastActive, setHighContrastActive] = useState(false);
   const [offlineCacheActive, setOfflineCacheActive] = useState(true);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const effectiveUser =
+    user ??
+    (session?.user
+      ? {
+          id: session.user.id,
+          email: session.user.email || '',
+          name: session.user.user_metadata?.name || session.user.user_metadata?.full_name || '',
+          avatarUrl: session.user.user_metadata?.avatar_url || '',
+          monthlySalary: (session.user.user_metadata as any)?.monthlySalary || null,
+          isOnboardingCompleted:
+            (session.user.user_metadata as any)?.isOnboardingCompleted ||
+            (session.user.user_metadata as any)?.isOnboarded ||
+            false,
+          createdAt: new Date(session.user.created_at),
+        }
+      : null);
+
+  useEffect(() => {
+    if (!isInitialized || isLoading) return;
+    if (!effectiveUser) {
+      // Keep the provider in charge of login redirects; this only protects against
+      // rendering the dashboard shell without a hydrated session.
+      return;
+    }
+  }, [effectiveUser, isInitialized, isLoading]);
 
   // Custom Splits Configuration states
   const [splitType, setSplitType] = useState<'equal' | 'percentage'>('equal');
@@ -207,8 +233,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="h-full w-full bg-background text-theme-text flex justify-center overflow-hidden relative transition-colors duration-300">
       {/* ambient glows */}
-      <div className="absolute top-[-20%] left-[-20%] w-[600px] h-[600px] bg-indigo-600/5 rounded-full blur-[160px] pointer-events-none" />
-      <div className="absolute bottom-[-20%] right-[-20%] w-[600px] h-[600px] bg-indigo-500/5 rounded-full blur-[160px] pointer-events-none" />
+      <div className="absolute top-[-20%] left-[-20%] w-150 h-150 bg-indigo-600/5 rounded-full blur-[160px] pointer-events-none" />
+      <div className="absolute bottom-[-20%] right-[-20%] w-150 h-150 bg-indigo-500/5 rounded-full blur-[160px] pointer-events-none" />
 
       {/* Responsive Canvas PWA Frame Shell */}
       <div className="w-full max-w-md h-full flex flex-col bg-shell border-x border-theme-border shadow-2xl relative overflow-hidden transition-colors duration-300">
@@ -221,11 +247,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Floating Action Button (FAB) in Bottom Right (Fixed Viewport Docked) */}
         <button
           onClick={() => setIsAddExpenseOpen(true)}
-          className="fixed bottom-20 right-5 sm:right-auto sm:left-[calc(50%+156px)] w-14 h-14 rounded-full bg-gradient-to-br from-indigo-400 via-violet-500 to-cyan-500 flex items-center justify-center text-zinc-950 shadow-[0_8px_32px_rgba(99,102,241,0.35)] hover:shadow-[0_8px_32px_rgba(34,211,238,0.55)] active:scale-90 hover:scale-110 active:shadow-[0_4px_16px_rgba(99,102,241,0.6)] transition-all duration-300 border border-indigo-300/50 z-40 cursor-pointer group"
+          className="fixed bottom-20 right-5 sm:right-auto sm:left-[calc(50%+156px)] w-14 h-14 rounded-full bg-linear-to-br from-indigo-400 via-violet-500 to-cyan-500 flex items-center justify-center text-zinc-950 shadow-[0_8px_32px_rgba(99,102,241,0.35)] hover:shadow-[0_8px_32px_rgba(34,211,238,0.55)] active:scale-90 hover:scale-110 active:shadow-[0_4px_16px_rgba(99,102,241,0.6)] transition-all duration-300 border border-indigo-300/50 z-40 cursor-pointer group"
           aria-label="Add Expense"
         >
           {/* Internal neon ambient glow aura */}
-          <div className="absolute inset-0.5 rounded-full bg-gradient-to-tr from-white/20 to-transparent opacity-100 border border-white/30 -z-10 group-hover:scale-105 transition-transform duration-300" />
+          <div className="absolute inset-0.5 rounded-full bg-linear-to-tr from-white/20 to-transparent opacity-100 border border-white/30 -z-10 group-hover:scale-105 transition-transform duration-300" />
 
           {/* Gorgeous spinning plus icon */}
           <Plus className="w-7 h-7 text-zinc-950 stroke-[3.5] transition-transform duration-500 ease-out group-hover:rotate-180" />
@@ -264,7 +290,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
           {/* Squircle 4x2 Category Grid exactly from the mockup screenshot! */}
           <div className="flex flex-col gap-3">
-            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 tracking-wider">
+            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
               Select Category
             </label>
             <div className="grid grid-cols-4 gap-3.5">
@@ -301,7 +327,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
           {/* Description */}
           <div className="flex flex-col gap-3">
-            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 tracking-wider">
+            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
               Merchant / Description
             </label>
             <input
@@ -316,7 +342,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
           {/* Split checks */}
           <div className="flex flex-col gap-3">
-            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 tracking-wider">
+            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
               Split Expense (Equally)
             </label>
             {friends.length === 0 ? (
@@ -356,7 +382,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {/* Date, payment method, note grid */}
           <div className="grid grid-cols-2 gap-5">
             <div className="flex flex-col gap-3">
-              <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 tracking-wider">
+              <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
                 Date & Time
               </label>
               <div className="relative">
@@ -372,7 +398,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
 
             <div className="flex flex-col gap-3">
-              <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 tracking-wider">
+              <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
                 Payment Method
               </label>
               <select
@@ -389,7 +415,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
 
           <div className="flex flex-col gap-3">
-            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 tracking-wider">
+            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
               Add Note (optional)
             </label>
             <input
@@ -403,7 +429,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
           <button
             type="submit"
-            className="w-full py-4.5 rounded-2xl bg-gradient-to-tr from-indigo-500 to-cyan-500 text-zinc-950 font-black text-xs uppercase tracking-widest hover:shadow-lg hover:shadow-indigo-500/10 active:scale-98 transition-all border border-emerald-300/20 cursor-pointer shadow-md"
+            className="w-full py-4.5 rounded-2xl bg-linear-to-tr from-indigo-500 to-cyan-500 text-zinc-950 font-black text-xs uppercase tracking-widest hover:shadow-lg hover:shadow-indigo-500/10 active:scale-98 transition-all border border-emerald-300/20 cursor-pointer shadow-md"
           >
             Save Expense
           </button>
@@ -512,7 +538,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div className="absolute top-[-30%] right-[-10%] w-24 h-24 bg-indigo-500/10 rounded-full blur-xl pointer-events-none" />
 
             {/* Glowing avatar ring */}
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-500 to-cyan-500 p-0.5 relative shrink-0 shadow-md">
+            <div className="w-14 h-14 rounded-2xl bg-linear-to-tr from-indigo-500 to-cyan-500 p-0.5 relative shrink-0 shadow-md">
               <div className="w-full h-full rounded-[14px] bg-zinc-950 flex items-center justify-center">
                 <span className="text-base font-black text-zinc-100 tracking-tight">
                   {(user?.name || user?.email || 'User').slice(0, 2).toUpperCase()}
@@ -674,9 +700,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Global Interactive Notification Toast overlay */}
       {toastMessage && (
-        <div className="fixed bottom-20 left-6 right-6 z-[200] max-w-sm mx-auto p-4 rounded-xl border border-zinc-850 bg-[#09090b]/95 backdrop-blur-xl flex items-center gap-3 shadow-[0_10px_25px_rgba(0,0,0,0.5)] animate-slide-up">
+        <div className="fixed bottom-20 left-6 right-6 z-200 max-w-sm mx-auto p-4 rounded-xl border border-zinc-850 bg-[#09090b]/95 backdrop-blur-xl flex items-center gap-3 shadow-[0_10px_25px_rgba(0,0,0,0.5)] animate-slide-up">
           <div className="w-5 h-5 rounded-md bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-cyan-400 shrink-0">
-            <Check className="w-3 h-3 stroke-[3]" />
+            <Check className="w-3 h-3 stroke-3" />
           </div>
           <span className="text-xs font-bold text-zinc-200">{toastMessage}</span>
         </div>

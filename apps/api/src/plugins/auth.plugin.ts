@@ -5,6 +5,10 @@ import { authService } from '../modules/auth/auth.service.js';
 export default fp(async function authPlugin(fastify: FastifyInstance) {
   fastify.decorate('authenticate', async function (request: FastifyRequest, reply: FastifyReply) {
     try {
+      // Temporary debug: log the raw Authorization header to diagnose 401s
+      fastify.log.info(
+        `authenticate: authorization header=${JSON.stringify(request.headers.authorization)}`
+      );
       const authHeader = request.headers.authorization;
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return reply.status(401).send({
