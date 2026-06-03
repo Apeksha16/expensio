@@ -231,7 +231,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   ];
 
   return (
-    <div className="h-full w-full bg-background text-theme-text flex justify-center overflow-hidden relative transition-colors duration-300">
+    <div className="h-[100dvh] w-full bg-background text-theme-text flex justify-center overflow-hidden relative transition-colors duration-300">
       {/* ambient glows */}
       <div className="absolute top-[-20%] left-[-20%] w-150 h-150 bg-indigo-600/5 rounded-full blur-[160px] pointer-events-none" />
       <div className="absolute bottom-[-20%] right-[-20%] w-150 h-150 bg-indigo-500/5 rounded-full blur-[160px] pointer-events-none" />

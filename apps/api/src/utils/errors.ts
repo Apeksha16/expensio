@@ -61,9 +61,12 @@ export class UnknownError extends AppError {
 
 export interface ErrorResponse {
   success: false;
-  message: string;
-  code?: string;
-  details?: any;
+  error: {
+    code: string;
+    message: string;
+    details?: any;
+    stack?: string;
+  };
 }
 
 export interface SuccessResponse<T = any> {
@@ -82,21 +85,25 @@ export function formatErrorResponse(
   if (error instanceof AppError) {
     const response: ErrorResponse = {
       success: false,
-      message: error.message,
-      code: error.code,
-      ...(includeStack && { stack: error.stack }),
+      error: {
+        code: error.code,
+        message: error.message,
+        ...(includeStack && { stack: error.stack }),
+      },
     };
     if ('details' in error && error.details) {
-      response.details = error.details;
+      response.error.details = error.details;
     }
     return response;
   }
 
   return {
     success: false,
-    message: error.message || 'An unknown error occurred',
-    code: 'UNKNOWN_ERROR',
-    ...(includeStack && { stack: error.stack }),
+    error: {
+      code: 'UNKNOWN_ERROR',
+      message: error.message || 'An unknown error occurred',
+      ...(includeStack && { stack: error.stack }),
+    },
   };
 }
 
@@ -107,6 +114,6 @@ export function formatSuccessResponse<T = any>(data?: T, message?: string): Succ
   return {
     success: true,
     ...(data !== undefined && { data }),
-    ...(message && { message }),
+    ...(message && { message: message || 'Success' }),
   };
 }

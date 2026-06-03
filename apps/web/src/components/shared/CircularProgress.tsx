@@ -25,5 +25,39 @@ export default function CircularProgress({
     return 'stroke-emerald-400';
   };
 
-  return null;
+  return (
+    <div
+      className="relative flex items-center justify-center"
+      style={{ width: size, height: size }}
+    >
+      {/* SVG Ring container */}
+      <svg width={size} height={size} className="transform -rotate-90">
+        {/* Track Circle */}
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          className="stroke-zinc-800 fill-transparent"
+          strokeWidth={strokeWidth}
+        />
+
+        {/* Animated Progress Circle */}
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          className={`fill-transparent transition-all duration-700 ease-out ${getColor()}`}
+          strokeWidth={strokeWidth}
+          strokeDasharray={circumference}
+          strokeDashoffset={strokeDashoffset}
+          strokeLinecap="round"
+        />
+      </svg>
+
+      {/* Percentage Center Text */}
+      <div className="absolute flex flex-col items-center justify-center">
+        <span className="text-xs font-black text-zinc-100 tracking-tighter">{percentage}%</span>
+      </div>
+    </div>
+  );
 }

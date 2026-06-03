@@ -494,8 +494,23 @@ export default function OnboardingPage() {
 
             if (res.ok) {
               const data = await res.json();
-              if (data?.user) {
-                updateUser(data.user);
+              const userObj = data?.data || data?.user;
+
+              try {
+                await supabase.auth.updateUser({
+                  data: {
+                    isOnboardingCompleted: true,
+                    monthlySalary: updatePayload.monthlySalary,
+                    name: updatePayload.name,
+                  },
+                });
+                console.debug('[Onboarding] Supabase user metadata updated successfully');
+              } catch (metaErr) {
+                console.warn('[Onboarding] Failed to update Supabase user metadata:', metaErr);
+              }
+
+              if (userObj) {
+                updateUser(userObj);
               } else {
                 updateUser({
                   name: updatePayload.name,

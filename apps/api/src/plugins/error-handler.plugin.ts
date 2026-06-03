@@ -8,30 +8,40 @@ export default fp(async function errorHandlerPlugin(fastify: FastifyInstance) {
     (error: FastifyError | AppError | Error, request: FastifyRequest, reply: FastifyReply) => {
       const isDevelopment = process.env.NODE_ENV === 'development';
 
-      // Handle Fastify errors
-      if ('statusCode' in error) {
-        const fastifyError = error as FastifyError;
-        return reply.status(fastifyError.statusCode || 500).send({
-          success: false,
-          message: fastifyError.message,
-          code: fastifyError.code,
-          ...(isDevelopment && { stack: fastifyError.stack }),
-        });
-      }
+      // Log all errors internally
+      fastify.log.error(error);
 
       // Handle App errors
       if (error instanceof AppError) {
         return reply.status(error.statusCode).send(formatErrorResponse(error, isDevelopment));
       }
 
-      // Handle unknown errors
-      fastify.log.error(error);
-      return reply.status(500).send({
-        success: false,
-        message: isDevelopment ? error.message : 'Internal server error',
-        code: 'INTERNAL_ERROR',
-        ...(isDevelopment && { stack: error.stack }),
-      });
+      // Handle Fastify errors (validation, parser, payload limits)
+      if ('statusCode' in error) {
+        const fastifyError = error as FastifyError;
+        const mappedError = new AppError(
+          fastifyError.statusCode || 500,
+          fastifyError.message,
+          fastifyError.code || 'BAD_REQUEST'
+        );
+        if (isDevelopment) {
+          mappedError.stack = fastifyError.stack;
+        }
+        return reply
+          .status(mappedError.statusCode)
+          .send(formatErrorResponse(mappedError, isDevelopment));
+      }
+
+      // Handle unknown system/database errors (prevent internal details leakage)
+      const mappedUnknownError = new AppError(
+        500,
+        isDevelopment ? error.message : 'An unexpected error occurred. Please try again later.',
+        'INTERNAL_SERVER_ERROR'
+      );
+      if (isDevelopment) {
+        mappedUnknownError.stack = error.stack;
+      }
+      return reply.status(500).send(formatErrorResponse(mappedUnknownError, isDevelopment));
     }
   );
 });

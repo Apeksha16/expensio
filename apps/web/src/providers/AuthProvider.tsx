@@ -6,6 +6,7 @@ import { Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/auth-store';
 import { AuthUser } from '@expensio/types';
+import { motion } from 'framer-motion';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -37,21 +38,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const syncUserWithBackend = async (session: Session) => {
     try {
-      // Temporary debug: log masked access token before calling backend
-      try {
-        const token = session.access_token;
-        const masked = token ? `${token.slice(0, 8)}...${token.slice(-4)}` : 'no-token';
-        console.debug('[AuthProvider] syncUserWithBackend - token:', masked);
-      } catch (err) {
-        console.debug('[AuthProvider] syncUserWithBackend - token masking failed');
-      }
-      const response = await fetch(`${API_URL}/api/v1/auth/sync`, {
-        method: 'POST',
+      const response = await fetch(`${API_URL}/api/v1/auth/me`, {
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({}),
       });
 
       if (!response.ok) {
@@ -61,7 +53,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       const data = await response.json();
-      const dbUser: AuthUser = data.user;
+      const dbUser: AuthUser = data.data?.user || data.user;
       setSession(session, dbUser);
     } catch (err) {
       console.warn('Backend sync unavailable, using Supabase session data:', err);
@@ -79,7 +71,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } = await supabase.auth.getSession();
         if (session) {
           setSession(session, buildFallbackUser(session));
-          void syncUserWithBackend(session);
+          await syncUserWithBackend(session);
         } else {
           clearSession();
         }
@@ -98,17 +90,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event: any, session: any) => {
-      console.log('[AuthProvider] Supabase auth event:', event);
+      const alreadyInitialized = useAuthStore.getState().isInitialized;
+      console.log(
+        '[AuthProvider] Supabase auth event:',
+        event,
+        'alreadyInitialized:',
+        alreadyInitialized
+      );
+
+      if (!alreadyInitialized) {
+        setLoading(true);
+      }
+
       if (session) {
-        console.log('[AuthProvider] session received, applying fallback user and syncing backend');
-        setSession(session, buildFallbackUser(session));
-        setLoading(false);
-        void syncUserWithBackend(session);
+        const fallbackUser = buildFallbackUser(session);
+        // Retain existing DB user info if available to prevent reverting to fallback info
+        const currentUser = useAuthStore.getState().user;
+        const mergedUser = currentUser ? { ...fallbackUser, ...currentUser } : fallbackUser;
+
+        setSession(session, mergedUser);
+
+        if (!alreadyInitialized) {
+          await syncUserWithBackend(session);
+        } else {
+          // If already initialized, fetch updates in background without UI disruption
+          void syncUserWithBackend(session);
+        }
       } else {
         clearSession();
       }
+
       setInitialized(true);
-      console.log('[AuthProvider] initialized=true, isLoading:', false);
+      setLoading(false);
     });
 
     return () => {
@@ -163,6 +176,80 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     }
   }, [user, session, isInitialized, isLoading, pathname, router]);
+
+  const publicRoutes = [
+    '/login',
+    '/register',
+    '/forgot-password',
+    '/reset-password',
+    '/offline',
+    '/auth/callback',
+  ];
+  const isPublicRoute = publicRoutes.includes(pathname);
+  const effectiveUser = user ?? (session ? buildFallbackUser(session) : null);
+  const isAuthenticated = !!effectiveUser || !!session;
+  const isOnboarded = effectiveUser
+    ? (effectiveUser.isOnboardingCompleted ?? (effectiveUser as any).isOnboarded) &&
+      effectiveUser.monthlySalary
+    : false;
+
+  const showSplash =
+    !isInitialized ||
+    isLoading ||
+    (isAuthenticated && !isOnboarded && pathname !== '/onboarding') ||
+    (!isAuthenticated && !isPublicRoute);
+
+  if (showSplash) {
+    return (
+      <div className="min-h-screen w-full bg-[#09090b] flex flex-col items-center justify-center text-zinc-200 select-none relative overflow-hidden">
+        {/* Ambient background glows */}
+        <div className="absolute top-[-20%] left-[-20%] w-[500px] h-[500px] bg-indigo-600/5 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-[-20%] right-[-20%] w-[500px] h-[500px] bg-cyan-500/5 rounded-full blur-[120px] pointer-events-none" />
+
+        <div className="flex flex-col items-center gap-6 z-10">
+          {/* Pulsing Expensio Geometric Logo */}
+          <motion.div
+            className="h-16 w-16 rounded-[22px] bg-gradient-to-br from-indigo-500 to-cyan-500 p-0.5 shadow-[0_8px_32px_rgba(99,102,241,0.25)]"
+            animate={{ scale: [1, 1.05, 1] }}
+            transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
+          >
+            <div className="h-full w-full rounded-[20px] bg-zinc-950 flex items-center justify-center">
+              <svg
+                className="h-8 w-8 text-zinc-100"
+                viewBox="0 0 40 40"
+                fill="none"
+                aria-hidden="true"
+              >
+                <rect x="6" y="8" width="28" height="4" rx="2" fill="currentColor" />
+                <rect x="12" y="18" width="22" height="4" rx="2" fill="currentColor" />
+                <rect x="6" y="28" width="28" height="4" rx="2" fill="currentColor" />
+              </svg>
+            </div>
+          </motion.div>
+
+          <div className="flex flex-col items-center gap-1.5 text-center">
+            <h1 className="text-lg font-black tracking-widest uppercase bg-gradient-to-b from-white to-zinc-400 bg-clip-text text-transparent">
+              Expensio
+            </h1>
+            <p className="text-[9px] font-bold text-zinc-550 uppercase tracking-widest">
+              Securing connection
+            </p>
+          </div>
+
+          {/* Premium linear page loader */}
+          <div className="w-32 h-1 rounded-full bg-zinc-900 border border-zinc-850 overflow-hidden relative">
+            <motion.div
+              className="h-full bg-gradient-to-r from-indigo-500 to-cyan-400 rounded-full"
+              initial={{ left: '-30%', width: '30%' }}
+              animate={{ left: '100%' }}
+              transition={{ repeat: Infinity, duration: 1.4, ease: 'easeInOut' }}
+              style={{ position: 'absolute', top: 0 }}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return <AuthContext.Provider value={{}}>{children}</AuthContext.Provider>;
 }

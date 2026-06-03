@@ -69,7 +69,7 @@ export default function SettingsPage() {
         throw new Error('Failed to fetch user profile');
       }
       const data = await response.json();
-      return data.user;
+      return data.data || data.user;
     },
     enabled: !!session?.access_token,
   });
@@ -139,7 +139,7 @@ export default function SettingsPage() {
       }
 
       const data = await response.json();
-      return data.user;
+      return data.data || data.user;
     },
     onSuccess: (updatedUser) => {
       updateLocalStoreUser(updatedUser);

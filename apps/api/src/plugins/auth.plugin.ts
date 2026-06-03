@@ -1,20 +1,19 @@
 import fp from 'fastify-plugin';
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { authService } from '../modules/auth/auth.service.js';
+import { userRepository } from '../modules/users/users.repository.js';
 
 export default fp(async function authPlugin(fastify: FastifyInstance) {
   fastify.decorate('authenticate', async function (request: FastifyRequest, reply: FastifyReply) {
     try {
-      // Temporary debug: log the raw Authorization header to diagnose 401s
-      fastify.log.info(
-        `authenticate: authorization header=${JSON.stringify(request.headers.authorization)}`
-      );
       const authHeader = request.headers.authorization;
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return reply.status(401).send({
           success: false,
-          message: 'Missing or malformed authorization header',
-          code: 'MISSING_AUTH_HEADER',
+          error: {
+            code: 'MISSING_AUTH_HEADER',
+            message: 'Missing or malformed authorization header',
+          },
         });
       }
 
@@ -22,26 +21,44 @@ export default fp(async function authPlugin(fastify: FastifyInstance) {
       if (!token) {
         return reply.status(401).send({
           success: false,
-          message: 'Unauthorized: missing token',
-          code: 'MISSING_TOKEN',
+          error: {
+            code: 'MISSING_TOKEN',
+            message: 'Unauthorized: missing token',
+          },
         });
       }
 
       // Verify token with Supabase
       const supabaseUser = await authService.verifyToken(token);
 
-      // Sync user profile in PostgreSQL database
-      const dbUser = await authService.syncUser(supabaseUser);
+      // Check if user exists in database
+      const dbUser = await userRepository.findBySupabaseId(supabaseUser.id);
 
-      // Attach user to request
-      request.user = dbUser;
+      // Attach both to request
+      request.supabaseUser = supabaseUser;
+      request.user = dbUser || undefined;
+
+      // Reject if user is not in database and we are not on the /auth/me or /auth/sync endpoints
+      const isAuthMe =
+        request.url.includes('/api/v1/auth/me') || request.url.includes('/api/v1/auth/sync');
+      if (!dbUser && !isAuthMe) {
+        return reply.status(401).send({
+          success: false,
+          error: {
+            code: 'USER_NOT_FOUND',
+            message: 'User profile not found in database. Please register/sync first.',
+          },
+        });
+      }
     } catch (err) {
       const error = err as Error;
       fastify.log.error(`Authentication error: ${error.message}`);
       return reply.status(401).send({
         success: false,
-        message: error.message || 'Unauthorized',
-        code: 'AUTH_FAILED',
+        error: {
+          code: 'AUTH_FAILED',
+          message: error.message || 'Unauthorized',
+        },
       });
     }
   });

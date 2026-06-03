@@ -1,8 +1,11 @@
 import { AuthUser } from '@expensio/types';
 
+import { User as SupabaseUser } from '@supabase/supabase-js';
+
 declare module 'fastify' {
   interface FastifyRequest {
     user?: AuthUser;
+    supabaseUser?: SupabaseUser;
   }
 }
 

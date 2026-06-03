@@ -50,7 +50,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="h-full overflow-hidden flex flex-col bg-background text-theme-text transition-colors duration-350">
+      <body className="h-full overflow-hidden bg-background text-theme-text transition-colors duration-350">
         <QueryProvider>
           <AuthProvider>{children}</AuthProvider>
         </QueryProvider>
