@@ -33,6 +33,12 @@ import {
   Plus,
   Menu,
   ChevronDown,
+  UtensilsCrossed,
+  TrendingUp,
+  Handshake,
+  Home,
+  Plane,
+  Gift,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -247,26 +253,76 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   // 3x3/4x2 Squircle selector categories matching mockup screen exactly!
   const categories = [
-    { name: 'Food', icon: Coffee, bg: 'bg-indigo-500/10 text-cyan-400 border-indigo-500/20' },
+    {
+      name: 'Food',
+      icon: UtensilsCrossed,
+      bg: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20',
+    },
     {
       name: 'Shopping',
       icon: ShoppingBag,
-      bg: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+      bg: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20',
     },
-    { name: 'Transport', icon: Car, bg: 'bg-amber-500/10 text-amber-500 border-amber-500/20' },
+    {
+      name: 'Bills & Utilities',
+      icon: Zap,
+      bg: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20',
+    },
+    {
+      name: 'Health',
+      icon: Heart,
+      bg: 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20',
+    },
+    {
+      name: 'Investments',
+      icon: TrendingUp,
+      bg: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
+    },
     {
       name: 'Entertainment',
       icon: Tv,
-      bg: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
+      bg: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20',
     },
-    { name: 'Bills', icon: CreditCard, bg: 'bg-rose-500/10 text-rose-400 border-rose-500/20' },
-    { name: 'Health', icon: Heart, bg: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' },
     {
       name: 'Education',
       icon: GraduationCap,
-      bg: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
+      bg: 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border-yellow-500/20',
     },
-    { name: 'Other', icon: HelpCircle, bg: 'bg-zinc-800/40 text-zinc-400 border-zinc-800/40' },
+    {
+      name: 'Transport',
+      icon: Car,
+      bg: 'bg-amber-500/10 text-amber-600 dark:text-amber-550 border-amber-500/20',
+    },
+    {
+      name: 'Credit Card',
+      icon: CreditCard,
+      bg: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20',
+    },
+    {
+      name: 'Udhaari',
+      icon: Handshake,
+      bg: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20',
+    },
+    {
+      name: 'Rent',
+      icon: Home,
+      bg: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20',
+    },
+    {
+      name: 'Travel',
+      icon: Plane,
+      bg: 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20',
+    },
+    {
+      name: 'Gifts',
+      icon: Gift,
+      bg: 'bg-pink-500/10 text-pink-600 dark:text-pink-400 border-pink-500/20',
+    },
+    {
+      name: 'Others',
+      icon: HelpCircle,
+      bg: 'bg-zinc-800/40 text-zinc-550 dark:text-zinc-400 border-zinc-800/40',
+    },
   ];
 
   return (
@@ -281,7 +337,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <MobileHeader onMenuClick={() => setIsNavMenuOpen(true)} />
 
         {/* Child Screen */}
-        <main className="flex-1 h-0 px-6 py-6 pb-28 overflow-y-auto overflow-x-hidden scrollbar-thin">
+        <main className="flex-1 min-h-0 px-6 py-6 pb-28 overflow-y-auto overflow-x-hidden scrollbar-thin">
           {children}
         </main>
 

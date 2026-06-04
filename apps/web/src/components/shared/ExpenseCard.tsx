@@ -19,6 +19,12 @@ import {
   Heart,
   GraduationCap,
   CreditCard,
+  UtensilsCrossed,
+  TrendingUp,
+  Handshake,
+  Home,
+  Plane,
+  Gift,
 } from 'lucide-react';
 import { Expense } from '../../store/finance-store';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -38,7 +44,7 @@ const categoryMeta: Record<
   { icon: React.ComponentType<any>; color: string; bg: string; accentBg: string }
 > = {
   Food: {
-    icon: Coffee,
+    icon: UtensilsCrossed,
     color: 'text-indigo-400',
     bg: 'bg-indigo-500/10 border-indigo-500/15',
     accentBg: 'bg-indigo-500',
@@ -60,6 +66,12 @@ const categoryMeta: Record<
     color: 'text-indigo-400',
     bg: 'bg-indigo-500/10 border-indigo-500/15',
     accentBg: 'bg-indigo-500',
+  },
+  'Bills & Utilities': {
+    icon: Zap,
+    color: 'text-rose-450',
+    bg: 'bg-rose-500/10 border-rose-500/15',
+    accentBg: 'bg-rose-500',
   },
   Bills: {
     icon: CreditCard,
@@ -85,11 +97,53 @@ const categoryMeta: Record<
     bg: 'bg-yellow-500/10 border-yellow-500/15',
     accentBg: 'bg-yellow-500',
   },
+  Investments: {
+    icon: TrendingUp,
+    color: 'text-emerald-450',
+    bg: 'bg-emerald-500/10 border-emerald-500/15',
+    accentBg: 'bg-emerald-500',
+  },
+  'Credit Card': {
+    icon: CreditCard,
+    color: 'text-rose-400',
+    bg: 'bg-rose-500/10 border-rose-500/15',
+    accentBg: 'bg-rose-500',
+  },
+  Udhaari: {
+    icon: Handshake,
+    color: 'text-purple-405',
+    bg: 'bg-purple-500/10 border-purple-500/15',
+    accentBg: 'bg-purple-500',
+  },
+  Rent: {
+    icon: Home,
+    color: 'text-blue-400',
+    bg: 'bg-blue-500/10 border-blue-500/15',
+    accentBg: 'bg-blue-500',
+  },
+  Travel: {
+    icon: Plane,
+    color: 'text-cyan-400',
+    bg: 'bg-cyan-500/10 border-cyan-500/15',
+    accentBg: 'bg-cyan-500',
+  },
+  Gifts: {
+    icon: Gift,
+    color: 'text-pink-400',
+    bg: 'bg-pink-500/10 border-pink-500/15',
+    accentBg: 'bg-pink-500',
+  },
   Income: {
     icon: Briefcase,
     color: 'text-emerald-400',
     bg: 'bg-emerald-500/10 border-emerald-500/15',
     accentBg: 'bg-emerald-500',
+  },
+  Others: {
+    icon: HelpCircle,
+    color: 'text-zinc-400',
+    bg: 'bg-zinc-800/60 border-zinc-700/60',
+    accentBg: 'bg-zinc-500',
   },
   Other: {
     icon: HelpCircle,

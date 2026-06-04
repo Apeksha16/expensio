@@ -391,9 +391,7 @@ export default function DashboardClient() {
               <span className="text-[10px] font-extrabold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest leading-none">
                 Total Spent
               </span>
-              <span className="text-3xl font-black text-zinc-800 dark:text-white mt-1.5 leading-none">
-                ₹24,063
-              </span>
+              <span className="text-3xl font-black text-zinc-100 mt-1.5 leading-none">₹24,063</span>
               <span className="text-[9.5px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-0.5 mt-1.5 leading-none select-none">
                 ▼ 8%{' '}
                 <span className="font-semibold text-zinc-400 dark:text-zinc-500">
@@ -1229,13 +1227,18 @@ export default function DashboardClient() {
                 >
                   <option value="Food">Food</option>
                   <option value="Shopping">Shopping</option>
-                  <option value="Travel">Travel</option>
-                  <option value="Entertainment">Entertainment</option>
-                  <option value="Bills">Bills</option>
-                  <option value="Utilities">Utilities</option>
+                  <option value="Bills & Utilities">Bills & Utilities</option>
                   <option value="Health">Health</option>
+                  <option value="Investments">Investments</option>
+                  <option value="Entertainment">Entertainment</option>
                   <option value="Education">Education</option>
-                  <option value="Other">Other</option>
+                  <option value="Transport">Transport</option>
+                  <option value="Credit Card">Credit Card</option>
+                  <option value="Udhaari">Udhaari</option>
+                  <option value="Rent">Rent</option>
+                  <option value="Travel">Travel</option>
+                  <option value="Gifts">Gifts</option>
+                  <option value="Others">Others</option>
                 </select>
               </div>
 

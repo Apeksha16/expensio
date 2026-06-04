@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { Bell, Sun, Moon, Menu, Calendar, Search } from 'lucide-react';
+import { Bell, Sun, Moon, Menu, Calendar, Search, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '../../store/auth-store';
 import { useFinanceStore } from '../../store/finance-store';
@@ -79,14 +79,14 @@ export default function MobileHeader({ onMenuClick }: MobileHeaderProps) {
 
   if (isOverviewOrInsights) {
     return (
-      <header className="sticky top-0 z-40 bg-shell/85 backdrop-blur-md border-b border-theme-border/60 px-6 py-4 flex items-center justify-between transition-colors duration-300">
-        {/* Hamburger Menu on Left */}
+      <header className="sticky top-0 z-40 bg-shell/85 backdrop-blur-md border-b border-theme-border/60 px-6 py-4 flex items-center justify-between shrink-0 transition-colors duration-300">
+        {/* Back Button on Left */}
         <button
-          onClick={onMenuClick}
+          onClick={() => router.push('/dashboard')}
           className="p-1 text-theme-secondary hover:text-theme-text active:scale-95 transition-all outline-none border-0 bg-transparent cursor-pointer"
-          aria-label="Open Sidebar Menu"
+          aria-label="Back to Dashboard"
         >
-          <Menu className="w-5 h-5 stroke-[2.5]" />
+          <ArrowLeft className="w-5.5 h-5.5 stroke-[2.5]" />
         </button>
 
         {/* Top Tab Switcher Overview | Insights */}
@@ -136,7 +136,7 @@ export default function MobileHeader({ onMenuClick }: MobileHeaderProps) {
 
   // Greeting Header with search, bell, and avatar
   return (
-    <header className="sticky top-0 z-40 bg-shell/85 backdrop-blur-md border-b border-theme-border/60 px-6 py-4 flex flex-col gap-3 transition-colors duration-300">
+    <header className="sticky top-0 z-40 bg-shell/85 backdrop-blur-md border-b border-theme-border/60 px-6 py-4 flex flex-col gap-3 shrink-0 transition-colors duration-300">
       <div className="flex items-center justify-between w-full">
         {/* Top-left Hamburger Menu */}
         <button
