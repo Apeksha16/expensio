@@ -105,27 +105,27 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-[#09090b] text-gray-100 px-4 relative overflow-hidden select-none">
+    <main className="relative flex min-h-screen w-full flex-col items-center justify-center bg-background px-4 py-12 text-theme-text selection:bg-zinc-800 selection:text-zinc-100 select-none">
       {/* Background glow effects */}
-      <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-500/5 dark:bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
 
       <motion.div
         initial={{ opacity: 0, y: 25 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
-        className="w-full max-w-md bg-zinc-900/60 backdrop-blur-xl border border-zinc-800/80 rounded-3xl p-8 shadow-2xl relative z-10"
+        className="w-full max-w-[360px] bg-theme-card border border-theme-card-border rounded-3xl p-6 md:p-8 shadow-xl relative z-10 flex flex-col gap-6"
       >
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-b from-white to-zinc-400 bg-clip-text text-transparent mb-2">
+        <header className="text-center">
+          <h1 className="text-theme-text text-[21px] font-semibold tracking-tight leading-none">
             Create Account
           </h1>
-          <p className="text-zinc-400 text-sm">
+          <p className="mt-2 text-[12px] font-semibold text-theme-secondary">
             Sign up for Expensio to start managing your expenses
           </p>
-        </div>
+        </header>
 
-        <form onSubmit={handleRegister} className="space-y-5">
+        <form onSubmit={handleRegister} className="flex flex-col gap-5">
           {/* Error and Success notifications */}
           {error && (
             <motion.div
@@ -141,29 +141,29 @@ export default function RegisterPage() {
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="p-3.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-cyan-400 text-xs font-medium"
+              className="p-3.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-medium"
             >
               {success}
             </motion.div>
           )}
 
           {/* Full Name input */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[11px] font-semibold text-theme-secondary uppercase tracking-widest">
               Full Name
             </label>
             <div className="relative">
-              <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+              <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-550" />
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="John Doe"
-                className={`w-full bg-zinc-950 border ${
+                className={`w-full bg-zinc-900 border ${
                   validationErrors.name
-                    ? 'border-red-500/50'
-                    : 'border-zinc-800 hover:border-zinc-700'
-                } focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 outline-none rounded-xl py-3 pl-11 pr-4 text-sm transition-all text-white placeholder-zinc-600`}
+                    ? 'border-red-500/50 focus:border-red-500 focus:ring-red-500/20'
+                    : 'border-zinc-800 hover:border-zinc-700 focus:border-zinc-550 focus:ring-zinc-700'
+                } focus:outline-none focus:ring-1 rounded-xl py-3 pl-11 pr-4 text-sm text-zinc-100 placeholder:text-zinc-550 transition-colors`}
                 disabled={loading}
               />
             </div>
@@ -175,22 +175,22 @@ export default function RegisterPage() {
           </div>
 
           {/* Email input */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[11px] font-semibold text-theme-secondary uppercase tracking-widest">
               Email Address
             </label>
             <div className="relative">
-              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-550" />
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                className={`w-full bg-zinc-950 border ${
+                className={`w-full bg-zinc-900 border ${
                   validationErrors.email
-                    ? 'border-red-500/50'
-                    : 'border-zinc-800 hover:border-zinc-700'
-                } focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 outline-none rounded-xl py-3 pl-11 pr-4 text-sm transition-all text-white placeholder-zinc-600`}
+                    ? 'border-red-500/50 focus:border-red-500 focus:ring-red-500/20'
+                    : 'border-zinc-800 hover:border-zinc-700 focus:border-zinc-550 focus:ring-zinc-700'
+                } focus:outline-none focus:ring-1 rounded-xl py-3 pl-11 pr-4 text-sm text-zinc-100 placeholder:text-zinc-550 transition-colors`}
                 disabled={loading}
               />
             </div>
@@ -202,28 +202,28 @@ export default function RegisterPage() {
           </div>
 
           {/* Password input */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[11px] font-semibold text-theme-secondary uppercase tracking-widest">
               Password
             </label>
             <div className="relative">
-              <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+              <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-550" />
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className={`w-full bg-zinc-950 border ${
+                className={`w-full bg-zinc-900 border ${
                   validationErrors.password
-                    ? 'border-red-500/50'
-                    : 'border-zinc-800 hover:border-zinc-700'
-                } focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 outline-none rounded-xl py-3 pl-11 pr-11 text-sm transition-all text-white placeholder-zinc-600`}
+                    ? 'border-red-500/50 focus:border-red-500 focus:ring-red-500/20'
+                    : 'border-zinc-800 hover:border-zinc-700 focus:border-zinc-550 focus:ring-zinc-700'
+                } focus:outline-none focus:ring-1 rounded-xl py-3 pl-11 pr-11 text-sm text-zinc-100 placeholder:text-zinc-550 transition-colors`}
                 disabled={loading}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-400"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-550 hover:text-zinc-400 cursor-pointer"
                 disabled={loading}
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -239,7 +239,7 @@ export default function RegisterPage() {
           {/* Submit button */}
           <button
             type="submit"
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-emerald-400 hover:to-teal-400 text-zinc-950 font-bold active:scale-[0.98] transition-all shadow-lg shadow-indigo-500/10 cursor-pointer disabled:opacity-50 disabled:pointer-events-none text-sm mt-2"
+            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 text-white font-bold active:scale-[0.98] transition-all shadow-md cursor-pointer disabled:from-zinc-800 disabled:to-zinc-800 disabled:text-zinc-550 disabled:cursor-not-allowed text-xs uppercase tracking-wider mt-2"
             disabled={loading}
           >
             {loading ? (
@@ -254,11 +254,11 @@ export default function RegisterPage() {
         </form>
 
         {/* Divider */}
-        <div className="relative my-6 flex items-center justify-center">
+        <div className="relative flex items-center justify-center w-full py-1">
           <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-zinc-800/80"></div>
+            <div className="w-full border-t border-theme-border"></div>
           </div>
-          <span className="relative px-3 bg-zinc-900/60 text-zinc-550 text-[10px] font-black uppercase tracking-widest">
+          <span className="relative px-3 bg-theme-card text-theme-muted text-[10px] font-black uppercase tracking-widest">
             Or continue with
           </span>
         </div>
@@ -268,7 +268,7 @@ export default function RegisterPage() {
           type="button"
           onClick={handleGoogleLoginSelect}
           disabled={loading}
-          className="w-full flex items-center justify-center gap-3 py-3 rounded-xl bg-zinc-950 border border-zinc-800/80 hover:border-zinc-700 hover:bg-zinc-900/60 active:scale-[0.98] text-zinc-300 hover:text-zinc-100 font-bold transition-all shadow-sm cursor-pointer text-sm"
+          className="relative flex w-full items-center justify-center gap-3 rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-xs font-black uppercase tracking-wider text-zinc-100 shadow-sm transition-all hover:bg-zinc-900 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
         >
           <svg className="w-4 h-4" viewBox="0 0 24 24">
             <path
@@ -291,26 +291,28 @@ export default function RegisterPage() {
           <span>{loading ? 'Signing in...' : 'Continue with Google'}</span>
         </button>
 
-        <div className="mt-8 text-center text-sm text-zinc-500">
-          Already have an account?{' '}
-          <Link
-            href="/login"
-            className="font-medium text-cyan-400 hover:text-cyan-300 transition-colors"
-          >
-            Sign In
-          </Link>
-        </div>
+        <footer className="text-center mt-2">
+          <p className="text-xs font-semibold text-theme-secondary">
+            Already have an account?{' '}
+            <Link
+              href="/login"
+              className="text-indigo-400 hover:text-indigo-300 font-bold transition-colors"
+            >
+              Sign In
+            </Link>
+          </p>
+        </footer>
       </motion.div>
 
       {/* Global Interactive Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 left-6 right-6 z-[250] max-w-sm mx-auto p-4 rounded-xl border border-zinc-850 bg-[#09090b]/95 backdrop-blur-xl flex items-center gap-3 shadow-[0_10px_25px_rgba(0,0,0,0.5)] animate-slide-up">
-          <div className="w-5 h-5 rounded-md bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-cyan-400 shrink-0">
+        <div className="fixed bottom-6 left-6 right-6 z-[250] max-w-sm mx-auto p-4 rounded-xl border border-theme-card-border bg-theme-card backdrop-blur-xl flex items-center gap-3 shadow-xl animate-slide-up">
+          <div className="w-5 h-5 rounded-md bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 shrink-0">
             <Check className="w-3 h-3 stroke-[3]" />
           </div>
-          <span className="text-xs font-bold text-zinc-200">{toastMessage}</span>
+          <span className="text-xs font-semibold text-theme-text">{toastMessage}</span>
         </div>
       )}
-    </div>
+    </main>
   );
 }

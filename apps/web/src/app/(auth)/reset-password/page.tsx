@@ -54,27 +54,27 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-[#09090b] text-gray-100 px-4 relative overflow-hidden select-none">
+    <main className="relative flex min-h-screen w-full flex-col items-center justify-center bg-background px-4 py-12 text-theme-text selection:bg-zinc-800 selection:text-zinc-100 select-none">
       {/* Background glow effects */}
-      <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-500/5 dark:bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
 
       <motion.div
         initial={{ opacity: 0, y: 25 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
-        className="w-full max-w-md bg-zinc-900/60 backdrop-blur-xl border border-zinc-800/80 rounded-3xl p-8 shadow-2xl relative z-10"
+        className="w-full max-w-[360px] bg-theme-card border border-theme-card-border rounded-3xl p-6 md:p-8 shadow-xl relative z-10 flex flex-col gap-6"
       >
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-b from-white to-zinc-400 bg-clip-text text-transparent mb-2">
+        <header className="text-center">
+          <h1 className="text-theme-text text-[21px] font-semibold tracking-tight leading-none">
             New Password
           </h1>
-          <p className="text-zinc-400 text-sm">
+          <p className="mt-2 text-[12px] font-semibold text-theme-secondary">
             Enter your new secure password below
           </p>
-        </div>
+        </header>
 
-        <form onSubmit={handleResetPassword} className="space-y-5">
+        <form onSubmit={handleResetPassword} className="flex flex-col gap-5">
           {/* Error and Success notifications */}
           {error && (
             <motion.div
@@ -90,49 +90,49 @@ export default function ResetPasswordPage() {
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="p-3.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-cyan-400 text-xs font-medium"
+              className="p-3.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-medium"
             >
               {success}
             </motion.div>
           )}
 
           {/* Password input */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[11px] font-semibold text-theme-secondary uppercase tracking-widest">
               New Password
             </label>
             <div className="relative">
-              <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+              <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-550" />
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className={`w-full bg-zinc-950 border ${
-                  validationError ? 'border-red-500/50' : 'border-zinc-800 hover:border-zinc-700'
-                } focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 outline-none rounded-xl py-3 pl-11 pr-11 text-sm transition-all text-white placeholder-zinc-600`}
+                className={`w-full bg-zinc-900 border ${
+                  validationError
+                    ? 'border-red-500/50 focus:border-red-500 focus:ring-red-500/20'
+                    : 'border-zinc-800 hover:border-zinc-700 focus:border-zinc-550 focus:ring-zinc-700'
+                } focus:outline-none focus:ring-1 rounded-xl py-3 pl-11 pr-11 text-sm text-zinc-100 placeholder:text-zinc-550 transition-colors`}
                 disabled={loading}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-400"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-550 hover:text-zinc-400 cursor-pointer"
                 disabled={loading}
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
             {validationError && (
-              <span className="text-red-400 text-[10px] font-medium block">
-                {validationError}
-              </span>
+              <span className="text-red-400 text-[10px] font-medium block">{validationError}</span>
             )}
           </div>
 
           {/* Submit button */}
           <button
             type="submit"
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-emerald-400 hover:to-teal-400 text-zinc-950 font-bold active:scale-[0.98] transition-all shadow-lg shadow-indigo-500/10 cursor-pointer disabled:opacity-50 disabled:pointer-events-none text-sm mt-2"
+            className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 text-white font-bold active:scale-[0.98] transition-all shadow-md cursor-pointer disabled:from-zinc-800 disabled:to-zinc-800 disabled:text-zinc-550 disabled:cursor-not-allowed text-xs uppercase tracking-wider mt-2"
             disabled={loading}
           >
             {loading ? (
@@ -146,6 +146,6 @@ export default function ResetPasswordPage() {
           </button>
         </form>
       </motion.div>
-    </div>
+    </main>
   );
 }

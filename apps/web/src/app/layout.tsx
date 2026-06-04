@@ -25,7 +25,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${plusJakartaSans.variable} h-full overflow-hidden antialiased`}
+      className={`${plusJakartaSans.variable} min-h-screen antialiased`}
       suppressHydrationWarning
     >
       <head>
@@ -48,7 +48,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="h-full overflow-hidden bg-background text-theme-text transition-colors duration-350">
+      <body className="min-h-screen bg-background text-theme-text transition-colors duration-350">
         <QueryProvider>
           <AuthProvider>{children}</AuthProvider>
         </QueryProvider>

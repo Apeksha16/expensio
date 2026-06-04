@@ -188,7 +188,7 @@ export default function ExpensesPage() {
       {isSelectionMode && selectedIds.length > 0 && (
         <div className="fixed bottom-20 left-6 right-6 z-40 max-w-sm mx-auto p-4 rounded-2xl border border-zinc-850 bg-[#09090b]/95 backdrop-blur-xl flex items-center justify-between shadow-2xl animate-slide-up">
           <div className="flex items-center gap-2">
-            <Info className="w-4 h-4 text-indigo-455" />
+            <Info className="w-4 h-4 text-indigo-500" />
             <span className="text-xs font-bold text-zinc-300">
               {selectedIds.length} item{selectedIds.length > 1 ? 's' : ''} selected
             </span>
@@ -422,7 +422,7 @@ export default function ExpensesPage() {
                     deleteExpense(activeDetailExpense.id);
                     setActiveDetailExpense(null);
                   }}
-                  className="py-3.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-455 border border-rose-500/20 font-bold text-xs cursor-pointer outline-none animate-colors"
+                  className="py-3.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 font-bold text-xs cursor-pointer outline-none animate-colors"
                 >
                   Delete
                 </button>

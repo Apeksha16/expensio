@@ -30,11 +30,11 @@ export default function GroupsPage() {
   const [groupExpenseNote, setGroupExpenseNote] = useState('');
 
   const gradientCovers = [
-    'from-indigo-600 to-cyan-550',
+    'from-indigo-600 to-cyan-500',
     'from-emerald-500 to-teal-400',
-    'from-orange-500 to-rose-550',
+    'from-orange-500 to-rose-500',
     'from-pink-500 to-indigo-600',
-    'from-violet-650 to-fuchsia-500',
+    'from-violet-600 to-fuchsia-500',
   ];
 
   const handleAddGroupSubmit = (e: React.FormEvent) => {
@@ -176,7 +176,7 @@ export default function GroupsPage() {
             </h3>
             <button
               onClick={() => setIsAddGroupExpenseOpen(true)}
-              className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-indigo-650 text-white hover:bg-indigo-600 font-bold active:scale-95 hover:scale-105 transition-all text-xs cursor-pointer shadow-md shadow-indigo-500/10 border border-indigo-500/30"
+              className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-indigo-600 text-white hover:bg-indigo-600/90 font-bold active:scale-95 hover:scale-105 transition-all text-xs cursor-pointer shadow-md shadow-indigo-500/10 border border-indigo-500/30"
             >
               <Plus className="w-3.5 h-3.5 stroke-[3]" />
               <span>Add Group Bill</span>
@@ -248,7 +248,7 @@ export default function GroupsPage() {
             </div>
             <button
               onClick={() => setIsAddGroupOpen(true)}
-              className="p-2.5 rounded-xl bg-indigo-650 text-white hover:bg-indigo-600 font-bold hover:scale-105 active:scale-95 transition-all shadow-md shadow-indigo-500/10 cursor-pointer border border-indigo-500/30"
+              className="p-2.5 rounded-xl bg-indigo-600 text-white hover:bg-indigo-600/90 font-bold hover:scale-105 active:scale-95 transition-all shadow-md shadow-indigo-500/10 cursor-pointer border border-indigo-500/30"
               aria-label="Add Group"
             >
               <Plus className="w-4 h-4 stroke-[3]" />

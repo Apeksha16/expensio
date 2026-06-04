@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useRef } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
@@ -17,6 +17,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, session, isInitialized, isLoading } = useAuthStore();
+  const syncInProgressRef = useRef<string | null>(null);
 
   const buildFallbackUser = (session: Session): AuthUser => {
     const user = session.user;
@@ -37,31 +38,56 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const syncUserWithBackend = async (session: Session) => {
+    const token = session.access_token;
+    if (syncInProgressRef.current === token) {
+      console.log(
+        '[AuthProvider] Sync already in progress for this token, skipping duplicate call'
+      );
+      return;
+    }
+    syncInProgressRef.current = token;
+
     try {
+      console.log('[AuthProvider] Starting backend sync...');
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 seconds timeout
+
       const response = await fetch(`${API_URL}/api/v1/auth/me`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${session.access_token}`,
+          Authorization: `Bearer ${token}`,
         },
+        signal: controller.signal,
       });
 
+      clearTimeout(timeoutId);
+
       if (!response.ok) {
-        console.warn(`Backend sync skipped: ${response.status} ${response.statusText}`);
+        console.warn(
+          `[AuthProvider] Backend sync skipped: ${response.status} ${response.statusText}`
+        );
         setSession(session, buildFallbackUser(session));
         return;
       }
 
       const data = await response.json();
       const dbUser: AuthUser = data.data?.user || data.user;
+      console.log('[AuthProvider] Backend sync successful:', dbUser);
       setSession(session, dbUser);
     } catch (err) {
-      console.warn('Backend sync unavailable, using Supabase session data:', err);
+      console.warn('[AuthProvider] Backend sync unavailable, using Supabase session data:', err);
       setSession(session, buildFallbackUser(session));
+    } finally {
+      if (syncInProgressRef.current === token) {
+        syncInProgressRef.current = null;
+      }
     }
   };
 
   useEffect(() => {
+    console.log('[AuthProvider] Mount: registering auth listener and checking session');
+
     // Check active session immediately on mount
     const initializeAuth = async () => {
       setLoading(true);
@@ -70,13 +96,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           data: { session },
         } = await supabase.auth.getSession();
         if (session) {
+          console.log('[AuthProvider] Initial session found via getSession');
           setSession(session, buildFallbackUser(session));
           await syncUserWithBackend(session);
         } else {
+          console.log('[AuthProvider] No initial session found via getSession');
           clearSession();
         }
       } catch (err) {
-        console.error('Error during initial session validation:', err);
+        console.error('[AuthProvider] Error during initial session validation:', err);
         clearSession();
       } finally {
         setInitialized(true);
@@ -95,7 +123,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         '[AuthProvider] Supabase auth event:',
         event,
         'alreadyInitialized:',
-        alreadyInitialized
+        alreadyInitialized,
+        'sessionPresent:',
+        !!session
       );
 
       if (!alreadyInitialized) {
@@ -104,7 +134,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (session) {
         const fallbackUser = buildFallbackUser(session);
-        // Retain existing DB user info if available to prevent reverting to fallback info
         const currentUser = useAuthStore.getState().user;
         const mergedUser = currentUser ? { ...fallbackUser, ...currentUser } : fallbackUser;
 
@@ -113,7 +142,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (!alreadyInitialized) {
           await syncUserWithBackend(session);
         } else {
-          // If already initialized, fetch updates in background without UI disruption
           void syncUserWithBackend(session);
         }
       } else {
@@ -132,7 +160,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // REDIRECTION GUARD
   useEffect(() => {
-    if (!isInitialized) return;
+    console.log(
+      '[AuthProvider] Redirection guard effect running. isInitialized:',
+      isInitialized,
+      'pathname:',
+      pathname
+    );
+    if (!isInitialized) {
+      return;
+    }
 
     const publicRoutes = [
       '/login',
@@ -145,10 +181,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const isPublicRoute = publicRoutes.includes(pathname);
     const effectiveUser = user ?? (session ? buildFallbackUser(session) : null);
 
+    console.log('[AuthProvider] Redirection guard processing:', {
+      userPresent: !!user,
+      sessionPresent: !!session,
+      isInitialized,
+      isLoading,
+      pathname,
+      isPublicRoute,
+      effectiveUserPresent: !!effectiveUser,
+    });
+
+    let timeoutId: NodeJS.Timeout;
+
     if (!effectiveUser && !session) {
       if (!isPublicRoute) {
-        console.debug('[AuthProvider] redirecting to /login from', pathname);
+        console.debug('[AuthProvider] Redirecting to /login from', pathname);
         router.replace('/login');
+
+        // Fallback hard redirect if router.replace stalls
+        timeoutId = setTimeout(() => {
+          if (window.location.pathname !== '/login') {
+            console.warn(
+              '[AuthProvider] Router replace stalled, performing hard redirect to /login'
+            );
+            window.location.replace('/login');
+          }
+        }, 800);
       }
     } else {
       // User is logged in
@@ -160,21 +218,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!isOnboarded) {
         if (pathname !== '/onboarding') {
           console.debug(
-            '[AuthProvider] user not onboarded, redirecting to /onboarding from',
+            '[AuthProvider] User not onboarded, redirecting to /onboarding from',
             pathname,
             'user:',
             effectiveUser
           );
           router.replace('/onboarding');
+
+          // Fallback hard redirect if router.replace stalls
+          timeoutId = setTimeout(() => {
+            if (window.location.pathname !== '/onboarding') {
+              console.warn(
+                '[AuthProvider] Router replace stalled, performing hard redirect to /onboarding'
+              );
+              window.location.replace('/onboarding');
+            }
+          }, 800);
         }
       } else {
         // User is onboarded
         if (pathname === '/onboarding' || pathname === '/login' || pathname === '/register') {
-          console.debug('[AuthProvider] user onboarded, redirecting to /dashboard from', pathname);
+          console.debug('[AuthProvider] User onboarded, redirecting to /dashboard from', pathname);
           router.replace('/dashboard');
+
+          // Fallback hard redirect if router.replace stalls
+          timeoutId = setTimeout(() => {
+            if (window.location.pathname !== '/dashboard' && window.location.pathname !== '/') {
+              console.warn(
+                '[AuthProvider] Router replace stalled, performing hard redirect to /dashboard'
+              );
+              window.location.replace('/dashboard');
+            }
+          }, 800);
         }
       }
     }
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
   }, [user, session, isInitialized, isLoading, pathname, router]);
 
   const publicRoutes = [
@@ -201,21 +283,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   if (showSplash) {
     return (
-      <div className="min-h-screen w-full bg-[#09090b] flex flex-col items-center justify-center text-zinc-200 select-none relative overflow-hidden">
+      <div className="min-h-screen w-full bg-zinc-50 dark:bg-[#09090b] flex flex-col items-center justify-center text-zinc-800 dark:text-zinc-200 select-none relative overflow-hidden transition-colors duration-350">
         {/* Ambient background glows */}
-        <div className="absolute top-[-20%] left-[-20%] w-[500px] h-[500px] bg-indigo-600/5 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-[-20%] right-[-20%] w-[500px] h-[500px] bg-cyan-500/5 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute top-[-20%] left-[-20%] w-[500px] h-[500px] bg-indigo-600/5 dark:bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-[-20%] right-[-20%] w-[500px] h-[500px] bg-cyan-500/5 dark:bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none" />
 
         <div className="flex flex-col items-center gap-6 z-10">
           {/* Pulsing Expensio Geometric Logo */}
           <motion.div
-            className="h-16 w-16 rounded-[22px] bg-gradient-to-br from-indigo-500 to-cyan-500 p-0.5 shadow-[0_8px_32px_rgba(99,102,241,0.25)]"
+            className="h-16 w-16 rounded-[22px] bg-gradient-to-br from-indigo-500 to-cyan-500 p-0.5 shadow-[0_8px_32px_rgba(99,102,241,0.15)] dark:shadow-[0_8px_32px_rgba(99,102,241,0.25)]"
             animate={{ scale: [1, 1.05, 1] }}
             transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
           >
-            <div className="h-full w-full rounded-[20px] bg-zinc-950 flex items-center justify-center">
+            <div className="h-full w-full rounded-[20px] bg-white dark:bg-zinc-950 flex items-center justify-center">
               <svg
-                className="h-8 w-8 text-zinc-100"
+                className="h-8 w-8 text-zinc-900 dark:text-zinc-100"
                 viewBox="0 0 40 40"
                 fill="none"
                 aria-hidden="true"
@@ -228,16 +310,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           </motion.div>
 
           <div className="flex flex-col items-center gap-1.5 text-center">
-            <h1 className="text-lg font-black tracking-widest uppercase bg-gradient-to-b from-white to-zinc-400 bg-clip-text text-transparent">
+            <h1 className="text-lg font-black tracking-widest uppercase bg-gradient-to-b from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent">
               Expensio
             </h1>
-            <p className="text-[9px] font-bold text-zinc-550 uppercase tracking-widest">
+            <p className="text-[9px] font-bold text-zinc-500 dark:text-zinc-550 uppercase tracking-widest">
               Securing connection
             </p>
           </div>
 
           {/* Premium linear page loader */}
-          <div className="w-32 h-1 rounded-full bg-zinc-900 border border-zinc-850 overflow-hidden relative">
+          <div className="w-32 h-1 rounded-full bg-zinc-200 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-850 overflow-hidden relative">
             <motion.div
               className="h-full bg-gradient-to-r from-indigo-500 to-cyan-400 rounded-full"
               initial={{ left: '-30%', width: '30%' }}

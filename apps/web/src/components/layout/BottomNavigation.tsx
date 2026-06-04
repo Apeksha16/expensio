@@ -20,7 +20,7 @@ export default function BottomNavigation({}: BottomNavigationProps) {
   ];
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 z-50 max-w-[calc(100%-2rem)] md:max-w-[416px] mx-auto rounded-[24px] border border-white/[0.04] bg-[#09090c]/75 backdrop-blur-lg shadow-[0_12px_40px_rgba(0,0,0,0.5)]">
+    <div className="fixed bottom-4 left-4 right-4 z-50 max-w-[calc(100%-2rem)] md:max-w-[416px] mx-auto rounded-[24px] border border-theme-border/60 bg-shell/80 backdrop-blur-lg shadow-xl transition-colors duration-300">
       <div className="flex h-16 items-center justify-between px-3 relative">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
@@ -38,13 +38,13 @@ export default function BottomNavigation({}: BottomNavigationProps) {
                   <motion.span
                     layoutId="activeTabCircle"
                     transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                    className="absolute inset-0 rounded-full border border-indigo-500/20 bg-indigo-500/[0.04] shadow-[0_0_12px_rgba(99,102,241,0.06)]"
+                    className="absolute inset-0 rounded-full border border-indigo-500/15 bg-indigo-500/[0.05] shadow-[0_2px_12px_rgba(99,102,241,0.06)]"
                   />
                 )}
 
                 {/* Inactive Hover Target */}
                 {!isActive && (
-                  <div className="absolute inset-0 rounded-full bg-transparent group-hover:bg-white/[0.02] transition-colors" />
+                  <div className="absolute inset-0 rounded-full bg-transparent group-hover:bg-theme-border/40 transition-colors" />
                 )}
 
                 {/* Tactile Icon Wrapper */}
@@ -55,14 +55,16 @@ export default function BottomNavigation({}: BottomNavigationProps) {
                 >
                   <item.icon
                     className={`h-4.5 w-4.5 transition-colors duration-200 ${
-                      isActive ? 'text-indigo-400' : 'text-zinc-400/90 group-hover:text-zinc-200'
+                      isActive
+                        ? 'text-indigo-600 dark:text-indigo-400'
+                        : 'text-theme-secondary group-hover:text-theme-text'
                     }`}
                   />
                 </motion.div>
 
                 {/* Red notification badge (Static mock count '2' on Home tab matching mockup) */}
                 {item.label === 'Home' && (
-                  <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 rounded-full bg-rose-500 text-white font-extrabold text-[8px] flex items-center justify-center border border-[#09090c] z-20 shadow-[0_2px_4px_rgba(0,0,0,0.2)]">
+                  <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 rounded-full bg-rose-500 text-white font-extrabold text-[8px] flex items-center justify-center border border-shell z-20 shadow-md">
                     2
                   </span>
                 )}
@@ -71,7 +73,7 @@ export default function BottomNavigation({}: BottomNavigationProps) {
               {/* Label Text */}
               <span
                 className={`text-[9px] font-black uppercase tracking-wider transition-colors mt-0.5 duration-200 ${
-                  isActive ? 'text-white' : 'text-zinc-550 group-hover:text-zinc-350'
+                  isActive ? 'text-theme-text' : 'text-theme-secondary group-hover:text-theme-text'
                 }`}
               >
                 {item.label}
@@ -82,7 +84,7 @@ export default function BottomNavigation({}: BottomNavigationProps) {
                 <motion.span
                   layoutId="activeTabBar"
                   transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                  className="w-3.5 h-0.75 rounded-full bg-indigo-400 absolute bottom-1"
+                  className="w-3.5 h-0.75 rounded-full bg-indigo-650 dark:bg-indigo-400 absolute bottom-1"
                 />
               )}
             </Link>

@@ -155,7 +155,7 @@ export default function BudgetsPage() {
         </h3>
         <button
           onClick={handleOpenAddBudget}
-          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-650 text-white hover:bg-indigo-600 font-bold active:scale-95 hover:scale-105 transition-all text-xs cursor-pointer shadow-md shadow-indigo-500/10 border border-indigo-500/30"
+          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-600/90 font-bold active:scale-95 hover:scale-105 transition-all text-xs cursor-pointer shadow-md shadow-indigo-500/10 border border-indigo-500/30"
         >
           <Plus className="w-3.5 h-3.5 stroke-[3]" />
           <span>New Budget</span>
@@ -347,7 +347,7 @@ export default function BudgetsPage() {
         {deletingBudget && (
           <div className="space-y-5">
             <div className="text-center py-2 space-y-3">
-              <div className="w-12 h-12 rounded-full bg-rose-500/10 border border-rose-500/20 flex items-center justify-center mx-auto text-rose-455">
+              <div className="w-12 h-12 rounded-full bg-rose-500/10 border border-rose-500/20 flex items-center justify-center mx-auto text-rose-500">
                 <Trash2 className="w-5.5 h-5.5 animate-pulse" />
               </div>
               <div className="space-y-1.5 px-2">

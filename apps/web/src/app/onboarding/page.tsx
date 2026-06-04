@@ -38,7 +38,7 @@ function ProgressIndicator({ current, total }: { current: number; total: number 
             i + 1 === current
               ? 'w-5 bg-zinc-200'
               : i + 1 < current
-                ? 'w-2 bg-zinc-500'
+                ? 'w-2 bg-zinc-550'
                 : 'w-2 bg-zinc-800'
           }`}
         />
@@ -100,7 +100,7 @@ function SecurePinInput({ value, onChange, disabled, error, autoFocus }: SecureP
       <button
         type="button"
         onClick={() => inputRef.current?.focus()}
-        className="flex items-center gap-4 p-4 rounded-xl border border-transparent hover:border-zinc-800 transition-colors focus:outline-none"
+        className="flex items-center gap-4 p-4 rounded-xl border border-transparent hover:border-zinc-800 transition-colors focus:outline-none cursor-pointer"
         aria-hidden="true"
         tabIndex={-1}
       >
@@ -118,7 +118,7 @@ function SecurePinInput({ value, onChange, disabled, error, autoFocus }: SecureP
                     : 'border-2 border-red-700'
                   : filled
                     ? 'bg-zinc-100'
-                    : 'border-2 border-zinc-700'
+                    : 'border-2 border-zinc-550'
               }`}
             />
           );
@@ -203,7 +203,7 @@ function AccountSetupLoader() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.28, ease: 'easeInOut' }}
-              className="text-[13px] font-medium text-zinc-500 tracking-wide"
+              className="text-[13px] font-medium text-theme-secondary tracking-wide"
             >
               {STATUS_MESSAGES[msgIndex]}
             </motion.p>
@@ -241,10 +241,10 @@ function PersonalInfoStep({ data, onChange, onNext }: Step1Props) {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-8 w-full">
       <header>
-        <h1 className="text-[21px] font-semibold text-zinc-100 tracking-tight">
+        <h1 className="text-[21px] font-semibold text-theme-text tracking-tight">
           Welcome to Expensio
         </h1>
-        <p className="mt-1.5 text-[13px] text-zinc-500 leading-relaxed">
+        <p className="mt-1.5 text-[13px] text-theme-secondary leading-relaxed">
           Let's personalize your experience.
         </p>
       </header>
@@ -254,7 +254,7 @@ function PersonalInfoStep({ data, onChange, onNext }: Step1Props) {
         <div className="flex flex-col gap-1.5">
           <label
             htmlFor="fullname"
-            className="text-[11px] font-semibold text-zinc-500 uppercase tracking-widest"
+            className="text-[11px] font-semibold text-theme-secondary uppercase tracking-widest"
           >
             Full Name
           </label>
@@ -266,7 +266,7 @@ function PersonalInfoStep({ data, onChange, onNext }: Step1Props) {
             placeholder="Enter your full name"
             autoFocus
             autoComplete="name"
-            className="w-full rounded-lg border border-zinc-800 bg-zinc-900 px-4 py-3 text-[14px] text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-700 transition-colors"
+            className="w-full rounded-lg border border-zinc-800 bg-zinc-900 px-4 py-3 text-[14px] text-zinc-100 placeholder:text-zinc-550 focus:outline-none focus:border-zinc-550 focus:ring-1 focus:ring-zinc-700 transition-colors"
           />
         </div>
 
@@ -274,12 +274,12 @@ function PersonalInfoStep({ data, onChange, onNext }: Step1Props) {
         <div className="flex flex-col gap-1.5">
           <label
             htmlFor="salary"
-            className="text-[11px] font-semibold text-zinc-500 uppercase tracking-widest"
+            className="text-[11px] font-semibold text-theme-secondary uppercase tracking-widest"
           >
             Monthly Salary
           </label>
           <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[14px] font-semibold text-zinc-500 select-none">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[14px] font-semibold text-zinc-550 select-none">
               ₹
             </span>
             <input
@@ -289,7 +289,7 @@ function PersonalInfoStep({ data, onChange, onNext }: Step1Props) {
               value={displaySalary}
               onChange={handleSalaryChange}
               placeholder="50,000"
-              className="w-full rounded-lg border border-zinc-800 bg-zinc-900 pl-8 pr-4 py-3 text-[14px] text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-zinc-600 focus:ring-1 focus:ring-zinc-700 transition-colors"
+              className="w-full rounded-lg border border-zinc-800 bg-zinc-900 pl-8 pr-4 py-3 text-[14px] text-zinc-100 placeholder:text-zinc-550 focus:outline-none focus:border-zinc-550 focus:ring-1 focus:ring-zinc-700 transition-colors"
             />
           </div>
         </div>
@@ -298,7 +298,7 @@ function PersonalInfoStep({ data, onChange, onNext }: Step1Props) {
       <button
         type="submit"
         disabled={!isValid}
-        className="w-full rounded-lg border border-zinc-800 bg-[#18181b] px-4 py-3 text-[13px] font-medium text-zinc-200 transition-all hover:bg-[#202024] hover:text-white focus:outline-none focus:ring-1 focus:ring-zinc-600 disabled:opacity-30 disabled:cursor-not-allowed"
+        className="w-full rounded-xl bg-zinc-100 text-zinc-950 border-none px-4 py-3.5 text-xs font-black uppercase tracking-wider transition-all hover:bg-zinc-200 disabled:bg-zinc-800 disabled:text-zinc-550 disabled:cursor-not-allowed cursor-pointer shadow-sm flex items-center justify-center"
       >
         Continue
       </button>
@@ -325,22 +325,24 @@ function CreateMpinStep({ data, onChange, onNext }: Step2Props) {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col items-center gap-8 w-full">
       <header className="text-center">
-        <h1 className="text-[21px] font-semibold text-zinc-100 tracking-tight">Create Your MPIN</h1>
-        <p className="mt-1.5 text-[13px] text-zinc-500 leading-relaxed">
+        <h1 className="text-[21px] font-semibold text-theme-text tracking-tight">
+          Create Your MPIN
+        </h1>
+        <p className="mt-1.5 text-[13px] text-theme-secondary leading-relaxed">
           This PIN protects your financial information.
         </p>
       </header>
 
       <SecurePinInput value={data.mpin} onChange={(val) => onChange({ mpin: val })} autoFocus />
 
-      <p className="text-[11px] text-zinc-600 tracking-wide">
+      <p className="text-[11px] text-zinc-550 tracking-wide">
         Used to securely access your account.
       </p>
 
       <button
         type="submit"
         disabled={!isValid}
-        className="w-full rounded-lg border border-zinc-800 bg-[#18181b] px-4 py-3 text-[13px] font-medium text-zinc-200 transition-all hover:bg-[#202024] hover:text-white focus:outline-none focus:ring-1 focus:ring-zinc-600 disabled:opacity-30 disabled:cursor-not-allowed"
+        className="w-full rounded-xl bg-zinc-100 text-zinc-950 border-none px-4 py-3.5 text-xs font-black uppercase tracking-wider transition-all hover:bg-zinc-200 disabled:bg-zinc-800 disabled:text-zinc-550 disabled:cursor-not-allowed cursor-pointer shadow-sm flex items-center justify-center"
       >
         Continue
       </button>
@@ -377,10 +379,10 @@ function ConfirmMpinStep({ data, onChange, onNext }: Step3Props) {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col items-center gap-8 w-full">
       <header className="text-center">
-        <h1 className="text-[21px] font-semibold text-zinc-100 tracking-tight">
+        <h1 className="text-[21px] font-semibold text-theme-text tracking-tight">
           Confirm Your MPIN
         </h1>
-        <p className="mt-1.5 text-[13px] text-zinc-500 leading-relaxed">
+        <p className="mt-1.5 text-[13px] text-theme-secondary leading-relaxed">
           Re-enter your PIN to verify.
         </p>
       </header>
@@ -411,7 +413,7 @@ function ConfirmMpinStep({ data, onChange, onNext }: Step3Props) {
       <button
         type="submit"
         disabled={!isValid}
-        className="w-full rounded-lg border border-zinc-800 bg-[#18181b] px-4 py-3 text-[13px] font-medium text-zinc-200 transition-all hover:bg-[#202024] hover:text-white focus:outline-none focus:ring-1 focus:ring-zinc-600 disabled:opacity-30 disabled:cursor-not-allowed"
+        className="w-full rounded-xl bg-zinc-100 text-zinc-950 border-none px-4 py-3.5 text-xs font-black uppercase tracking-wider transition-all hover:bg-zinc-200 disabled:bg-zinc-800 disabled:text-zinc-550 disabled:cursor-not-allowed cursor-pointer shadow-sm flex items-center justify-center"
       >
         Create Account
       </button>
@@ -424,8 +426,6 @@ function ConfirmMpinStep({ data, onChange, onNext }: Step3Props) {
 export default function OnboardingPage() {
   const router = useRouter();
   const { user, isInitialized, isLoading, updateUser, session } = useAuthStore();
-
-  // debug: mount state logged in useEffect to avoid side-effects during render
 
   const [step, setStep] = useState<Step>(1);
   const [data, setData] = useState<OnboardingData>({
@@ -449,8 +449,6 @@ export default function OnboardingPage() {
 
     console.debug('[Onboarding] route guard check', { user, sessionPresent: !!session });
 
-    // If Supabase already has a session, stay on onboarding even while the
-    // user object is still hydrating from backend/local fallback.
     if (session && !user) return;
 
     if (!session) {
@@ -461,7 +459,7 @@ export default function OnboardingPage() {
     if (user && (user.isOnboardingCompleted ?? (user as any).isOnboarded) && user.monthlySalary) {
       router.replace('/dashboard');
     }
-  }, [user, isInitialized, isLoading, router]);
+  }, [user, isInitialized, isLoading, router, session]);
 
   const updateData = useCallback((patch: Partial<OnboardingData>) => {
     setData((prev) => ({ ...prev, ...patch }));
@@ -542,7 +540,6 @@ export default function OnboardingPage() {
           });
         }
 
-        // Navigate to the dashboard after the completed state is persisted.
         router.replace('/dashboard');
       } catch (err) {
         const e = err as Error;
@@ -559,12 +556,12 @@ export default function OnboardingPage() {
   if (!isInitialized || isLoading || (!session && !user)) {
     return (
       <div
-        className="min-h-screen bg-[#09090b] flex items-center justify-center"
+        className="min-h-screen bg-background flex items-center justify-center"
         aria-busy="true"
         aria-label="Loading"
       >
         <motion.div
-          className="h-5 w-5 rounded-full border-2 border-zinc-700 border-t-zinc-300"
+          className="h-5 w-5 rounded-full border-2 border-zinc-500 border-t-zinc-350"
           animate={{ rotate: 360 }}
           transition={{ repeat: Infinity, duration: 0.75, ease: 'linear' }}
         />
@@ -572,10 +569,13 @@ export default function OnboardingPage() {
     );
   }
 
-  const totalSteps = 3; // Only show progress for steps 1–3; step 4 is full-screen
+  const totalSteps = 3;
 
   return (
-    <main className="relative min-h-screen w-full bg-[#09090b] flex flex-col items-center justify-center px-6 py-16 text-zinc-200 selection:bg-zinc-800 selection:text-zinc-100">
+    <main className="relative min-h-screen w-full bg-background flex flex-col items-center justify-center px-4 py-12 text-theme-text selection:bg-zinc-800 selection:text-zinc-100">
+      {/* Background glow effects */}
+      <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-500/5 dark:bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
       <AnimatePresence mode="wait">
         {step === 4 ? (
           /* ── Step 4: Full-Screen Account Setup Loader ── */
@@ -602,12 +602,12 @@ export default function OnboardingPage() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
             transition={{ duration: 0.22, ease: 'easeOut' }}
-            className="w-full max-w-90 flex flex-col gap-10"
+            className="w-full max-w-[360px] bg-theme-card border border-theme-card-border rounded-3xl p-6 md:p-8 shadow-xl relative z-10 flex flex-col gap-6"
           >
             {/* Progress indicator */}
             <div className="flex items-center justify-between">
               <ProgressIndicator current={step} total={totalSteps} />
-              <span className="text-[11px] font-medium text-zinc-600 tabular-nums">
+              <span className="text-[11px] font-medium text-zinc-550 tabular-nums">
                 {step} / {totalSteps}
               </span>
             </div>
@@ -632,7 +632,6 @@ export default function OnboardingPage() {
                   monthlySalary: Number(data.salary) || 50000,
                 };
 
-                // Fire and forget API update in the background (no await)
                 if (session?.access_token) {
                   fetch(`${API_URL}/api/v1/users/onboarding`, {
                     method: 'POST',
@@ -644,7 +643,6 @@ export default function OnboardingPage() {
                   }).catch(() => {});
                 }
 
-                // Directly set the state on the Zustand auth store to avoid any null/update constraints
                 const onboardedUser = {
                   id: session?.user?.id || 'dev-user',
                   email: session?.user?.email || 'admin@expensio.app',
@@ -658,11 +656,9 @@ export default function OnboardingPage() {
                 };
 
                 useAuthStore.setState({ user: onboardedUser });
-
-                // Force navigation immediately
                 router.replace('/dashboard');
               }}
-              className="text-[11px] text-indigo-400 hover:text-indigo-300 font-bold transition-colors text-center mx-auto focus:outline-none focus:underline cursor-pointer"
+              className="text-[11px] text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 font-bold transition-colors text-center mx-auto focus:outline-none focus:underline cursor-pointer"
             >
               Bypass Onboarding & Go to Dashboard (Dev Mode)
             </button>
@@ -676,7 +672,7 @@ export default function OnboardingPage() {
                 } catch {}
                 window.location.href = '/login';
               }}
-              className="text-[11px] text-zinc-700 hover:text-zinc-500 transition-colors text-center mx-auto focus:outline-none focus:underline"
+              className="text-[11px] text-zinc-550 hover:text-zinc-400 transition-colors text-center mx-auto focus:outline-none focus:underline cursor-pointer"
             >
               Sign in with a different account
             </button>

@@ -8,8 +8,8 @@ import { supabase } from '../../../lib/supabase';
 function LoadingSpinner() {
   return (
     <motion.svg
-      className="h-3.5 w-3.5 text-zinc-400"
-      xmlns="http://www.w3.org/2000/svg"
+      className="h-4.5 w-4.5 text-zinc-500 dark:text-zinc-400"
+      xmlns="http://www.w3.org/2555/svg"
       fill="none"
       viewBox="0 0 24 24"
       animate={{ rotate: 360 }}
@@ -37,7 +37,7 @@ function LoadingSpinner() {
 function ExpensioLogo() {
   return (
     <svg
-      className="h-9 w-9 text-zinc-100"
+      className="h-10 w-10 text-zinc-100"
       viewBox="0 0 40 40"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -72,7 +72,6 @@ function GoogleSignInButton({ onClick, isLoading }: GoogleSignInButtonProps) {
     }
   }, [isClicked, isLoading]);
 
-  // snappy custom rotate & bounce
   const iconVariants = {
     default: { rotate: 0, y: 0, scale: 1 },
     animating: {
@@ -87,8 +86,8 @@ function GoogleSignInButton({ onClick, isLoading }: GoogleSignInButtonProps) {
       type="button"
       onClick={handleClick}
       disabled={isLoading}
-      whileTap={{ scale: 0.985 }}
-      className="relative flex w-full items-center justify-center gap-3 rounded-lg border border-zinc-800 bg-[#18181b] px-4 py-2.5 text-[13px] font-medium text-zinc-200 shadow-sm transition-all hover:bg-[#202024] hover:text-white focus:outline-none focus:ring-1 focus:ring-zinc-600 focus:ring-offset-1 focus:ring-offset-[#09090b] disabled:cursor-not-allowed disabled:opacity-50"
+      whileTap={{ scale: 0.98 }}
+      className="relative flex w-full items-center justify-center gap-3 rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-xs font-black uppercase tracking-wider text-zinc-100 shadow-sm transition-all hover:bg-zinc-900 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
       aria-label="Continue with Google"
       aria-busy={isLoading}
     >
@@ -96,7 +95,7 @@ function GoogleSignInButton({ onClick, isLoading }: GoogleSignInButtonProps) {
         <LoadingSpinner />
       ) : (
         <motion.svg
-          className="h-3.5 w-3.5 shrink-0"
+          className="h-4.5 w-4.5 shrink-0"
           viewBox="0 0 24 24"
           aria-hidden="true"
           variants={iconVariants}
@@ -156,54 +155,58 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="relative flex min-h-screen w-full flex-col items-center justify-center bg-[#09090b] px-6 py-12 text-zinc-200 selection:bg-zinc-800 selection:text-zinc-100">
-      {/* 1. Geometric Logo */}
-      <div className="mb-6 text-zinc-100" aria-hidden="true">
-        <ExpensioLogo />
-      </div>
+    <main className="relative flex min-h-screen w-full flex-col items-center justify-center bg-background px-4 py-12 text-theme-text selection:bg-zinc-800 selection:text-zinc-100">
+      {/* Background glow effects */}
+      <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-500/5 dark:bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
 
-      {/* 2. Welcome Message */}
-      <header className="mb-8 text-center">
-        <h1 className="text-zinc-100 text-[21px] font-semibold tracking-tight">
-          Sign in to Expensio
-        </h1>
-        <p className="mt-1.5 text-[13px] font-normal text-zinc-500 tracking-wide">
-          Enter your workspace with Google authentication.
-        </p>
-      </header>
+      <motion.div
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-[360px] bg-theme-card border border-theme-card-border rounded-3xl p-6 md:p-8 shadow-xl relative z-10 flex flex-col items-center gap-6"
+      >
+        {/* 1. Geometric Logo */}
+        <div className="text-theme-text" aria-hidden="true">
+          <ExpensioLogo />
+        </div>
 
-      {/* 3. Google Sign In Button Container */}
-      <div className="w-full max-w-[320px]">
-        <GoogleSignInButton onClick={handleGoogleLogin} isLoading={isLoading} />
-
-        {/* Dynamic accessibility ARIA block for login errors */}
-        {error && (
-          <p className="mt-4 text-center text-xs font-medium text-red-400/90" role="alert">
-            {error}
+        {/* 2. Welcome Message */}
+        <header className="text-center">
+          <h1 className="text-theme-text text-[21px] font-semibold tracking-tight leading-none">
+            Sign in to Expensio
+          </h1>
+          <p className="mt-2 text-[12px] font-semibold text-theme-secondary">
+            Enter your workspace with Google authentication.
           </p>
-        )}
-      </div>
+        </header>
 
-      {/* 4. Small Legal Text */}
-      <footer className="mt-8 text-center max-w-[280px]">
-        <p className="text-[11px] leading-relaxed text-zinc-600 tracking-normal">
-          By continuing, you agree to Expensio's{' '}
-          <a
-            href="#"
-            className="underline underline-offset-2 hover:text-zinc-400 transition-colors"
-          >
-            Terms of Service
-          </a>{' '}
-          and{' '}
-          <a
-            href="#"
-            className="underline underline-offset-2 hover:text-zinc-400 transition-colors"
-          >
-            Privacy Policy
-          </a>
-          .
-        </p>
-      </footer>
+        {/* 3. Google Sign In Button Container */}
+        <div className="w-full">
+          <GoogleSignInButton onClick={handleGoogleLogin} isLoading={isLoading} />
+
+          {error && (
+            <p className="mt-4 text-center text-xs font-semibold text-red-500/90" role="alert">
+              {error}
+            </p>
+          )}
+        </div>
+
+        {/* 4. Small Legal Text */}
+        <footer className="text-center w-full">
+          <p className="text-[10px] leading-relaxed text-theme-muted">
+            By continuing, you agree to Expensio's{' '}
+            <a href="#" className="underline hover:text-theme-text transition-colors">
+              Terms
+            </a>{' '}
+            and{' '}
+            <a href="#" className="underline hover:text-theme-text transition-colors">
+              Privacy Policy
+            </a>
+            .
+          </p>
+        </footer>
+      </motion.div>
     </main>
   );
 }

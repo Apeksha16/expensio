@@ -63,7 +63,7 @@ const categoryMeta: Record<
   },
   Bills: {
     icon: CreditCard,
-    color: 'text-rose-455',
+    color: 'text-rose-500',
     bg: 'bg-rose-500/10 border-rose-500/15',
     accentBg: 'bg-rose-500',
   },
@@ -176,11 +176,11 @@ export default function ExpenseCard({
 
           {/* Text Information block */}
           <div className="flex flex-col gap-0.5 min-w-0">
-            <span className="text-xs font-bold text-white tracking-tight group-hover:text-cyan-400 transition-colors leading-none truncate">
+            <span className="text-xs font-bold text-theme-text tracking-tight group-hover:text-cyan-400 transition-colors leading-none truncate">
               {expense.title.replace(/\p{Extended_Pictographic}/gu, '').trim()}
             </span>
 
-            <div className="flex items-center gap-2 text-[10px] text-zinc-550 font-semibold mt-1.5 min-w-0">
+            <div className="flex flex-wrap items-center gap-2 text-[10px] text-zinc-550 font-semibold mt-1.5 min-w-0">
               <div className="flex items-center gap-1 shrink-0 whitespace-nowrap">
                 <Calendar className="w-3 h-3 text-zinc-600 shrink-0" />
                 <span>{formattedDate}</span>
@@ -190,6 +190,15 @@ export default function ExpenseCard({
               >
                 <span>{expense.category}</span>
               </div>
+              {expense.splitWith && expense.splitWith.length > 0 && (
+                <div className="flex items-center gap-1 text-[8px] text-indigo-600 dark:text-indigo-400 font-black uppercase tracking-wider bg-indigo-500/10 px-2 py-0.5 rounded-full border border-indigo-500/20 shrink-0">
+                  <Share2 className="w-2.5 h-2.5 text-indigo-500" />
+                  <span>
+                    Split w/ {expense.splitWith[0].split(' ')[0]}
+                    {expense.splitWith.length > 1 ? ` +${expense.splitWith.length - 1}` : ''}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -206,16 +215,6 @@ export default function ExpenseCard({
             >
               {isIncome ? `+₹${expense.amount.toFixed(2)}` : `-₹${expense.amount.toFixed(2)}`}
             </div>
-
-            {expense.splitWith && expense.splitWith.length > 0 && (
-              <div className="flex items-center gap-1 text-[8px] text-indigo-400 font-black uppercase tracking-wider bg-indigo-500/10 px-2 py-0.5 rounded-full border border-indigo-500/20 shrink-0">
-                <Share2 className="w-2.5 h-2.5 text-indigo-400" />
-                <span>
-                  Split w/ {expense.splitWith[0].split(' ')[0]}
-                  {expense.splitWith.length > 1 ? ` +${expense.splitWith.length - 1}` : ''}
-                </span>
-              </div>
-            )}
           </div>
 
           <div className="w-6 h-6 rounded-full bg-white/[0.02] border border-white/[0.04] flex items-center justify-center shrink-0">
@@ -267,23 +266,23 @@ export default function ExpenseCard({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
-            className="absolute inset-0 bg-[#09090c] z-30 rounded-2xl flex items-center justify-between px-5 py-3"
+            className="absolute inset-0 bg-white/95 dark:bg-zinc-955/95 border border-rose-500/20 backdrop-blur-sm z-30 rounded-[20px] flex items-center justify-between px-5 py-3 shadow-md"
           >
-            <div className="flex flex-col gap-0.5">
-              <span className="text-[10px] font-black text-rose-400 uppercase tracking-widest">
+            <div className="flex flex-col gap-0.5 min-w-0">
+              <span className="text-[10px] font-black text-rose-600 dark:text-rose-400 uppercase tracking-widest leading-none">
                 Delete transaction?
               </span>
-              <span className="text-xs text-zinc-300 font-bold truncate max-w-44">
+              <span className="text-xs text-zinc-800 dark:text-zinc-205 font-bold truncate max-w-36 mt-1 leading-none">
                 {expense.title.replace(/\p{Extended_Pictographic}/gu, '').trim()}
               </span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 shrink-0">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   setShowConfirmDelete(false);
                 }}
-                className="px-3.5 py-1.5 rounded-xl border border-zinc-800 text-zinc-450 hover:text-zinc-200 text-[10px] font-black uppercase active:scale-95 transition-all cursor-pointer bg-zinc-900/60"
+                className="px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 text-[9px] font-black uppercase active:scale-95 transition-all cursor-pointer bg-zinc-50 dark:bg-zinc-900/60"
               >
                 Cancel
               </button>
@@ -292,7 +291,7 @@ export default function ExpenseCard({
                   e.stopPropagation();
                   handleDeleteConfirm();
                 }}
-                className="px-3.5 py-1.5 rounded-xl bg-rose-500 text-zinc-950 text-[10px] font-black uppercase active:scale-95 transition-all cursor-pointer shadow-md shadow-rose-500/10 hover:bg-rose-455"
+                className="px-3 py-1.5 rounded-xl bg-rose-500 text-white text-[9px] font-black uppercase active:scale-95 transition-all cursor-pointer shadow-md shadow-rose-500/10 hover:bg-rose-600"
               >
                 Delete
               </button>

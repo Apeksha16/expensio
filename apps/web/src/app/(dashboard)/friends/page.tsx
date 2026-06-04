@@ -138,7 +138,7 @@ export default function FriendsPage() {
             setSearchQuery('');
             setIsAddFriendOpen(true);
           }}
-          className="p-2.5 rounded-xl bg-indigo-650 text-white hover:bg-indigo-600 font-bold active:scale-95 hover:scale-105 transition-all shadow-md shadow-indigo-500/10 cursor-pointer border border-indigo-500/30"
+          className="p-2.5 rounded-xl bg-indigo-600 text-white hover:bg-indigo-600/90 font-bold active:scale-95 hover:scale-105 transition-all shadow-md shadow-indigo-500/10 cursor-pointer border border-indigo-500/30"
           aria-label="Add Friend"
         >
           <UserPlus className="w-4 h-4 stroke-[3]" />
@@ -221,7 +221,7 @@ export default function FriendsPage() {
               className={`px-2 py-0.5 rounded-full text-[9px] font-black tracking-normal transition-colors ${
                 activeTab === 'requests'
                   ? 'bg-rose-500/20 text-rose-350 border border-rose-500/25'
-                  : 'bg-rose-500/10 text-rose-455 border border-rose-500/15'
+                  : 'bg-rose-500/10 text-rose-500 border border-rose-500/15'
               }`}
             >
               {requests.length}
@@ -265,7 +265,7 @@ export default function FriendsPage() {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleAcceptRequest(req)}
-                      className="px-3.5 py-2 rounded-xl bg-indigo-650 hover:bg-indigo-600 text-white text-[9px] font-black uppercase hover:scale-105 active:scale-95 transition-all cursor-pointer border border-indigo-500/30"
+                      className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-600/90 text-white text-[9px] font-black uppercase hover:scale-105 active:scale-95 transition-all cursor-pointer border border-indigo-500/30"
                     >
                       Accept
                     </button>
@@ -351,7 +351,7 @@ export default function FriendsPage() {
                         <span className="text-[9px] text-zinc-500">@{user.username}</span>
                       </div>
                     </div>
-                    <button className="px-3.5 py-2 rounded-xl bg-indigo-650 hover:bg-indigo-600 text-white border border-indigo-500/35 text-[9px] font-black uppercase group-hover:scale-105 active:scale-95 transition-all">
+                    <button className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-600/90 text-white border border-indigo-500/35 text-[9px] font-black uppercase group-hover:scale-105 active:scale-95 transition-all">
                       Add
                     </button>
                   </div>

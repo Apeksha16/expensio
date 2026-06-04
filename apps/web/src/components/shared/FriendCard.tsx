@@ -24,7 +24,7 @@ export default function FriendCard({ friend, onSettle }: FriendCardProps) {
             isOwed
               ? 'bg-indigo-500/8 text-cyan-400 border border-indigo-500/10'
               : isOwing
-                ? 'bg-rose-500/8 text-rose-455 border border-rose-500/10'
+                ? 'bg-rose-500/8 text-rose-500 border border-rose-500/10'
                 : 'bg-zinc-950 text-zinc-400 border border-zinc-900'
           }`}
         >
@@ -56,7 +56,7 @@ export default function FriendCard({ friend, onSettle }: FriendCardProps) {
                 <ArrowDownRight className="w-2.5 h-2.5 text-rose-500" />
                 <span>You Owe</span>
               </div>
-              <span className="text-sm font-black text-rose-455 tracking-tight">
+              <span className="text-sm font-black text-rose-500 tracking-tight">
                 ₹{Math.abs(friend.balance).toFixed(2)}
               </span>
             </>

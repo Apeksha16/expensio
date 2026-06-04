@@ -51,7 +51,7 @@ export default function BottomSheet({ isOpen, onClose, title, children }: Bottom
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-            className="fixed bottom-0 left-0 right-0 z-[100] max-w-md mx-auto bg-[#09090b] border-t border-zinc-800 rounded-t-[32px] shadow-2xl overflow-hidden pb-safe max-h-[85vh] flex flex-col"
+            className="fixed bottom-0 left-0 right-0 z-[100] max-w-md mx-auto bg-shell border-t border-theme-border rounded-t-[32px] shadow-2xl overflow-hidden pb-safe max-h-[85vh] flex flex-col transition-colors duration-300"
           >
             {/* Top Handle Drag Bar */}
             <div className="flex justify-center py-3 cursor-grab" onClick={onClose}>
@@ -59,15 +59,15 @@ export default function BottomSheet({ isOpen, onClose, title, children }: Bottom
             </div>
 
             {/* Header */}
-            <div className="px-6 pb-4 flex items-center justify-between border-b border-zinc-900">
+            <div className="px-6 pb-4 flex items-center justify-between border-b border-theme-border/60">
               {title ? (
-                <h3 className="text-lg font-bold tracking-tight text-zinc-100">{title}</h3>
+                <h3 className="text-lg font-bold tracking-tight text-theme-text">{title}</h3>
               ) : (
                 <div />
               )}
               <button
                 onClick={onClose}
-                className="p-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors"
+                className="p-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-theme-secondary hover:text-theme-text hover:bg-zinc-800 transition-colors cursor-pointer"
                 aria-label="Close"
               >
                 <X className="w-4 h-4" />

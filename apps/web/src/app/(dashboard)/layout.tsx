@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import MobileHeader from '../../components/layout/MobileHeader';
 import BottomNavigation from '../../components/layout/BottomNavigation';
 import BottomSheet from '../../components/shared/BottomSheet';
+import NavigationMenu from '../../components/layout/NavigationMenu';
 import { useFinanceStore } from '../../store/finance-store';
 import { useAuthStore } from '../../store/auth-store';
 import { supabase } from '../../lib/supabase';
@@ -29,10 +31,27 @@ import {
   Smartphone,
   Sparkles,
   Plus,
+  Menu,
+  ChevronDown,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const [tab, setTab] = useState('home');
+
+  useEffect(() => {
+    const currentTab =
+      typeof window !== 'undefined'
+        ? new URLSearchParams(window.location.search).get('tab') || 'home'
+        : 'home';
+    if (currentTab !== tab) {
+      setTab(currentTab);
+    }
+  });
+
+  const showFAB = pathname === '/dashboard' ? tab === 'home' : true;
+
   const {
     friends,
     addExpense,
@@ -95,6 +114,26 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [highContrastActive, setHighContrastActive] = useState(false);
   const [offlineCacheActive, setOfflineCacheActive] = useState(true);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [isPaymentDropdownOpen, setIsPaymentDropdownOpen] = useState(false);
+
+  const [isNavMenuOpen, setIsNavMenuOpen] = useState(false);
+  const [navStyle, setNavStyle] = useState<'slide' | 'overlay' | 'sheet' | 'dropdown'>('slide');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedStyle = localStorage.getItem('navStyle') as any;
+      if (savedStyle && ['slide', 'overlay', 'sheet', 'dropdown'].includes(savedStyle)) {
+        setNavStyle(savedStyle);
+      }
+    }
+  }, []);
+
+  const handleSetNavStyle = (style: 'slide' | 'overlay' | 'sheet' | 'dropdown') => {
+    setNavStyle(style);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('navStyle', style);
+    }
+  };
 
   const effectiveUser =
     user ??
@@ -239,28 +278,46 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Responsive Canvas PWA Frame Shell */}
       <div className="w-full max-w-md h-dvh flex flex-col bg-shell border-x border-theme-border shadow-2xl relative overflow-hidden transition-colors duration-300">
         {/* Mobile Header */}
-        <MobileHeader />
+        <MobileHeader onMenuClick={() => setIsNavMenuOpen(true)} />
 
         {/* Child Screen */}
-        <main className="flex-1 h-0 px-6 py-6 pb-28 overflow-y-auto scrollbar-thin">
+        <main className="flex-1 h-0 px-6 py-6 pb-28 overflow-y-auto overflow-x-hidden scrollbar-thin">
           {children}
         </main>
 
         {/* Floating Action Button (FAB) in Bottom Right (Fixed Viewport Docked) */}
-        <button
-          onClick={() => setIsAddExpenseOpen(true)}
-          className="fixed bottom-20 right-5 sm:right-auto sm:left-[calc(50%+156px)] w-14 h-14 rounded-full bg-linear-to-br from-indigo-400 via-violet-500 to-cyan-500 flex items-center justify-center text-zinc-950 shadow-[0_8px_32px_rgba(99,102,241,0.35)] hover:shadow-[0_8px_32px_rgba(34,211,238,0.55)] active:scale-90 hover:scale-110 active:shadow-[0_4px_16px_rgba(99,102,241,0.6)] transition-all duration-300 border border-indigo-300/50 z-40 cursor-pointer group"
-          aria-label="Add Expense"
-        >
-          {/* Internal neon ambient glow aura */}
-          <div className="absolute inset-0.5 rounded-full bg-linear-to-tr from-white/20 to-transparent opacity-100 border border-white/30 -z-10 group-hover:scale-105 transition-transform duration-300" />
+        {showFAB && (
+          <button
+            onClick={() => setIsAddExpenseOpen(true)}
+            className="fixed bottom-20 right-5 sm:right-auto sm:left-[calc(50%+156px)] w-14 h-14 rounded-full bg-linear-to-br from-indigo-400 via-violet-500 to-cyan-500 flex items-center justify-center text-zinc-950 shadow-[0_8px_32px_rgba(99,102,241,0.35)] hover:shadow-[0_8px_32px_rgba(34,211,238,0.55)] active:scale-90 hover:scale-110 active:shadow-[0_4px_16px_rgba(99,102,241,0.6)] transition-all duration-300 border border-indigo-300/50 z-40 cursor-pointer group"
+            aria-label="Add Expense"
+          >
+            {/* Internal neon ambient glow aura */}
+            <div className="absolute inset-0.5 rounded-full bg-linear-to-tr from-white/20 to-transparent opacity-100 border border-white/30 -z-10 group-hover:scale-105 transition-transform duration-300" />
 
-          {/* Gorgeous spinning plus icon */}
-          <Plus className="w-7 h-7 text-zinc-950 stroke-[3.5] transition-transform duration-500 ease-out group-hover:rotate-180" />
-        </button>
+            {/* Gorgeous spinning plus icon */}
+            <Plus className="w-7 h-7 text-zinc-950 stroke-[3.5] transition-transform duration-500 ease-out group-hover:rotate-180" />
+          </button>
+        )}
 
         {/* Bottom Navigation */}
         <BottomNavigation />
+
+        {/* Navigation Menu (supports slide, overlay, sheet, dropdown styles) */}
+        <NavigationMenu
+          isOpen={isNavMenuOpen}
+          onClose={() => setIsNavMenuOpen(false)}
+          style="slide"
+          showToast={showToast}
+          biometricsActive={biometricsActive}
+          setBiometricsActive={setBiometricsActive}
+          highContrastActive={highContrastActive}
+          setHighContrastActive={setHighContrastActive}
+          offlineCacheActive={offlineCacheActive}
+          setOfflineCacheActive={setOfflineCacheActive}
+          navStyle="slide"
+          handleSetNavStyle={handleSetNavStyle}
+        />
       </div>
 
       {/* Upgraded Add Expense Bottom Sheet Modal with Squircle Grid */}
@@ -271,19 +328,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       >
         <form onSubmit={handleAddExpenseSubmit} className="space-y-8">
           {/* Big Amount font */}
-          <div className="flex flex-col items-center gap-2 py-5 border-b border-zinc-900/60">
-            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+          <div className="flex flex-col items-center gap-2 py-5 border-b border-theme-border/60">
+            <span className="text-[10px] font-black uppercase tracking-widest text-theme-secondary">
               Bill Value
             </span>
             <div className="flex items-center gap-1.5">
-              <span className="text-3xl font-extrabold text-cyan-400">₹</span>
+              <span className="text-3xl font-extrabold text-indigo-600 dark:text-cyan-400">₹</span>
               <input
                 type="number"
                 step="0.01"
                 placeholder="0.00"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="text-5xl font-black text-zinc-100 bg-transparent text-center focus:outline-none placeholder-zinc-900 w-64 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="text-5xl font-black text-zinc-900 dark:text-zinc-100 bg-transparent text-center focus:outline-none placeholder-zinc-300 dark:placeholder-zinc-800 w-64 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 required
                 autoFocus
               />
@@ -292,10 +349,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
           {/* Squircle 4x2 Category Grid exactly from the mockup screenshot! */}
           <div className="flex flex-col gap-3">
-            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+            <label className="text-[10px] font-black uppercase tracking-widest text-theme-secondary">
               Select Category
             </label>
-            <div className="grid grid-cols-4 gap-3.5">
+            <div className="grid grid-cols-4 gap-3">
               {categories.map((cat) => {
                 const isSelected = category === cat.name;
                 const Icon = cat.icon;
@@ -304,21 +361,28 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     key={cat.name}
                     type="button"
                     onClick={() => setCategory(cat.name)}
-                    className={`flex flex-col items-center justify-center p-3.5 rounded-[22px] border transition-all duration-300 cursor-pointer gap-2 ${
+                    className={`flex flex-col items-center justify-center p-3 rounded-[22px] border transition-all duration-300 cursor-pointer gap-2 ${
                       isSelected
-                        ? cat.bg +
-                          ' ring-2 ring-emerald-500/20 scale-105 shadow-[0_4px_20px_rgba(16,185,129,0.15)] border-emerald-500/30'
-                        : 'bg-zinc-900/20 border-zinc-850/60 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900/40'
+                        ? 'bg-indigo-500/10 dark:bg-indigo-500/20 border-indigo-500/40 text-indigo-600 dark:text-indigo-400 ring-2 ring-indigo-500/10 scale-105 shadow-[0_4px_20px_rgba(99,102,241,0.12)]'
+                        : 'bg-zinc-100/80 dark:bg-zinc-900/40 border-zinc-200/60 dark:border-zinc-800/30 text-zinc-500 dark:text-zinc-450 hover:bg-zinc-200/50 dark:hover:bg-zinc-900/60 hover:text-zinc-800 dark:hover:text-zinc-200'
                     }`}
                   >
                     <motion.div
-                      className="w-9 h-9 rounded-[14px] bg-zinc-950/80 border border-zinc-800/40 flex items-center justify-center shadow-inner"
+                      className={`w-9 h-9 rounded-[14px] flex items-center justify-center shadow-inner ${
+                        isSelected
+                          ? 'bg-indigo-600 text-white'
+                          : 'bg-white dark:bg-zinc-950/80 border border-zinc-200/80 dark:border-zinc-800/40'
+                      }`}
                       whileTap={{ scale: 0.8 }}
                       transition={{ type: 'spring', stiffness: 500, damping: 15 }}
                     >
                       <Icon className="w-4.5 h-4.5" />
                     </motion.div>
-                    <span className="text-[9.5px] font-black uppercase tracking-wider">
+                    <span
+                      className={`font-black uppercase tracking-tight text-center leading-none max-w-full break-words ${
+                        cat.name.length > 9 ? 'text-[7.5px]' : 'text-[8.5px]'
+                      }`}
+                    >
                       {cat.name}
                     </span>
                   </button>
@@ -329,7 +393,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
           {/* Description */}
           <div className="flex flex-col gap-3">
-            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+            <label className="text-[10px] font-black uppercase tracking-widest text-theme-secondary">
               Merchant / Description
             </label>
             <input
@@ -337,18 +401,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               placeholder="e.g. McDonald's"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-5 py-3.5 rounded-2xl bg-zinc-900/20 border border-zinc-850/60 focus:border-indigo-500/40 text-sm font-semibold text-zinc-100 placeholder-zinc-600 focus:outline-none transition-colors"
+              className="w-full px-5 py-3.5 rounded-2xl bg-zinc-100/85 dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 focus:border-indigo-500 focus:ring-indigo-500/20 focus:outline-none focus:ring-1 text-sm font-semibold text-zinc-800 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-550 transition-colors"
               required
             />
           </div>
 
           {/* Split checks */}
           <div className="flex flex-col gap-3">
-            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+            <label className="text-[10px] font-black uppercase tracking-widest text-theme-secondary">
               Split Expense (Equally)
             </label>
             {friends.length === 0 ? (
-              <span className="text-xs text-zinc-600 italic">
+              <span className="text-xs text-zinc-550 italic">
                 No friend contacts found. Add friends first!
               </span>
             ) : (
@@ -362,12 +426,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       onClick={() => handleFriendToggle(friend.name)}
                       className={`flex items-center gap-2.5 px-4 py-2.5 rounded-2xl border font-bold text-xs transition-all duration-300 shrink-0 cursor-pointer ${
                         isChecked
-                          ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/35 ring-1 ring-indigo-500/30 shadow-[0_2px_12px_rgba(99,102,241,0.08)]'
-                          : 'bg-zinc-900/20 border-zinc-850/60 text-zinc-500 hover:text-zinc-300'
+                          ? 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/35 ring-1 ring-indigo-500/30 shadow-[0_2px_12px_rgba(99,102,241,0.08)]'
+                          : 'bg-zinc-100/80 dark:bg-zinc-900/40 border-zinc-200/60 dark:border-zinc-800/30 text-zinc-500 dark:text-zinc-450 hover:bg-zinc-200/50 dark:hover:bg-zinc-900/60 hover:text-zinc-800 dark:hover:text-zinc-200'
                       }`}
                     >
                       <motion.div
-                        className="w-5.5 h-5.5 rounded-lg bg-zinc-950/80 flex items-center justify-center text-[9px] font-black shadow-inner"
+                        className={`w-5.5 h-5.5 rounded-lg flex items-center justify-center text-[9px] font-black shadow-inner ${
+                          isChecked
+                            ? 'bg-indigo-600 text-white'
+                            : 'bg-white dark:bg-zinc-950/80 border border-zinc-200/80 dark:border-zinc-800/40'
+                        }`}
                         whileTap={{ scale: 0.8 }}
                         transition={{ type: 'spring', stiffness: 500, damping: 15 }}
                       >
@@ -384,40 +452,66 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {/* Date, payment method, note grid */}
           <div className="grid grid-cols-2 gap-5">
             <div className="flex flex-col gap-3">
-              <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+              <label className="text-[10px] font-black uppercase tracking-widest text-theme-secondary">
                 Date & Time
               </label>
               <div className="relative">
-                <Calendar className="w-4 h-4 text-zinc-500 absolute left-3.5 top-4" />
+                <Calendar className="w-4 h-4 text-zinc-450 dark:text-zinc-550 absolute left-3.5 top-4" />
                 <input
                   type="date"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3.5 rounded-2xl bg-zinc-900/20 border border-zinc-850/60 focus:border-indigo-500/40 text-xs font-semibold text-zinc-100 focus:outline-none transition-colors"
+                  className="w-full pl-10 pr-4 py-3.5 rounded-2xl bg-zinc-100/85 dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 focus:border-indigo-500 focus:ring-indigo-500/20 focus:outline-none focus:ring-1 text-xs font-semibold text-zinc-800 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-555 transition-colors"
                   required
                 />
               </div>
             </div>
 
-            <div className="flex flex-col gap-3">
-              <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+            <div className="flex flex-col gap-3 relative">
+              <label className="text-[10px] font-black uppercase tracking-widest text-theme-secondary">
                 Payment Method
               </label>
-              <select
-                value={paymentMethod}
-                onChange={(e) => setPaymentMethod(e.target.value)}
-                className="w-full px-4 py-3.5 rounded-2xl bg-zinc-900/20 border border-zinc-850/60 text-xs font-semibold text-zinc-100 focus:outline-none transition-colors"
+              <button
+                type="button"
+                onClick={() => setIsPaymentDropdownOpen(!isPaymentDropdownOpen)}
+                className="w-full px-4 py-3.5 rounded-2xl bg-zinc-100/85 dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/20 text-xs font-semibold text-zinc-100 dark:text-zinc-100 transition-colors flex items-center justify-between cursor-pointer"
               >
-                <option value="Credit Card">Credit Card</option>
-                <option value="Debit Card">Debit Card</option>
-                <option value="Cash">Cash</option>
-                <option value="UPI">UPI</option>
-              </select>
+                <span>{paymentMethod}</span>
+                <ChevronDown className="w-4 h-4 text-zinc-400 dark:text-zinc-500" />
+              </button>
+
+              {isPaymentDropdownOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40 bg-transparent"
+                    onClick={() => setIsPaymentDropdownOpen(false)}
+                  />
+                  <div className="absolute top-[72px] left-0 right-0 bg-white dark:bg-zinc-955 border border-zinc-200 dark:border-zinc-900 shadow-xl rounded-2xl p-1.5 z-50 flex flex-col select-none animate-fade-in">
+                    {['Credit Card', 'Debit Card', 'Cash', 'UPI'].map((method) => (
+                      <button
+                        key={method}
+                        type="button"
+                        onClick={() => {
+                          setPaymentMethod(method);
+                          setIsPaymentDropdownOpen(false);
+                        }}
+                        className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer border-0 ${
+                          paymentMethod === method
+                            ? 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-black'
+                            : 'bg-transparent text-zinc-650 dark:text-zinc-450 hover:bg-zinc-50 dark:hover:bg-zinc-900/50'
+                        }`}
+                      >
+                        {method}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
           <div className="flex flex-col gap-3">
-            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+            <label className="text-[10px] font-black uppercase tracking-widest text-theme-secondary">
               Add Note (optional)
             </label>
             <input
@@ -425,13 +519,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               placeholder="e.g. Lunch with friends"
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              className="w-full px-5 py-3.5 rounded-2xl bg-zinc-900/20 border border-zinc-850/60 focus:border-indigo-500/40 text-sm font-semibold text-zinc-100 placeholder-zinc-650 focus:outline-none transition-colors"
+              className="w-full px-5 py-3.5 rounded-2xl bg-zinc-100/85 dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 focus:border-indigo-500 focus:ring-indigo-500/20 focus:outline-none focus:ring-1 text-sm font-semibold text-zinc-800 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-550 transition-colors"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full py-4.5 rounded-2xl bg-linear-to-tr from-indigo-500 to-cyan-500 text-zinc-950 font-black text-xs uppercase tracking-widest hover:shadow-lg hover:shadow-indigo-500/10 active:scale-98 transition-all border border-emerald-300/20 cursor-pointer shadow-md"
+            className="w-full py-4.5 rounded-2xl bg-linear-to-tr from-indigo-500 to-cyan-500 text-white font-bold text-xs uppercase tracking-widest hover:shadow-lg hover:shadow-indigo-500/10 active:scale-98 transition-all border border-emerald-300/20 cursor-pointer shadow-md"
           >
             Save Expense
           </button>
@@ -446,7 +540,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       >
         <div className="space-y-4 relative">
           <div className="flex items-center justify-between px-1">
-            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+            <span className="text-[10px] font-black uppercase tracking-widest text-theme-secondary">
               Inbox
             </span>
             <button
@@ -454,7 +548,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 setNotifications(notifications.map((n) => ({ ...n, dismissed: true })));
                 showToast('All notifications cleared!');
               }}
-              className="text-[9px] font-bold text-zinc-500 hover:text-cyan-400 uppercase tracking-wide cursor-pointer border-0 bg-transparent"
+              className="text-[9px] font-bold text-theme-secondary hover:text-indigo-500 uppercase tracking-wide cursor-pointer border-0 bg-transparent"
             >
               Clear All
             </button>
@@ -462,13 +556,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
           <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-0.5 scrollbar-thin">
             {notifications.filter((n) => !n.dismissed).length === 0 ? (
-              <div className="p-12 rounded-2xl border border-zinc-800/60 bg-zinc-900/20 backdrop-blur-md flex flex-col items-center justify-center gap-3.5 text-center">
-                <div className="w-12 h-12 rounded-2xl bg-zinc-950 flex items-center justify-center text-zinc-650 border border-zinc-800/60">
-                  <Check className="w-6 h-6 text-cyan-400" />
+              <div className="p-12 rounded-3xl border border-theme-card-border bg-theme-card relative overflow-hidden flex flex-col items-center justify-center gap-3.5 text-center shadow-xs">
+                <div className="w-12 h-12 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-emerald-500 shrink-0">
+                  <Check className="w-6 h-6 stroke-[3]" />
                 </div>
                 <div className="space-y-0.5">
-                  <span className="text-xs font-bold text-zinc-300">All caught up!</span>
-                  <p className="text-[10px] text-zinc-500">
+                  <span className="text-xs font-bold text-theme-text">All caught up!</span>
+                  <p className="text-[10px] text-theme-secondary">
                     No unread splits or active warnings found.
                   </p>
                 </div>
@@ -479,22 +573,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 .map((item) => (
                   <div
                     key={item.id}
-                    className="p-4 rounded-2xl border border-zinc-850 bg-zinc-900/20 hover:bg-zinc-900/40 backdrop-blur-md relative overflow-hidden flex flex-col gap-2.5 transition-colors"
+                    className="p-4 rounded-2xl border border-theme-card-border bg-theme-card/65 hover:bg-theme-card/85 relative overflow-hidden flex flex-col gap-2.5 transition-colors shadow-xs"
                   >
                     <div className="flex justify-between items-start">
                       <div className="flex flex-col gap-0.5 max-w-[80%]">
-                        <span className="text-xs font-bold text-zinc-200">{item.title}</span>
-                        <p className="text-[10.5px] text-zinc-450 leading-relaxed mt-0.5">
+                        <span className="text-xs font-bold text-theme-text">{item.title}</span>
+                        <p className="text-[10.5px] text-theme-secondary leading-relaxed mt-0.5">
                           {item.desc}
                         </p>
                       </div>
-                      <span className="text-[8px] font-black uppercase text-zinc-600 tracking-wider shrink-0">
+                      <span className="text-[8px] font-black uppercase text-theme-muted tracking-wider shrink-0">
                         {item.time}
                       </span>
                     </div>
 
-                    <div className="flex items-center justify-between border-t border-zinc-900 pt-2.5 mt-0.5">
-                      <span className="text-[8px] font-black uppercase text-zinc-500 bg-zinc-950 border border-zinc-900 px-2 py-0.5 rounded tracking-wide">
+                    <div className="flex items-center justify-between border-t border-theme-border/60 pt-2.5 mt-0.5">
+                      <span className="text-[8px] font-black uppercase text-theme-secondary bg-background border border-theme-border/60 px-2 py-0.5 rounded tracking-wide">
                         {item.category}
                       </span>
 
@@ -505,7 +599,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                               handleDismissNotification(item.id);
                               showToast('Splits settled successfully!');
                             }}
-                            className="px-2.5 py-1 rounded bg-indigo-600 text-zinc-950 font-black uppercase tracking-wider text-[8px] hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                            className="px-2.5 py-1 rounded bg-indigo-600 text-white font-bold uppercase tracking-wider text-[8px] hover:scale-105 active:scale-95 transition-all cursor-pointer border-0"
                           >
                             Settle
                           </button>
@@ -515,7 +609,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             handleDismissNotification(item.id);
                             showToast('Notification dismissed');
                           }}
-                          className="px-2.5 py-1 rounded bg-zinc-900 border border-zinc-800 text-zinc-400 font-bold uppercase tracking-wider text-[8px] hover:text-zinc-200 active:scale-95 transition-all cursor-pointer"
+                          className="px-2.5 py-1 rounded bg-zinc-800 border border-zinc-700 text-zinc-550 font-bold uppercase tracking-wider text-[8px] hover:text-zinc-100 hover:bg-zinc-700 active:scale-95 transition-all cursor-pointer"
                         >
                           Dismiss
                         </button>
@@ -528,185 +622,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
       </BottomSheet>
 
-      {/* Profile Module Bottom Sheet */}
-      <BottomSheet
-        isOpen={isProfileOpen}
-        onClose={() => setIsProfileOpen(false)}
-        title="My Profile"
-      >
-        <div className="space-y-6 relative">
-          {/* Avatar Card */}
-          <div className="p-5 rounded-3xl border border-zinc-800/80 bg-zinc-900/40 backdrop-blur-xl relative overflow-hidden flex items-center gap-4 shadow-sm">
-            <div className="absolute top-[-30%] right-[-10%] w-24 h-24 bg-indigo-500/10 rounded-full blur-xl pointer-events-none" />
-
-            {/* Glowing avatar ring */}
-            <div className="w-14 h-14 rounded-2xl bg-linear-to-tr from-indigo-500 to-cyan-500 p-0.5 relative shrink-0 shadow-md">
-              <div className="w-full h-full rounded-[14px] bg-zinc-950 flex items-center justify-center">
-                <span className="text-base font-black text-zinc-100 tracking-tight">
-                  {(user?.name || user?.email || 'User').slice(0, 2).toUpperCase()}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-0.5">
-              <div className="flex items-center gap-1.5">
-                <span className="text-base font-black tracking-tight text-zinc-100">
-                  {user?.name || 'User'}
-                </span>
-                <span className="w-3.5 h-3.5 rounded-full bg-emerald-400/15 border border-indigo-500/30 flex items-center justify-center text-[7px] font-black text-cyan-400 uppercase tracking-widest shrink-0">
-                  ✓
-                </span>
-              </div>
-              <span className="text-xs font-semibold text-zinc-500">
-                @{(user?.name || user?.email || 'user').split('@')[0].toLowerCase()}
-              </span>
-              <span className="text-[10px] text-zinc-650 font-bold tracking-wider mt-0.5">
-                {user?.email || 'user@expensio.app'}
-              </span>
-            </div>
-          </div>
-
-          {/* Quick stats grid */}
-          <div className="grid grid-cols-3 gap-3">
-            <div className="p-3 rounded-2xl border border-zinc-850 bg-zinc-950/40 text-center flex flex-col gap-0.5">
-              <span className="text-[8px] font-black uppercase text-zinc-550 tracking-wider">
-                Total Saved
-              </span>
-              <span className="text-sm font-black text-cyan-400">₹2,800</span>
-            </div>
-            <div className="p-3 rounded-2xl border border-zinc-850 bg-zinc-950/40 text-center flex flex-col gap-0.5">
-              <span className="text-[8px] font-black uppercase text-zinc-550 tracking-wider">
-                Active Splits
-              </span>
-              <span className="text-sm font-black text-indigo-400">3 Spends</span>
-            </div>
-            <div className="p-3 rounded-2xl border border-zinc-850 bg-zinc-950/40 text-center flex flex-col gap-0.5">
-              <span className="text-[8px] font-black uppercase text-zinc-550 tracking-wider">
-                Groups Joined
-              </span>
-              <span className="text-sm font-black text-amber-500">3 Active</span>
-            </div>
-          </div>
-
-          {/* Preferences Settings Lists */}
-          <div className="space-y-4">
-            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500 px-1">
-              Security & Preferences
-            </span>
-
-            <div className="rounded-2xl border border-zinc-850 bg-zinc-900/20 backdrop-blur-md p-4 space-y-4">
-              {/* Biometrics Switch */}
-              <div className="flex items-center justify-between pb-3.5 border-b border-zinc-900">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-zinc-950 border border-zinc-850 flex items-center justify-center text-zinc-400 shrink-0">
-                    <Shield className="w-4 h-4" />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-xs font-semibold text-zinc-200">
-                      Biometrics Authentication
-                    </span>
-                    <span className="text-[9px] text-zinc-550">Use Touch ID / Face ID logs</span>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setBiometricsActive(!biometricsActive);
-                    showToast(biometricsActive ? 'Biometrics turned off' : 'Biometrics activated!');
-                  }}
-                  className={`w-9 h-5 rounded-full p-0.5 transition-colors duration-200 focus:outline-none flex items-center cursor-pointer border-0 ${biometricsActive ? 'bg-indigo-600 justify-end' : 'bg-zinc-850 justify-start'}`}
-                >
-                  <div className="w-4 h-4 rounded-full bg-zinc-950" />
-                </button>
-              </div>
-
-              {/* High Contrast Mode Switch */}
-              <div className="flex items-center justify-between pb-3.5 border-b border-zinc-900">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-zinc-950 border border-zinc-850 flex items-center justify-center text-zinc-400 shrink-0">
-                    <Sparkles className="w-4 h-4" />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-xs font-semibold text-zinc-200">High Contrast Mode</span>
-                    <span className="text-[9px] text-zinc-550">Boost readability metrics</span>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setHighContrastActive(!highContrastActive);
-                    showToast(
-                      highContrastActive ? 'High Contrast deactivated' : 'High Contrast active!'
-                    );
-                  }}
-                  className={`w-9 h-5 rounded-full p-0.5 transition-colors duration-200 focus:outline-none flex items-center cursor-pointer border-0 ${highContrastActive ? 'bg-indigo-600 justify-end' : 'bg-zinc-850 justify-start'}`}
-                >
-                  <div className="w-4 h-4 rounded-full bg-zinc-950" />
-                </button>
-              </div>
-
-              {/* Service Worker Offline Storage */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-zinc-950 border border-zinc-850 flex items-center justify-center text-zinc-400 shrink-0">
-                    <Smartphone className="w-4 h-4" />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-xs font-semibold text-zinc-200">
-                      Service Worker Offline Cache
-                    </span>
-                    <span className="text-[9px] text-zinc-550">Full PWA capabilities offline</span>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setOfflineCacheActive(!offlineCacheActive);
-                    showToast(
-                      offlineCacheActive ? 'Offline cache disabled' : 'Offline PWA caching active!'
-                    );
-                  }}
-                  className={`w-9 h-5 rounded-full p-0.5 transition-colors duration-200 focus:outline-none flex items-center cursor-pointer border-0 ${offlineCacheActive ? 'bg-indigo-600 justify-end' : 'bg-zinc-850 justify-start'}`}
-                >
-                  <div className="w-4 h-4 rounded-full bg-zinc-950" />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Action Log Out */}
-          <button
-            onClick={async () => {
-              showToast('Logging out of Expensio...');
-              try {
-                await supabase.auth.signOut();
-                // Clear persistent Zustand store
-                localStorage.removeItem('expensio-finance-store-v4');
-              } catch (e) {
-                console.error(e);
-              }
-              setTimeout(() => {
-                window.location.href = '/login';
-              }, 1000);
-            }}
-            className="w-full py-4 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 font-bold border border-rose-500/20 active:scale-98 transition-all text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
-          >
-            <LogOut className="w-4 h-4" />
-            <span>Reset Store & Log Out</span>
-          </button>
-        </div>
-      </BottomSheet>
-
       {/* Global Interactive Notification Toast overlay */}
       {toastMessage && (
-        <div className="fixed bottom-20 left-6 right-6 z-200 max-w-sm mx-auto p-4 rounded-xl border border-zinc-850 bg-[#09090b]/95 backdrop-blur-xl flex items-center gap-3 shadow-[0_10px_25px_rgba(0,0,0,0.5)] animate-slide-up">
-          <div className="w-5 h-5 rounded-md bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-cyan-400 shrink-0">
-            <Check className="w-3 h-3 stroke-3" />
+        <div className="fixed bottom-20 left-6 right-6 z-200 max-w-sm mx-auto p-4 rounded-xl border border-theme-card-border bg-theme-card backdrop-blur-xl flex items-center gap-3 shadow-xl animate-slide-up">
+          <div className="w-5 h-5 rounded-md bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 shrink-0">
+            <Check className="w-3 h-3 stroke-[3]" />
           </div>
-          <span className="text-xs font-bold text-zinc-200">{toastMessage}</span>
+          <span className="text-xs font-semibold text-theme-text">{toastMessage}</span>
         </div>
       )}
     </div>

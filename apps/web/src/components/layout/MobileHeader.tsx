@@ -1,19 +1,38 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Bell, Sun, Moon } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { Bell, Sun, Moon, Menu, Calendar, Search } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '../../store/auth-store';
 import { useFinanceStore } from '../../store/finance-store';
 
-export default function MobileHeader() {
+interface MobileHeaderProps {
+  onMenuClick?: () => void;
+}
+
+export default function MobileHeader({ onMenuClick }: MobileHeaderProps) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const [tab, setTab] = useState('home');
+
+  useEffect(() => {
+    const currentTab =
+      typeof window !== 'undefined'
+        ? new URLSearchParams(window.location.search).get('tab') || 'home'
+        : 'home';
+    if (currentTab !== tab) {
+      setTab(currentTab);
+    }
+  });
+
   const { user } = useAuthStore();
-  const { setIsNotificationsOpen, setIsProfileOpen } = useFinanceStore();
+  const { setIsNotificationsOpen } = useFinanceStore();
   const [greeting, setGreeting] = useState('Hello');
   const [dateStr, setDateStr] = useState('');
   const [theme, setTheme] = useState<'dark' | 'light'>('light');
 
-  const displayName = user?.name || 'User';
+  const displayName = user?.name || 'Admin';
 
   useEffect(() => {
     // Read saved theme
@@ -33,7 +52,7 @@ export default function MobileHeader() {
     else if (hour < 17) setGreeting('Good afternoon');
     else setGreeting('Good evening');
 
-    // Dynamic date formatting
+    // Dynamic date formatting (e.g. "Thu, 4 Jun")
     const options: Intl.DateTimeFormatOptions = {
       weekday: 'short',
       day: 'numeric',
@@ -55,65 +74,124 @@ export default function MobileHeader() {
     }
   };
 
-  return (
-    <header className="sticky top-0 z-40 bg-shell/85 backdrop-blur-md border-b border-theme-border/60 px-6 py-4 flex items-center justify-between transition-colors duration-300">
-      <div className="flex flex-col gap-0.5">
-        <span className="text-[9px] uppercase font-bold tracking-[0.2em] text-zinc-500/80">
-          {dateStr}
-        </span>
-        <h1 className="text-xl font-extrabold tracking-tight text-theme-text">
-          {greeting}, <span className="text-indigo-400">{displayName.split(' ')[0]}</span>
-        </h1>
-      </div>
+  const isOverviewOrInsights =
+    pathname === '/dashboard' && (tab === 'overview' || tab === 'insights');
 
-      <div className="flex items-center gap-3">
-        {/* Sleek Theme Toggle Button */}
+  if (isOverviewOrInsights) {
+    return (
+      <header className="sticky top-0 z-40 bg-shell/85 backdrop-blur-md border-b border-theme-border/60 px-6 py-4 flex items-center justify-between transition-colors duration-300">
+        {/* Hamburger Menu on Left */}
         <button
-          onClick={toggleTheme}
-          className="p-2.5 rounded-xl bg-theme-btn border border-theme-btn-border/80 text-theme-secondary hover:text-theme-text relative cursor-pointer outline-none transition-colors"
-          title="Toggle Theme"
+          onClick={onMenuClick}
+          className="p-1 text-theme-secondary hover:text-theme-text active:scale-95 transition-all outline-none border-0 bg-transparent cursor-pointer"
+          aria-label="Open Sidebar Menu"
         >
-          <motion.div
-            whileTap={{ scale: 0.85 }}
-            transition={{ type: 'spring', stiffness: 500, damping: 20 }}
+          <Menu className="w-5 h-5 stroke-[2.5]" />
+        </button>
+
+        {/* Top Tab Switcher Overview | Insights */}
+        <div className="flex items-center gap-6 relative">
+          <button
+            onClick={() => router.replace('/dashboard?tab=overview')}
+            className={`text-sm font-bold pb-1 relative cursor-pointer outline-none border-0 bg-transparent transition-colors duration-200 ${
+              tab === 'overview' ? 'text-theme-text' : 'text-theme-secondary hover:text-theme-text'
+            }`}
+          >
+            Overview
+            {tab === 'overview' && (
+              <motion.div
+                layoutId="activeHeaderTab"
+                className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-650 dark:bg-indigo-400 rounded-full"
+                transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+              />
+            )}
+          </button>
+          <button
+            onClick={() => router.replace('/dashboard?tab=insights')}
+            className={`text-sm font-bold pb-1 relative cursor-pointer outline-none border-0 bg-transparent transition-colors duration-200 ${
+              tab === 'insights' ? 'text-theme-text' : 'text-theme-secondary hover:text-theme-text'
+            }`}
+          >
+            Insights
+            {tab === 'insights' && (
+              <motion.div
+                layoutId="activeHeaderTab"
+                className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-650 dark:bg-indigo-400 rounded-full"
+                transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+              />
+            )}
+          </button>
+        </div>
+
+        {/* Calendar on Right */}
+        <button
+          className="p-2 rounded-xl bg-theme-btn border border-theme-btn-border/80 text-theme-secondary hover:text-theme-text cursor-pointer active:scale-95 transition-all outline-none"
+          aria-label="Open Calendar Filter"
+        >
+          <Calendar className="w-4 h-4 stroke-[2.25]" />
+        </button>
+      </header>
+    );
+  }
+
+  // Greeting Header with search, bell, and avatar
+  return (
+    <header className="sticky top-0 z-40 bg-shell/85 backdrop-blur-md border-b border-theme-border/60 px-6 py-4 flex flex-col gap-3 transition-colors duration-300">
+      <div className="flex items-center justify-between w-full">
+        {/* Top-left Hamburger Menu */}
+        <button
+          onClick={onMenuClick}
+          className="p-1 text-theme-secondary hover:text-theme-text active:scale-95 transition-all outline-none border-0 bg-transparent cursor-pointer"
+          aria-label="Open Sidebar Menu"
+        >
+          <Menu className="w-5 h-5 stroke-[2.5]" />
+        </button>
+
+        {/* Right Action Icons */}
+        <div className="flex items-center gap-3">
+          {/* Search Button */}
+          <button
+            className="p-2.5 rounded-xl bg-theme-btn border border-theme-btn-border/80 text-theme-secondary hover:text-theme-text cursor-pointer active:scale-95 transition-all outline-none"
+            aria-label="Search transactions"
+          >
+            <Search className="w-4 h-4 stroke-[2.25]" />
+          </button>
+
+          {/* Theme Toggle */}
+          <button
+            onClick={toggleTheme}
+            className="p-2.5 rounded-xl bg-theme-btn border border-theme-btn-border/80 text-theme-secondary hover:text-theme-text cursor-pointer active:scale-95 transition-all outline-none"
+            title="Toggle Theme"
           >
             {theme === 'dark' ? (
-              <Sun className="w-4 h-4 text-amber-400" />
+              <Sun className="w-4 h-4 text-amber-400 stroke-[2.25]" />
             ) : (
-              <Moon className="w-4 h-4 text-indigo-400" />
+              <Moon className="w-4 h-4 text-indigo-500 dark:text-indigo-400 stroke-[2.25]" />
             )}
-          </motion.div>
-        </button>
+          </button>
 
-        {/* Glowing Notification bell */}
-        <button
-          onClick={() => setIsNotificationsOpen(true)}
-          className="p-2.5 rounded-xl bg-theme-btn border border-theme-btn-border/80 text-theme-secondary hover:text-theme-text relative cursor-pointer outline-none transition-colors"
-        >
-          <motion.div
-            whileTap={{ scale: 0.85 }}
-            transition={{ type: 'spring', stiffness: 500, damping: 20 }}
+          {/* Notification Bell */}
+          <button
+            onClick={() => setIsNotificationsOpen(true)}
+            className="p-2.5 rounded-xl bg-theme-btn border border-theme-btn-border/80 text-theme-secondary hover:text-theme-text relative cursor-pointer active:scale-95 transition-all outline-none"
+            aria-label="Notifications"
           >
-            <Bell className="w-4 h-4" />
-          </motion.div>
-          <span className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
-        </button>
+            <Bell className="w-4 h-4 stroke-[2.25]" />
+            <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
+          </button>
+        </div>
+      </div>
 
-        {/* User avatar with border gradient */}
-        <button
-          onClick={() => setIsProfileOpen(true)}
-          className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 via-violet-500 to-cyan-400 p-0.5 relative cursor-pointer border-0 flex items-center justify-center outline-none shadow-sm"
-        >
-          <div className="w-full h-full rounded-[10px] bg-zinc-950 flex items-center justify-center overflow-hidden">
-            <motion.span
-              whileTap={{ scale: 0.85 }}
-              transition={{ type: 'spring', stiffness: 500, damping: 20 }}
-              className="text-xs font-black text-white uppercase tracking-tight block"
-            >
-              {displayName.slice(0, 2)}
-            </motion.span>
-          </div>
-        </button>
+      {/* Greeting and date below the action buttons */}
+      <div className="flex flex-col gap-0.5">
+        <span className="text-[9.5px] uppercase font-bold tracking-[0.25em] text-zinc-550 leading-none">
+          {dateStr}
+        </span>
+        <h1 className="text-xl font-extrabold tracking-tight text-theme-text mt-1">
+          {greeting},{' '}
+          <span className="text-indigo-600 dark:text-indigo-400">{displayName.split(' ')[0]}</span>{' '}
+          👋
+        </h1>
       </div>
     </header>
   );
