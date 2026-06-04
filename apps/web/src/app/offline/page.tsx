@@ -62,7 +62,8 @@ export default function OfflinePage() {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="text-zinc-400 text-sm md:text-base mb-8 max-w-sm"
         >
-          Expensio is currently unable to reach the servers. Please check your internet connection and try again.
+          Expensio is currently unable to reach the servers. Please check your internet connection
+          and try again.
         </motion.p>
 
         {/* Action Buttons */}
@@ -81,7 +82,7 @@ export default function OfflinePage() {
           </button>
 
           <Link
-            href="/"
+            href="/dashboard"
             className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 font-semibold active:scale-95 transition-all cursor-pointer text-sm"
           >
             <Home className="w-4 h-4" />

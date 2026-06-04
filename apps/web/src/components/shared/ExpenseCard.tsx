@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Coffee,
   Car,
@@ -14,6 +14,11 @@ import {
   CheckCircle2,
   Circle,
   Briefcase,
+  Calendar,
+  ChevronRight,
+  Heart,
+  GraduationCap,
+  CreditCard,
 } from 'lucide-react';
 import { Expense } from '../../store/finance-store';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -28,29 +33,71 @@ interface ExpenseCardProps {
   onSelectToggle?: (id: string) => void;
 }
 
-const categoryMeta: Record<string, { icon: React.ComponentType<any>; color: string; bg: string }> =
-  {
-    Food: { icon: Coffee, color: 'text-teal-400', bg: 'bg-teal-500/10 border-teal-500/20' },
-    Travel: { icon: Car, color: 'text-cyan-400', bg: 'bg-cyan-500/10 border-cyan-500/20' },
-    Transport: { icon: Car, color: 'text-amber-500', bg: 'bg-amber-500/10 border-amber-500/20' },
-    Entertainment: {
-      icon: Tv,
-      color: 'text-indigo-400',
-      bg: 'bg-indigo-500/10 border-indigo-500/20',
-    },
-    Shopping: {
-      icon: ShoppingBag,
-      color: 'text-pink-400',
-      bg: 'bg-pink-500/10 border-pink-500/20',
-    },
-    Utilities: { icon: Zap, color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20' },
-    Income: {
-      icon: Briefcase,
-      color: 'text-emerald-400',
-      bg: 'bg-emerald-500/10 border-emerald-500/20',
-    },
-    Other: { icon: HelpCircle, color: 'text-zinc-400', bg: 'bg-zinc-800/60 border-zinc-700/60' },
-  };
+const categoryMeta: Record<
+  string,
+  { icon: React.ComponentType<any>; color: string; bg: string; accentBg: string }
+> = {
+  Food: {
+    icon: Coffee,
+    color: 'text-indigo-400',
+    bg: 'bg-indigo-500/10 border-indigo-500/15',
+    accentBg: 'bg-indigo-500',
+  },
+  Shopping: {
+    icon: ShoppingBag,
+    color: 'text-pink-400',
+    bg: 'bg-pink-500/10 border-pink-500/15',
+    accentBg: 'bg-pink-500',
+  },
+  Transport: {
+    icon: Car,
+    color: 'text-amber-500',
+    bg: 'bg-amber-500/10 border-amber-500/15',
+    accentBg: 'bg-amber-500',
+  },
+  Entertainment: {
+    icon: Tv,
+    color: 'text-indigo-400',
+    bg: 'bg-indigo-500/10 border-indigo-500/15',
+    accentBg: 'bg-indigo-500',
+  },
+  Bills: {
+    icon: CreditCard,
+    color: 'text-rose-455',
+    bg: 'bg-rose-500/10 border-rose-500/15',
+    accentBg: 'bg-rose-500',
+  },
+  Utilities: {
+    icon: Zap,
+    color: 'text-amber-400',
+    bg: 'bg-amber-500/10 border-amber-500/15',
+    accentBg: 'bg-amber-500',
+  },
+  Health: {
+    icon: Heart,
+    color: 'text-cyan-400',
+    bg: 'bg-cyan-500/10 border-cyan-500/15',
+    accentBg: 'bg-cyan-500',
+  },
+  Education: {
+    icon: GraduationCap,
+    color: 'text-yellow-400',
+    bg: 'bg-yellow-500/10 border-yellow-500/15',
+    accentBg: 'bg-yellow-500',
+  },
+  Income: {
+    icon: Briefcase,
+    color: 'text-emerald-400',
+    bg: 'bg-emerald-500/10 border-emerald-500/15',
+    accentBg: 'bg-emerald-500',
+  },
+  Other: {
+    icon: HelpCircle,
+    color: 'text-zinc-400',
+    bg: 'bg-zinc-800/60 border-zinc-700/60',
+    accentBg: 'bg-zinc-500',
+  },
+};
 
 export default function ExpenseCard({
   expense,
@@ -67,6 +114,7 @@ export default function ExpenseCard({
     icon: HelpCircle,
     color: 'text-zinc-400',
     bg: 'bg-zinc-800/60 border-zinc-700/60',
+    accentBg: 'bg-zinc-500',
   };
 
   const IconComponent = meta.icon;
@@ -92,65 +140,92 @@ export default function ExpenseCard({
   const isIncome = expense.category === 'Income';
 
   return (
-    <div className="relative overflow-hidden group select-none transition-colors duration-200">
-      {/* 1. Main Static Card Layout (Clean list row style, fully transparent background by default) */}
+    <div
+      className={`relative overflow-hidden rounded-[20px] border border-white/[0.04] bg-[#0c0d12]/30 shadow-[0_4px_16px_rgba(0,0,0,0.1)] active:scale-[0.99] transition-all duration-200 group select-none card-clean ${
+        isSelected ? 'ring-2 ring-indigo-500/35 bg-white/[0.02]' : 'hover:border-white/[0.08]'
+      }`}
+    >
+      {/* Colorful Category Accent Left Boundary */}
+      <div
+        className={`absolute left-0 top-0 bottom-0 w-1 ${meta.accentBg} rounded-l-[20px] z-20`}
+      />
+
+      {/* Main Card Content */}
       <div
         onClick={handleCardClick}
-        className={`relative z-10 flex items-center justify-between py-3.5 px-1 bg-transparent cursor-pointer transition-colors duration-200 ${
-          isSelected ? 'bg-zinc-800/20' : 'hover:bg-zinc-900/30'
-        }`}
+        className="relative z-10 flex items-center justify-between p-3.5 pl-4 cursor-pointer min-w-0"
       >
-        <div className="flex items-center gap-3.5">
-          {/* Checkbox triggers when in selection mode */}
+        <div className="flex items-center gap-3.5 min-w-0">
+          {/* Selection Checkbox */}
           {isSelectionMode && (
-            <div className="text-indigo-400 animate-fade-in shrink-0">
+            <div className="text-indigo-400 animate-fade-in shrink-0 mr-0.5">
               {isSelected ? (
-                <CheckCircle2 className="w-5 h-5 fill-indigo-400 text-zinc-950 stroke-[2.5]" />
+                <CheckCircle2 className="w-4.5 h-4.5 fill-indigo-400 text-zinc-950 stroke-[2.5]" />
               ) : (
-                <Circle className="w-5 h-5 text-zinc-600 stroke-[2.5]" />
+                <Circle className="w-4.5 h-4.5 text-zinc-650 stroke-[2.5]" />
               )}
             </div>
           )}
 
-          {/* Category Icon backing: simple borderless rounded squircle */}
+          {/* Squircle Category Icon Container */}
           <div
-            className={`w-9 h-9 rounded-xl flex items-center justify-center ${meta.bg.split(' ')[0]} shrink-0`}
+            className={`w-9 h-9 rounded-xl flex items-center justify-center ${meta.bg} border shrink-0`}
           >
             <IconComponent className={`w-4.5 h-4.5 ${meta.color}`} />
           </div>
 
-          <div className="flex flex-col gap-0.5">
-            <span className="text-xs font-extrabold text-zinc-150 group-hover:text-cyan-400 transition-colors tracking-tight">
+          {/* Text Information block */}
+          <div className="flex flex-col gap-0.5 min-w-0">
+            <span className="text-xs font-bold text-white tracking-tight group-hover:text-cyan-400 transition-colors leading-none truncate">
               {expense.title.replace(/\p{Extended_Pictographic}/gu, '').trim()}
             </span>
 
-            <div className="flex items-center gap-1.5 text-[10px] text-zinc-550 font-bold">
-              <span>{formattedDate}</span>
-              <span className="w-1 h-1 rounded-full bg-zinc-800" />
-              <span>{expense.category}</span>
+            <div className="flex items-center gap-2 text-[10px] text-zinc-550 font-semibold mt-1.5 min-w-0">
+              <div className="flex items-center gap-1 shrink-0 whitespace-nowrap">
+                <Calendar className="w-3 h-3 text-zinc-600 shrink-0" />
+                <span>{formattedDate}</span>
+              </div>
+              <div
+                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full ${meta.bg} text-[9px] font-black uppercase tracking-wider shrink-0`}
+              >
+                <span>{expense.category}</span>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Amount & split info (matches green/red positive/negative color tags!) */}
-        <div className="flex flex-col items-end gap-1.5 group-hover:opacity-20 transition-opacity duration-200">
-          <span className={`text-xs font-black ${isIncome ? 'text-emerald-400' : 'text-rose-400'}`}>
-            {isIncome ? `+₹${expense.amount.toFixed(2)}` : `-₹${expense.amount.toFixed(2)}`}
-          </span>
-
-          {expense.splitWith && expense.splitWith.length > 0 && (
-            <div className="flex items-center gap-1 text-[8px] text-indigo-400 font-extrabold bg-indigo-500/10 px-2 py-0.5 rounded-full border border-indigo-500/20 shrink-0">
-              <Share2 className="w-2.5 h-2.5 text-indigo-400" />
-              <span>
-                Split w/ {expense.splitWith[0].split(' ')[0]}
-                {expense.splitWith.length > 1 ? ` +${expense.splitWith.length - 1}` : ''}
-              </span>
+        {/* Right Amount and Chevron Indicators */}
+        <div className="flex items-center gap-2.5 shrink-0 ml-2 group-hover:opacity-0 transition-opacity duration-200">
+          <div className="flex flex-col items-end gap-1">
+            <div
+              className={`px-2 py-0.75 rounded-full text-[11px] font-bold border ${
+                isIncome
+                  ? 'bg-emerald-500/8 border-emerald-500/15 text-emerald-400'
+                  : 'bg-rose-500/8 border-rose-500/15 text-rose-400'
+              }`}
+            >
+              {isIncome ? `+₹${expense.amount.toFixed(2)}` : `-₹${expense.amount.toFixed(2)}`}
             </div>
-          )}
+
+            {expense.splitWith && expense.splitWith.length > 0 && (
+              <div className="flex items-center gap-1 text-[8px] text-indigo-400 font-black uppercase tracking-wider bg-indigo-500/10 px-2 py-0.5 rounded-full border border-indigo-500/20 shrink-0">
+                <Share2 className="w-2.5 h-2.5 text-indigo-400" />
+                <span>
+                  Split w/ {expense.splitWith[0].split(' ')[0]}
+                  {expense.splitWith.length > 1 ? ` +${expense.splitWith.length - 1}` : ''}
+                </span>
+              </div>
+            )}
+          </div>
+
+          <div className="w-6 h-6 rounded-full bg-white/[0.02] border border-white/[0.04] flex items-center justify-center shrink-0">
+            <ChevronRight className="w-3.5 h-3.5 text-zinc-550" />
+          </div>
         </div>
 
+        {/* Hover Action Buttons */}
         {!isSelectionMode && (
-          <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-200 absolute right-4 top-1/2 -translate-y-1/2 z-20">
+          <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-200 absolute right-3.5 top-1/2 -translate-y-1/2 z-20">
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -171,7 +246,7 @@ export default function ExpenseCard({
                 e.stopPropagation();
                 setShowConfirmDelete(true);
               }}
-              className="p-2 rounded-xl bg-zinc-950/90 border border-zinc-800 hover:bg-rose-500/15 hover:border-rose-500/30 text-zinc-400 hover:text-rose-450 transition-all cursor-pointer shadow-lg outline-none"
+              className="p-2 rounded-xl bg-zinc-950/90 border border-zinc-800 hover:bg-rose-500/15 hover:border-rose-500/30 text-zinc-400 hover:text-rose-400 transition-all cursor-pointer shadow-lg outline-none"
               title="Delete"
             >
               <motion.div
@@ -185,20 +260,20 @@ export default function ExpenseCard({
         )}
       </div>
 
-      {/* 3. Micro-Modal Inline Delete Confirmation Overlay */}
+      {/* Delete Confirmation Overlay */}
       <AnimatePresence>
         {showConfirmDelete && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
-            className="absolute inset-0 bg-zinc-950/95 backdrop-blur-md z-30 rounded-2xl flex items-center justify-between px-5 py-3 border border-rose-500/20"
+            className="absolute inset-0 bg-[#09090c] z-30 rounded-2xl flex items-center justify-between px-5 py-3"
           >
             <div className="flex flex-col gap-0.5">
-              <span className="text-xs font-black text-rose-400 uppercase tracking-wider">
+              <span className="text-[10px] font-black text-rose-400 uppercase tracking-widest">
                 Delete transaction?
               </span>
-              <span className="text-[10px] text-zinc-400 font-semibold truncate max-w-44">
+              <span className="text-xs text-zinc-300 font-bold truncate max-w-44">
                 {expense.title.replace(/\p{Extended_Pictographic}/gu, '').trim()}
               </span>
             </div>
@@ -217,7 +292,7 @@ export default function ExpenseCard({
                   e.stopPropagation();
                   handleDeleteConfirm();
                 }}
-                className="px-3.5 py-1.5 rounded-xl bg-rose-500 text-zinc-950 text-[10px] font-black uppercase active:scale-95 transition-all cursor-pointer shadow-md shadow-rose-500/10 hover:bg-rose-400"
+                className="px-3.5 py-1.5 rounded-xl bg-rose-500 text-zinc-950 text-[10px] font-black uppercase active:scale-95 transition-all cursor-pointer shadow-md shadow-rose-500/10 hover:bg-rose-455"
               >
                 Delete
               </button>

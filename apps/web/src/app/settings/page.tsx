@@ -202,7 +202,7 @@ export default function SettingsPage() {
         {/* Top Header */}
         <div className="flex items-center justify-between mb-8">
           <Link
-            href="/"
+            href="/dashboard"
             className="p-2 rounded-xl bg-zinc-950 border border-zinc-850 text-zinc-400 hover:text-cyan-400 hover:border-indigo-500/25 transition-all"
           >
             <ArrowLeft className="w-5 h-5" />

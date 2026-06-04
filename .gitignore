@@ -9,7 +9,7 @@ build/
 out/
 
 # Log files
-npm-debug.log*
+npm-debug.log*fix the
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*

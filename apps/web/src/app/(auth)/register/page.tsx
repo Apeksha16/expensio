@@ -67,8 +67,8 @@ export default function RegisterPage() {
       showToast('Account created successfully!');
 
       setTimeout(() => {
-        router.push('/');
-        window.location.href = '/';
+        router.push('/dashboard');
+        window.location.href = '/dashboard';
       }, 800);
     } catch (err) {
       const error = err as Error;

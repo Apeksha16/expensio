@@ -170,8 +170,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         // User is onboarded
         if (pathname === '/onboarding' || pathname === '/login' || pathname === '/register') {
-          console.debug('[AuthProvider] user onboarded, redirecting to / from', pathname);
-          router.replace('/');
+          console.debug('[AuthProvider] user onboarded, redirecting to /dashboard from', pathname);
+          router.replace('/dashboard');
         }
       }
     }

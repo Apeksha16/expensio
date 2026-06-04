@@ -459,7 +459,7 @@ export default function OnboardingPage() {
     }
 
     if (user && (user.isOnboardingCompleted ?? (user as any).isOnboarded) && user.monthlySalary) {
-      router.replace('/');
+      router.replace('/dashboard');
     }
   }, [user, isInitialized, isLoading, router]);
 
@@ -543,7 +543,7 @@ export default function OnboardingPage() {
         }
 
         // Navigate to the dashboard after the completed state is persisted.
-        router.replace('/');
+        router.replace('/dashboard');
       } catch (err) {
         const e = err as Error;
         setApiError(e.message || 'Account setup failed. Please try again.');
@@ -622,6 +622,50 @@ export default function OnboardingPage() {
             {step === 3 && (
               <ConfirmMpinStep data={data} onChange={updateData} onNext={() => goToStep(4)} />
             )}
+
+            {/* Dev bypass button */}
+            <button
+              type="button"
+              onClick={() => {
+                const updatePayload = {
+                  name: data.name.trim() || 'Admin root',
+                  monthlySalary: Number(data.salary) || 50000,
+                };
+
+                // Fire and forget API update in the background (no await)
+                if (session?.access_token) {
+                  fetch(`${API_URL}/api/v1/users/onboarding`, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      Authorization: `Bearer ${session.access_token}`,
+                    },
+                    body: JSON.stringify(updatePayload),
+                  }).catch(() => {});
+                }
+
+                // Directly set the state on the Zustand auth store to avoid any null/update constraints
+                const onboardedUser = {
+                  id: session?.user?.id || 'dev-user',
+                  email: session?.user?.email || 'admin@expensio.app',
+                  name: updatePayload.name,
+                  monthlySalary: updatePayload.monthlySalary,
+                  isOnboardingCompleted: true,
+                  isOnboarded: true,
+                  createdAt: session?.user?.created_at
+                    ? new Date(session.user.created_at)
+                    : new Date(),
+                };
+
+                useAuthStore.setState({ user: onboardedUser });
+
+                // Force navigation immediately
+                router.replace('/dashboard');
+              }}
+              className="text-[11px] text-indigo-400 hover:text-indigo-300 font-bold transition-colors text-center mx-auto focus:outline-none focus:underline cursor-pointer"
+            >
+              Bypass Onboarding & Go to Dashboard (Dev Mode)
+            </button>
 
             {/* Sign out fallback */}
             <button

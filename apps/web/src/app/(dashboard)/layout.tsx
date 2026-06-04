@@ -231,18 +231,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   ];
 
   return (
-    <div className="h-[100dvh] w-full bg-background text-theme-text flex justify-center overflow-hidden relative transition-colors duration-300">
+    <div className="h-dvh w-full bg-background text-theme-text flex justify-center overflow-hidden relative transition-colors duration-300">
       {/* ambient glows */}
       <div className="absolute top-[-20%] left-[-20%] w-150 h-150 bg-indigo-600/5 rounded-full blur-[160px] pointer-events-none" />
       <div className="absolute bottom-[-20%] right-[-20%] w-150 h-150 bg-indigo-500/5 rounded-full blur-[160px] pointer-events-none" />
 
       {/* Responsive Canvas PWA Frame Shell */}
-      <div className="w-full max-w-md h-full flex flex-col bg-shell border-x border-theme-border shadow-2xl relative overflow-hidden transition-colors duration-300">
+      <div className="w-full max-w-md h-dvh flex flex-col bg-shell border-x border-theme-border shadow-2xl relative overflow-hidden transition-colors duration-300">
         {/* Mobile Header */}
         <MobileHeader />
 
         {/* Child Screen */}
-        <main className="flex-1 min-h-0 px-6 py-6 pb-24 overflow-y-auto">{children}</main>
+        <main className="flex-1 h-0 px-6 py-6 pb-28 overflow-y-auto scrollbar-thin">
+          {children}
+        </main>
 
         {/* Floating Action Button (FAB) in Bottom Right (Fixed Viewport Docked) */}
         <button
