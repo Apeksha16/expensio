@@ -74,6 +74,10 @@ export default function MobileHeader({ onMenuClick }: MobileHeaderProps) {
     }
   };
 
+  if (pathname === '/groups') {
+    return null;
+  }
+
   const isOverviewOrInsights =
     pathname === '/dashboard' && (tab === 'overview' || tab === 'insights');
 
@@ -129,6 +133,33 @@ export default function MobileHeader({ onMenuClick }: MobileHeaderProps) {
           aria-label="Open Calendar Filter"
         >
           <Calendar className="w-4 h-4 stroke-[2.25]" />
+        </button>
+      </header>
+    );
+  }
+
+  if (pathname !== '/dashboard') {
+    return (
+      <header className="sticky top-0 z-40 bg-shell/85 backdrop-blur-md border-b border-theme-border/60 px-6 py-4 flex items-center justify-between shrink-0 transition-colors duration-300">
+        {/* Top-left Hamburger Menu */}
+        <button
+          onClick={onMenuClick}
+          className="p-2.5 rounded-xl bg-theme-btn border border-theme-btn-border/80 text-theme-secondary hover:text-theme-text active:scale-95 transition-all outline-none cursor-pointer"
+          aria-label="Open Sidebar Menu"
+        >
+          <Menu className="w-4 h-4 stroke-[2.5]" />
+        </button>
+
+        {/* Right Action: Notification Bell */}
+        <button
+          onClick={() => setIsNotificationsOpen(true)}
+          className="p-2.5 rounded-xl bg-theme-btn border border-theme-btn-border/80 text-theme-secondary hover:text-theme-text relative cursor-pointer active:scale-95 transition-all outline-none"
+          aria-label="Notifications"
+        >
+          <Bell className="w-4 h-4 stroke-[2.25]" />
+          <span className="absolute -top-1 -right-1 min-w-4 h-4 px-1 rounded-full bg-rose-500 text-white font-extrabold text-[8px] flex items-center justify-center border border-shell z-20 shadow-md">
+            2
+          </span>
         </button>
       </header>
     );

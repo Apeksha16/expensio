@@ -48,11 +48,13 @@ interface FinanceState {
   isAddExpenseOpen: boolean;
   isNotificationsOpen: boolean;
   isProfileOpen: boolean;
+  isExpensesSelectionActive: boolean;
 
   // Actions
   setIsAddExpenseOpen: (isOpen: boolean) => void;
   setIsNotificationsOpen: (isOpen: boolean) => void;
   setIsProfileOpen: (isOpen: boolean) => void;
+  setIsExpensesSelectionActive: (active: boolean) => void;
   addExpense: (expense: Omit<Expense, 'id'>) => void;
   editExpense: (id: string, updated: Partial<Expense>) => void;
   deleteExpense: (id: string) => void;
@@ -139,6 +141,93 @@ const initialExpenses: Expense[] = [
     paidBy: 'me',
     paymentMethod: 'Debit Card',
   },
+  // Goa Trip group expenses (Total: ₹3742.50, You Owe/You are Owed balanced to ₹1249.00)
+  {
+    id: 'goa_1',
+    title: 'Hotel Stay',
+    amount: 1200.0,
+    category: 'Travel',
+    date: getRelativeDateString(2),
+    paidBy: 'me',
+    splitWith: ['Rahul Sharma', 'Amit Verma', 'Pranav Singh', 'Neha Kapoor', 'Sarthak Jain'],
+    splitType: 'equal',
+    groupId: 'g1',
+  },
+  {
+    id: 'goa_2',
+    title: 'Scuba Diving',
+    amount: 850.0,
+    category: 'Entertainment',
+    date: getRelativeDateString(3),
+    paidBy: 'Amit Verma',
+    splitWith: ['Rahul Sharma', 'Pranav Singh', 'Neha Kapoor', 'Sarthak Jain'],
+    splitType: 'equal',
+    groupId: 'g1',
+  },
+  {
+    id: 'goa_3',
+    title: 'Dinner & Drinks',
+    amount: 690.5,
+    category: 'Food',
+    date: getRelativeDateString(4),
+    paidBy: 'Neha Kapoor',
+    splitWith: ['Rahul Sharma', 'Amit Verma', 'Pranav Singh', 'Sarthak Jain'],
+    splitType: 'equal',
+    groupId: 'g1',
+  },
+  {
+    id: 'goa_4',
+    title: 'Taxi & Travel',
+    amount: 329.25,
+    category: 'Transport',
+    date: getRelativeDateString(5),
+    paidBy: 'Rahul Sharma',
+    splitWith: ['Amit Verma', 'Pranav Singh', 'Neha Kapoor', 'Sarthak Jain'],
+    splitType: 'equal',
+    groupId: 'g1',
+  },
+  {
+    id: 'goa_5',
+    title: 'Goa Activities',
+    amount: 672.75,
+    category: 'Entertainment',
+    date: getRelativeDateString(6),
+    paidBy: 'me',
+    splitWith: ['Rahul Sharma', 'Amit Verma', 'Pranav Singh', 'Neha Kapoor', 'Sarthak Jain'],
+    splitType: 'equal',
+    groupId: 'g1',
+  },
+  // Flat Expenses (Owed: ₹32.50)
+  {
+    id: 'flat_1',
+    title: 'Milk & Groceries',
+    amount: 40.63,
+    category: 'Food',
+    date: getRelativeDateString(1),
+    paidBy: 'me',
+    splitWith: ['Rahul Sharma', 'Amit Verma', 'Pranav Singh', 'Neha Kapoor'],
+    splitType: 'equal',
+    groupId: 'g4',
+  },
+  // Road Trip (Owed: ₹125.00)
+  {
+    id: 'road_1',
+    title: 'Car Rental Deposit',
+    amount: 145.83,
+    category: 'Transport',
+    date: getRelativeDateString(2),
+    paidBy: 'me',
+    splitWith: [
+      'Rahul Sharma',
+      'Amit Verma',
+      'Pranav Singh',
+      'Neha Kapoor',
+      'Sarthak Jain',
+      'Divya Sharma',
+    ],
+    splitType: 'equal',
+    groupId: 'g5',
+  },
 ];
 
 const initialBudgets: Budget[] = [
@@ -177,8 +266,6 @@ const initialGroups: Group[] = [
     name: 'Trip to Goa 🏖️',
     description: '6 members • Created by You',
     coverImage: 'from-indigo-600 via-purple-600 to-cyan-500',
-    coverUrl:
-      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80',
     members: ['Rahul Sharma', 'Amit Verma', 'Pranav Singh', 'Neha Kapoor', 'Sarthak Jain'],
   },
   {
@@ -186,8 +273,6 @@ const initialGroups: Group[] = [
     name: 'Weekend Dinner',
     description: '4 members',
     coverImage: 'from-violet-600 to-pink-500',
-    coverUrl:
-      'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=600&q=80',
     members: ['Rahul Sharma', 'Amit Verma', 'Pranav Singh'],
   },
   {
@@ -195,9 +280,28 @@ const initialGroups: Group[] = [
     name: 'Office Team',
     description: '12 members',
     coverImage: 'from-blue-600 to-teal-500',
-    coverUrl:
-      'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=600&q=80',
     members: ['Rahul Sharma', 'Amit Verma', 'Pranav Singh', 'Neha Kapoor', 'Sarthak Jain'],
+  },
+  {
+    id: 'g4',
+    name: 'Flat Expenses',
+    description: '5 members',
+    coverImage: 'from-orange-500 to-rose-500',
+    members: ['Rahul Sharma', 'Amit Verma', 'Pranav Singh', 'Neha Kapoor'],
+  },
+  {
+    id: 'g5',
+    name: 'Road Trip',
+    description: '7 members',
+    coverImage: 'from-purple-500 to-indigo-650',
+    members: [
+      'Rahul Sharma',
+      'Amit Verma',
+      'Pranav Singh',
+      'Neha Kapoor',
+      'Sarthak Jain',
+      'Divya Sharma',
+    ],
   },
 ];
 
@@ -211,10 +315,12 @@ export const useFinanceStore = create<FinanceState>()(
       isAddExpenseOpen: false,
       isNotificationsOpen: false,
       isProfileOpen: false,
+      isExpensesSelectionActive: false,
 
       setIsAddExpenseOpen: (isOpen) => set({ isAddExpenseOpen: isOpen }),
       setIsNotificationsOpen: (isOpen) => set({ isNotificationsOpen: isOpen }),
       setIsProfileOpen: (isOpen) => set({ isProfileOpen: isOpen }),
+      setIsExpensesSelectionActive: (active) => set({ isExpensesSelectionActive: active }),
 
       addExpense: (expense) =>
         set((state) => {

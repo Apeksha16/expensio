@@ -147,3 +147,12 @@ body {
   backdrop-filter: blur(12px) saturate(110%);
   -webkit-backdrop-filter: blur(12px) saturate(110%);
 }
+
+/* Hide Next.js Dev tools feedback overlay & route announcer */
+nextjs-portal,
+#nextjs-dev-indicator,
+[data-nextjs-dev-overlay],
+[data-nextjs-feedback-badge],
+next-route-announcer {
+  display: none !important;
+}

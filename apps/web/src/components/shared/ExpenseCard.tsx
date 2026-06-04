@@ -37,6 +37,7 @@ interface ExpenseCardProps {
   isSelectionMode?: boolean;
   isSelected?: boolean;
   onSelectToggle?: (id: string) => void;
+  timelineMode?: boolean;
 }
 
 const categoryMeta: Record<
@@ -161,6 +162,7 @@ export default function ExpenseCard({
   isSelectionMode = false,
   isSelected = false,
   onSelectToggle,
+  timelineMode = false,
 }: ExpenseCardProps) {
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
 
@@ -209,7 +211,7 @@ export default function ExpenseCard({
         onClick={handleCardClick}
         className="relative z-10 flex items-center justify-between p-3.5 pl-4 cursor-pointer min-w-0"
       >
-        <div className="flex items-center gap-3.5 min-w-0">
+        <div className="flex items-center gap-3.5 min-w-0 flex-1">
           {/* Selection Checkbox */}
           {isSelectionMode && (
             <div className="text-indigo-400 animate-fade-in shrink-0 mr-0.5">
@@ -229,25 +231,42 @@ export default function ExpenseCard({
           </div>
 
           {/* Text Information block */}
-          <div className="flex flex-col gap-0.5 min-w-0">
-            <span className="text-xs font-bold text-theme-text tracking-tight group-hover:text-cyan-400 transition-colors leading-none truncate">
-              {expense.title.replace(/\p{Extended_Pictographic}/gu, '').trim()}
-            </span>
-
-            <div className="flex flex-wrap items-center gap-2 text-[10px] text-zinc-550 font-semibold mt-1.5 min-w-0">
-              <div className="flex items-center gap-1 shrink-0 whitespace-nowrap">
-                <Calendar className="w-3 h-3 text-zinc-600 shrink-0" />
-                <span>{formattedDate}</span>
-              </div>
-              <div
-                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full ${meta.bg} text-[9px] font-black uppercase tracking-wider shrink-0`}
+          <div className="flex flex-col gap-0.5 min-w-0 flex-1">
+            <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
+              <span
+                className={`text-xs font-bold text-theme-text tracking-tight group-hover:text-cyan-400 transition-colors leading-none truncate ${
+                  timelineMode ? 'max-w-[75px] sm:max-w-none' : ''
+                }`}
               >
-                <span>{expense.category}</span>
-              </div>
+                {expense.title.replace(/\p{Extended_Pictographic}/gu, '').trim()}
+              </span>
+              {timelineMode && (
+                <div
+                  className={`inline-flex items-center px-1.5 py-0.5 rounded-full ${meta.bg} text-[7.5px] font-black uppercase tracking-wider shrink-0 leading-none`}
+                >
+                  <span>{expense.category}</span>
+                </div>
+              )}
+            </div>
+
+            <div className="flex flex-wrap items-center gap-1.5 text-[10px] text-zinc-550 font-semibold mt-1 min-w-0">
+              {!timelineMode && (
+                <div className="flex items-center gap-1 shrink-0 whitespace-nowrap">
+                  <Calendar className="w-3 h-3 text-zinc-600 shrink-0" />
+                  <span>{formattedDate}</span>
+                </div>
+              )}
+              {!timelineMode && (
+                <div
+                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full ${meta.bg} text-[9px] font-black uppercase tracking-wider shrink-0`}
+                >
+                  <span>{expense.category}</span>
+                </div>
+              )}
               {expense.splitWith && expense.splitWith.length > 0 && (
-                <div className="flex items-center gap-1 text-[8px] text-indigo-600 dark:text-indigo-400 font-black uppercase tracking-wider bg-indigo-500/10 px-2 py-0.5 rounded-full border border-indigo-500/20 shrink-0">
-                  <Share2 className="w-2.5 h-2.5 text-indigo-500" />
-                  <span>
+                <div className="flex items-center gap-1 text-[7.5px] text-indigo-600 dark:text-indigo-400 font-black uppercase tracking-wider bg-indigo-500/10 px-2 py-0.5 rounded-full border border-indigo-500/20 max-w-[120px] shrink-0">
+                  <Share2 className="w-2.5 h-2.5 text-indigo-500 shrink-0" />
+                  <span className="truncate">
                     Split w/ {expense.splitWith[0].split(' ')[0]}
                     {expense.splitWith.length > 1 ? ` +${expense.splitWith.length - 1}` : ''}
                   </span>
@@ -258,21 +277,23 @@ export default function ExpenseCard({
         </div>
 
         {/* Right Amount and Chevron Indicators */}
-        <div className="flex items-center gap-2.5 shrink-0 ml-2 group-hover:opacity-0 transition-opacity duration-200">
+        <div className="flex items-center gap-1.5 shrink-0 ml-1.5 group-hover:opacity-0 transition-opacity duration-200">
           <div className="flex flex-col items-end gap-1">
             <div
-              className={`px-2 py-0.75 rounded-full text-[11px] font-bold border ${
+              className={`px-1.5 py-0.75 rounded-full text-[10px] sm:text-[11px] font-bold border ${
                 isIncome
                   ? 'bg-emerald-500/8 border-emerald-500/15 text-emerald-400'
                   : 'bg-rose-500/8 border-rose-500/15 text-rose-400'
               }`}
             >
-              {isIncome ? `+₹${expense.amount.toFixed(2)}` : `-₹${expense.amount.toFixed(2)}`}
+              {isIncome
+                ? `+₹${expense.amount % 1 === 0 ? expense.amount.toLocaleString('en-IN') : expense.amount.toFixed(2)}`
+                : `-₹${expense.amount % 1 === 0 ? expense.amount.toLocaleString('en-IN') : expense.amount.toFixed(2)}`}
             </div>
           </div>
 
-          <div className="w-6 h-6 rounded-full bg-white/[0.02] border border-white/[0.04] flex items-center justify-center shrink-0">
-            <ChevronRight className="w-3.5 h-3.5 text-zinc-550" />
+          <div className="w-5 h-5 rounded-full bg-white/[0.02] border border-white/[0.04] flex items-center justify-center shrink-0">
+            <ChevronRight className="w-3 h-3 text-zinc-550" />
           </div>
         </div>
 
@@ -326,7 +347,7 @@ export default function ExpenseCard({
               <span className="text-[10px] font-black text-rose-600 dark:text-rose-400 uppercase tracking-widest leading-none">
                 Delete transaction?
               </span>
-              <span className="text-xs text-zinc-800 dark:text-zinc-205 font-bold truncate max-w-36 mt-1 leading-none">
+              <span className="text-xs text-zinc-100 font-bold truncate max-w-36 mt-1 leading-none">
                 {expense.title.replace(/\p{Extended_Pictographic}/gu, '').trim()}
               </span>
             </div>

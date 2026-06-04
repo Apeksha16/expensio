@@ -56,8 +56,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   });
 
-  const showFAB = pathname === '/dashboard' ? tab === 'home' : true;
-
   const {
     friends,
     addExpense,
@@ -67,8 +65,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     setIsNotificationsOpen,
     isProfileOpen,
     setIsProfileOpen,
+    isExpensesSelectionActive,
   } = useFinanceStore();
   const { user, session, isInitialized, isLoading } = useAuthStore();
+
+  const showFAB = pathname === '/dashboard' ? tab === 'home' : !isExpensesSelectionActive;
 
   // Form State
   const [amount, setAmount] = useState('');
@@ -326,18 +327,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   ];
 
   return (
-    <div className="h-dvh w-full bg-background text-theme-text flex justify-center overflow-hidden relative transition-colors duration-300">
+    <div className="h-screen w-full bg-background text-theme-text flex justify-center overflow-hidden relative transition-colors duration-300">
       {/* ambient glows */}
       <div className="absolute top-[-20%] left-[-20%] w-150 h-150 bg-indigo-600/5 rounded-full blur-[160px] pointer-events-none" />
       <div className="absolute bottom-[-20%] right-[-20%] w-150 h-150 bg-indigo-500/5 rounded-full blur-[160px] pointer-events-none" />
 
       {/* Responsive Canvas PWA Frame Shell */}
-      <div className="w-full max-w-md h-dvh flex flex-col bg-shell border-x border-theme-border shadow-2xl relative overflow-hidden transition-colors duration-300">
+      <div className="w-full max-w-md h-screen flex flex-col bg-shell border-x border-theme-border shadow-2xl relative overflow-hidden transition-colors duration-300">
         {/* Mobile Header */}
         <MobileHeader onMenuClick={() => setIsNavMenuOpen(true)} />
 
         {/* Child Screen */}
-        <main className="flex-1 min-h-0 px-6 py-6 pb-28 overflow-y-auto overflow-x-hidden scrollbar-thin">
+        <main className="flex-1 h-0 min-h-0 px-6 py-6 pb-28 overflow-y-auto overflow-x-hidden scrollbar-thin">
           {children}
         </main>
 
@@ -345,7 +346,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {showFAB && (
           <button
             onClick={() => setIsAddExpenseOpen(true)}
-            className="fixed bottom-20 right-5 sm:right-auto sm:left-[calc(50%+156px)] w-14 h-14 rounded-full bg-linear-to-br from-indigo-400 via-violet-500 to-cyan-500 flex items-center justify-center text-zinc-950 shadow-[0_8px_32px_rgba(99,102,241,0.35)] hover:shadow-[0_8px_32px_rgba(34,211,238,0.55)] active:scale-90 hover:scale-110 active:shadow-[0_4px_16px_rgba(99,102,241,0.6)] transition-all duration-300 border border-indigo-300/50 z-40 cursor-pointer group"
+            className="fixed bottom-24 right-5 sm:right-auto sm:left-[calc(50%+156px)] w-14 h-14 rounded-full bg-linear-to-br from-indigo-400 via-violet-500 to-cyan-500 flex items-center justify-center text-zinc-950 shadow-[0_8px_32px_rgba(99,102,241,0.35)] hover:shadow-[0_8px_32px_rgba(34,211,238,0.55)] active:scale-90 hover:scale-110 active:shadow-[0_4px_16px_rgba(99,102,241,0.6)] transition-all duration-300 border border-indigo-300/50 z-50 cursor-pointer group"
             aria-label="Add Expense"
           >
             {/* Internal neon ambient glow aura */}

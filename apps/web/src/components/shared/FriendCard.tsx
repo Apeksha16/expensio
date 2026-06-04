@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Friend } from '../../store/finance-store';
-import { CreditCard, Check, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { ChevronRight, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface FriendCardProps {
@@ -15,69 +15,92 @@ export default function FriendCard({ friend, onSettle }: FriendCardProps) {
   const isOwing = friend.balance < 0;
   const isSettled = friend.balance === 0;
 
+  const handleCardClick = () => {
+    if (!isSettled) {
+      onSettle(friend.id);
+    }
+  };
+
   return (
-    <div className="p-4 rounded-2xl flex items-center justify-between group active:scale-[0.99] transition-all duration-200 shadow-sm border border-white/[0.04] bg-[#0c0d12]/30 card-clean">
-      <div className="flex items-center gap-3.5">
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+      onClick={handleCardClick}
+      className={`p-3.5 rounded-[22px] flex items-center justify-between border border-zinc-100 dark:border-zinc-850 bg-white dark:bg-zinc-900/60 shadow-[0_2px_12px_-3px_rgba(0,0,0,0.015)] select-none transition-all duration-200 ${
+        !isSettled
+          ? 'cursor-pointer active:scale-[0.99] hover:bg-zinc-50/50 dark:hover:bg-zinc-900/80 group'
+          : ''
+      }`}
+    >
+      <div className="flex items-center gap-3.5 min-w-0">
         {/* Avatar with dynamic initials background */}
         <div
-          className={`w-11 h-11 rounded-xl flex items-center justify-center font-bold text-xs uppercase tracking-wider ${
+          className={`w-10 h-10 rounded-2xl flex items-center justify-center font-black text-xs uppercase tracking-wider shrink-0 transition-transform duration-300 ${
+            !isSettled ? 'group-hover:scale-105' : ''
+          } ${
             isOwed
-              ? 'bg-indigo-500/8 text-cyan-400 border border-indigo-500/10'
+              ? 'bg-indigo-50 dark:bg-indigo-950/20 text-indigo-650 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/30'
               : isOwing
-                ? 'bg-rose-500/8 text-rose-500 border border-rose-500/10'
-                : 'bg-zinc-950 text-zinc-400 border border-zinc-900'
+                ? 'bg-pink-50 dark:bg-pink-950/20 text-pink-600 dark:text-pink-400 border border-pink-100 dark:border-pink-900/30'
+                : 'bg-zinc-50 dark:bg-zinc-950/25 text-zinc-550 dark:text-zinc-500 border border-zinc-150 dark:border-zinc-850'
           }`}
         >
           {friend.avatar}
         </div>
 
-        <div className="flex flex-col gap-0.5">
-          <h4 className="text-sm font-black text-zinc-100 leading-snug">{friend.name}</h4>
-          <span className="text-[10px] font-bold text-zinc-550">@{friend.username}</span>
+        <div className="flex flex-col gap-0.5 min-w-0">
+          <h4 className="text-xs font-black text-theme-text leading-snug truncate">
+            {friend.name}
+          </h4>
+          <span className="text-[10px] font-bold text-theme-secondary">@{friend.username}</span>
         </div>
       </div>
 
       {/* Financial Settlement Actions / Info */}
-      <div className="flex items-center gap-3.5">
+      <div className="flex items-center gap-3.5 shrink-0 select-none">
         <div className="flex flex-col items-end gap-0.5">
           {isOwed ? (
             <>
-              <div className="flex items-center gap-0.5 text-[8px] text-zinc-500 font-bold uppercase tracking-widest">
-                <ArrowUpRight className="w-2.5 h-2.5 text-cyan-500" />
-                <span>Owes You</span>
-              </div>
-              <span className="text-sm font-black text-cyan-400 tracking-tight">
+              <span className="text-[8px] font-black uppercase text-theme-secondary/80 tracking-widest">
+                Owes You
+              </span>
+              <span className="text-sm font-black text-emerald-600 dark:text-emerald-450 tracking-tight">
                 ₹{friend.balance.toFixed(2)}
               </span>
             </>
-          ) : isOwing ? (
+          ) : isGridOwe(friend.balance) ? (
             <>
-              <div className="flex items-center gap-0.5 text-[8px] text-zinc-550 font-bold uppercase tracking-widest">
-                <ArrowDownRight className="w-2.5 h-2.5 text-rose-500" />
-                <span>You Owe</span>
-              </div>
-              <span className="text-sm font-black text-rose-500 tracking-tight">
+              <span className="text-[8px] font-black uppercase text-rose-600 dark:text-rose-450 tracking-widest">
+                You Owe
+              </span>
+              <span className="text-sm font-black text-rose-600 dark:text-rose-455 tracking-tight">
                 ₹{Math.abs(friend.balance).toFixed(2)}
               </span>
             </>
           ) : (
-            <span className="text-[8px] font-black text-zinc-550 bg-zinc-800/20 px-2 py-0.5 rounded-lg border border-zinc-800/10 uppercase tracking-widest">
+            <span className="text-[8px] font-black text-theme-secondary bg-zinc-50 dark:bg-zinc-950 px-2 py-0.75 rounded-lg border border-zinc-200/60 dark:border-zinc-850 uppercase tracking-widest">
               Settled
             </span>
           )}
         </div>
 
-        {/* Quick settle button overlay */}
-        {!isSettled && (
-          <button
-            onClick={() => onSettle(friend.id)}
-            className="flex items-center justify-center w-8 h-8 rounded-xl bg-zinc-950/80 border border-zinc-850 hover:border-indigo-500/30 text-zinc-100 hover:text-cyan-400 active:scale-95 transition-all cursor-pointer shadow-sm"
-            title="Settle balance"
-          >
-            <Check className="w-3.5 h-3.5 stroke-[3]" />
-          </button>
+        {/* Status icon or navigation indicator */}
+        {!isSettled ? (
+          <ChevronRight className="w-4 h-4 text-zinc-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
+        ) : (
+          <div className="w-5 h-5 rounded-full bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-500 shrink-0 select-none">
+            <Check className="w-3 h-3 stroke-[3]" />
+          </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
+}
+
+// Helper to determine if we owe
+function isGridOwe(balance: number): boolean {
+  return balance < 0;
 }

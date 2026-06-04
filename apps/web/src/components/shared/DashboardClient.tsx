@@ -57,8 +57,12 @@ export default function DashboardClient() {
   const { expenses, deleteExpense, editExpense, addExpense, setIsAddExpenseOpen } =
     useFinanceStore();
   const [tab, setTab] = useState('home');
-
-  // Custom Category Dropdown Analytics Filter
+  // Toast notifications state
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 2500);
+  }; // Custom Category Dropdown Analytics Filter
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState('All');
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
 
@@ -200,7 +204,7 @@ export default function DashboardClient() {
   let tabContent = null;
 
   if (tab === 'home') {
-    const recentExpenses = expenses.filter((e) => !e.groupId).slice(0, 4);
+    const recentExpenses = expenses.filter((e) => !e.groupId).slice(0, 3);
 
     tabContent = (
       <div className="space-y-6 pb-6 select-none relative">
@@ -215,131 +219,120 @@ export default function DashboardClient() {
           enabledActions={enabledActions}
         />
 
-        {/* 3. AI Insights Premium Widget */}
+        {/* 3. Smart Insights Premium Widget */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-1.5 px-1 text-indigo-650 dark:text-indigo-400">
+            <Sparkles className="w-4 h-4 stroke-[2.25]" />
+            <span className="text-[11px] font-black uppercase tracking-widest">Smart insights</span>
+          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-5 rounded-[26px] bg-white dark:bg-zinc-900 border border-theme-card-border shadow-[0_6px_18px_rgba(0,0,0,0.015)] relative overflow-hidden flex flex-col gap-3.5"
+          >
+            <p className="text-[11px] text-zinc-100 font-semibold leading-relaxed">
+              You spent{' '}
+              <span className="text-indigo-600 dark:text-indigo-400 font-bold">
+                18% less on Food
+              </span>{' '}
+              compared to last month. Great job! 🎉
+            </p>
+            <button
+              onClick={() => showToast('Smart Insights: Food allocation is optimized!')}
+              className="w-fit px-4 py-2 rounded-full bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-750 text-[10px] font-black uppercase tracking-wider text-zinc-700 dark:text-zinc-300 active:scale-95 transition-all cursor-pointer border-0 outline-none"
+            >
+              View details
+            </button>
+          </motion.div>
+        </div>
+
+        {/* 4. Budget Status Card */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="p-4.5 rounded-[22px] border border-indigo-500/10 bg-white dark:bg-zinc-900 shadow-[0_6px_18px_rgba(0,0,0,0.015)] relative overflow-hidden flex gap-3.5 border-theme-card-border"
+          className="p-5 rounded-[28px] bg-gradient-to-br from-indigo-600 via-indigo-500 to-cyan-600 text-white shadow-lg relative overflow-hidden flex flex-col gap-4 border border-indigo-400/20"
         >
-          <div className="absolute top-[-30%] right-[-10%] w-24 h-24 bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-xl pointer-events-none" />
-          <div className="w-9 h-9 rounded-xl bg-indigo-500/10 border border-indigo-500/15 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0">
-            <Sparkles className="w-4.5 h-4.5 stroke-[2.25]" />
-          </div>
-          <div className="flex flex-col gap-1 w-full">
-            <div className="flex items-center justify-between">
-              <span className="text-[9px] font-black uppercase tracking-widest text-zinc-400 dark:text-zinc-550">
-                AI Smart Insight
-              </span>
-              <ChevronRight className="w-3.5 h-3.5 text-zinc-400" />
-            </div>
-            <p className="text-[11px] text-zinc-800 dark:text-zinc-300 font-semibold leading-relaxed">
-              You spent{' '}
-              <span className="text-emerald-600 dark:text-emerald-400 font-bold">12% less</span> on
-              food this week compared to last week.
-            </p>
-            <span className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 mt-0.5 block">
-              Track to save ₹350 this month! 🎉
-            </span>
-          </div>
-        </motion.div>
+          <div className="absolute top-[-30%] right-[-10%] w-36 h-36 bg-white/10 rounded-full blur-2xl pointer-events-none" />
 
-        {/* 4. Spent Analysis Visual Categories Chart (Donut) */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between px-1">
-            <h3 className="text-[11px] font-extrabold uppercase tracking-widest text-zinc-800 dark:text-zinc-200">
-              This Month Overview
-            </h3>
-            <Link
-              href="/dashboard?tab=overview"
-              className="text-[9.5px] font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-400 hover:underline"
-            >
-              View all
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-black uppercase tracking-widest text-indigo-100">
+              Budget status
+            </span>
+            <Link href="/budgets">
+              <ChevronRight className="w-4 h-4 text-indigo-100 hover:translate-x-0.5 transition-transform" />
             </Link>
           </div>
 
-          <div className="p-5 rounded-[26px] bg-white dark:bg-zinc-900 border border-theme-card-border shadow-[0_6px_20px_rgba(0,0,0,0.015)] flex items-center justify-between gap-5">
-            {/* Donut Chart SVG */}
-            <div className="relative w-24 h-24 flex items-center justify-center shrink-0">
-              <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-                <circle
-                  cx="50"
-                  cy="50"
-                  r="40"
-                  fill="none"
-                  stroke="rgba(128,128,128,0.05)"
-                  strokeWidth="8.5"
-                />
-                {segments.map((seg, i) => (
-                  <circle
-                    key={i}
-                    cx="50"
-                    cy="50"
-                    r="40"
-                    fill="none"
-                    className={seg.color}
-                    strokeWidth="8.5"
-                    strokeDasharray={`${seg.length} 251.2`}
-                    strokeDashoffset={-seg.offset}
-                    strokeLinecap="round"
-                  />
-                ))}
-              </svg>
-              <div className="absolute flex flex-col items-center justify-center text-center">
-                <span className="text-[14px] font-extrabold text-zinc-100 dark:text-zinc-100 leading-none">
-                  ₹{displayExpenses.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
-                </span>
-                <span className="text-[8px] font-bold text-zinc-400 dark:text-zinc-500 leading-none mt-1">
-                  Total Spent
-                </span>
-              </div>
-            </div>
+          <span className="text-[10px] font-bold text-indigo-100/80 leading-none">This month</span>
 
-            {/* Labels Table Grid */}
-            <div className="flex-1 grid grid-cols-2 gap-x-4 gap-y-2.5 text-[9.5px] font-black uppercase tracking-wider">
-              {[
-                { label: 'Food', pct: '38%', sum: displayFood, color: 'bg-indigo-500' },
-                { label: 'Shop', pct: '21%', sum: displayShopping, color: 'bg-emerald-500' },
-                { label: 'Travel', pct: '16%', sum: displayTransport, color: 'bg-amber-500' },
-                { label: 'Bills', pct: '12%', sum: displayBills, color: 'bg-rose-500' },
-                { label: 'Others', pct: '13%', sum: displayOthers, color: 'bg-cyan-500' },
-              ].map((item, idx) => (
-                <div
-                  key={idx}
-                  className={`flex items-center gap-1.5 ${item.label === 'Others' ? 'col-span-2' : ''}`}
-                >
-                  <span className={`w-2 h-2 rounded-full ${item.color} shrink-0`} />
-                  <div className="flex flex-col">
-                    <span className="text-zinc-700 dark:text-zinc-300 font-extrabold">
-                      {item.label}
-                    </span>
-                    <span className="text-[8px] text-zinc-400 dark:text-zinc-500 font-bold lowercase tracking-normal">
-                      {item.pct} · ₹{item.sum.toLocaleString('en-IN')}
-                    </span>
-                  </div>
-                </div>
-              ))}
+          {/* Semicircular SVG progress ring */}
+          <div className="relative w-44 h-24 mx-auto flex flex-col items-center justify-end select-none mt-2">
+            <svg viewBox="0 0 100 60" className="w-full h-full">
+              {/* Background Track */}
+              <path
+                d="M 10 50 A 40 40 0 0 1 90 50"
+                fill="none"
+                stroke="rgba(255, 255, 255, 0.15)"
+                strokeWidth="8"
+                strokeLinecap="round"
+              />
+              {/* Foreground Progress */}
+              <path
+                d="M 10 50 A 40 40 0 0 1 90 50"
+                fill="none"
+                stroke="white"
+                strokeWidth="8"
+                strokeLinecap="round"
+                strokeDasharray="125.6"
+                strokeDashoffset={125.6 * (1 - 0.72)} // 72% filled
+                className="transition-all duration-1000 ease-out"
+              />
+            </svg>
+            <div className="absolute bottom-1 flex flex-col items-center text-center">
+              <span className="text-xl font-black text-white leading-none">72%</span>
+              <span className="text-[8px] font-bold text-indigo-100/90 leading-none mt-1">
+                of ₹2,000
+              </span>
             </div>
           </div>
-        </div>
 
-        {/* 5. Recent Transactions Timeline */}
+          {/* Bottom Labels */}
+          <div className="flex justify-between items-center text-[10px] font-bold text-indigo-100 mt-2 px-1">
+            <div className="flex flex-col">
+              <span className="text-white font-black text-xs">₹1,428.70 spent</span>
+            </div>
+            <div className="flex flex-col items-end">
+              <span className="text-white font-black text-xs">₹571.30 left</span>
+            </div>
+          </div>
+
+          <div className="h-px bg-white/10 my-1" />
+
+          <Link
+            href="/budgets"
+            className="text-[10px] font-black uppercase tracking-widest text-center text-white hover:underline mt-0.5"
+          >
+            View budgets
+          </Link>
+        </motion.div>
+
+        {/* 5. Recent Transactions Feed */}
         <div className="space-y-3">
           <div className="flex items-center justify-between px-1">
             <h3 className="text-[11px] font-extrabold uppercase tracking-widest text-zinc-800 dark:text-zinc-200">
-              Recent Expenses
+              Recent Transactions
             </h3>
             <Link
               href="/expenses"
-              className="text-[9.5px] font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-0.5"
+              className="text-[9.5px] font-black uppercase tracking-wider text-indigo-650 dark:text-indigo-400 hover:underline flex items-center gap-0.5"
             >
               <span>See all</span>
               <ChevronRight className="w-3.5 h-3.5" />
             </Link>
           </div>
-
           <div className="bg-white dark:bg-zinc-900 border border-theme-card-border rounded-[28px] overflow-hidden divide-y divide-zinc-100/50 dark:divide-zinc-800/40 px-3.5 py-1.5 shadow-[0_6px_18px_rgba(0,0,0,0.015)]">
             {recentExpenses.length === 0 ? (
-              <div className="p-8 text-center text-xs text-zinc-500 font-bold">
+              <div className="p-8 text-center text-xs text-zinc-550 font-bold">
                 No transactions found.
               </div>
             ) : (
@@ -353,7 +346,7 @@ export default function DashboardClient() {
                 />
               ))
             )}
-          </div>
+          </div>{' '}
         </div>
       </div>
     );
@@ -935,7 +928,7 @@ export default function DashboardClient() {
                 <span className="text-[10px] font-black text-zinc-400 dark:text-zinc-550 uppercase tracking-widest leading-none">
                   Total Value
                 </span>
-                <span className="text-3xl font-black text-zinc-800 dark:text-white mt-1.5 leading-none">
+                <span className="text-3xl font-black text-theme-text mt-1.5 leading-none">
                   ₹{activeDetailExpense.amount.toFixed(2)}
                 </span>
               </div>
@@ -1263,6 +1256,19 @@ export default function DashboardClient() {
           </form>
         )}
       </BottomSheet>
+      <AnimatePresence>
+        {toastMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 50, scale: 0.9 }}
+            className="fixed bottom-28 left-6 right-6 z-[300] max-w-sm mx-auto p-4 rounded-xl border border-theme-card-border bg-theme-card backdrop-blur-xl flex items-center gap-3 shadow-xl text-xs font-bold text-theme-text select-none"
+          >
+            <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
+            <span>{toastMessage}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }
