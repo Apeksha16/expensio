@@ -19,9 +19,10 @@ export default function MobileHeader({ onMenuClick }: MobileHeaderProps) {
   const tab = searchParams?.get('tab') || 'home';
 
   const user = useAuthStore((state) => state.user);
-  const { setIsNotificationsOpen } = useFinanceStore(
+  const { setIsNotificationsOpen, setIsCalendarFilterOpen } = useFinanceStore(
     useShallow((state) => ({
       setIsNotificationsOpen: state.setIsNotificationsOpen,
+      setIsCalendarFilterOpen: state.setIsCalendarFilterOpen,
     }))
   );
   const [greeting, setGreeting] = useState('Hello');
@@ -74,12 +75,11 @@ export default function MobileHeader({ onMenuClick }: MobileHeaderProps) {
     return null;
   }
 
-  const isOverviewOrInsights =
-    pathname === '/dashboard' && (tab === 'overview' || tab === 'insights');
+  const isOverview = pathname === '/dashboard' && tab === 'overview';
 
-  if (isOverviewOrInsights) {
+  if (isOverview) {
     return (
-      <header className="sticky top-0 z-40 bg-shell/85 backdrop-blur-md border-b border-theme-border/60 px-6 py-4 flex items-center justify-between shrink-0 transition-colors duration-300">
+      <header className="relative z-40 bg-shell/85 backdrop-blur-md px-6 py-4 flex items-center justify-between shrink-0 transition-colors duration-300">
         {/* Back Button on Left */}
         <button
           onClick={() => router.push('/dashboard')}
@@ -89,42 +89,12 @@ export default function MobileHeader({ onMenuClick }: MobileHeaderProps) {
           <ArrowLeft className="w-5.5 h-5.5 stroke-[2.5]" />
         </button>
 
-        {/* Top Tab Switcher Overview | Insights */}
-        <div className="flex items-center gap-6 relative">
-          <button
-            onClick={() => router.replace('/dashboard?tab=overview')}
-            className={`text-sm font-bold pb-1 relative cursor-pointer outline-none border-0 bg-transparent transition-colors duration-200 ${
-              tab === 'overview' ? 'text-theme-text' : 'text-theme-secondary hover:text-theme-text'
-            }`}
-          >
-            Overview
-            {tab === 'overview' && (
-              <motion.div
-                layoutId="activeHeaderTab"
-                className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-650 dark:bg-indigo-400 rounded-full"
-                transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-              />
-            )}
-          </button>
-          <button
-            onClick={() => router.replace('/dashboard?tab=insights')}
-            className={`text-sm font-bold pb-1 relative cursor-pointer outline-none border-0 bg-transparent transition-colors duration-200 ${
-              tab === 'insights' ? 'text-theme-text' : 'text-theme-secondary hover:text-theme-text'
-            }`}
-          >
-            Insights
-            {tab === 'insights' && (
-              <motion.div
-                layoutId="activeHeaderTab"
-                className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-650 dark:bg-indigo-400 rounded-full"
-                transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-              />
-            )}
-          </button>
-        </div>
+        {/* Title */}
+        <h1 className="text-sm font-black text-theme-text uppercase tracking-widest">Overview</h1>
 
         {/* Calendar on Right */}
         <button
+          onClick={() => setIsCalendarFilterOpen(true)}
           className="p-2 rounded-xl bg-theme-btn border border-theme-btn-border/80 text-theme-secondary hover:text-theme-text cursor-pointer active:scale-95 transition-all outline-none"
           aria-label="Open Calendar Filter"
         >
@@ -136,7 +106,7 @@ export default function MobileHeader({ onMenuClick }: MobileHeaderProps) {
 
   if (pathname !== '/dashboard') {
     return (
-      <header className="sticky top-0 z-40 bg-shell/85 backdrop-blur-md border-b border-theme-border/60 px-6 py-4 flex items-center justify-between shrink-0 transition-colors duration-300">
+      <header className="relative z-40 bg-shell/85 backdrop-blur-md px-6 py-4 flex items-center justify-between shrink-0 transition-colors duration-300">
         {/* Top-left Hamburger Menu */}
         <button
           onClick={onMenuClick}
@@ -153,9 +123,6 @@ export default function MobileHeader({ onMenuClick }: MobileHeaderProps) {
           aria-label="Notifications"
         >
           <Bell className="w-4 h-4 stroke-[2.25]" />
-          <span className="absolute -top-1 -right-1 min-w-4 h-4 px-1 rounded-full bg-rose-500 text-white font-extrabold text-[8px] flex items-center justify-center border border-shell z-20 shadow-md">
-            2
-          </span>
         </button>
       </header>
     );
@@ -163,7 +130,7 @@ export default function MobileHeader({ onMenuClick }: MobileHeaderProps) {
 
   // Greeting Header with search, bell, and avatar
   return (
-    <header className="sticky top-0 z-40 bg-shell/85 backdrop-blur-md border-b border-theme-border/60 px-6 py-4 flex flex-col gap-3 shrink-0 transition-colors duration-300">
+    <header className="relative z-40 bg-shell/85 backdrop-blur-md px-6 py-4 flex flex-col gap-3 shrink-0 transition-colors duration-300">
       <div className="flex items-center justify-between w-full">
         {/* Top-left Hamburger Menu */}
         <button
@@ -204,22 +171,11 @@ export default function MobileHeader({ onMenuClick }: MobileHeaderProps) {
             aria-label="Notifications"
           >
             <Bell className="w-4 h-4 stroke-[2.25]" />
-            <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
           </button>
         </div>
       </div>
 
-      {/* Greeting and date below the action buttons */}
-      <div className="flex flex-col gap-0.5">
-        <span className="text-[9.5px] uppercase font-bold tracking-[0.25em] text-zinc-550 leading-none">
-          {dateStr}
-        </span>
-        <h1 className="text-xl font-extrabold tracking-tight text-theme-text mt-1">
-          {greeting},{' '}
-          <span className="text-indigo-600 dark:text-indigo-400">{displayName.split(' ')[0]}</span>{' '}
-          👋
-        </h1>
-      </div>
+      {/* Removed Date and Greeting block */}
     </header>
   );
 }

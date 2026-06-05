@@ -87,7 +87,7 @@ function GoogleSignInButton({ onClick, isLoading }: GoogleSignInButtonProps) {
       onClick={handleClick}
       disabled={isLoading}
       whileTap={{ scale: 0.98 }}
-      className="relative flex w-full items-center justify-center gap-3 rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-xs font-black uppercase tracking-wider text-zinc-100 shadow-sm transition-all hover:bg-zinc-900 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+      className="relative flex w-full items-center justify-center gap-3 rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm font-semibold text-zinc-100 shadow-sm transition-all hover:bg-zinc-900 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
       aria-label="Continue with Google"
       aria-busy={isLoading}
     >

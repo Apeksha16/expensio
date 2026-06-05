@@ -240,13 +240,6 @@ export default function ExpenseCard({
               >
                 {expense.title.replace(/\p{Extended_Pictographic}/gu, '').trim()}
               </span>
-              {timelineMode && (
-                <div
-                  className={`inline-flex items-center px-1.5 py-0.5 rounded-full ${meta.bg} text-[7.5px] font-black uppercase tracking-wider shrink-0 leading-none`}
-                >
-                  <span>{expense.category}</span>
-                </div>
-              )}
             </div>
 
             <div className="flex flex-wrap items-center gap-1.5 text-[10px] text-zinc-550 font-semibold mt-1 min-w-0">
@@ -254,13 +247,6 @@ export default function ExpenseCard({
                 <div className="flex items-center gap-1 shrink-0 whitespace-nowrap">
                   <Calendar className="w-3 h-3 text-zinc-600 shrink-0" />
                   <span>{formattedDate}</span>
-                </div>
-              )}
-              {!timelineMode && (
-                <div
-                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full ${meta.bg} text-[9px] font-black uppercase tracking-wider shrink-0`}
-                >
-                  <span>{expense.category}</span>
                 </div>
               )}
               {expense.splitWith && expense.splitWith.length > 0 && (
@@ -341,13 +327,13 @@ export default function ExpenseCard({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
-            className="absolute inset-0 bg-white/95 dark:bg-zinc-955/95 border border-rose-500/20 backdrop-blur-sm z-30 rounded-[20px] flex items-center justify-between px-5 py-3 shadow-md"
+            className="absolute inset-0 bg-white/95 dark:bg-zinc-900/95 border border-rose-500/20 backdrop-blur-sm z-30 rounded-[20px] flex items-center justify-between px-5 py-3 shadow-md"
           >
             <div className="flex flex-col gap-0.5 min-w-0">
               <span className="text-[10px] font-black text-rose-600 dark:text-rose-400 uppercase tracking-widest leading-none">
                 Delete transaction?
               </span>
-              <span className="text-xs text-zinc-100 font-bold truncate max-w-36 mt-1 leading-none">
+              <span className="text-xs text-zinc-800 dark:text-zinc-100 font-bold truncate max-w-36 mt-1 leading-none">
                 {expense.title.replace(/\p{Extended_Pictographic}/gu, '').trim()}
               </span>
             </div>

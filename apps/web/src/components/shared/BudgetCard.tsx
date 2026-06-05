@@ -275,7 +275,7 @@ export default function BudgetCard({ budget, onDelete, onEdit, selectedDate }: B
 
         {/* Row 3: Progress Bar & Percentage */}
         <div className="flex items-center gap-3">
-          <div className="flex-1 h-2 bg-zinc-100 dark:bg-zinc-955 rounded-full overflow-hidden p-[0.5px] border border-zinc-200/20 dark:border-zinc-850">
+          <div className="flex-1 h-2 bg-zinc-100 dark:bg-zinc-950/20 rounded-full overflow-hidden p-[0.5px] border border-zinc-200/20 dark:border-zinc-850">
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${Math.min(100, percent)}%` }}

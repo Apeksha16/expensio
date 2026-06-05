@@ -28,8 +28,15 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function BudgetsPage() {
-  const { budgets, addBudget, editBudget, deleteBudget, expenses } = useFinanceStore();
-  const [isAddBudgetOpen, setIsAddBudgetOpen] = useState(false);
+  const {
+    budgets,
+    addBudget,
+    editBudget,
+    deleteBudget,
+    expenses,
+    isAddBudgetOpen,
+    setIsAddBudgetOpen,
+  } = useFinanceStore();
   const [editingBudget, setEditingBudget] = useState<Budget | null>(null);
   const [deletingBudget, setDeletingBudget] = useState<Budget | null>(null);
 
@@ -162,7 +169,7 @@ export default function BudgetsPage() {
           <span className="text-[9.5px] font-black text-zinc-450 dark:text-zinc-550 uppercase tracking-widest leading-none">
             Overall Progress
           </span>
-          <div className="flex items-center gap-1 bg-zinc-50 dark:bg-zinc-955 border border-zinc-200/60 dark:border-zinc-850 rounded-xl p-0.5 z-10 shrink-0 shadow-xs">
+          <div className="flex items-center gap-1 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200/60 dark:border-zinc-850 rounded-xl p-0.5 z-10 shrink-0 shadow-xs">
             <button
               onClick={handlePrevMonth}
               className="p-1 text-zinc-450 hover:text-theme-text active:scale-90 transition-all bg-transparent border-0 cursor-pointer flex items-center justify-center rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-850"
@@ -322,7 +329,7 @@ export default function BudgetsPage() {
       >
         {availableCategories.length === 0 ? (
           <div className="text-center py-6 space-y-4">
-            <div className="w-12 h-12 rounded-full bg-zinc-50 dark:bg-zinc-955/60 border border-zinc-200/60 dark:border-zinc-850 flex items-center justify-center mx-auto text-zinc-400 dark:text-zinc-550">
+            <div className="w-12 h-12 rounded-full bg-zinc-50 dark:bg-zinc-950/20 border border-zinc-200/60 dark:border-zinc-850 flex items-center justify-center mx-auto text-zinc-400 dark:text-zinc-550">
               <PieChart className="w-6 h-6" />
             </div>
             <div className="space-y-1.5 px-4">
@@ -422,12 +429,16 @@ export default function BudgetsPage() {
         {editingBudget && (
           <form onSubmit={handleEditBudgetSubmit} className="space-y-6">
             <div className="flex flex-col gap-2">
-              <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+              <span className="text-[10px] font-black uppercase tracking-widest text-theme-secondary">
                 Budget Category
               </span>
-              <span className="text-sm font-bold text-theme-text bg-zinc-50/50 dark:bg-zinc-955/60 border border-zinc-200/60 dark:border-zinc-900 px-4 py-3.5 rounded-2xl block">
-                {editingBudget.category}
-              </span>
+              <div className="flex items-center gap-3 bg-zinc-50/50 dark:bg-zinc-900/20 border border-zinc-200/60 dark:border-zinc-850/60 px-4 py-3.5 rounded-2xl text-sm font-bold text-zinc-550 dark:text-zinc-450">
+                {React.createElement(
+                  categories.find((c) => c.name === editingBudget.category)?.icon || HelpCircle,
+                  { className: 'w-4.5 h-4.5 text-zinc-450 dark:text-zinc-550 shrink-0' }
+                )}
+                <span>{editingBudget.category}</span>
+              </div>
             </div>
 
             <div className="flex flex-col gap-2">

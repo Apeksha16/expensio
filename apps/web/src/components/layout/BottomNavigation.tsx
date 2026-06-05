@@ -61,13 +61,6 @@ export default function BottomNavigation({}: BottomNavigationProps) {
                     }`}
                   />
                 </motion.div>
-
-                {/* Red notification badge (Static mock count '2' on Home tab matching mockup) */}
-                {item.label === 'Home' && (
-                  <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 rounded-full bg-rose-500 text-white font-extrabold text-[8px] flex items-center justify-center border border-shell z-20 shadow-md">
-                    2
-                  </span>
-                )}
               </div>
 
               {/* Label Text */}
@@ -78,15 +71,6 @@ export default function BottomNavigation({}: BottomNavigationProps) {
               >
                 {item.label}
               </span>
-
-              {/* Active Capsule Bottom Line (Slides in perfect sync) */}
-              {isActive && (
-                <motion.span
-                  layoutId="activeTabBar"
-                  transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                  className="w-3.5 h-0.75 rounded-full bg-indigo-650 dark:bg-indigo-400 absolute bottom-1"
-                />
-              )}
             </Link>
           );
         })}
