@@ -171,9 +171,6 @@ export default function FriendsPage() {
       {/* Header Info */}
       <div className="flex items-center justify-between px-1">
         <div className="flex flex-col gap-0.5">
-          <span className="text-[11px] text-zinc-550 font-bold tracking-wider">
-            {greeting}, {firstName}! 👋
-          </span>
           <h2 className="text-xl font-extrabold tracking-tight text-theme-text">Friends</h2>
           <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">
             Track and settle split balances

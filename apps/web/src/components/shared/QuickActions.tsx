@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Plus, PieChart, Scan, Users, Settings } from 'lucide-react';
+import { Plus, PieChart, Scan, Users } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 
@@ -9,7 +9,6 @@ interface QuickActionsProps {
   onAddExpenseClick: () => void;
   onAddBudgetClick?: () => void;
   onScanReceiptClick?: () => void;
-  onCustomizeClick?: () => void;
   enabledActions?: string[];
 }
 
@@ -17,7 +16,6 @@ export default function QuickActions({
   onAddExpenseClick,
   onAddBudgetClick,
   onScanReceiptClick,
-  onCustomizeClick,
   enabledActions = ['Add Expense', 'Add Budget', 'Scan Receipt', 'Split Expense'],
 }: QuickActionsProps) {
   const router = useRouter();
@@ -55,13 +53,6 @@ export default function QuickActions({
         <h3 className="text-[11px] font-extrabold uppercase tracking-widest text-zinc-800 dark:text-zinc-200">
           Quick actions
         </h3>
-        <button
-          onClick={onCustomizeClick}
-          className="text-[9.5px] font-black uppercase tracking-wider text-indigo-650 dark:text-indigo-400 hover:underline flex items-center gap-1 cursor-pointer bg-transparent border-0 outline-none"
-        >
-          <Settings className="w-3 h-3 stroke-[2.5]" />
-          <span>Customize</span>
-        </button>
       </div>
 
       <div

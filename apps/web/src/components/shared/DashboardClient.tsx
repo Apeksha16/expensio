@@ -13,8 +13,6 @@ import {
   UtensilsCrossed,
   ShoppingBag,
   Plane,
-  Flame,
-  Zap,
   Camera,
   Check,
   Image as ImageIcon,
@@ -65,15 +63,6 @@ export default function DashboardClient() {
   }; // Custom Category Dropdown Analytics Filter
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState('All');
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
-
-  // Quick Action Customizer States
-  const [isCustomizerOpen, setIsCustomizerOpen] = useState(false);
-  const [enabledActions, setEnabledActions] = useState<string[]>([
-    'Add Expense',
-    'Add Budget',
-    'Scan Receipt',
-    'Split Expense',
-  ]);
 
   // Receipt Scanner States
   const [isReceiptScannerOpen, setIsReceiptScannerOpen] = useState(false);
@@ -215,36 +204,7 @@ export default function DashboardClient() {
         <QuickActions
           onAddExpenseClick={() => setIsAddExpenseOpen(true)}
           onScanReceiptClick={() => setIsReceiptScannerOpen(true)}
-          onCustomizeClick={() => setIsCustomizerOpen(true)}
-          enabledActions={enabledActions}
         />
-
-        {/* 3. Smart Insights Premium Widget */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-1.5 px-1 text-indigo-650 dark:text-indigo-400">
-            <Sparkles className="w-4 h-4 stroke-[2.25]" />
-            <span className="text-[11px] font-black uppercase tracking-widest">Smart insights</span>
-          </div>
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="p-5 rounded-[26px] bg-white dark:bg-zinc-900 border border-theme-card-border shadow-[0_6px_18px_rgba(0,0,0,0.015)] relative overflow-hidden flex flex-col gap-3.5"
-          >
-            <p className="text-[11px] text-zinc-100 font-semibold leading-relaxed">
-              You spent{' '}
-              <span className="text-indigo-600 dark:text-indigo-400 font-bold">
-                18% less on Food
-              </span>{' '}
-              compared to last month. Great job! 🎉
-            </p>
-            <button
-              onClick={() => showToast('Smart Insights: Food allocation is optimized!')}
-              className="w-fit px-4 py-2 rounded-full bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-750 text-[10px] font-black uppercase tracking-wider text-zinc-700 dark:text-zinc-300 active:scale-95 transition-all cursor-pointer border-0 outline-none"
-            >
-              View details
-            </button>
-          </motion.div>
-        </div>
 
         {/* 4. Budget Status Card */}
         <motion.div
@@ -330,9 +290,9 @@ export default function DashboardClient() {
               <ChevronRight className="w-3.5 h-3.5" />
             </Link>
           </div>
-          <div className="bg-white dark:bg-zinc-900 border border-theme-card-border rounded-[28px] overflow-hidden divide-y divide-zinc-100/50 dark:divide-zinc-800/40 px-3.5 py-1.5 shadow-[0_6px_18px_rgba(0,0,0,0.015)]">
+          <div className="flex flex-col gap-3">
             {recentExpenses.length === 0 ? (
-              <div className="p-8 text-center text-xs text-zinc-550 font-bold">
+              <div className="p-8 text-center text-xs text-zinc-550 font-bold bg-white dark:bg-zinc-900 border border-theme-card-border rounded-[28px]">
                 No transactions found.
               </div>
             ) : (
@@ -823,94 +783,6 @@ export default function DashboardClient() {
     );
   }
 
-  // ----------------------------------------------------
-  // RENDER VIEW C: INSIGHTS AI ANALYSIS (tab=insights)
-  // ----------------------------------------------------
-  else if (tab === 'insights') {
-    tabContent = (
-      <div className="space-y-6 pb-6 select-none relative">
-        <div className="flex flex-col gap-1 px-1">
-          <h2 className="text-base font-black text-zinc-900 dark:text-white leading-none">
-            Deep AI Analysis
-          </h2>
-          <p className="text-[10px] text-zinc-400 dark:text-zinc-550 font-bold uppercase tracking-wider mt-1.5">
-            Personalized saving directives & predictions
-          </p>
-        </div>
-
-        {/* Prediction 1 Card */}
-        <div className="p-4.5 rounded-[24px] bg-white dark:bg-zinc-900 border border-zinc-800/60 dark:border-zinc-800 flex gap-4 shadow-xs relative overflow-hidden">
-          <div className="absolute right-0 top-0 w-12 h-12 bg-rose-500/5 rounded-full blur-md pointer-events-none" />
-          <div className="w-9 h-9 rounded-xl bg-rose-500/10 border border-rose-500/25 flex items-center justify-center text-rose-600 dark:text-rose-500 shrink-0">
-            <Flame className="w-4.5 h-4.5 stroke-[2.25]" />
-          </div>
-          <div className="flex flex-col gap-1 w-full">
-            <span className="text-[9px] font-black uppercase tracking-widest text-rose-600 dark:text-rose-500">
-              High Risk Alert
-            </span>
-            <span className="text-[11.5px] font-extrabold text-zinc-800 dark:text-zinc-200 mt-0.5 leading-snug">
-              Food Budget Overflow Predicted
-            </span>
-            <p className="text-[10.5px] text-zinc-550 dark:text-zinc-400 font-semibold leading-relaxed mt-1">
-              Based on your coffee and restaurant spend rate of{' '}
-              <span className="font-bold text-zinc-800 dark:text-white">₹780/day</span>, you are
-              projected to exceed your food limit by{' '}
-              <span className="text-rose-600 dark:text-rose-500 font-bold">₹1,850</span> in 6 days.
-            </p>
-          </div>
-        </div>
-
-        {/* Suggestion 2 Card */}
-        <div className="p-4.5 rounded-[24px] bg-white dark:bg-zinc-900 border border-zinc-800/60 dark:border-zinc-800 flex gap-4 shadow-xs relative overflow-hidden">
-          <div className="absolute right-0 top-0 w-12 h-12 bg-emerald-500/5 rounded-full blur-md pointer-events-none" />
-          <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
-            <Zap className="w-4.5 h-4.5 stroke-[2.25]" />
-          </div>
-          <div className="flex flex-col gap-1 w-full">
-            <span className="text-[9px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
-              Saving Suggestion
-            </span>
-            <span className="text-[11.5px] font-extrabold text-zinc-800 dark:text-zinc-200 mt-0.5 leading-snug">
-              Reduce Streaming Services
-            </span>
-            <p className="text-[10.5px] text-zinc-550 dark:text-zinc-400 font-semibold leading-relaxed mt-1">
-              You are paying for 3 concurrent media subscriptions. Canceling one unused service
-              would automatically save you{' '}
-              <span className="text-emerald-600 dark:text-emerald-400 font-bold">₹1,990/year</span>.
-            </p>
-          </div>
-        </div>
-
-        {/* Comparison Metric Box */}
-        <div className="p-5 rounded-[26px] bg-zinc-50 dark:bg-zinc-955 border border-zinc-100 dark:border-zinc-900 flex flex-col gap-4">
-          <span className="text-[9px] font-black uppercase tracking-widest text-zinc-400 dark:text-zinc-500 leading-none">
-            Weekly Breakdown Comparison
-          </span>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 flex flex-col gap-1">
-              <span className="text-[8px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
-                This Week
-              </span>
-              <span className="text-base font-black text-zinc-850 dark:text-white">₹4,820</span>
-              <span className="text-[8px] font-bold text-emerald-600 dark:text-emerald-400 mt-0.5">
-                -14% vs last week
-              </span>
-            </div>
-            <div className="p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 flex flex-col gap-1">
-              <span className="text-[8px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
-                Last Week
-              </span>
-              <span className="text-base font-black text-zinc-855 dark:text-white">₹5,604</span>
-              <span className="text-[8px] font-bold text-rose-600 dark:text-rose-400 mt-0.5">
-                +4% vs preceding
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <>
       {tabContent}
@@ -996,67 +868,6 @@ export default function DashboardClient() {
             </div>
           </div>
         )}
-      </BottomSheet>
-
-      {/* 2. Quick Action Customizer bottom sheet */}
-      <BottomSheet
-        isOpen={isCustomizerOpen}
-        onClose={() => setIsCustomizerOpen(false)}
-        title="Customize Quick Actions"
-      >
-        <div className="space-y-5 select-none">
-          <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400 dark:text-zinc-550 block mb-2 px-1">
-            Toggle Dashboard Shortcuts
-          </span>
-          <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 p-4 space-y-4 shadow-sm">
-            {[
-              { label: 'Add Expense', desc: 'Log bills and payouts manually' },
-              { label: 'Add Budget', desc: 'Set monthly limits for category scopes' },
-              { label: 'Scan Receipt', desc: 'Extract items from paper invoices' },
-              { label: 'Split Expense', desc: 'Distribute costs in joined groups' },
-            ].map((action) => {
-              const isEnabled = enabledActions.includes(action.label);
-              return (
-                <div
-                  key={action.label}
-                  className="flex items-center justify-between pb-3.5 last:pb-0 border-b last:border-0 border-zinc-200/50 dark:border-zinc-800/60"
-                >
-                  <div className="flex flex-col gap-0.5 max-w-[75%]">
-                    <span className="text-xs font-bold text-zinc-800 dark:text-zinc-200">
-                      {action.label}
-                    </span>
-                    <span className="text-[9px] text-zinc-400 dark:text-zinc-500 font-medium leading-tight">
-                      {action.desc}
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (isEnabled) {
-                        setEnabledActions(enabledActions.filter((a) => a !== action.label));
-                      } else {
-                        setEnabledActions([...enabledActions, action.label]);
-                      }
-                    }}
-                    className={`w-9 h-5 rounded-full p-0.5 transition-colors duration-200 focus:outline-none flex items-center cursor-pointer border-0 ${
-                      isEnabled
-                        ? 'bg-indigo-600 justify-end'
-                        : 'bg-zinc-300 dark:bg-zinc-850 justify-start'
-                    }`}
-                  >
-                    <div className="w-4 h-4 rounded-full bg-white shadow-xs" />
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-          <button
-            onClick={() => setIsCustomizerOpen(false)}
-            className="w-full py-4 rounded-2xl bg-indigo-600 text-white font-bold text-xs uppercase tracking-widest hover:shadow-lg active:scale-98 transition-all cursor-pointer shadow-md select-none border-0"
-          >
-            Apply Changes
-          </button>
-        </div>
       </BottomSheet>
 
       {/* 3. Receipt Scanner bottom sheet */}

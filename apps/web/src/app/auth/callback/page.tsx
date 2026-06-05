@@ -16,7 +16,6 @@ export default function AuthCallbackPage() {
     }
 
     hasStartedRef.current = true;
-    let isMounted = true;
 
     const finalizeAuth = async () => {
       const searchParams =
@@ -25,6 +24,12 @@ export default function AuthCallbackPage() {
       const code = searchParams?.get('code');
 
       try {
+        if (code) {
+          console.debug('AuthCallbackPage: exchanging code for session');
+          const { error } = await supabase.auth.exchangeCodeForSession(code);
+          if (error) throw error;
+        }
+
         // Prefer reacting to the client's auth event. If the client already
         // created the session during initialization, `getSession()` will return
         // it immediately. Otherwise listen for `SIGNED_IN` and redirect once
@@ -40,7 +45,7 @@ export default function AuthCallbackPage() {
             try {
               unsub?.subscription.unsubscribe?.();
             } catch {}
-            if (isMounted) router.replace(nextPath);
+            router.replace(nextPath);
           }
         });
         unsub = subData;
@@ -52,7 +57,7 @@ export default function AuthCallbackPage() {
             try {
               unsub?.subscription.unsubscribe?.();
             } catch {}
-            if (isMounted) router.replace(nextPath);
+            router.replace(nextPath);
             return;
           }
           await new Promise((resolve) => setTimeout(resolve, 150));
@@ -61,18 +66,12 @@ export default function AuthCallbackPage() {
         throw new Error('No session found after Google sign-in.');
       } catch (err) {
         console.error('Auth callback failed:', err);
-        if (isMounted) {
-          setMessage(err instanceof Error ? err.message : 'Unable to complete sign in.');
-          setTimeout(() => router.replace('/login'), 1800);
-        }
+        setMessage(err instanceof Error ? err.message : 'Unable to complete sign in.');
+        setTimeout(() => router.replace('/login'), 1800);
       }
     };
 
     finalizeAuth();
-
-    return () => {
-      isMounted = false;
-    };
   }, [router]);
 
   return (

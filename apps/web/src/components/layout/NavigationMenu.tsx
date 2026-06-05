@@ -39,8 +39,6 @@ interface NavigationMenuProps {
   setHighContrastActive: (val: boolean) => void;
   offlineCacheActive: boolean;
   setOfflineCacheActive: (val: boolean) => void;
-  navStyle: 'slide' | 'overlay' | 'sheet' | 'dropdown';
-  handleSetNavStyle: (val: 'slide' | 'overlay' | 'sheet' | 'dropdown') => void;
 }
 
 export default function NavigationMenu({
@@ -54,8 +52,6 @@ export default function NavigationMenu({
   setHighContrastActive,
   offlineCacheActive,
   setOfflineCacheActive,
-  navStyle,
-  handleSetNavStyle,
 }: NavigationMenuProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -437,34 +433,6 @@ export default function NavigationMenu({
               </button>
             </div>
           </div>
-
-          {/* Style Selector inside overlay */}
-          <div className="space-y-3 pt-2">
-            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400 dark:text-zinc-550 px-1">
-              Navigation Layout Menu
-            </span>
-            <div className="grid grid-cols-4 gap-2">
-              {[
-                { style: 'slide', label: 'Slide' },
-                { style: 'overlay', label: 'Overlay' },
-                { style: 'sheet', label: 'Sheet' },
-                { style: 'dropdown', label: 'Dropdown' },
-              ].map((item) => (
-                <button
-                  key={item.style}
-                  type="button"
-                  onClick={() => handleSetNavStyle(item.style as any)}
-                  className={`py-2.5 rounded-xl border text-[9px] font-black uppercase tracking-wider transition-all cursor-pointer ${
-                    navStyle === item.style
-                      ? 'bg-indigo-600 text-white border-indigo-500/30 shadow-[0_2px_8px_rgba(99,102,241,0.15)]'
-                      : 'bg-zinc-100 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-650 dark:text-zinc-550 hover:bg-zinc-200/50 dark:hover:bg-zinc-900/60 hover:text-zinc-200'
-                  }`}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
 
@@ -603,34 +571,6 @@ export default function NavigationMenu({
           </div>
         </div>
 
-        {/* Layout style */}
-        <div className="space-y-3">
-          <span className="text-[9.5px] font-black uppercase tracking-widest text-zinc-400 dark:text-zinc-500 px-1 font-bold">
-            Navigation Layout Style
-          </span>
-          <div className="grid grid-cols-4 gap-2">
-            {[
-              { style: 'slide', label: 'Slide' },
-              { style: 'overlay', label: 'Overlay' },
-              { style: 'sheet', label: 'Sheet' },
-              { style: 'dropdown', label: 'Dropdown' },
-            ].map((item) => (
-              <button
-                key={item.style}
-                type="button"
-                onClick={() => handleSetNavStyle(item.style as any)}
-                className={`py-2 rounded-xl border text-[9px] font-black uppercase tracking-wider transition-all cursor-pointer ${
-                  navStyle === item.style
-                    ? 'bg-indigo-600 text-white border-indigo-500/30 shadow-[0_2px_8px_rgba(99,102,241,0.15)]'
-                    : 'bg-zinc-100 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-650 dark:text-zinc-550 hover:bg-zinc-200/50 dark:hover:bg-zinc-900/60 hover:text-zinc-200'
-                }`}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
         <button
           onClick={handleLogout}
           className="w-full py-4 rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-500 font-bold border border-rose-500/20 active:scale-98 transition-all text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-sm mt-4 shrink-0"
@@ -765,34 +705,6 @@ export default function NavigationMenu({
                 <div className="w-3.5 h-3.5 rounded-full bg-white shadow-xs" />
               </button>
             </div>
-          </div>
-        </div>
-
-        {/* Layout selector */}
-        <div className="space-y-2">
-          <span className="text-[8.5px] font-black uppercase tracking-widest text-zinc-400 dark:text-zinc-550 px-1 block">
-            Menu Layout Style
-          </span>
-          <div className="grid grid-cols-2 gap-2">
-            {[
-              { style: 'slide', label: 'Slide' },
-              { style: 'overlay', label: 'Overlay' },
-              { style: 'sheet', label: 'Sheet' },
-              { style: 'dropdown', label: 'Dropdown' },
-            ].map((item) => (
-              <button
-                key={item.style}
-                type="button"
-                onClick={() => handleSetNavStyle(item.style as any)}
-                className={`py-2 rounded-xl border text-[8.5px] font-black uppercase tracking-wider transition-all cursor-pointer ${
-                  navStyle === item.style
-                    ? 'bg-indigo-600 text-white border-indigo-500/20 shadow-xs'
-                    : 'bg-zinc-50 dark:bg-zinc-900 border-zinc-800/70 dark:border-zinc-800/80 text-zinc-600 dark:text-zinc-500 hover:bg-zinc-100/50 dark:hover:bg-zinc-900/60 hover:text-zinc-800 dark:hover:text-zinc-200'
-                }`}
-              >
-                {item.label}
-              </button>
-            ))}
           </div>
         </div>
       </div>

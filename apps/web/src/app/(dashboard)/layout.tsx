@@ -66,6 +66,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     isProfileOpen,
     setIsProfileOpen,
     isExpensesSelectionActive,
+    setIsAddBudgetOpen,
   } = useFinanceStore();
   const { user, session, isInitialized, isLoading } = useAuthStore();
 
@@ -124,23 +125,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [isPaymentDropdownOpen, setIsPaymentDropdownOpen] = useState(false);
 
   const [isNavMenuOpen, setIsNavMenuOpen] = useState(false);
-  const [navStyle, setNavStyle] = useState<'slide' | 'overlay' | 'sheet' | 'dropdown'>('slide');
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const savedStyle = localStorage.getItem('navStyle') as any;
-      if (savedStyle && ['slide', 'overlay', 'sheet', 'dropdown'].includes(savedStyle)) {
-        setNavStyle(savedStyle);
-      }
-    }
-  }, []);
-
-  const handleSetNavStyle = (style: 'slide' | 'overlay' | 'sheet' | 'dropdown') => {
-    setNavStyle(style);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('navStyle', style);
-    }
-  };
 
   const effectiveUser =
     user ??
@@ -345,9 +329,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Floating Action Button (FAB) in Bottom Right (Fixed Viewport Docked) */}
         {showFAB && (
           <button
-            onClick={() => setIsAddExpenseOpen(true)}
+            onClick={() => {
+              if (pathname === '/budgets') {
+                setIsAddBudgetOpen(true);
+              } else {
+                setIsAddExpenseOpen(true);
+              }
+            }}
             className="fixed bottom-24 right-5 sm:right-auto sm:left-[calc(50%+156px)] w-14 h-14 rounded-full bg-linear-to-br from-indigo-400 via-violet-500 to-cyan-500 flex items-center justify-center text-zinc-950 shadow-[0_8px_32px_rgba(99,102,241,0.35)] hover:shadow-[0_8px_32px_rgba(34,211,238,0.55)] active:scale-90 hover:scale-110 active:shadow-[0_4px_16px_rgba(99,102,241,0.6)] transition-all duration-300 border border-indigo-300/50 z-50 cursor-pointer group"
-            aria-label="Add Expense"
+            aria-label={pathname === '/budgets' ? 'Add Budget' : 'Add Expense'}
           >
             {/* Internal neon ambient glow aura */}
             <div className="absolute inset-0.5 rounded-full bg-linear-to-tr from-white/20 to-transparent opacity-100 border border-white/30 -z-10 group-hover:scale-105 transition-transform duration-300" />
@@ -372,8 +362,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           setHighContrastActive={setHighContrastActive}
           offlineCacheActive={offlineCacheActive}
           setOfflineCacheActive={setOfflineCacheActive}
-          navStyle="slide"
-          handleSetNavStyle={handleSetNavStyle}
         />
       </div>
 
@@ -543,7 +531,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     className="fixed inset-0 z-40 bg-transparent"
                     onClick={() => setIsPaymentDropdownOpen(false)}
                   />
-                  <div className="absolute top-[72px] left-0 right-0 bg-white dark:bg-zinc-955 border border-zinc-200 dark:border-zinc-900 shadow-xl rounded-2xl p-1.5 z-50 flex flex-col select-none animate-fade-in">
+                  <div className="absolute top-[72px] left-0 right-0 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-900 shadow-xl rounded-2xl p-1.5 z-50 flex flex-col select-none animate-fade-in">
                     {['Credit Card', 'Debit Card', 'Cash', 'UPI'].map((method) => (
                       <button
                         key={method}

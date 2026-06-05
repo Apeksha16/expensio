@@ -46,12 +46,14 @@ interface FinanceState {
   friends: Friend[];
   groups: Group[];
   isAddExpenseOpen: boolean;
+  isAddBudgetOpen: boolean;
   isNotificationsOpen: boolean;
   isProfileOpen: boolean;
   isExpensesSelectionActive: boolean;
 
   // Actions
   setIsAddExpenseOpen: (isOpen: boolean) => void;
+  setIsAddBudgetOpen: (isOpen: boolean) => void;
   setIsNotificationsOpen: (isOpen: boolean) => void;
   setIsProfileOpen: (isOpen: boolean) => void;
   setIsExpensesSelectionActive: (active: boolean) => void;
@@ -313,11 +315,13 @@ export const useFinanceStore = create<FinanceState>()(
       friends: initialFriends,
       groups: initialGroups,
       isAddExpenseOpen: false,
+      isAddBudgetOpen: false,
       isNotificationsOpen: false,
       isProfileOpen: false,
       isExpensesSelectionActive: false,
 
       setIsAddExpenseOpen: (isOpen) => set({ isAddExpenseOpen: isOpen }),
+      setIsAddBudgetOpen: (isOpen) => set({ isAddBudgetOpen: isOpen }),
       setIsNotificationsOpen: (isOpen) => set({ isNotificationsOpen: isOpen }),
       setIsProfileOpen: (isOpen) => set({ isProfileOpen: isOpen }),
       setIsExpensesSelectionActive: (active) => set({ isExpensesSelectionActive: active }),

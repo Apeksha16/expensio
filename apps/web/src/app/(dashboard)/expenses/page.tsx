@@ -255,14 +255,11 @@ export default function ExpensesPage() {
   );
 
   return (
-    <div className="space-y-6 pb-24 relative select-none">
+    <div className="space-y-6 pb-6 relative select-none">
       {/* Dynamic Sub-header */}
       <div className="flex items-center justify-between px-1">
         <div className="flex flex-col gap-0.5">
           <h2 className="text-xl font-extrabold tracking-tight text-theme-text">All Expenses</h2>
-          <p className="text-[10.5px] text-zinc-550 font-bold uppercase tracking-wider">
-            Track, manage & optimize your spending
-          </p>
         </div>
 
         {/* Selection mode triggers */}

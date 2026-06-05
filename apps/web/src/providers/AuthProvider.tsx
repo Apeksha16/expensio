@@ -272,7 +272,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const isAuthenticated = !!effectiveUser || !!session;
   const isOnboarded = effectiveUser
     ? (effectiveUser.isOnboardingCompleted ?? (effectiveUser as any).isOnboarded) &&
-      effectiveUser.monthlySalary
+      !!effectiveUser.monthlySalary
     : false;
 
   const showSplash =
@@ -283,48 +283,70 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   if (showSplash) {
     return (
-      <div className="min-h-screen w-full bg-zinc-50 dark:bg-[#09090b] flex flex-col items-center justify-center text-zinc-800 dark:text-zinc-200 select-none relative overflow-hidden transition-colors duration-350">
+      <div className="min-h-screen w-full bg-zinc-50 dark:bg-[#060608] flex flex-col items-center justify-center text-zinc-800 dark:text-zinc-200 select-none relative overflow-hidden transition-colors duration-350">
         {/* Ambient background glows */}
         <div className="absolute top-[-20%] left-[-20%] w-[500px] h-[500px] bg-indigo-600/5 dark:bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none" />
         <div className="absolute bottom-[-20%] right-[-20%] w-[500px] h-[500px] bg-cyan-500/5 dark:bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none" />
 
-        <div className="flex flex-col items-center gap-6 z-10">
-          {/* Pulsing Expensio Geometric Logo */}
-          <motion.div
-            className="h-16 w-16 rounded-[22px] bg-gradient-to-br from-indigo-500 to-cyan-500 p-0.5 shadow-[0_8px_32px_rgba(99,102,241,0.15)] dark:shadow-[0_8px_32px_rgba(99,102,241,0.25)]"
-            animate={{ scale: [1, 1.05, 1] }}
-            transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
-          >
-            <div className="h-full w-full rounded-[20px] bg-white dark:bg-zinc-950 flex items-center justify-center">
-              <svg
-                className="h-8 w-8 text-zinc-900 dark:text-zinc-100"
-                viewBox="0 0 40 40"
-                fill="none"
-                aria-hidden="true"
-              >
-                <rect x="6" y="8" width="28" height="4" rx="2" fill="currentColor" />
-                <rect x="12" y="18" width="22" height="4" rx="2" fill="currentColor" />
-                <rect x="6" y="28" width="28" height="4" rx="2" fill="currentColor" />
-              </svg>
-            </div>
-          </motion.div>
+        <div className="flex flex-col items-center gap-8 z-10">
+          {/* Concentric rotating dashed vector circles wrapper */}
+          <div className="relative h-32 w-32 flex items-center justify-center">
+            {/* Outer dashed ring rotating clockwise */}
+            <motion.div
+              className="absolute inset-0 rounded-full border border-dashed border-indigo-500/20 dark:border-indigo-500/30"
+              animate={{ rotate: 360 }}
+              transition={{ repeat: Infinity, duration: 12, ease: 'linear' }}
+            />
+            {/* Middle dashed ring rotating counter-clockwise */}
+            <motion.div
+              className="absolute inset-3 rounded-full border border-dashed border-cyan-500/25 dark:border-cyan-500/35"
+              animate={{ rotate: -360 }}
+              transition={{ repeat: Infinity, duration: 9, ease: 'linear' }}
+            />
+            {/* Inner dashed ring rotating clockwise */}
+            <motion.div
+              className="absolute inset-6 rounded-full border border-dashed border-indigo-400/15 dark:border-indigo-400/25"
+              animate={{ rotate: 180 }}
+              transition={{ repeat: Infinity, duration: 6, ease: 'linear' }}
+            />
 
-          <div className="flex flex-col items-center gap-1.5 text-center">
-            <h1 className="text-lg font-black tracking-widest uppercase bg-gradient-to-b from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent">
+            {/* Pulsing Expensio Geometric Logo */}
+            <motion.div
+              className="h-16 w-16 rounded-[22px] bg-gradient-to-br from-indigo-500 to-cyan-500 p-0.5 shadow-[0_8px_32px_rgba(99,102,241,0.15)] dark:shadow-[0_8px_32px_rgba(99,102,241,0.25)] z-10"
+              animate={{ scale: [1, 1.04, 1] }}
+              transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
+            >
+              <div className="h-full w-full rounded-[20px] bg-white dark:bg-zinc-950 flex items-center justify-center">
+                <svg
+                  className="h-8 w-8 text-zinc-900 dark:text-zinc-100"
+                  viewBox="0 0 40 40"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <rect x="6" y="8" width="28" height="4.5" rx="2.25" fill="currentColor" />
+                  <rect x="12" y="17.75" width="22" height="4.5" rx="2.25" fill="currentColor" />
+                  <rect x="6" y="27.5" width="28" height="4.5" rx="2.25" fill="currentColor" />
+                </svg>
+              </div>
+            </motion.div>
+          </div>
+
+          <div className="flex flex-col items-center gap-2 text-center">
+            <h1 className="text-xl font-black tracking-widest uppercase bg-gradient-to-b from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent">
               Expensio
             </h1>
-            <p className="text-[9px] font-bold text-zinc-500 dark:text-zinc-550 uppercase tracking-widest">
+            <p className="text-[10px] font-bold text-zinc-500 dark:text-zinc-550 uppercase tracking-widest animate-pulse">
               Securing connection
             </p>
           </div>
 
-          {/* Premium linear page loader */}
-          <div className="w-32 h-1 rounded-full bg-zinc-200 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-850 overflow-hidden relative">
+          {/* Premium linear page loader with ambient glow */}
+          <div className="w-36 h-1 rounded-full bg-zinc-200 dark:bg-zinc-900 overflow-hidden relative shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)]">
             <motion.div
-              className="h-full bg-gradient-to-r from-indigo-500 to-cyan-400 rounded-full"
-              initial={{ left: '-30%', width: '30%' }}
+              className="h-full bg-gradient-to-r from-indigo-500 via-cyan-400 to-indigo-500 rounded-full shadow-[0_0_8px_rgba(99,102,241,0.6)]"
+              initial={{ left: '-40%', width: '40%' }}
               animate={{ left: '100%' }}
-              transition={{ repeat: Infinity, duration: 1.4, ease: 'easeInOut' }}
+              transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}
               style={{ position: 'absolute', top: 0 }}
             />
           </div>
