@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Bell, Sun, Moon, Menu, Calendar, Search, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '../../store/auth-store';
 import { useFinanceStore } from '../../store/finance-store';
+import { useShallow } from 'zustand/react/shallow';
 
 interface MobileHeaderProps {
   onMenuClick?: () => void;
@@ -14,20 +15,15 @@ interface MobileHeaderProps {
 export default function MobileHeader({ onMenuClick }: MobileHeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const [tab, setTab] = useState('home');
+  const searchParams = useSearchParams();
+  const tab = searchParams?.get('tab') || 'home';
 
-  useEffect(() => {
-    const currentTab =
-      typeof window !== 'undefined'
-        ? new URLSearchParams(window.location.search).get('tab') || 'home'
-        : 'home';
-    if (currentTab !== tab) {
-      setTab(currentTab);
-    }
-  });
-
-  const { user } = useAuthStore();
-  const { setIsNotificationsOpen } = useFinanceStore();
+  const user = useAuthStore((state) => state.user);
+  const { setIsNotificationsOpen } = useFinanceStore(
+    useShallow((state) => ({
+      setIsNotificationsOpen: state.setIsNotificationsOpen,
+    }))
+  );
   const [greeting, setGreeting] = useState('Hello');
   const [dateStr, setDateStr] = useState('');
   const [theme, setTheme] = useState<'dark' | 'light'>('light');

@@ -7,6 +7,7 @@ import FriendCard from '../../../components/shared/FriendCard';
 import BottomSheet from '../../../components/shared/BottomSheet';
 import { UserPlus, Search, Check, Sparkles, Receipt, Clock, UserCheck, Users } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useShallow } from 'zustand/react/shallow';
 
 const presetSearchUsers = [
   { name: 'Divya Sharma', username: 'divyas', avatar: 'DS' },
@@ -16,8 +17,14 @@ const presetSearchUsers = [
 ];
 
 export default function FriendsPage() {
-  const { friends, addFriend, settleWithFriend } = useFinanceStore();
-  const { user } = useAuthStore();
+  const { friends, addFriend, settleWithFriend } = useFinanceStore(
+    useShallow((state) => ({
+      friends: state.friends,
+      addFriend: state.addFriend,
+      settleWithFriend: state.settleWithFriend,
+    }))
+  );
+  const user = useAuthStore((state) => state.user);
 
   // Greeting based on time of day
   const [greeting, setGreeting] = useState('Good morning');

@@ -1,14 +1,14 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import MobileHeader from '../../components/layout/MobileHeader';
 import BottomNavigation from '../../components/layout/BottomNavigation';
 import BottomSheet from '../../components/shared/BottomSheet';
 import NavigationMenu from '../../components/layout/NavigationMenu';
 import { useFinanceStore } from '../../store/finance-store';
 import { useAuthStore } from '../../store/auth-store';
-import { supabase } from '../../lib/supabase';
+import { useShallow } from 'zustand/react/shallow';
 import {
   Coffee,
   Car,
@@ -44,17 +44,8 @@ import { motion } from 'framer-motion';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [tab, setTab] = useState('home');
-
-  useEffect(() => {
-    const currentTab =
-      typeof window !== 'undefined'
-        ? new URLSearchParams(window.location.search).get('tab') || 'home'
-        : 'home';
-    if (currentTab !== tab) {
-      setTab(currentTab);
-    }
-  });
+  const searchParams = useSearchParams();
+  const tab = searchParams?.get('tab') || 'home';
 
   const {
     friends,
@@ -66,8 +57,27 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     isProfileOpen,
     setIsProfileOpen,
     isExpensesSelectionActive,
-  } = useFinanceStore();
-  const { user, session, isInitialized, isLoading } = useAuthStore();
+  } = useFinanceStore(
+    useShallow((state) => ({
+      friends: state.friends,
+      addExpense: state.addExpense,
+      isAddExpenseOpen: state.isAddExpenseOpen,
+      setIsAddExpenseOpen: state.setIsAddExpenseOpen,
+      isNotificationsOpen: state.isNotificationsOpen,
+      setIsNotificationsOpen: state.setIsNotificationsOpen,
+      isProfileOpen: state.isProfileOpen,
+      setIsProfileOpen: state.setIsProfileOpen,
+      isExpensesSelectionActive: state.isExpensesSelectionActive,
+    }))
+  );
+  const { user, session, isInitialized, isLoading } = useAuthStore(
+    useShallow((state) => ({
+      user: state.user,
+      session: state.session,
+      isInitialized: state.isInitialized,
+      isLoading: state.isLoading,
+    }))
+  );
 
   const showFAB = pathname === '/dashboard' ? tab === 'home' : !isExpensesSelectionActive;
 
@@ -135,6 +145,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   }, []);
 
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    document.body.style.height = '100dvh';
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.height = '';
+    };
+  }, []);
+
   const handleSetNavStyle = (style: 'slide' | 'overlay' | 'sheet' | 'dropdown') => {
     setNavStyle(style);
     if (typeof window !== 'undefined') {
@@ -158,15 +177,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           createdAt: new Date(session.user.created_at),
         }
       : null);
-
-  useEffect(() => {
-    if (!isInitialized || isLoading) return;
-    if (!effectiveUser) {
-      // Keep the provider in charge of login redirects; this only protects against
-      // rendering the dashboard shell without a hydrated session.
-      return;
-    }
-  }, [effectiveUser, isInitialized, isLoading]);
 
   // Custom Splits Configuration states
   const [splitType, setSplitType] = useState<'equal' | 'percentage'>('equal');
@@ -327,13 +337,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   ];
 
   return (
-    <div className="h-screen w-full bg-background text-theme-text flex justify-center overflow-hidden relative transition-colors duration-300">
+    <div className="h-[100dvh] w-full bg-background text-theme-text flex justify-center overflow-hidden relative transition-colors duration-300">
       {/* ambient glows */}
       <div className="absolute top-[-20%] left-[-20%] w-150 h-150 bg-indigo-600/5 rounded-full blur-[160px] pointer-events-none" />
       <div className="absolute bottom-[-20%] right-[-20%] w-150 h-150 bg-indigo-500/5 rounded-full blur-[160px] pointer-events-none" />
 
       {/* Responsive Canvas PWA Frame Shell */}
-      <div className="w-full max-w-md h-screen flex flex-col bg-shell border-x border-theme-border shadow-2xl relative overflow-hidden transition-colors duration-300">
+      <div className="w-full max-w-md h-full flex flex-col bg-shell border-x border-theme-border shadow-2xl relative overflow-hidden transition-colors duration-300">
         {/* Mobile Header */}
         <MobileHeader onMenuClick={() => setIsNavMenuOpen(true)} />
 

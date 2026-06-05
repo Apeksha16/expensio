@@ -7,17 +7,33 @@ import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/auth-store';
 import { AuthUser } from '@expensio/types';
 import { motion } from 'framer-motion';
+import { useShallow } from 'zustand/react/shallow';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 const AuthContext = createContext({});
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const { setSession, clearSession, setInitialized, setLoading } = useAuthStore();
+  const { setSession, clearSession, setInitialized, setLoading } = useAuthStore(
+    useShallow((state) => ({
+      setSession: state.setSession,
+      clearSession: state.clearSession,
+      setInitialized: state.setInitialized,
+      setLoading: state.setLoading,
+    }))
+  );
   const pathname = usePathname();
   const router = useRouter();
-  const { user, session, isInitialized, isLoading } = useAuthStore();
+  const { user, session, isInitialized, isLoading } = useAuthStore(
+    useShallow((state) => ({
+      user: state.user,
+      session: state.session,
+      isInitialized: state.isInitialized,
+      isLoading: state.isLoading,
+    }))
+  );
   const syncInProgressRef = useRef<string | null>(null);
+  const lastSyncedTokenRef = useRef<string | null>(null);
 
   const buildFallbackUser = (session: Session): AuthUser => {
     const user = session.user;
@@ -40,15 +56,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const syncUserWithBackend = async (session: Session) => {
     const token = session.access_token;
     if (syncInProgressRef.current === token) {
-      console.log(
+      console.debug(
         '[AuthProvider] Sync already in progress for this token, skipping duplicate call'
       );
+      return;
+    }
+    if (lastSyncedTokenRef.current === token) {
+      console.debug('[AuthProvider] Token already synced successfully, skipping duplicate call');
       return;
     }
     syncInProgressRef.current = token;
 
     try {
-      console.log('[AuthProvider] Starting backend sync...');
+      console.debug('[AuthProvider] Starting backend sync...');
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 seconds timeout
 
@@ -73,7 +93,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const data = await response.json();
       const dbUser: AuthUser = data.data?.user || data.user;
-      console.log('[AuthProvider] Backend sync successful:', dbUser);
+      console.debug('[AuthProvider] Backend sync successful:', dbUser);
+      lastSyncedTokenRef.current = token;
       setSession(session, dbUser);
     } catch (err) {
       console.warn('[AuthProvider] Backend sync unavailable, using Supabase session data:', err);
@@ -86,7 +107,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    console.log('[AuthProvider] Mount: registering auth listener and checking session');
+    console.debug('[AuthProvider] Mount: registering auth listener and checking session');
 
     // Check active session immediately on mount
     const initializeAuth = async () => {
@@ -96,11 +117,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           data: { session },
         } = await supabase.auth.getSession();
         if (session) {
-          console.log('[AuthProvider] Initial session found via getSession');
+          console.debug('[AuthProvider] Initial session found via getSession');
           setSession(session, buildFallbackUser(session));
           await syncUserWithBackend(session);
         } else {
-          console.log('[AuthProvider] No initial session found via getSession');
+          console.debug('[AuthProvider] No initial session found via getSession');
           clearSession();
         }
       } catch (err) {

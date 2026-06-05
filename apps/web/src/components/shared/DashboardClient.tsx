@@ -6,6 +6,8 @@ import BalanceHeroCard from './BalanceHeroCard';
 import QuickActions from './QuickActions';
 import ExpenseCard from './ExpenseCard';
 import BottomSheet from './BottomSheet';
+import { useSearchParams } from 'next/navigation';
+import { useShallow } from 'zustand/react/shallow';
 import {
   ChevronRight,
   ChevronDown,
@@ -54,9 +56,18 @@ const mockReceipts = [
 ];
 
 export default function DashboardClient() {
-  const { expenses, deleteExpense, editExpense, addExpense, setIsAddExpenseOpen } =
-    useFinanceStore();
-  const [tab, setTab] = useState('home');
+  const searchParams = useSearchParams();
+  const tab = searchParams?.get('tab') || 'home';
+
+  const { expenses, deleteExpense, editExpense, addExpense, setIsAddExpenseOpen } = useFinanceStore(
+    useShallow((state) => ({
+      expenses: state.expenses,
+      deleteExpense: state.deleteExpense,
+      editExpense: state.editExpense,
+      addExpense: state.addExpense,
+      setIsAddExpenseOpen: state.setIsAddExpenseOpen,
+    }))
+  );
   // Toast notifications state
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const showToast = (msg: string) => {
@@ -130,16 +141,6 @@ export default function DashboardClient() {
     setScanStep('idle');
     setScannedExpense(null);
   };
-
-  useEffect(() => {
-    const currentTab =
-      typeof window !== 'undefined'
-        ? new URLSearchParams(window.location.search).get('tab') || 'home'
-        : 'home';
-    if (currentTab !== tab) {
-      setTab(currentTab);
-    }
-  });
 
   const [isLoading, setIsLoading] = useState(true);
   const [activeDetailExpense, setActiveDetailExpense] = useState<any>(null);

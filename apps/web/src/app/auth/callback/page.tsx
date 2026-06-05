@@ -8,6 +8,7 @@ import { supabase } from '../../../lib/supabase';
 export default function AuthCallbackPage() {
   const router = useRouter();
   const hasStartedRef = useRef(false);
+  const unsubRef = useRef<any>(null);
   const [message, setMessage] = useState('Finishing sign in...');
 
   useEffect(() => {
@@ -33,24 +34,23 @@ export default function AuthCallbackPage() {
           'AuthCallbackPage: waiting for session (onAuthStateChange + polling fallback)'
         );
 
-        let unsub: any = null;
         const { data: subData } = supabase.auth.onAuthStateChange((event, session) => {
           console.debug('AuthCallbackPage:onAuthStateChange', event, !!session);
           if (event === 'SIGNED_IN' && session) {
             try {
-              unsub?.subscription.unsubscribe?.();
+              unsubRef.current?.subscription.unsubscribe?.();
             } catch {}
             if (isMounted) router.replace(nextPath);
           }
         });
-        unsub = subData;
+        unsubRef.current = subData;
 
         // Immediate check + polling fallback
         for (let attempt = 0; attempt < 20; attempt += 1) {
           const { data } = await supabase.auth.getSession();
           if (data.session) {
             try {
-              unsub?.subscription.unsubscribe?.();
+              unsubRef.current?.subscription.unsubscribe?.();
             } catch {}
             if (isMounted) router.replace(nextPath);
             return;
@@ -72,6 +72,11 @@ export default function AuthCallbackPage() {
 
     return () => {
       isMounted = false;
+      if (unsubRef.current) {
+        try {
+          unsubRef.current.subscription.unsubscribe();
+        } catch {}
+      }
     };
   }, [router]);
 

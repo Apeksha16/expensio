@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Expense, useFinanceStore } from '../../../store/finance-store';
 import ExpenseCard from '../../../components/shared/ExpenseCard';
 import BottomSheet from '../../../components/shared/BottomSheet';
+import { useShallow } from 'zustand/react/shallow';
 import {
   Search,
   ShoppingBag,
@@ -41,7 +42,16 @@ export default function ExpensesPage() {
     batchDeleteExpenses,
     isExpensesSelectionActive,
     setIsExpensesSelectionActive,
-  } = useFinanceStore();
+  } = useFinanceStore(
+    useShallow((state) => ({
+      expenses: state.expenses,
+      deleteExpense: state.deleteExpense,
+      editExpense: state.editExpense,
+      batchDeleteExpenses: state.batchDeleteExpenses,
+      isExpensesSelectionActive: state.isExpensesSelectionActive,
+      setIsExpensesSelectionActive: state.setIsExpensesSelectionActive,
+    }))
+  );
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
 
