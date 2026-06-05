@@ -50,6 +50,10 @@ interface FinanceState {
   isNotificationsOpen: boolean;
   isProfileOpen: boolean;
   isExpensesSelectionActive: boolean;
+  isCalendarFilterOpen: boolean;
+  selectedPeriod: string;
+  customStartDate: string | null;
+  customEndDate: string | null;
 
   // Actions
   setIsAddExpenseOpen: (isOpen: boolean) => void;
@@ -57,6 +61,9 @@ interface FinanceState {
   setIsNotificationsOpen: (isOpen: boolean) => void;
   setIsProfileOpen: (isOpen: boolean) => void;
   setIsExpensesSelectionActive: (active: boolean) => void;
+  setIsCalendarFilterOpen: (isOpen: boolean) => void;
+  setCustomDateRange: (start: string | null, end: string | null) => void;
+  setSelectedPeriod: (period: string) => void;
   addExpense: (expense: Omit<Expense, 'id'>) => void;
   editExpense: (id: string, updated: Partial<Expense>) => void;
   deleteExpense: (id: string) => void;
@@ -319,12 +326,19 @@ export const useFinanceStore = create<FinanceState>()(
       isNotificationsOpen: false,
       isProfileOpen: false,
       isExpensesSelectionActive: false,
+      isCalendarFilterOpen: false,
+      selectedPeriod: 'This Month',
+      customStartDate: null,
+      customEndDate: null,
 
       setIsAddExpenseOpen: (isOpen) => set({ isAddExpenseOpen: isOpen }),
       setIsAddBudgetOpen: (isOpen) => set({ isAddBudgetOpen: isOpen }),
       setIsNotificationsOpen: (isOpen) => set({ isNotificationsOpen: isOpen }),
       setIsProfileOpen: (isOpen) => set({ isProfileOpen: isOpen }),
       setIsExpensesSelectionActive: (active) => set({ isExpensesSelectionActive: active }),
+      setIsCalendarFilterOpen: (isOpen) => set({ isCalendarFilterOpen: isOpen }),
+      setCustomDateRange: (start, end) => set({ customStartDate: start, customEndDate: end }),
+      setSelectedPeriod: (period) => set({ selectedPeriod: period }),
 
       addExpense: (expense) =>
         set((state) => {

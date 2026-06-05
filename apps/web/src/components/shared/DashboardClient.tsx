@@ -20,6 +20,10 @@ import {
   Upload,
   X,
   Plus,
+  Calendar,
+  HelpCircle,
+  Car,
+  Zap,
 } from 'lucide-react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -52,8 +56,20 @@ const mockReceipts = [
 ];
 
 export default function DashboardClient() {
-  const { expenses, deleteExpense, editExpense, addExpense, setIsAddExpenseOpen } =
-    useFinanceStore();
+  const {
+    expenses,
+    deleteExpense,
+    editExpense,
+    addExpense,
+    setIsAddExpenseOpen,
+    selectedPeriod,
+    setSelectedPeriod,
+    isCalendarFilterOpen,
+    setIsCalendarFilterOpen,
+    customStartDate,
+    customEndDate,
+    setCustomDateRange,
+  } = useFinanceStore();
   const [tab, setTab] = useState('home');
   // Toast notifications state
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -132,7 +148,6 @@ export default function DashboardClient() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [activeDetailExpense, setActiveDetailExpense] = useState<any>(null);
-  const [selectedPeriod, setSelectedPeriod] = useState('This Month');
 
   // Loader duration matching mockup transitions
   useEffect(() => {
@@ -314,9 +329,120 @@ export default function DashboardClient() {
 
   // ----------------------------------------------------
   // RENDER VIEW B: DETAILED ANALYTICS (tab=overview)
-  // ----------------------------------------------------
   else if (tab === 'overview') {
     const periods = ['This Month', 'Last Month', '3 Months', 'Custom'];
+
+    // Dynamic date range calculation
+    const now = new Date();
+    let startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+    let endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+    if (selectedPeriod === 'This Month') {
+      startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    } else if (selectedPeriod === 'Last Month') {
+      startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      endDate = new Date(now.getFullYear(), now.getMonth(), 0);
+    } else if (selectedPeriod === '3 Months') {
+      startDate = new Date(now.getFullYear(), now.getMonth() - 2, 1);
+      endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    } else if (selectedPeriod === 'Custom') {
+      if (customStartDate) startDate = new Date(customStartDate);
+      if (customEndDate) endDate = new Date(customEndDate);
+    }
+
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(23, 59, 59, 999);
+
+    // Filter actual expenses in range
+    const periodExpenses = expenses.filter((e) => {
+      if (e.category === 'Income' || e.paidBy !== 'me') return false;
+      const eDate = new Date(e.date);
+      return eDate >= startDate && eDate <= endDate;
+    });
+
+    const totalSpentPeriod = periodExpenses.reduce((sum, e) => sum + e.amount, 0);
+
+    // Dynamic Chart calculations
+    const getChartCategory = (cat: string) => {
+      if (cat === 'Food') return 'Food';
+      if (cat === 'Shopping' || cat === 'Gifts') return 'Shopping';
+      if (cat === 'Travel' || cat === 'Transport') return 'Travel';
+      if (
+        cat === 'Bills & Utilities' ||
+        cat === 'Credit Card' ||
+        cat === 'Rent' ||
+        cat === 'Utilities' ||
+        cat === 'Bills'
+      )
+        return 'Bills';
+      return 'Others';
+    };
+
+    const foodSum = periodExpenses
+      .filter((e) => getChartCategory(e.category) === 'Food')
+      .reduce((sum, e) => sum + e.amount, 0);
+    const shoppingSum = periodExpenses
+      .filter((e) => getChartCategory(e.category) === 'Shopping')
+      .reduce((sum, e) => sum + e.amount, 0);
+    const travelSum = periodExpenses
+      .filter((e) => getChartCategory(e.category) === 'Travel')
+      .reduce((sum, e) => sum + e.amount, 0);
+    const billsSum = periodExpenses
+      .filter((e) => getChartCategory(e.category) === 'Bills')
+      .reduce((sum, e) => sum + e.amount, 0);
+    const othersSum = periodExpenses
+      .filter((e) => getChartCategory(e.category) === 'Others')
+      .reduce((sum, e) => sum + e.amount, 0);
+
+    const maxCategorySum = Math.max(foodSum, shoppingSum, travelSum, billsSum, othersSum, 1);
+
+    const foodHeight = `${Math.max(10, Math.round((foodSum / maxCategorySum) * 100))}%`;
+    const shoppingHeight = `${Math.max(10, Math.round((shoppingSum / maxCategorySum) * 100))}%`;
+    const travelHeight = `${Math.max(10, Math.round((travelSum / maxCategorySum) * 100))}%`;
+    const billsHeight = `${Math.max(10, Math.round((billsSum / maxCategorySum) * 100))}%`;
+    const othersHeight = `${Math.max(10, Math.round((othersSum / maxCategorySum) * 100))}%`;
+
+    const yAxisLabel5 = `₹${Math.round(maxCategorySum).toLocaleString('en-IN')}`;
+    const yAxisLabel4 = `₹${Math.round(maxCategorySum * 0.75).toLocaleString('en-IN')}`;
+    const yAxisLabel3 = `₹${Math.round(maxCategorySum * 0.5).toLocaleString('en-IN')}`;
+    const yAxisLabel2 = `₹${Math.round(maxCategorySum * 0.25).toLocaleString('en-IN')}`;
+
+    const filteredPeriodExpenses = periodExpenses.filter((e) => {
+      if (selectedCategoryFilter === 'All') return true;
+      if (selectedCategoryFilter === 'Others') {
+        return getChartCategory(e.category) === 'Others';
+      }
+      return getChartCategory(e.category) === selectedCategoryFilter;
+    });
+
+    const displayListExpenses = filteredPeriodExpenses.slice(0, 4);
+
+    const categoryStyles: Record<string, { bg: string; text: string; icon: any }> = {
+      Food: {
+        bg: 'bg-indigo-500/10 border-indigo-500/20',
+        text: 'text-indigo-650 dark:text-indigo-400',
+        icon: UtensilsCrossed,
+      },
+      Shopping: {
+        bg: 'bg-pink-500/10 border-pink-500/20',
+        text: 'text-pink-600',
+        icon: ShoppingBag,
+      },
+      Travel: { bg: 'bg-cyan-500/10 border-cyan-500/20', text: 'text-cyan-600', icon: Plane },
+      Transport: { bg: 'bg-amber-500/10 border-amber-500/20', text: 'text-amber-600', icon: Car },
+      Bills: { bg: 'bg-rose-500/10 border-rose-500/20', text: 'text-rose-600', icon: Zap },
+      'Bills & Utilities': {
+        bg: 'bg-rose-500/10 border-rose-500/20',
+        text: 'text-rose-600',
+        icon: Zap,
+      },
+      Others: {
+        bg: 'bg-zinc-500/10 border-zinc-500/20',
+        text: 'text-zinc-700 dark:text-zinc-300',
+        icon: HelpCircle,
+      },
+    };
 
     tabContent = (
       <div className="space-y-6 pb-6 select-none relative">
@@ -341,13 +467,15 @@ export default function DashboardClient() {
         <div className="p-5 rounded-[28px] bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-[0_6px_20px_rgba(0,0,0,0.015)] flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <div className="flex flex-col gap-0.5">
-              <span className="text-[10px] font-extrabold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest leading-none">
+              <span className="text-[10px] font-extrabold text-zinc-400 dark:text-zinc-550 uppercase tracking-widest leading-none">
                 Total Spent
               </span>
-              <span className="text-3xl font-black text-zinc-100 mt-1.5 leading-none">₹24,063</span>
+              <span className="text-3xl font-black text-zinc-800 dark:text-zinc-100 mt-1.5 leading-none">
+                ₹{totalSpentPeriod.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+              </span>
               <span className="text-[9.5px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-0.5 mt-1.5 leading-none select-none">
                 ▼ 8%{' '}
-                <span className="font-semibold text-zinc-400 dark:text-zinc-500">
+                <span className="font-semibold text-zinc-400 dark:text-zinc-550">
                   vs last month
                 </span>
               </span>
@@ -376,7 +504,7 @@ export default function DashboardClient() {
                       initial={{ opacity: 0, y: 8, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 8, scale: 0.95 }}
-                      className="absolute right-0 mt-2 w-36 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-1.5 shadow-lg z-50 flex flex-col gap-0.5"
+                      className="absolute right-0 mt-2 w-36 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-955 p-1.5 shadow-lg z-50 flex flex-col gap-0.5"
                     >
                       {['All', 'Food', 'Shopping', 'Travel', 'Bills', 'Others'].map((cat) => (
                         <button
@@ -385,10 +513,10 @@ export default function DashboardClient() {
                             setSelectedCategoryFilter(cat);
                             setIsCategoryDropdownOpen(false);
                           }}
-                          className={`w-full text-left px-3 py-2 rounded-lg text-[10px] font-bold uppercase transition-colors select-none ${
+                          className={`w-full text-left px-3 py-2 rounded-lg text-[10px] font-bold uppercase transition-colors select-none border-0 ${
                             selectedCategoryFilter === cat
-                              ? 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
-                              : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900/60'
+                              ? 'bg-indigo-500/10 text-indigo-650 dark:text-indigo-400'
+                              : 'text-zinc-600 dark:text-zinc-400 bg-transparent hover:bg-zinc-50 dark:hover:bg-zinc-900/60'
                           }`}
                         >
                           {cat}
@@ -405,15 +533,15 @@ export default function DashboardClient() {
           <div className="flex h-44 mt-2 relative select-none">
             {/* Y Axis Labels */}
             <div className="flex flex-col justify-between h-36 text-[8px] font-bold text-zinc-400 dark:text-zinc-550 text-right w-8 pr-2 select-none z-10">
-              <span>₹10K</span>
-              <span>₹7.5K</span>
-              <span>₹5K</span>
-              <span>₹2.5K</span>
+              <span>{yAxisLabel5}</span>
+              <span>{yAxisLabel4}</span>
+              <span>{yAxisLabel3}</span>
+              <span>{yAxisLabel2}</span>
               <span>₹0</span>
             </div>
 
             {/* Grid Container */}
-            <div className="flex-1 h-36 relative flex justify-around items-end border-l border-b border-zinc-800/60 dark:border-zinc-800/80 pb-0.5 z-10">
+            <div className="flex-1 h-36 relative flex justify-around items-end border-l border-b border-zinc-200/50 dark:border-zinc-800/80 pb-0.5 z-10">
               {/* Horizontal Grid lines */}
               <div className="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-40 dark:opacity-20 z-0">
                 <div className="border-t border-dashed border-zinc-200 dark:border-zinc-850 w-full" />
@@ -426,37 +554,37 @@ export default function DashboardClient() {
               {[
                 {
                   label: 'Food',
-                  amount: '₹9,144',
-                  height: '91.4%',
+                  amount: `₹${Math.round(foodSum).toLocaleString()}`,
+                  height: foodHeight,
                   color: 'bg-indigo-500 dark:bg-indigo-400',
                   key: 'Food',
                 },
                 {
                   label: 'Shop',
-                  amount: '₹5,053',
-                  height: '50.5%',
+                  amount: `₹${Math.round(shoppingSum).toLocaleString()}`,
+                  height: shoppingHeight,
                   color: 'bg-emerald-500 dark:bg-emerald-400',
                   key: 'Shopping',
                 },
                 {
                   label: 'Travel',
-                  amount: '₹3,850',
-                  height: '38.5%',
+                  amount: `₹${Math.round(travelSum).toLocaleString()}`,
+                  height: travelHeight,
                   color: 'bg-amber-500 dark:bg-amber-400',
                   key: 'Travel',
                 },
                 {
                   label: 'Bills',
-                  amount: '₹2,888',
-                  height: '28.8%',
+                  amount: `₹${Math.round(billsSum).toLocaleString()}`,
+                  height: billsHeight,
                   color: 'bg-rose-500 dark:bg-rose-400',
                   key: 'Bills',
                 },
                 {
                   label: 'Others',
-                  amount: '₹3,128',
-                  height: '31.2%',
-                  color: 'bg-zinc-400 dark:bg-zinc-650',
+                  amount: `₹${Math.round(othersSum).toLocaleString()}`,
+                  height: othersHeight,
+                  color: 'bg-zinc-450 dark:bg-zinc-650',
                   key: 'Others',
                 },
               ].map((bar, idx) => {
@@ -506,129 +634,48 @@ export default function DashboardClient() {
           </div>
 
           <div className="bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-[28px] overflow-hidden divide-y divide-zinc-100/50 dark:divide-zinc-800/40 px-3.5 py-1.5 shadow-[0_6px_18px_rgba(0,0,0,0.015)]">
-            {[
-              {
-                title: "McDonald's",
-                date: 'May 26',
-                category: 'Food',
-                amount: -25.5,
-                initial: 'M',
-                bg: 'bg-rose-500/10 text-rose-600 border-rose-500/20',
-              },
-              {
-                title: 'Starbucks',
-                date: 'May 26',
-                category: 'Food',
-                amount: -4.25,
-                initial: 'S',
-                bg: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
-              },
-              {
-                title: 'Fuel',
-                date: 'May 25',
-                category: 'Travel',
-                amount: -35.2,
-                initial: 'F',
-                bg: 'bg-amber-500/10 text-amber-600 border-amber-500/20',
-              },
-              {
-                title: 'Uber Ride',
-                date: 'May 25',
-                category: 'Travel',
-                amount: -12.4,
-                initial: 'U',
-                bg: 'bg-zinc-500/10 text-zinc-700 dark:text-zinc-300 border-zinc-500/20',
-              },
-            ].filter((exp) => {
-              if (selectedCategoryFilter === 'All') return true;
-              if (selectedCategoryFilter === 'Others') {
-                return (
-                  exp.category !== 'Food' &&
-                  exp.category !== 'Travel' &&
-                  exp.category !== 'Shopping' &&
-                  exp.category !== 'Bills'
-                );
-              }
-              return exp.category.toLowerCase() === selectedCategoryFilter.toLowerCase();
-            }).length === 0 ? (
+            {displayListExpenses.length === 0 ? (
               <div className="py-8 text-center text-xs text-zinc-500 font-bold select-none">
                 No recent expenses for this category.
               </div>
             ) : (
-              [
-                {
-                  title: "McDonald's",
-                  date: 'May 26',
-                  category: 'Food',
-                  amount: -25.5,
-                  initial: 'M',
-                  bg: 'bg-rose-500/10 text-rose-600 border-rose-500/20',
-                },
-                {
-                  title: 'Starbucks',
-                  date: 'May 26',
-                  category: 'Food',
-                  amount: -4.25,
-                  initial: 'S',
-                  bg: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
-                },
-                {
-                  title: 'Fuel',
-                  date: 'May 25',
-                  category: 'Travel',
-                  amount: -35.2,
-                  initial: 'F',
-                  bg: 'bg-amber-500/10 text-amber-600 border-amber-500/20',
-                },
-                {
-                  title: 'Uber Ride',
-                  date: 'May 25',
-                  category: 'Travel',
-                  amount: -12.4,
-                  initial: 'U',
-                  bg: 'bg-zinc-500/10 text-zinc-700 dark:text-zinc-300 border-zinc-500/20',
-                },
-              ]
-                .filter((exp) => {
-                  if (selectedCategoryFilter === 'All') return true;
-                  if (selectedCategoryFilter === 'Others') {
-                    return (
-                      exp.category !== 'Food' &&
-                      exp.category !== 'Travel' &&
-                      exp.category !== 'Shopping' &&
-                      exp.category !== 'Bills'
-                    );
-                  }
-                  return exp.category.toLowerCase() === selectedCategoryFilter.toLowerCase();
-                })
-                .map((exp, idx) => (
+              displayListExpenses.map((exp, idx) => {
+                const style = categoryStyles[exp.category] || categoryStyles['Others'];
+                const Icon = style.icon;
+                const formattedDate = new Date(exp.date).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                });
+                return (
                   <div
                     key={idx}
+                    onClick={() => setActiveDetailExpense(exp)}
                     className="flex items-center justify-between py-3.5 group cursor-pointer active:scale-99 transition-all"
                   >
                     <div className="flex items-center gap-3">
                       <div
-                        className={`w-9 h-9 rounded-xl flex items-center justify-center font-black text-xs border ${exp.bg}`}
+                        className={`w-9 h-9 rounded-xl flex items-center justify-center font-black text-xs border ${style.bg}`}
                       >
-                        {exp.initial}
+                        <Icon className="w-4.5 h-4.5" />
                       </div>
                       <div className="flex flex-col gap-0.5">
-                        <span className="text-[11.5px] font-extrabold text-zinc-855 dark:text-zinc-200">
+                        <span className="text-[11.5px] font-extrabold text-zinc-850 dark:text-zinc-200">
                           {exp.title}
                         </span>
                         <span className="text-[8.5px] font-bold text-zinc-400 dark:text-zinc-500 tracking-wide uppercase">
-                          {exp.date} · {exp.category}
+                          {formattedDate} · {exp.category}
                         </span>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-black text-rose-600 dark:text-rose-500 font-semibold leading-none tabular-nums">
+                      <span className="text-xs font-black text-rose-600 dark:text-rose-500 leading-none tabular-nums">
                         -₹{Math.abs(exp.amount).toFixed(2)}
                       </span>
                       <ChevronRight className="w-3.5 h-3.5 text-zinc-400 group-hover:translate-x-0.5 transition-transform" />
                     </div>
                   </div>
-                ))
+                );
+              })
             )}
           </div>
         </div>
@@ -661,7 +708,7 @@ export default function DashboardClient() {
               </div>
               <div className="flex flex-col">
                 <span className="text-[11.5px] font-extrabold text-zinc-900 dark:text-white leading-tight">
-                  ₹3,856{' '}
+                  ₹{Math.round(foodSum).toLocaleString()}{' '}
                   <span className="text-[8px] font-bold text-zinc-400 dark:text-zinc-550">
                     / ₹6,000
                   </span>
@@ -671,12 +718,12 @@ export default function DashboardClient() {
                 <div className="w-full h-1.5 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
                   <div
                     className="h-full bg-indigo-500 dark:bg-indigo-400 rounded-full"
-                    style={{ width: '64%' }}
+                    style={{ width: `${Math.min(100, Math.round((foodSum / 6000) * 100))}%` }}
                   />
                 </div>
                 <div className="flex justify-end">
                   <span className="text-[8.5px] font-black text-indigo-600 dark:text-indigo-400">
-                    64%
+                    {Math.round((foodSum / 6000) * 100)}%
                   </span>
                 </div>
               </div>
@@ -694,7 +741,7 @@ export default function DashboardClient() {
               </div>
               <div className="flex flex-col">
                 <span className="text-[11.5px] font-extrabold text-zinc-900 dark:text-white leading-tight">
-                  ₹2,250{' '}
+                  ₹{Math.round(shoppingSum).toLocaleString()}{' '}
                   <span className="text-[8px] font-bold text-zinc-400 dark:text-zinc-550">
                     / ₹4,000
                   </span>
@@ -704,12 +751,12 @@ export default function DashboardClient() {
                 <div className="w-full h-1.5 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
                   <div
                     className="h-full bg-emerald-500 dark:bg-emerald-400 rounded-full"
-                    style={{ width: '56%' }}
+                    style={{ width: `${Math.min(100, Math.round((shoppingSum / 4000) * 100))}%` }}
                   />
                 </div>
                 <div className="flex justify-end">
                   <span className="text-[8.5px] font-black text-emerald-600 dark:text-emerald-400">
-                    56%
+                    {Math.round((shoppingSum / 4000) * 100)}%
                   </span>
                 </div>
               </div>
@@ -727,7 +774,7 @@ export default function DashboardClient() {
               </div>
               <div className="flex flex-col">
                 <span className="text-[11.5px] font-extrabold text-zinc-900 dark:text-white leading-tight">
-                  ₹1,200{' '}
+                  ₹{Math.round(travelSum).toLocaleString()}{' '}
                   <span className="text-[8px] font-bold text-zinc-400 dark:text-zinc-550">
                     / ₹3,000
                   </span>
@@ -737,12 +784,12 @@ export default function DashboardClient() {
                 <div className="w-full h-1.5 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
                   <div
                     className="h-full bg-amber-500 dark:bg-amber-450 rounded-full"
-                    style={{ width: '40%' }}
+                    style={{ width: `${Math.min(100, Math.round((travelSum / 3000) * 100))}%` }}
                   />
                 </div>
                 <div className="flex justify-end">
                   <span className="text-[8.5px] font-black text-amber-600 dark:text-amber-450">
-                    40%
+                    {Math.round((travelSum / 3000) * 100)}%
                   </span>
                 </div>
               </div>
@@ -755,7 +802,6 @@ export default function DashboardClient() {
           <div className="absolute right-[-10%] top-[-30%] w-24 h-24 bg-white/10 rounded-full blur-xl pointer-events-none" />
 
           <div className="flex items-center gap-3.5 z-10">
-            {/* Abstract gold coin SVG badge */}
             <div className="w-11 h-11 rounded-2xl bg-white/12 border border-white/15 flex items-center justify-center shrink-0 shadow-inner select-none">
               <Sparkles className="w-5.5 h-5.5 text-amber-300 stroke-[2.25] animate-pulse" />
             </div>
@@ -779,6 +825,75 @@ export default function DashboardClient() {
             <ChevronRight className="w-5 h-5 stroke-[3]" />
           </button>
         </div>
+
+        {/* Date Range Picker BottomSheet */}
+        <BottomSheet
+          isOpen={isCalendarFilterOpen}
+          onClose={() => setIsCalendarFilterOpen(false)}
+          title="Select Custom Range"
+        >
+          <div className="space-y-6 select-none">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col gap-2">
+                <span className="text-[10.5px] font-extrabold uppercase tracking-widest text-zinc-400 dark:text-zinc-550">
+                  Start Date
+                </span>
+                <input
+                  type="date"
+                  value={customStartDate || ''}
+                  onChange={(e) => {
+                    setCustomDateRange(e.target.value || null, customEndDate);
+                  }}
+                  className="w-full px-4.5 py-3.5 rounded-2xl bg-zinc-50/50 dark:bg-zinc-900/20 border border-zinc-200/60 dark:border-zinc-850/60 focus:border-indigo-500/40 text-xs font-semibold text-theme-text focus:outline-none transition-colors"
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <span className="text-[10.5px] font-extrabold uppercase tracking-widest text-zinc-400 dark:text-zinc-550">
+                  End Date
+                </span>
+                <input
+                  type="date"
+                  value={customEndDate || ''}
+                  onChange={(e) => {
+                    setCustomDateRange(customStartDate, e.target.value || null);
+                  }}
+                  className="w-full px-4.5 py-3.5 rounded-2xl bg-zinc-50/50 dark:bg-zinc-900/20 border border-zinc-200/60 dark:border-zinc-850/60 focus:border-indigo-500/40 text-xs font-semibold text-theme-text focus:outline-none transition-colors"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  const start =
+                    customStartDate ||
+                    new Date(new Date().getFullYear(), new Date().getMonth(), 1)
+                      .toISOString()
+                      .split('T')[0];
+                  const end = customEndDate || new Date().toISOString().split('T')[0];
+                  setCustomDateRange(start, end);
+                  setSelectedPeriod('Custom');
+                  setIsCalendarFilterOpen(false);
+                }}
+                className="py-3.5 rounded-xl bg-indigo-650 text-white font-bold hover:shadow-lg active:scale-98 transition-all cursor-pointer text-xs border-0"
+              >
+                Apply Custom Range
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setCustomDateRange(null, null);
+                  setSelectedPeriod('This Month');
+                  setIsCalendarFilterOpen(false);
+                }}
+                className="py-3.5 rounded-xl bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-900 dark:hover:bg-zinc-850 border border-zinc-200 dark:border-zinc-800 text-theme-text font-bold active:scale-98 transition-all text-xs cursor-pointer"
+              >
+                Reset to Monthly
+              </button>
+            </div>
+          </div>
+        </BottomSheet>
       </div>
     );
   }

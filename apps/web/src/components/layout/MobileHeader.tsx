@@ -27,7 +27,7 @@ export default function MobileHeader({ onMenuClick }: MobileHeaderProps) {
   });
 
   const { user } = useAuthStore();
-  const { setIsNotificationsOpen } = useFinanceStore();
+  const { setIsNotificationsOpen, setIsCalendarFilterOpen } = useFinanceStore();
   const [greeting, setGreeting] = useState('Hello');
   const [dateStr, setDateStr] = useState('');
   const [theme, setTheme] = useState<'dark' | 'light'>('light');
@@ -82,7 +82,7 @@ export default function MobileHeader({ onMenuClick }: MobileHeaderProps) {
 
   if (isOverview) {
     return (
-      <header className="sticky top-0 z-40 bg-shell/85 backdrop-blur-md px-6 py-4 flex items-center justify-between shrink-0 transition-colors duration-300">
+      <header className="relative z-40 bg-shell/85 backdrop-blur-md px-6 py-4 flex items-center justify-between shrink-0 transition-colors duration-300">
         {/* Back Button on Left */}
         <button
           onClick={() => router.push('/dashboard')}
@@ -97,6 +97,7 @@ export default function MobileHeader({ onMenuClick }: MobileHeaderProps) {
 
         {/* Calendar on Right */}
         <button
+          onClick={() => setIsCalendarFilterOpen(true)}
           className="p-2 rounded-xl bg-theme-btn border border-theme-btn-border/80 text-theme-secondary hover:text-theme-text cursor-pointer active:scale-95 transition-all outline-none"
           aria-label="Open Calendar Filter"
         >
@@ -108,7 +109,7 @@ export default function MobileHeader({ onMenuClick }: MobileHeaderProps) {
 
   if (pathname !== '/dashboard') {
     return (
-      <header className="sticky top-0 z-40 bg-shell/85 backdrop-blur-md px-6 py-4 flex items-center justify-between shrink-0 transition-colors duration-300">
+      <header className="relative z-40 bg-shell/85 backdrop-blur-md px-6 py-4 flex items-center justify-between shrink-0 transition-colors duration-300">
         {/* Top-left Hamburger Menu */}
         <button
           onClick={onMenuClick}
@@ -132,7 +133,7 @@ export default function MobileHeader({ onMenuClick }: MobileHeaderProps) {
 
   // Greeting Header with search, bell, and avatar
   return (
-    <header className="sticky top-0 z-40 bg-shell/85 backdrop-blur-md px-6 py-4 flex flex-col gap-3 shrink-0 transition-colors duration-300">
+    <header className="relative z-40 bg-shell/85 backdrop-blur-md px-6 py-4 flex flex-col gap-3 shrink-0 transition-colors duration-300">
       <div className="flex items-center justify-between w-full">
         {/* Top-left Hamburger Menu */}
         <button
