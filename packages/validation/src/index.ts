@@ -24,7 +24,12 @@ export const UserSchema = z.object({
 });
 
 export const updateProfileSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters').optional().nullable(),
+  name: z
+    .string()
+    .min(2, 'Name must be at least 2 characters')
+    .max(100, 'Name must be at most 100 characters')
+    .optional()
+    .nullable(),
   username: z
     .string()
     .min(3, 'Username must be at least 3 characters')
@@ -35,8 +40,9 @@ export const updateProfileSchema = z.object({
   currency: z.string().min(3).max(3).optional(),
   timezone: z.string().optional(),
   monthlySalary: z
-    .number()
-    .nonnegative('Monthly salary must be a positive number')
+    .number({ invalid_type_error: 'Monthly salary must be a number' })
+    .positive('Monthly salary must be a positive number')
+    .max(100000000, 'Salary exceeds reasonable limit')
     .optional()
     .nullable(),
   isOnboardingCompleted: z.boolean().optional(),
@@ -123,3 +129,145 @@ export type LoginInput = z.infer<typeof loginSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
+
+export const updateMpinSchema = z
+  .object({
+    currentMpin: z.string().min(1, 'Current MPIN is required'),
+    newMpin: z.string().regex(/^\d{4}$|^\d{6}$/, 'New MPIN must be exactly 4 or 6 digits'),
+    confirmMpin: z.string().min(1, 'Confirm MPIN is required'),
+  })
+  .refine((data) => data.newMpin === data.confirmMpin, {
+    message: 'New MPIN and Confirm MPIN must match',
+    path: ['confirmMpin'],
+  });
+
+export type UpdateMpinInput = z.infer<typeof updateMpinSchema>;
+
+// ---------------------------------------------------------------------------
+// Expenses
+// ---------------------------------------------------------------------------
+
+export const VALID_CATEGORIES = [
+  'Food',
+  'Shopping',
+  'Bills & Utilities',
+  'Health',
+  'Investments',
+  'Entertainment',
+  'Education',
+  'Transport',
+  'Credit Card',
+  'Udhaari',
+  'Rent',
+  'Travel',
+  'Gifts',
+  'Others',
+] as const;
+
+export type ExpenseCategory = (typeof VALID_CATEGORIES)[number];
+
+export const VALID_PAYMENT_METHODS = ['Credit Card', 'Debit Card', 'Cash', 'UPI'] as const;
+export type PaymentMethod = (typeof VALID_PAYMENT_METHODS)[number];
+
+export const createExpenseSchema = z
+  .object({
+    amount: z
+      .number({
+        required_error: 'Amount is required',
+        invalid_type_error: 'Amount must be a number',
+      })
+      .positive('Amount must be greater than 0')
+      .max(10_000_000, 'Amount exceeds maximum limit'),
+    currency: z.string().length(3, 'Currency must be a 3-character ISO code').default('INR'),
+    description: z.string().max(255, 'Description must be at most 255 characters').optional(),
+    category: z.enum(VALID_CATEGORIES, {
+      errorMap: () => ({ message: `Category must be one of: ${VALID_CATEGORIES.join(', ')}` }),
+    }),
+    date: z
+      .string({ required_error: 'Date is required' })
+      .datetime({ message: 'Date must be a valid ISO 8601 datetime string' })
+      .refine((d) => {
+        const parsed = new Date(d);
+        const oneYearAhead = new Date();
+        oneYearAhead.setFullYear(oneYearAhead.getFullYear() + 1);
+        return parsed <= oneYearAhead;
+      }, 'Date cannot be more than 1 year in the future'),
+    accountId: z.string().min(1, 'Account ID is required'),
+    paymentMethod: z.enum(VALID_PAYMENT_METHODS).optional(),
+    groupId: z.string().optional(),
+    splitWith: z.array(z.string().min(1)).optional(),
+    splitType: z.enum(['equal', 'percentage']).default('equal'),
+    splitPercentages: z.record(z.string(), z.number().min(0).max(100)).optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.splitType === 'percentage' && data.splitWith && data.splitWith.length > 0) {
+        if (!data.splitPercentages) return false;
+        const total = Object.values(data.splitPercentages).reduce((sum, v) => sum + v, 0);
+        return Math.abs(total - 100) < 0.01; // allow tiny float drift
+      }
+      return true;
+    },
+    {
+      message: 'Split percentages must sum to exactly 100 when using percentage split type',
+      path: ['splitPercentages'],
+    }
+  );
+
+export const updateExpenseSchema = z
+  .object({
+    amount: z
+      .number({ invalid_type_error: 'Amount must be a number' })
+      .positive('Amount must be greater than 0')
+      .max(10_000_000, 'Amount exceeds maximum limit')
+      .optional(),
+    currency: z.string().length(3, 'Currency must be a 3-character ISO code').optional(),
+    description: z.string().max(255, 'Description must be at most 255 characters').optional(),
+    category: z
+      .enum(VALID_CATEGORIES, {
+        errorMap: () => ({ message: `Category must be one of: ${VALID_CATEGORIES.join(', ')}` }),
+      })
+      .optional(),
+    date: z
+      .string()
+      .datetime({ message: 'Date must be a valid ISO 8601 datetime string' })
+      .optional(),
+    accountId: z.string().min(1).optional(),
+    paymentMethod: z.enum(VALID_PAYMENT_METHODS).optional().nullable(),
+    groupId: z.string().optional().nullable(),
+    splitWith: z.array(z.string().min(1)).optional(),
+    splitType: z.enum(['equal', 'percentage']).optional(),
+    splitPercentages: z.record(z.string(), z.number().min(0).max(100)).optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.splitType === 'percentage' && data.splitWith && data.splitWith.length > 0) {
+        if (!data.splitPercentages) return false;
+        const total = Object.values(data.splitPercentages).reduce((sum, v) => sum + v, 0);
+        return Math.abs(total - 100) < 0.01;
+      }
+      return true;
+    },
+    {
+      message: 'Split percentages must sum to exactly 100 when using percentage split type',
+      path: ['splitPercentages'],
+    }
+  );
+
+export const listExpensesQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+  category: z.enum(VALID_CATEGORIES).optional(),
+  startDate: z.string().datetime().optional(),
+  endDate: z.string().datetime().optional(),
+  accountId: z.string().optional(),
+  groupId: z.string().optional(),
+  minAmount: z.coerce.number().positive().optional(),
+  maxAmount: z.coerce.number().positive().optional(),
+  sortBy: z.enum(['date', 'amount', 'createdAt']).default('date'),
+  sortOrder: z.enum(['asc', 'desc']).default('desc'),
+});
+
+export type CreateExpenseInput = z.infer<typeof createExpenseSchema>;
+export type UpdateExpenseInput = z.infer<typeof updateExpenseSchema>;
+export type ListExpensesQuery = z.infer<typeof listExpensesQuerySchema>;

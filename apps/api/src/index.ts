@@ -3,13 +3,13 @@ import cors from '@fastify/cors';
 import { db } from './db/index.js';
 import { sql } from 'drizzle-orm';
 import { healthRoutes } from './routes/health.js';
-import { expenseRoutes } from './routes/expense.js';
 import { SocketManager } from './sockets/socket.manager.js';
 import { env } from './config/env.js';
 import authPlugin from './plugins/auth.plugin.js';
 import errorHandlerPlugin from './plugins/error-handler.plugin.js';
 import { authRoutes } from './modules/auth/index.js';
 import { usersRoutes } from './modules/users/index.js';
+import { expensesRoutes } from './modules/expenses/index.js';
 
 const port = env.PORT;
 const host = env.HOST;
@@ -41,9 +41,9 @@ fastify.register(authPlugin);
 
 // Register Modular Routes
 fastify.register(healthRoutes);
-fastify.register(expenseRoutes);
 fastify.register(authRoutes);
 fastify.register(usersRoutes);
+fastify.register(expensesRoutes);
 
 // Start the Fastify Server
 const start = async () => {

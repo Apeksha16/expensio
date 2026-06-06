@@ -87,7 +87,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.warn(
           `[AuthProvider] Backend sync skipped: ${response.status} ${response.statusText}`
         );
-        setSession(session, buildFallbackUser(session));
         return;
       }
 
@@ -98,7 +97,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(session, dbUser);
     } catch (err) {
       console.warn('[AuthProvider] Backend sync unavailable, using Supabase session data:', err);
-      setSession(session, buildFallbackUser(session));
     } finally {
       if (syncInProgressRef.current === token) {
         syncInProgressRef.current = null;
@@ -117,6 +115,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           data: { session },
         } = await supabase.auth.getSession();
         if (session) {
+          const current = useAuthStore.getState().session;
+          if (current?.access_token === session.access_token) {
+            console.debug('[AuthProvider] Initial session already handled by listener, skipping');
+            return;
+          }
           console.debug('[AuthProvider] Initial session found via getSession');
           setSession(session, buildFallbackUser(session));
           await syncUserWithBackend(session);
@@ -139,8 +142,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event: any, session: any) => {
-      const alreadyInitialized = useAuthStore.getState().isInitialized;
-      console.log(
+      const state = useAuthStore.getState();
+      const alreadyInitialized = state.isInitialized;
+      const currentSession = state.session;
+
+      console.debug(
         '[AuthProvider] Supabase auth event:',
         event,
         'alreadyInitialized:',
@@ -149,13 +155,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         !!session
       );
 
-      if (!alreadyInitialized) {
-        setLoading(true);
-      }
-
       if (session) {
+        if (currentSession?.access_token === session.access_token) {
+          console.debug('[AuthProvider] Session token matches current session, skipping update');
+          return;
+        }
+
+        if (!alreadyInitialized) {
+          setLoading(true);
+        }
+
         const fallbackUser = buildFallbackUser(session);
-        const currentUser = useAuthStore.getState().user;
+        const currentUser = state.user;
         const mergedUser = currentUser ? { ...fallbackUser, ...currentUser } : fallbackUser;
 
         setSession(session, mergedUser);
@@ -166,7 +177,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           void syncUserWithBackend(session);
         }
       } else {
-        clearSession();
+        if (currentSession) {
+          clearSession();
+        }
       }
 
       setInitialized(true);
@@ -181,7 +194,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // REDIRECTION GUARD
   useEffect(() => {
-    console.log(
+    console.debug(
       '[AuthProvider] Redirection guard effect running. isInitialized:',
       isInitialized,
       'pathname:',
@@ -202,7 +215,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const isPublicRoute = publicRoutes.includes(pathname);
     const effectiveUser = user ?? (session ? buildFallbackUser(session) : null);
 
-    console.log('[AuthProvider] Redirection guard processing:', {
+    console.debug('[AuthProvider] Redirection guard processing:', {
       userPresent: !!user,
       sessionPresent: !!session,
       isInitialized,

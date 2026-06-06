@@ -17,7 +17,7 @@ export function useSocket(roomId?: string) {
   useEffect(() => {
     socket.on('connect', () => {
       setIsConnected(true);
-      console.log('Socket connected successfully:', socket.id);
+      console.debug('Socket connected successfully:', socket.id);
 
       if (roomId) {
         socket.emit('join-room', roomId);
@@ -26,7 +26,7 @@ export function useSocket(roomId?: string) {
 
     socket.on('disconnect', () => {
       setIsConnected(false);
-      console.log('Socket disconnected');
+      console.debug('Socket disconnected');
     });
 
     socket.on('connect_error', (error) => {

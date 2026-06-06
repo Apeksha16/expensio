@@ -49,6 +49,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const {
     friends,
+    groups,
     addExpense,
     isAddExpenseOpen,
     setIsAddExpenseOpen,
@@ -61,6 +62,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   } = useFinanceStore(
     useShallow((state) => ({
       friends: state.friends,
+      groups: state.groups,
       addExpense: state.addExpense,
       isAddExpenseOpen: state.isAddExpenseOpen,
       setIsAddExpenseOpen: state.setIsAddExpenseOpen,
@@ -88,9 +90,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('Food');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  const [note, setNote] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('Credit Card');
   const [splitWith, setSplitWith] = useState<string[]>([]);
+  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
 
   // Notifications interactive state
   const [notifications, setNotifications] = useState([
@@ -128,10 +130,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     },
   ]);
 
-  // Profile preferences
-  const [biometricsActive, setBiometricsActive] = useState(true);
-  const [highContrastActive, setHighContrastActive] = useState(false);
-  const [offlineCacheActive, setOfflineCacheActive] = useState(true);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [isPaymentDropdownOpen, setIsPaymentDropdownOpen] = useState(false);
 
@@ -232,11 +230,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       amount: Number(amount),
       category,
       date,
-      note,
       paidBy: 'me',
       splitWith: isSplit ? splitWith : undefined,
       splitType: finalSplitType,
       splitPercentages: finalSplitPercentages,
+      groupId: selectedGroupId || undefined,
       paymentMethod,
     });
 
@@ -245,11 +243,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     setTitle('');
     setCategory('Food');
     setDate(new Date().toISOString().split('T')[0]);
-    setNote('');
     setPaymentMethod('Credit Card');
     setSplitWith([]);
     setSplitType('equal');
     setSplitPercentages({ me: 100 });
+    setSelectedGroupId(null);
     setIsAddExpenseOpen(false);
   };
 
@@ -346,13 +344,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Responsive Canvas PWA Frame Shell */}
       <div className="w-full max-w-md h-full flex flex-col bg-shell border-x border-theme-border shadow-2xl relative overflow-hidden transition-colors duration-300">
-        {/* Mobile Header */}
-        <MobileHeader onMenuClick={() => setIsNavMenuOpen(true)} />
+        {/* Scrollable Container Wrapper (header + content scroll together) */}
+        <div
+          className={`flex-1 overflow-x-hidden scrollbar-none flex flex-col pb-28 ${
+            isNavMenuOpen ? 'overflow-hidden' : 'overflow-y-auto'
+          }`}
+        >
+          {/* Mobile Header */}
+          <MobileHeader onMenuClick={() => setIsNavMenuOpen(true)} />
 
-        {/* Child Screen */}
-        <main className="flex-1 h-0 min-h-0 px-6 py-6 pb-28 overflow-y-auto overflow-x-hidden scrollbar-thin">
-          {children}
-        </main>
+          {/* Child Screen */}
+          <main className="px-6 py-6">{children}</main>
+        </div>
 
         {/* Floating Action Button (FAB) in Bottom Right (Fixed Viewport Docked) */}
         {showFAB && (
@@ -384,12 +387,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           onClose={() => setIsNavMenuOpen(false)}
           style="slide"
           showToast={showToast}
-          biometricsActive={biometricsActive}
-          setBiometricsActive={setBiometricsActive}
-          highContrastActive={highContrastActive}
-          setHighContrastActive={setHighContrastActive}
-          offlineCacheActive={offlineCacheActive}
-          setOfflineCacheActive={setOfflineCacheActive}
         />
       </div>
 
@@ -419,13 +416,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               />
             </div>
           </div>
-
-          {/* Squircle 4x2 Category Grid exactly from the mockup screenshot! */}
+          {/* Categories horizontal scroll exactly from mockup screenshot! */}
           <div className="flex flex-col gap-3">
             <label className="text-[10px] font-black uppercase tracking-widest text-theme-secondary">
               Select Category
             </label>
-            <div className="grid grid-cols-4 gap-3">
+            <div className="flex gap-3 overflow-x-auto pt-2 pb-2 px-6 -mx-6 scrollbar-none">
               {categories.map((cat) => {
                 const isSelected = category === cat.name;
                 const Icon = cat.icon;
@@ -434,10 +430,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     key={cat.name}
                     type="button"
                     onClick={() => setCategory(cat.name)}
-                    className={`flex flex-col items-center justify-center p-3 rounded-[22px] border transition-all duration-300 cursor-pointer gap-2 ${
+                    className={`flex flex-col items-center justify-center p-3 rounded-[22px] border transition-all duration-300 cursor-pointer gap-2 shrink-0 w-20 aspect-square ${
                       isSelected
                         ? 'bg-indigo-500/10 dark:bg-indigo-500/20 border-indigo-500/40 text-indigo-600 dark:text-indigo-400 ring-2 ring-indigo-500/10 scale-105 shadow-[0_4px_20px_rgba(99,102,241,0.12)]'
-                        : 'bg-zinc-100/80 dark:bg-zinc-900/40 border-zinc-200/60 dark:border-zinc-800/30 text-zinc-500 dark:text-zinc-450 hover:bg-zinc-200/50 dark:hover:bg-zinc-900/60 hover:text-zinc-800 dark:hover:text-zinc-200'
+                        : 'bg-zinc-100/80 dark:bg-zinc-900/40 border-zinc-200/60 dark:border-zinc-800/30 text-zinc-550 dark:text-zinc-450 hover:bg-zinc-200/50 dark:hover:bg-zinc-900/60 hover:text-zinc-800 dark:hover:text-zinc-200'
                     }`}
                   >
                     <motion.div
@@ -479,17 +475,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             />
           </div>
 
-          {/* Split checks */}
-          <div className="flex flex-col gap-3">
-            <label className="text-[10px] font-black uppercase tracking-widest text-theme-secondary">
-              Split Expense (Equally)
-            </label>
-            {friends.length === 0 ? (
-              <span className="text-xs text-zinc-550 italic">
-                No friend contacts found. Add friends first!
-              </span>
-            ) : (
-              <div className="flex gap-2.5 overflow-x-auto pb-1.5 scrollbar-none">
+          {/* Split checks - only show split section if friends are present */}
+          {friends && friends.length > 0 && (
+            <div className="flex flex-col gap-3">
+              <label className="text-[10px] font-black uppercase tracking-widest text-theme-secondary">
+                Split Expense (Equally)
+              </label>
+              <div className="flex gap-2.5 overflow-x-auto pt-2 pb-2 px-6 -mx-6 scrollbar-none">
                 {friends.map((friend) => {
                   const isChecked = splitWith.includes(friend.name);
                   return (
@@ -499,8 +491,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       onClick={() => handleFriendToggle(friend.name)}
                       className={`flex items-center gap-2.5 px-4 py-2.5 rounded-2xl border font-bold text-xs transition-all duration-300 shrink-0 cursor-pointer ${
                         isChecked
-                          ? 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/35 ring-1 ring-indigo-500/30 shadow-[0_2px_12px_rgba(99,102,241,0.08)]'
-                          : 'bg-zinc-100/80 dark:bg-zinc-900/40 border-zinc-200/60 dark:border-zinc-800/30 text-zinc-500 dark:text-zinc-450 hover:bg-zinc-200/50 dark:hover:bg-zinc-900/60 hover:text-zinc-800 dark:hover:text-zinc-200'
+                          ? 'bg-indigo-500/10 text-indigo-650 dark:text-indigo-400 border-indigo-500/35 ring-1 ring-indigo-500/30 shadow-[0_2px_12px_rgba(99,102,241,0.08)]'
+                          : 'bg-zinc-100/80 dark:bg-zinc-900/40 border-zinc-200/60 dark:border-zinc-800/30 text-zinc-550 dark:text-zinc-450 hover:bg-zinc-200/50 dark:hover:bg-zinc-900/60 hover:text-zinc-800 dark:hover:text-zinc-200'
                       }`}
                     >
                       <motion.div
@@ -519,17 +511,48 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   );
                 })}
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
-          {/* Date, payment method, note grid */}
+          {/* Group selection list scroll (only show if groups are present) */}
+          {groups && groups.length > 0 && (
+            <div className="flex flex-col gap-3">
+              <label className="text-[10px] font-black uppercase tracking-widest text-theme-secondary">
+                Select Group
+              </label>
+              <div className="flex gap-2.5 overflow-x-auto pt-2 pb-2 px-6 -mx-6 scrollbar-none">
+                {groups.map((group) => {
+                  const isSelected = selectedGroupId === group.id;
+                  return (
+                    <button
+                      key={group.id}
+                      type="button"
+                      onClick={() => setSelectedGroupId(isSelected ? null : group.id)}
+                      className={`flex items-center gap-2.5 px-4 py-2.5 rounded-2xl border font-bold text-xs transition-all duration-300 shrink-0 cursor-pointer ${
+                        isSelected
+                          ? 'bg-indigo-500/10 text-indigo-650 dark:text-indigo-400 border-indigo-500/35 ring-1 ring-indigo-500/30 shadow-[0_2px_12px_rgba(99,102,241,0.08)]'
+                          : 'bg-zinc-100/80 dark:bg-zinc-900/40 border-zinc-200/60 dark:border-zinc-800/30 text-zinc-550 dark:text-zinc-450 hover:bg-zinc-200/50 dark:hover:bg-zinc-900/60 hover:text-zinc-800 dark:hover:text-zinc-200'
+                      }`}
+                    >
+                      <div
+                        className={`w-3.5 h-3.5 rounded-full bg-gradient-to-tr ${group.coverImage || 'from-indigo-400 to-cyan-400'} shrink-0`}
+                      />
+                      <span>{group.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Date, payment method */}
           <div className="grid grid-cols-2 gap-5">
             <div className="flex flex-col gap-3">
               <label className="text-[10px] font-black uppercase tracking-widest text-theme-secondary">
                 Date & Time
               </label>
               <div className="relative">
-                <Calendar className="w-4 h-4 text-zinc-450 dark:text-zinc-550 absolute left-3.5 top-4" />
+                <Calendar className="w-4 h-4 text-zinc-450 dark:text-zinc-555 absolute left-3.5 top-4" />
                 <input
                   type="date"
                   value={date}
@@ -550,7 +573,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 className="w-full px-4 py-3.5 rounded-2xl bg-zinc-100/85 dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/20 text-xs font-semibold text-zinc-100 dark:text-zinc-100 transition-colors flex items-center justify-between cursor-pointer"
               >
                 <span>{paymentMethod}</span>
-                <ChevronDown className="w-4 h-4 text-zinc-400 dark:text-zinc-500" />
+                <ChevronDown className="w-4 h-4 text-zinc-400 dark:text-zinc-555" />
               </button>
 
               {isPaymentDropdownOpen && (
@@ -570,7 +593,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         }}
                         className={`w-full text-left px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer border-0 ${
                           paymentMethod === method
-                            ? 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-black'
+                            ? 'bg-indigo-500/10 text-indigo-650 dark:text-indigo-455 font-black'
                             : 'bg-transparent text-zinc-650 dark:text-zinc-450 hover:bg-zinc-50 dark:hover:bg-zinc-900/50'
                         }`}
                       >
@@ -581,19 +604,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </>
               )}
             </div>
-          </div>
-
-          <div className="flex flex-col gap-3">
-            <label className="text-[10px] font-black uppercase tracking-widest text-theme-secondary">
-              Add Note (optional)
-            </label>
-            <input
-              type="text"
-              placeholder="e.g. Lunch with friends"
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              className="w-full px-5 py-3.5 rounded-2xl bg-zinc-100/85 dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 focus:border-indigo-500 focus:ring-indigo-500/20 focus:outline-none focus:ring-1 text-sm font-semibold text-zinc-800 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-550 transition-colors"
-            />
           </div>
 
           <button

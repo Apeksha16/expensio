@@ -14,11 +14,12 @@ export class ExpenseService {
       id: 'exp_999',
       userId: sampleUser.id,
       amount: 1250.75,
-      currency: 'USD',
+      currency: 'INR',
       description: 'Cloud Server Hosting Bills',
       category: 'Infrastructure',
       date: new Date(),
       accountId: 'acc_1',
+      isSplit: false,
       createdAt: new Date(),
       updatedAt: new Date(),
     };

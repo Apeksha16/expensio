@@ -20,6 +20,7 @@ export const users = pgTable('users', {
   timezone: text('timezone').default('UTC').notNull(),
   monthlySalary: doublePrecision('monthly_salary'),
   isOnboardingCompleted: boolean('is_onboarding_completed').default(false).notNull(),
+  mpin: text('mpin'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
@@ -52,13 +53,16 @@ export const expenses = pgTable(
       .references(() => users.id, { onDelete: 'cascade' })
       .notNull(),
     amount: doublePrecision('amount').notNull(),
-    currency: text('currency').default('USD').notNull(),
+    currency: text('currency').default('INR').notNull(),
     description: text('description'),
     category: text('category').notNull(),
     date: timestamp('date').notNull(),
     accountId: text('account_id')
       .references(() => accounts.id, { onDelete: 'cascade' })
       .notNull(),
+    paymentMethod: text('payment_method'),
+    groupId: text('group_id').references(() => groups.id, { onDelete: 'set null' }),
+    isSplit: boolean('is_split').default(false).notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
   },

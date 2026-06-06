@@ -93,6 +93,7 @@ export class UserRepository {
       timezone?: string;
       monthlySalary?: number | null;
       isOnboardingCompleted?: boolean;
+      mpin?: string | null;
       supabaseAuthId?: string;
       provider?: string;
     }

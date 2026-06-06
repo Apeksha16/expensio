@@ -18,6 +18,14 @@ export async function usersRoutes(fastify: FastifyInstance) {
     usersController.updateMe.bind(usersController)
   );
 
+  fastify.put(
+    '/api/v1/users/mpin',
+    {
+      preHandler: [fastify.authenticate],
+    },
+    usersController.updateMpin.bind(usersController)
+  );
+
   fastify.post(
     '/api/v1/users/onboarding',
     {

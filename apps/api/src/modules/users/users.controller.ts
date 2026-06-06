@@ -1,6 +1,10 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { usersService } from './users.service.js';
-import { updateProfileSchema, completeOnboardingSchema } from '@expensio/validation';
+import {
+  updateProfileSchema,
+  completeOnboardingSchema,
+  updateMpinSchema,
+} from '@expensio/validation';
 import {
   formatErrorResponse,
   formatSuccessResponse,
@@ -9,6 +13,7 @@ import {
   NotFoundError,
   AppError,
 } from '../../utils/errors.js';
+import { hashMpin, verifyMpin, mpinRateLimiter, clearMpinRateLimit } from '../../utils/security.js';
 
 export class UsersController {
   /**
@@ -147,6 +152,67 @@ export class UsersController {
     } catch (err) {
       const error = err as Error | AppError;
       request.log.error(`Failed to complete onboarding: ${error.message}`);
+
+      if (error instanceof AppError) {
+        return reply.status(error.statusCode).send(formatErrorResponse(error));
+      }
+
+      return reply.status(500).send(formatErrorResponse(error));
+    }
+  }
+
+  /**
+   * Update authenticated user's MPIN
+   */
+  async updateMpin(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      if (!request.user) {
+        throw new UnauthorizedError('User not authenticated');
+      }
+
+      const userId = request.user.id;
+
+      // 1. Validate request body using Zod schema
+      const result = updateMpinSchema.safeParse(request.body);
+      if (!result.success) {
+        throw new ValidationError('Validation failed', {
+          errors: result.error.errors.map((e) => ({
+            path: e.path.join('.'),
+            message: e.message,
+          })),
+        });
+      }
+
+      const { currentMpin, newMpin } = result.data;
+
+      // 2. Enforce rate limiting
+      mpinRateLimiter(userId);
+
+      // 3. Fetch user profile from database
+      const user = await usersService.getUserById(userId);
+      if (!user) {
+        throw new NotFoundError('User profile not found');
+      }
+
+      // 4. Verify current MPIN if it is set in database
+      if (user.mpin) {
+        const isValid = verifyMpin(currentMpin, user.mpin);
+        if (!isValid) {
+          throw new AppError(400, 'Current MPIN is incorrect', 'INVALID_MPIN');
+        }
+      }
+
+      // 5. Hash new MPIN and store it
+      const newMpinHash = hashMpin(newMpin);
+      await usersService.updateMpin(userId, newMpinHash);
+
+      // 6. Reset rate limiter history on success
+      clearMpinRateLimit(userId);
+
+      return reply.send(formatSuccessResponse(undefined, 'MPIN updated successfully'));
+    } catch (err) {
+      const error = err as Error | AppError;
+      request.log.error(`Failed to update MPIN: ${error.message}`);
 
       if (error instanceof AppError) {
         return reply.status(error.statusCode).send(formatErrorResponse(error));

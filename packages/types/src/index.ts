@@ -8,6 +8,7 @@ export interface User {
   timezone?: string | null;
   monthlySalary?: number | null;
   isOnboardingCompleted?: boolean | null;
+  mpin?: string | null;
   createdAt: Date;
   updatedAt?: Date | null;
 }
@@ -17,10 +18,13 @@ export interface Expense {
   userId: string;
   amount: number;
   currency: string;
-  description?: string;
+  description?: string | null;
   category: string;
   date: Date;
   accountId: string;
+  paymentMethod?: string | null;
+  groupId?: string | null;
+  isSplit: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -88,11 +92,11 @@ export interface GroupExpense {
 
 export interface Split {
   id: string;
-  expenseId?: string;
-  groupExpenseId?: string;
+  expenseId?: string | null;
+  groupExpenseId?: string | null;
   userId: string;
   amount: number;
-  percentage?: number;
+  percentage?: number | null;
   status: 'pending' | 'settled';
 }
 

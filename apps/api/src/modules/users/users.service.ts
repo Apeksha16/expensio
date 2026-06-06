@@ -29,9 +29,17 @@ export class UsersService {
       timezone?: string;
       monthlySalary?: number | null;
       isOnboardingCompleted?: boolean;
+      mpin?: string | null;
     }
   ): Promise<User> {
     return userRepository.update(id, data);
+  }
+
+  /**
+   * Update user MPIN hash
+   */
+  async updateMpin(userId: string, mpinHash: string): Promise<User> {
+    return userRepository.update(userId, { mpin: mpinHash });
   }
 
   /**
