@@ -1,1 +1,1 @@
-export const API_VERSION = 'v1.0.1780859824057';
+export const API_VERSION = 'v1.0.1780860234958';
