@@ -3,9 +3,7 @@ import { useAuthStore } from '../store/auth-store';
 import { db } from '../utils/indexeddb';
 import { useQueryClient } from '@tanstack/react-query';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL
-  ? `${process.env.NEXT_PUBLIC_API_URL}/api/v1`
-  : 'http://localhost:3001/api/v1';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 export function useOfflineSync() {
   const [isOnline, setIsOnline] = useState(true);
@@ -41,7 +39,7 @@ export function useOfflineSync() {
         const chunk = pendingMutations.slice(currentIndex, currentIndex + CHUNK_SIZE);
 
         try {
-          const response = await fetch(`${API_URL}/sync/bulk`, {
+          const response = await fetch(`${API_URL}/api/v1/sync/bulk`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

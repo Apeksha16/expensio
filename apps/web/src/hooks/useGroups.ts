@@ -1,9 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '../store/auth-store';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL
-  ? `${process.env.NEXT_PUBLIC_API_URL}/api/v1`
-  : 'http://localhost:3001/api/v1';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 export interface Group {
   id: string;
@@ -20,7 +18,7 @@ export function useGroups() {
     queryKey: ['groups'],
     queryFn: async () => {
       if (!token) return [];
-      const res = await fetch(`${API_URL}/groups`, {
+      const res = await fetch(`${API_URL}/api/v1/groups`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const json = await res.json();
@@ -36,7 +34,7 @@ export function useCreateGroup() {
   const token = useAuthStore((state) => state.session?.access_token);
   return useMutation({
     mutationFn: async (group: Omit<Group, 'id'>) => {
-      const res = await fetch(`${API_URL}/groups`, {
+      const res = await fetch(`${API_URL}/api/v1/groups`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -57,7 +55,7 @@ export function useAddGroupMember() {
   const token = useAuthStore((state) => state.session?.access_token);
   return useMutation({
     mutationFn: async ({ groupId, userId }: { groupId: string; userId: string }) => {
-      const res = await fetch(`${API_URL}/groups/${groupId}/members`, {
+      const res = await fetch(`${API_URL}/api/v1/groups/${groupId}/members`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -1,9 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '../store/auth-store';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL
-  ? `${process.env.NEXT_PUBLIC_API_URL}/api/v1`
-  : 'http://localhost:3001/api/v1';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 export interface RecurringExpense {
   id: string;
@@ -29,7 +27,7 @@ export function useRecurring() {
     queryKey: ['recurring'],
     queryFn: async () => {
       if (!token) return [];
-      const res = await fetch(`${API_URL}/recurring`, {
+      const res = await fetch(`${API_URL}/api/v1/recurring`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const json = await res.json();
@@ -60,7 +58,7 @@ export function useSubscriptionInsights() {
           totalAnnualCommitment: 0,
           upcomingRenewals: [],
         };
-      const res = await fetch(`${API_URL}/recurring/insights`, {
+      const res = await fetch(`${API_URL}/api/v1/recurring/insights`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const json = await res.json();
@@ -77,7 +75,7 @@ export function useCreateRecurring() {
 
   return useMutation({
     mutationFn: async (payload: Partial<RecurringExpense>) => {
-      const res = await fetch(`${API_URL}/recurring`, {
+      const res = await fetch(`${API_URL}/api/v1/recurring`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -101,7 +99,7 @@ export function useUpdateRecurring() {
 
   return useMutation({
     mutationFn: async ({ id, ...payload }: Partial<RecurringExpense> & { id: string }) => {
-      const res = await fetch(`${API_URL}/recurring/${id}`, {
+      const res = await fetch(`${API_URL}/api/v1/recurring/${id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
