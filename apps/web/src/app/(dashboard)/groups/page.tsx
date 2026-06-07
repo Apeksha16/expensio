@@ -106,7 +106,7 @@ export default function GroupsPage() {
   const { data: friendsData } = useFriends();
   const friends = friendsData || [];
 
-  const { data: expensesData } = useExpenses({ limit: 1000 });
+  const { data: expensesData } = useExpenses({ limit: 100 });
   const expenses = expensesData?.expenses || [];
   const createExpenseMutation = useCreateExpense();
   const deleteExpenseMutation = useDeleteExpense();
