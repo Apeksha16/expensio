@@ -2,6 +2,7 @@ services:
   - type: web
     name: expensio-api
     env: node
+    plan: free
     # Since this is a turborepo, we build from the root directory
     buildCommand: npm install && npx turbo run build --filter=api
     startCommand: npm start --workspace=api
