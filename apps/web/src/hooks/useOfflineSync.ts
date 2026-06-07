@@ -3,7 +3,9 @@ import { useAuthStore } from '../store/auth-store';
 import { db } from '../utils/indexeddb';
 import { useQueryClient } from '@tanstack/react-query';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
+const API_URL = process.env.NEXT_PUBLIC_API_URL
+  ? `${process.env.NEXT_PUBLIC_API_URL}/api/v1`
+  : 'http://localhost:3001/api/v1';
 
 export function useOfflineSync() {
   const [isOnline, setIsOnline] = useState(true);
