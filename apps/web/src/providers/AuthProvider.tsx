@@ -105,6 +105,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
+    console.log(
+      `%c🚀 Expensio App Version: ${process.env.NEXT_PUBLIC_APP_VERSION}`,
+      'color: #3b82f6; font-size: 14px; font-weight: bold; padding: 4px; border-radius: 4px; background: #eff6ff;'
+    );
     console.debug('[AuthProvider] Mount: registering auth listener and checking session');
 
     // Check active session immediately on mount

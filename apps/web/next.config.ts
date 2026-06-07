@@ -8,7 +8,9 @@ const withSerwist = withSerwistInit({
 });
 
 const nextConfig: NextConfig = {
-  // Add any Next.js config options here if needed
+  env: {
+    NEXT_PUBLIC_APP_VERSION: `v1.0.${Date.now()}`,
+  },
 };
 
 export default withSerwist(nextConfig);

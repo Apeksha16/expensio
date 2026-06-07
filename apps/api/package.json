@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "dev:worker": "tsx watch src/worker.ts",
+    "prebuild": "node -e \"require('fs').writeFileSync('src/version.ts', 'export const API_VERSION = \\'v1.0.' + Date.now() + '\\';')\"",
     "build": "tsc",
     "start": "node dist/index.js",
     "start:worker": "node dist/worker.js",

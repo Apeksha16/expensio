@@ -28,6 +28,7 @@ import { budgetForecastWorker } from './jobs/budget-forecast.worker.js';
 import { outboxWorker } from './jobs/outbox.worker.js';
 import { cleanupSubscriptionsWorker } from './jobs/cleanup-subscriptions.worker.js';
 import { notificationCleanupWorker } from './jobs/notification-cleanup.worker.js';
+import { API_VERSION } from './version.js';
 
 import fastifyRateLimit from '@fastify/rate-limit';
 
@@ -97,6 +98,7 @@ fastify.register(pushRoutes, { prefix: '/api/v1/push' });
 const start = async () => {
   try {
     await fastify.listen({ port, host });
+    fastify.log.info(`🚀 Expensio API Version: ${API_VERSION}`);
 
     // Test Database Connection
     try {
