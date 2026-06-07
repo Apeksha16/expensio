@@ -5,8 +5,10 @@ import { io, Socket } from 'socket.io-client';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '../store/auth-store';
 
-const SOCKET_URL =
-  process.env.NEXT_PUBLIC_SOCKET_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const fallbackSocketUrl = process.env.NEXT_PUBLIC_SOCKET_URL?.includes('localhost')
+  ? null
+  : process.env.NEXT_PUBLIC_SOCKET_URL;
+const SOCKET_URL = fallbackSocketUrl || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 interface SocketContextValue {
   socket: Socket | null;
