@@ -6,6 +6,12 @@ export async function authRoutes(fastify: FastifyInstance) {
     '/api/v1/auth/me',
     {
       preHandler: [fastify.authenticate],
+      config: {
+        rateLimit: {
+          max: 20,
+          timeWindow: '1 minute',
+        },
+      },
     },
     authController.getMe.bind(authController)
   );
@@ -14,6 +20,12 @@ export async function authRoutes(fastify: FastifyInstance) {
     '/api/v1/auth/sync',
     {
       preHandler: [fastify.authenticate],
+      config: {
+        rateLimit: {
+          max: 10,
+          timeWindow: '1 minute',
+        },
+      },
     },
     authController.getMe.bind(authController)
   );

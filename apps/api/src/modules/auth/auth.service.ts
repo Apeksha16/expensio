@@ -1,4 +1,5 @@
 import { createClient, SupabaseClient, User as SupabaseUser } from '@supabase/supabase-js';
+import jwt from 'jsonwebtoken';
 import ws from 'ws';
 import { db } from '../../db/index.js';
 import { users } from '../../db/schema.js';
@@ -22,15 +23,28 @@ export class AuthService {
     });
   }
 
-  async verifyToken(token: string) {
-    const {
-      data: { user },
-      error,
-    } = await this.supabase.auth.getUser(token);
-    if (error || !user) {
-      throw new Error(error?.message || 'Invalid or expired authentication token');
+  async verifyToken(token: string): Promise<SupabaseUser> {
+    try {
+      // Local CPU signature verification (no network call)
+      const decoded = jwt.verify(token, env.SUPABASE_JWT_SECRET) as any;
+
+      // Reconstruct SupabaseUser object to preserve existing contracts
+      const user = {
+        id: decoded.sub,
+        email: decoded.email,
+        user_metadata: decoded.user_metadata || {},
+        app_metadata: decoded.app_metadata || {},
+        aud: decoded.aud || 'authenticated',
+        role: decoded.role || 'authenticated',
+        created_at: decoded.iat
+          ? new Date(decoded.iat * 1000).toISOString()
+          : new Date().toISOString(),
+      } as SupabaseUser;
+
+      return user;
+    } catch (error: any) {
+      throw new Error('Invalid or expired authentication token');
     }
-    return user;
   }
 
   /**

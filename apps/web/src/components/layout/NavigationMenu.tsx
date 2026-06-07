@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '../../store/auth-store';
 import { useFinanceStore } from '../../store/finance-store';
+import { useDashboardSummary } from '../../hooks/useDashboard';
 import { supabase } from '../../lib/supabase';
 
 interface NavigationMenuProps {
@@ -32,15 +33,10 @@ export default function NavigationMenu({ isOpen, onClose, style, showToast }: Na
   const { user } = useAuthStore();
   const [searchQuery, setSearchQuery] = useState('');
 
-  const expenses = useFinanceStore((state) => state.expenses);
-  const budgets = useFinanceStore((state) => state.budgets);
+  const { data: summary } = useDashboardSummary();
+  const totalSpent = summary?.expensesThisMonth || 0;
 
-  const totalSpent = expenses
-    .filter((e) => e.paidBy === 'me')
-    .reduce((sum, e) => sum + e.amount, 0);
-
-  const totalBudget = budgets.reduce((sum, b) => sum + b.limitAmount, 0);
-  const limitValue = user?.monthlySalary || totalBudget || 20000;
+  const limitValue = user?.monthlySalary || 20000;
   const spendPercentage = limitValue > 0 ? (totalSpent / limitValue) * 100 : 0;
 
   const displayName = user?.name || 'Admin Root';
@@ -50,7 +46,7 @@ export default function NavigationMenu({ isOpen, onClose, style, showToast }: Na
     { label: 'Dashboard', icon: Home, path: '/dashboard', active: pathname === '/dashboard' },
     { label: 'Expenses', icon: TrendingDown, path: '/expenses', active: pathname === '/expenses' },
     { label: 'Budgets', icon: PieChart, path: '/budgets', active: pathname === '/budgets' },
-    { label: 'Reports', icon: BarChart3, path: '/dashboard?tab=overview', active: false },
+    { label: 'Analytics', icon: BarChart3, path: '/analytics', active: pathname === '/analytics' },
     { label: 'Transactions', icon: History, path: '/expenses', active: false },
     { label: 'Settings', icon: Settings, path: '/settings', active: pathname === '/settings' },
   ];
@@ -67,9 +63,7 @@ export default function NavigationMenu({ isOpen, onClose, style, showToast }: Na
     }
 
     // Custom simulated feedback on secondary routes
-    if (item.label === 'Reports') {
-      showToast('Navigating to Reports (Simulated in Dashboard Overview)');
-    } else if (item.label === 'Transactions') {
+    if (item.label === 'Transactions') {
       showToast('Navigating to Transactions (Simulated in Expenses List)');
     }
 

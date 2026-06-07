@@ -54,6 +54,7 @@ export const completeOnboardingSchema = z.object({
     .min(2, 'Name must be at least 2 characters')
     .max(100, 'Name must be at most 100 characters'),
   monthlySalary: z.number().positive('Monthly salary must be greater than 0'),
+  mpin: z.string().regex(/^\d{4}$|^\d{6}$/, 'MPIN must be exactly 4 or 6 digits'),
 });
 
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
@@ -81,6 +82,42 @@ export const BudgetSchema = z.object({
   startDate: z.date().or(z.string().transform((val) => new Date(val))),
   endDate: z.date().or(z.string().transform((val) => new Date(val))),
 });
+
+export const createBudgetSchema = z.object({
+  categoryId: z.string().min(1, 'Category is required'),
+  amount: z
+    .number({ required_error: 'Amount is required' })
+    .positive('Amount must be greater than zero'),
+  period: z.enum(['monthly', 'yearly'], { required_error: 'Period is required' }),
+  startDate: z
+    .string({ required_error: 'Start date is required' })
+    .refine((val) => !isNaN(Date.parse(val)), 'Invalid start date'),
+  endDate: z
+    .string({ required_error: 'End date is required' })
+    .refine((val) => !isNaN(Date.parse(val)), 'Invalid end date'),
+});
+
+export const updateBudgetSchema = z.object({
+  amount: z.number().positive('Amount must be greater than zero').optional(),
+  period: z.enum(['monthly', 'yearly']).optional(),
+  startDate: z
+    .string()
+    .refine((val) => !isNaN(Date.parse(val)), 'Invalid start date')
+    .optional(),
+  endDate: z
+    .string()
+    .refine((val) => !isNaN(Date.parse(val)), 'Invalid end date')
+    .optional(),
+});
+
+export const budgetFilterSchema = z.object({
+  period: z.enum(['monthly', 'yearly']).optional(),
+  categoryId: z.string().optional(),
+});
+
+export type CreateBudgetInput = z.infer<typeof createBudgetSchema>;
+export type UpdateBudgetInput = z.infer<typeof updateBudgetSchema>;
+export type BudgetFiltersInput = z.infer<typeof budgetFilterSchema>;
 
 export const GroupSchema = z.object({
   id: z.string().optional(),
@@ -180,20 +217,19 @@ export const createExpenseSchema = z
       .max(10_000_000, 'Amount exceeds maximum limit'),
     currency: z.string().length(3, 'Currency must be a 3-character ISO code').default('INR'),
     description: z.string().max(255, 'Description must be at most 255 characters').optional(),
+    note: z.string().max(255, 'Note must be at most 255 characters').optional(),
     category: z.enum(VALID_CATEGORIES, {
       errorMap: () => ({ message: `Category must be one of: ${VALID_CATEGORIES.join(', ')}` }),
     }),
     date: z
       .string({ required_error: 'Date is required' })
-      .datetime({ message: 'Date must be a valid ISO 8601 datetime string' })
-      .refine((d) => {
-        const parsed = new Date(d);
-        const oneYearAhead = new Date();
-        oneYearAhead.setFullYear(oneYearAhead.getFullYear() + 1);
-        return parsed <= oneYearAhead;
-      }, 'Date cannot be more than 1 year in the future'),
-    accountId: z.string().min(1, 'Account ID is required'),
-    paymentMethod: z.enum(VALID_PAYMENT_METHODS).optional(),
+      .refine((val) => !isNaN(Date.parse(val)), {
+        message: 'Date must be a valid date string',
+      }),
+    accountId: z.string().min(1, 'Account ID is required').optional(), // made optional to support fallback default account
+    paymentMethod: z.enum(VALID_PAYMENT_METHODS, {
+      required_error: 'Payment method is required',
+    }),
     groupId: z.string().optional(),
     splitWith: z.array(z.string().min(1)).optional(),
     splitType: z.enum(['equal', 'percentage']).default('equal'),
@@ -223,6 +259,7 @@ export const updateExpenseSchema = z
       .optional(),
     currency: z.string().length(3, 'Currency must be a 3-character ISO code').optional(),
     description: z.string().max(255, 'Description must be at most 255 characters').optional(),
+    note: z.string().max(255, 'Note must be at most 255 characters').optional(),
     category: z
       .enum(VALID_CATEGORIES, {
         errorMap: () => ({ message: `Category must be one of: ${VALID_CATEGORIES.join(', ')}` }),
@@ -230,7 +267,9 @@ export const updateExpenseSchema = z
       .optional(),
     date: z
       .string()
-      .datetime({ message: 'Date must be a valid ISO 8601 datetime string' })
+      .refine((val) => !isNaN(Date.parse(val)), {
+        message: 'Date must be a valid date string',
+      })
       .optional(),
     accountId: z.string().min(1).optional(),
     paymentMethod: z.enum(VALID_PAYMENT_METHODS).optional().nullable(),
@@ -257,17 +296,42 @@ export const updateExpenseSchema = z
 export const listExpensesQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(20),
+  search: z.string().optional(),
   category: z.enum(VALID_CATEGORIES).optional(),
-  startDate: z.string().datetime().optional(),
-  endDate: z.string().datetime().optional(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
   accountId: z.string().optional(),
   groupId: z.string().optional(),
   minAmount: z.coerce.number().positive().optional(),
   maxAmount: z.coerce.number().positive().optional(),
   sortBy: z.enum(['date', 'amount', 'createdAt']).default('date'),
   sortOrder: z.enum(['asc', 'desc']).default('desc'),
+  sort: z
+    .enum(['date-desc', 'date-asc', 'amount-desc', 'amount-asc', 'date', 'amount', 'createdAt'])
+    .optional(),
+});
+
+export const expenseFilterSchema = listExpensesQuerySchema;
+
+export const bulkDeleteExpenseSchema = z.object({
+  ids: z
+    .array(z.string().min(1), {
+      required_error: 'Expense IDs are required',
+    })
+    .min(1, 'At least one expense ID must be provided'),
 });
 
 export type CreateExpenseInput = z.infer<typeof createExpenseSchema>;
 export type UpdateExpenseInput = z.infer<typeof updateExpenseSchema>;
 export type ListExpensesQuery = z.infer<typeof listExpensesQuerySchema>;
+export type ExpenseFilterInput = z.infer<typeof expenseFilterSchema>;
+export type BulkDeleteExpenseInput = z.infer<typeof bulkDeleteExpenseSchema>;
+
+export const analyticsFiltersSchema = z.object({
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+  month: z.coerce.number().int().min(1).max(12).optional(),
+  year: z.coerce.number().int().min(2000).max(2100).optional(),
+});
+
+export type AnalyticsFiltersInput = z.infer<typeof analyticsFiltersSchema>;

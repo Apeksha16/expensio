@@ -1,21 +1,16 @@
 'use client';
 
 import React from 'react';
-import { TrendingDown, BarChart2 } from 'lucide-react';
-import { useFinanceStore } from '../../store/finance-store';
+import { TrendingDown, BarChart2, Loader2 } from 'lucide-react';
+import { useDashboardSummary } from '../../hooks/useDashboard';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 
 export default function BalanceHeroCard() {
   const router = useRouter();
-  const { expenses } = useFinanceStore();
+  const { data: dashboardSummary, isLoading } = useDashboardSummary();
 
-  const mockBaseExpenses = 28909.38;
-  const addedExpenses = expenses
-    .filter((e) => e.paidBy === 'me' && !e.groupId)
-    .reduce((acc, curr) => acc + curr.amount, 0);
-
-  const displayExpenses = mockBaseExpenses + addedExpenses;
+  const displayExpenses = dashboardSummary?.totalExpenses ?? 0;
 
   return (
     <motion.div
@@ -113,12 +108,8 @@ export default function BalanceHeroCard() {
         </div>
         {/* Trend Indicator badge */}
         <div className="flex items-center gap-1.5 mt-1">
-          <div className="flex items-center gap-0.5 px-2.5 py-0.5 rounded-full bg-rose-500/10 dark:bg-rose-500/15 border border-rose-500/20 text-rose-600 dark:text-rose-400 text-[10px] font-bold">
-            <span className="scale-90 font-black">↓</span>
-            <span>8.7%</span>
-          </div>
           <span className="text-[10px] font-semibold text-zinc-400 dark:text-zinc-500">
-            vs last month
+            This calendar month
           </span>
         </div>
       </div>

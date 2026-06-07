@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Friend } from '../../store/finance-store';
+import { Friend } from '../../hooks/useFriends';
 import { ChevronRight, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -48,7 +48,11 @@ export default function FriendCard({ friend, onSettle }: FriendCardProps) {
                 : 'bg-zinc-50 dark:bg-zinc-950/25 text-zinc-550 dark:text-zinc-500 border border-zinc-150 dark:border-zinc-850'
           }`}
         >
-          {friend.avatar}
+          {friend.avatarUrl ? (
+            <img src={friend.avatarUrl} className="w-full h-full rounded-2xl object-cover" />
+          ) : (
+            friend.name.slice(0, 2).toUpperCase()
+          )}
         </div>
 
         <div className="flex flex-col gap-0.5 min-w-0">

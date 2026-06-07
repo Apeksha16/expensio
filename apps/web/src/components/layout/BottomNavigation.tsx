@@ -20,7 +20,7 @@ export default function BottomNavigation({}: BottomNavigationProps) {
   ];
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 z-50 max-w-[calc(100%-2rem)] md:max-w-[416px] mx-auto rounded-[24px] border border-theme-border/60 bg-shell/80 backdrop-blur-lg shadow-xl transition-colors duration-300">
+    <div className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] left-4 right-4 z-50 max-w-[calc(100%-2rem)] md:max-w-[416px] mx-auto rounded-[24px] border border-theme-border/60 bg-shell/80 backdrop-blur-lg shadow-xl transition-colors duration-300">
       <div className="flex h-16 items-center justify-between px-1.5 relative">
         {navItems.map((item) => {
           const isActive = pathname === item.href;

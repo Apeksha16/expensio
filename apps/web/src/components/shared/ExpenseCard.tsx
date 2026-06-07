@@ -26,7 +26,7 @@ import {
   Plane,
   Gift,
 } from 'lucide-react';
-import { Expense } from '../../store/finance-store';
+import { Expense } from '../../store/mockData';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface ExpenseCardProps {

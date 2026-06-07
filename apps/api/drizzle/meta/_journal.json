@@ -36,6 +36,55 @@
       "when": 1780689212432,
       "tag": "0004_cloudy_marten_broadcloak",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1780740426780,
+      "tag": "0005_silent_gateway",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1780744755960,
+      "tag": "0006_needy_wendell_vaughn",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1780760155463,
+      "tag": "0007_bright_magus",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1780763864834,
+      "tag": "0008_mean_madelyne_pryor",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1780764739564,
+      "tag": "0009_hard_tigra",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1780807323788,
+      "tag": "0010_gorgeous_speed_demon",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1780808609106,
+      "tag": "0011_blue_phalanx",
+      "breakpoints": true
     }
   ]
 }

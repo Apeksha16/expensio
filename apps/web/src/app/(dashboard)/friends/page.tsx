@@ -1,7 +1,13 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Friend, useFinanceStore } from '../../../store/finance-store';
+import { useFinanceStore } from '../../../store/finance-store';
+import {
+  useFriends,
+  useCreateFriend,
+  useSettleWithFriend,
+  Friend,
+} from '../../../hooks/useFriends';
 import { useAuthStore } from '../../../store/auth-store';
 import FriendCard from '../../../components/shared/FriendCard';
 import BottomSheet from '../../../components/shared/BottomSheet';
@@ -17,13 +23,10 @@ const presetSearchUsers = [
 ];
 
 export default function FriendsPage() {
-  const { friends, addFriend, settleWithFriend } = useFinanceStore(
-    useShallow((state) => ({
-      friends: state.friends,
-      addFriend: state.addFriend,
-      settleWithFriend: state.settleWithFriend,
-    }))
-  );
+  const { data: friendsData } = useFriends();
+  const friends = friendsData || [];
+  const createFriendMutation = useCreateFriend();
+  const settleMutation = useSettleWithFriend();
   const user = useAuthStore((state) => state.user);
 
   // Greeting based on time of day
@@ -66,11 +69,8 @@ export default function FriendsPage() {
   ]);
 
   const handleAddPresetFriend = (user: (typeof presetSearchUsers)[0]) => {
-    addFriend({
-      name: user.name,
-      username: user.username,
-      avatar: user.avatar,
-    });
+    createFriendMutation.mutate(user.username);
+    setSearchQuery('');
     setIsAddFriendOpen(false);
   };
 
@@ -85,11 +85,7 @@ export default function FriendsPage() {
       .slice(0, 2)
       .toUpperCase();
 
-    addFriend({
-      name: customName,
-      username: customUsername.toLowerCase().replace('@', ''),
-      avatar: initials,
-    });
+    createFriendMutation.mutate(customUsername.toLowerCase().replace('@', ''));
 
     setCustomName('');
     setCustomUsername('');
@@ -97,11 +93,7 @@ export default function FriendsPage() {
   };
 
   const handleAcceptRequest = (req: (typeof requests)[0]) => {
-    addFriend({
-      name: req.name,
-      username: req.username,
-      avatar: req.avatar,
-    });
+    createFriendMutation.mutate(req.username);
     setRequests(requests.filter((r) => r.id !== req.id));
   };
 
@@ -127,7 +119,21 @@ export default function FriendsPage() {
   const handleConfirmSettle = () => {
     if (!activeSettleFriend) return;
 
-    settleWithFriend(activeSettleFriend.id);
+    settleMutation.mutate(
+      {
+        receiverId: activeSettleFriend.id,
+        amount: Math.abs(activeSettleFriend.balance),
+      },
+      {
+        onSuccess: () => {
+          setShowSuccessOverlay(true);
+          setTimeout(() => {
+            setShowSuccessOverlay(false);
+            setActiveSettleFriend(null);
+          }, 3000);
+        },
+      }
+    );
     setShowSuccessOverlay(true);
 
     setTimeout(() => {

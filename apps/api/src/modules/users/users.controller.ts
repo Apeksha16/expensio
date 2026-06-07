@@ -37,6 +37,7 @@ export class UsersController {
           name: user.name,
           avatarUrl: user.avatarUrl,
           monthlySalary: user.monthlySalary,
+          currency: user.currency,
           isOnboardingCompleted: user.isOnboardingCompleted,
         })
       );
@@ -128,12 +129,13 @@ export class UsersController {
         });
       }
 
-      const { name, monthlySalary } = result.data;
+      const { name, monthlySalary, mpin } = result.data;
 
       // Complete onboarding
       const updatedUser = await usersService.completeOnboarding(userId, {
         name,
         monthlySalary,
+        mpin,
       });
 
       return reply.status(200).send(
@@ -144,6 +146,7 @@ export class UsersController {
             name: updatedUser.name,
             avatarUrl: updatedUser.avatarUrl,
             monthlySalary: updatedUser.monthlySalary,
+            currency: updatedUser.currency,
             isOnboardingCompleted: updatedUser.isOnboardingCompleted,
           },
           'Onboarding completed successfully'

@@ -1,4 +1,6 @@
 import { expensesRepository } from './expenses.repository.js';
+import { eventBus } from '../../utils/event.bus.js';
+import { socketManagerInstance } from '../../sockets/socket.manager.js';
 import { ForbiddenError, NotFoundError, ValidationError } from '../../utils/errors.js';
 import { CreateExpenseInput, UpdateExpenseInput, ListExpensesQuery } from './expenses.schemas.js';
 import {
@@ -14,12 +16,17 @@ export class ExpensesService {
   // -------------------------------------------------------------------------
 
   async createExpense(userId: string, input: CreateExpenseInput): Promise<ExpenseWithSplits> {
-    // 1. Verify account ownership
-    const accountValid = await expensesRepository.validateAccountOwnership(input.accountId, userId);
-    if (!accountValid) {
-      throw new ValidationError('Account not found or does not belong to you', {
-        field: 'accountId',
-      });
+    // 1. Resolve and verify accountId fallback
+    let accountId = input.accountId;
+    if (!accountId) {
+      accountId = await expensesRepository.getOrCreateDefaultAccount(userId);
+    } else {
+      const accountValid = await expensesRepository.validateAccountOwnership(accountId, userId);
+      if (!accountValid) {
+        throw new ValidationError('Account not found or does not belong to you', {
+          field: 'accountId',
+        });
+      }
     }
 
     // 2. Compute split rows
@@ -32,21 +39,25 @@ export class ExpensesService {
 
     const isSplit = splitData.length > 0;
 
-    return expensesRepository.create(
+    const created = await expensesRepository.create(
       {
         userId,
         amount: input.amount,
         currency: input.currency ?? 'INR',
-        description: input.description,
+        description: input.note ?? input.description,
         category: input.category,
         date: new Date(input.date),
-        accountId: input.accountId,
+        accountId,
         paymentMethod: input.paymentMethod,
         groupId: input.groupId,
         isSplit,
       },
       splitData
     );
+
+    socketManagerInstance.emitToUser(userId, 'expense.created', { expenseId: created.id });
+
+    return created;
   }
 
   // -------------------------------------------------------------------------
@@ -54,9 +65,26 @@ export class ExpensesService {
   // -------------------------------------------------------------------------
 
   async listExpenses(userId: string, query: ListExpensesQuery): Promise<PaginatedExpenses> {
+    let sortBy: 'date' | 'amount' | 'createdAt' = 'date';
+    let sortOrder: 'asc' | 'desc' = 'desc';
+
+    if (query.sort) {
+      const [col, order] = query.sort.split('-');
+      if (col === 'date' || col === 'amount' || col === 'createdAt') {
+        sortBy = col;
+      }
+      if (order === 'asc' || order === 'desc') {
+        sortOrder = order;
+      }
+    } else {
+      sortBy = query.sortBy || 'date';
+      sortOrder = query.sortOrder || 'desc';
+    }
+
     const filters: ListExpensesFilters = {
       page: query.page,
       limit: query.limit,
+      search: query.search,
       category: query.category,
       startDate: query.startDate ? new Date(query.startDate) : undefined,
       endDate: query.endDate ? new Date(query.endDate) : undefined,
@@ -64,8 +92,8 @@ export class ExpensesService {
       groupId: query.groupId,
       minAmount: query.minAmount,
       maxAmount: query.maxAmount,
-      sortBy: query.sortBy,
-      sortOrder: query.sortOrder,
+      sortBy,
+      sortOrder,
     };
 
     return expensesRepository.findMany(userId, filters);
@@ -126,13 +154,13 @@ export class ExpensesService {
 
     const isSplit = splitData !== undefined ? splitData.length > 0 : existing.isSplit;
 
-    return expensesRepository.update(
+    const updated = await expensesRepository.update(
       id,
       userId,
       {
         amount: input.amount,
         currency: input.currency,
-        description: input.description,
+        description: input.note !== undefined ? input.note : input.description,
         category: input.category,
         date: input.date ? new Date(input.date) : undefined,
         accountId: input.accountId,
@@ -142,6 +170,10 @@ export class ExpensesService {
       },
       splitData
     );
+
+    socketManagerInstance.emitToUser(userId, 'expense.updated', { expenseId: updated.id });
+
+    return updated;
   }
 
   // -------------------------------------------------------------------------
@@ -149,12 +181,39 @@ export class ExpensesService {
   // -------------------------------------------------------------------------
 
   async deleteExpense(id: string, userId: string): Promise<void> {
-    // findById enforces ownership implicitly
     const existing = await expensesRepository.findById(id, userId);
     if (!existing) {
       throw new NotFoundError('Expense not found');
     }
     await expensesRepository.delete(id, userId);
+
+    socketManagerInstance.emitToUser(userId, 'expense.deleted', { expenseId: id });
+  }
+
+  async bulkDeleteExpenses(ids: string[], userId: string): Promise<void> {
+    if (!ids || ids.length === 0) {
+      throw new ValidationError('No expense IDs provided');
+    }
+
+    // Fetch them all first to know categories and amounts for the event bus
+    const expensesToDelete = await Promise.all(
+      ids.map((id) => expensesRepository.findById(id, userId))
+    );
+
+    await expensesRepository.bulkDelete(ids, userId);
+
+    for (const exp of expensesToDelete) {
+      if (exp) {
+        await eventBus.publish('expense.deleted', {
+          expenseId: exp.id,
+          userId,
+          categoryId: exp.category,
+          amount: exp.amount,
+          date: new Date(exp.date),
+        });
+        socketManagerInstance.emitToUser(userId, 'expense.deleted', { expenseId: exp.id });
+      }
+    }
   }
 
   // -------------------------------------------------------------------------

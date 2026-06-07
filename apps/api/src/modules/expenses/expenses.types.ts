@@ -50,6 +50,7 @@ export interface PaginatedExpenses {
 export interface ListExpensesFilters {
   page: number;
   limit: number;
+  search?: string;
   category?: string;
   startDate?: Date;
   endDate?: Date;

@@ -11,6 +11,7 @@ const envSchema = z.object({
   SUPABASE_URL: z.string().url('SUPABASE_URL must be a valid URL'),
   SUPABASE_ANON_KEY: z.string().min(1, 'SUPABASE_ANON_KEY is required'),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1, 'SUPABASE_SERVICE_ROLE_KEY is required'),
+  SUPABASE_JWT_SECRET: z.string().min(1, 'SUPABASE_JWT_SECRET is required'),
   REDIS_URL: z.string().min(1).optional(),
   MEILISEARCH_URL: z.string().url('MEILISEARCH_URL must be a valid URL'),
   MEILISEARCH_MASTER_KEY: z.string().min(1, 'MEILISEARCH_MASTER_KEY is required'),

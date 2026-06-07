@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 
@@ -12,6 +12,7 @@ interface BottomSheetProps {
 }
 
 export default function BottomSheet({ isOpen, onClose, title, children }: BottomSheetProps) {
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -31,6 +32,24 @@ export default function BottomSheet({ isOpen, onClose, title, children }: Bottom
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
+
+  // Handle iOS virtual keyboard
+  useEffect(() => {
+    if (!window.visualViewport) return;
+
+    const handleResize = () => {
+      if (window.visualViewport) {
+        const heightDiff = window.innerHeight - window.visualViewport.height;
+        // If difference is significant (> 100px), assume keyboard is open
+        setKeyboardHeight(heightDiff > 100 ? heightDiff : 0);
+      }
+    };
+
+    window.visualViewport.addEventListener('resize', handleResize);
+    return () => {
+      window.visualViewport?.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   return (
     <AnimatePresence>
@@ -75,7 +94,12 @@ export default function BottomSheet({ isOpen, onClose, title, children }: Bottom
             </div>
 
             {/* Scrollable Form Area */}
-            <div className="flex-1 min-h-0 overflow-y-auto p-6 pb-16 space-y-8 scrollbar-thin">
+            <div
+              className="flex-1 min-h-0 overflow-y-auto p-6 space-y-8 scrollbar-thin"
+              style={{
+                paddingBottom: `calc(4rem + env(safe-area-inset-bottom) + ${keyboardHeight}px)`,
+              }}
+            >
               {children}
             </div>
           </motion.div>

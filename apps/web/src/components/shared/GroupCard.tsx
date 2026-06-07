@@ -1,7 +1,9 @@
 'use client';
 
 import React from 'react';
-import { Group, Expense, useFinanceStore } from '../../store/finance-store';
+import { useFinanceStore } from '../../store/finance-store';
+import { Group, Expense } from '../../store/mockData';
+import { useExpenses } from '../../hooks/useExpenses';
 import {
   FolderOpen,
   Users,
@@ -69,7 +71,8 @@ const getGroupIconMeta = (name: string) => {
 };
 
 export default function GroupCard({ group }: GroupCardProps) {
-  const { expenses } = useFinanceStore();
+  const { data: expensesData } = useExpenses();
+  const expenses = expensesData?.expenses || [];
 
   const groupExpenses = expenses.filter((e) => e.groupId === group.id);
   const totalSpend = groupExpenses.reduce((sum, e) => sum + e.amount, 0);

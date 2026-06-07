@@ -6,11 +6,25 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Save, Loader2, User, Check, AlertCircle, LogOut } from 'lucide-react';
+import { useCurrentUser, useUpdateProfile, useUpdateMpin } from '../../hooks/useUser';
+import { useQueryClient } from '@tanstack/react-query';
+import {
+  ArrowLeft,
+  Save,
+  Loader2,
+  User,
+  Check,
+  AlertCircle,
+  LogOut,
+  Lock,
+  Bell,
+  BellOff,
+} from 'lucide-react';
 import { useAuthStore } from '../../store/auth-store';
+import { usePushNotifications } from '../../hooks/usePushNotifications';
 import { updateProfileSchema, UpdateProfileInput } from '@expensio/validation';
 import { supabase } from '../../lib/supabase';
+import BottomSheet from '../../components/shared/BottomSheet';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -26,7 +40,7 @@ const AVATAR_PRESETS = [
 export default function SettingsPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { session, updateUser: updateLocalStoreUser, clearSession } = useAuthStore();
+  const { clearSession } = useAuthStore();
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -34,37 +48,49 @@ export default function SettingsPage() {
   const [newMpin, setNewMpin] = useState('');
   const [confirmMpin, setConfirmMpin] = useState('');
   const [mpinErrorMsg, setMpinErrorMsg] = useState<string | null>(null);
+  const [showMpinReset, setShowMpinReset] = useState(false);
 
-  const detectedTimezone =
-    typeof window !== 'undefined' ? Intl.DateTimeFormat().resolvedOptions().timeZone : 'UTC';
-
-  // Fetch latest profile from API
   const {
     data: serverProfile,
     isLoading: isProfileLoading,
     error: profileFetchError,
-  } = useQuery({
-    queryKey: ['user-profile'],
-    queryFn: async () => {
-      if (!session?.access_token) {
-        throw new Error('Not authenticated');
-      }
-      const response = await fetch(`${API_URL}/api/v1/users/me`, {
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
+  } = useCurrentUser();
+  const updateProfileMutation = useUpdateProfile();
+  const updateMpinMutation = useUpdateMpin();
+  const pushNotifications = usePushNotifications();
+
+  const handleMpinSubmitOnly = async () => {
+    setMpinErrorMsg(null);
+    setErrorMsg(null);
+
+    if (newMpin.length !== 4 && newMpin.length !== 6) {
+      setMpinErrorMsg('New MPIN must be exactly 4 or 6 digits');
+      return;
+    }
+    if (newMpin !== confirmMpin) {
+      setMpinErrorMsg('New MPIN and Confirm MPIN must match');
+      return;
+    }
+
+    try {
+      await updateMpinMutation.mutateAsync({
+        currentMpin: currentMpin || '',
+        newMpin,
       });
-      if (!response.ok) {
-        throw new Error('Failed to fetch user profile');
-      }
-      const data = await response.json();
-      return data.data || data.user;
-    },
-    enabled: !!session?.access_token,
-    staleTime: 300000, // 5 minutes
-    gcTime: 600000, // 10 minutes
-    refetchOnWindowFocus: false,
-  });
+
+      setSuccessMsg('MPIN updated successfully!');
+      setCurrentMpin('');
+      setNewMpin('');
+      setConfirmMpin('');
+      setShowMpinReset(false);
+      setTimeout(() => setSuccessMsg(null), 3000);
+    } catch (err: any) {
+      setMpinErrorMsg(err.message || 'Failed to save MPIN preference');
+    }
+  };
+
+  const detectedTimezone =
+    typeof window !== 'undefined' ? Intl.DateTimeFormat().resolvedOptions().timeZone : 'UTC';
 
   const {
     register,
@@ -105,49 +131,12 @@ export default function SettingsPage() {
     setValue('avatarUrl', url, { shouldDirty: true });
   };
 
-  // Update profile mutation
-  const updateMutation = useMutation({
-    mutationFn: async (formData: UpdateProfileInput) => {
-      if (!session?.access_token) {
-        throw new Error('Not authenticated');
-      }
-      const response = await fetch(`${API_URL}/api/v1/users/me`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          errorData.error?.message || errorData.message || 'Failed to update profile'
-        );
-      }
-
-      const data = await response.json();
-      return data.data || data.user;
-    },
-    onSuccess: (updatedUser) => {
-      updateLocalStoreUser(updatedUser);
-      queryClient.setQueryData(['user-profile'], updatedUser);
-      queryClient.invalidateQueries({ queryKey: ['dashboard-summary'] });
-      setSuccessMsg('Settings updated successfully!');
-      setCurrentMpin('');
-      setNewMpin('');
-      setConfirmMpin('');
-      setTimeout(() => setSuccessMsg(null), 3000);
-    },
-    onError: (err: Error) => {
-      setErrorMsg(err.message || 'Update failed');
-      setTimeout(() => setErrorMsg(null), 4000);
-    },
-  });
-
   const handleLogout = async () => {
     try {
+      if (pushNotifications.isSubscribed) {
+        await pushNotifications.unsubscribe();
+      }
+      queryClient.clear();
       await supabase.auth.signOut();
       clearSession();
       router.push('/login');
@@ -161,49 +150,11 @@ export default function SettingsPage() {
     setErrorMsg(null);
     setMpinErrorMsg(null);
 
-    // Validate MPIN fields if user started typing
-    if (currentMpin || newMpin || confirmMpin) {
-      if (newMpin.length !== 4 && newMpin.length !== 6) {
-        setMpinErrorMsg('New MPIN must be exactly 4 or 6 digits');
-        return;
-      }
-      if (newMpin !== confirmMpin) {
-        setMpinErrorMsg('New MPIN and Confirm MPIN must match');
-        return;
-      }
-    }
-
     try {
-      // 1. Submit MPIN update if newMpin is provided
-      if (newMpin) {
-        const mpinRes = await fetch(`${API_URL}/api/v1/users/mpin`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${session?.access_token}`,
-          },
-          body: JSON.stringify({
-            currentMpin: currentMpin || '',
-            newMpin,
-            confirmMpin,
-          }),
-        });
-
-        if (!mpinRes.ok) {
-          const mpinErrorData = await mpinRes.json();
-          throw new Error(mpinErrorData.error?.message || 'Failed to update MPIN');
-        }
-      }
-
-      // 2. Submit profile fields update if dirty
+      // Submit profile fields update if dirty
       if (isDirty) {
-        await updateMutation.mutateAsync(formData);
-      } else if (newMpin) {
-        // If only MPIN was updated, manually show success message
-        setSuccessMsg('MPIN updated successfully!');
-        setCurrentMpin('');
-        setNewMpin('');
-        setConfirmMpin('');
+        await updateProfileMutation.mutateAsync(formData);
+        setSuccessMsg('Settings updated successfully!');
         setTimeout(() => setSuccessMsg(null), 3000);
       }
     } catch (err: any) {
@@ -214,10 +165,10 @@ export default function SettingsPage() {
 
   if (isProfileLoading) {
     return (
-      <div className="min-h-screen bg-[#09090b] flex items-center justify-center text-gray-100">
+      <div className="min-h-screen bg-background flex items-center justify-center text-theme-text transition-colors duration-300">
         <div className="text-center flex flex-col items-center gap-3">
           <Loader2 className="w-8 h-8 animate-spin text-cyan-400" />
-          <p className="text-zinc-400 text-sm">Loading your profile preferences...</p>
+          <p className="text-theme-secondary text-sm">Loading your profile preferences...</p>
         </div>
       </div>
     );
@@ -225,14 +176,14 @@ export default function SettingsPage() {
 
   if (profileFetchError) {
     return (
-      <div className="min-h-screen bg-[#09090b] flex items-center justify-center text-gray-100 p-4">
-        <div className="w-full max-w-md bg-zinc-900/60 border border-zinc-800 rounded-3xl p-8 text-center flex flex-col items-center gap-4">
+      <div className="min-h-screen bg-background flex items-center justify-center text-theme-text p-4 transition-colors duration-300">
+        <div className="w-full max-w-md bg-theme-card backdrop-blur-xl border border-theme-card-border rounded-3xl p-8 text-center flex flex-col items-center gap-4 shadow-2xl">
           <AlertCircle className="w-12 h-12 text-red-400" />
           <h2 className="text-xl font-bold">Failed to load profile</h2>
-          <p className="text-zinc-400 text-sm">{(profileFetchError as Error).message}</p>
+          <p className="text-theme-secondary text-sm">{(profileFetchError as Error).message}</p>
           <Link
             href="/"
-            className="mt-2 inline-flex items-center gap-2 px-5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl text-sm font-semibold transition-colors"
+            className="mt-2 inline-flex items-center gap-2 px-5 py-2.5 bg-theme-btn border border-theme-btn-border hover:bg-theme-btn/80 text-theme-text rounded-xl text-sm font-semibold transition-all"
           >
             <ArrowLeft className="w-4 h-4" /> Go Back
           </Link>
@@ -242,304 +193,387 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="h-[100dvh] bg-[#09090b] text-gray-100 px-5 pt-8 pb-20 relative overflow-y-auto overflow-x-hidden select-none flex justify-center items-start">
-      {/* Background glow effect wrapper */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-indigo-600/5 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-[120px]" />
-      </div>
+    <div className="h-[100dvh] w-full bg-background text-theme-text flex justify-center overflow-hidden relative transition-colors duration-300">
+      {/* ambient glows */}
+      <div className="absolute top-[-20%] left-[-20%] w-150 h-150 bg-indigo-600/5 rounded-full blur-[160px] pointer-events-none" />
+      <div className="absolute bottom-[-20%] right-[-20%] w-150 h-150 bg-indigo-500/5 rounded-full blur-[160px] pointer-events-none" />
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-lg bg-zinc-900/60 backdrop-blur-xl border border-zinc-800/80 rounded-3xl p-6 md:p-8 shadow-2xl relative z-10"
-      >
-        {/* Top Header */}
-        <div className="flex items-center justify-between mb-8">
-          <Link
-            href="/dashboard"
-            className="p-2 rounded-xl bg-zinc-950 border border-zinc-850 text-zinc-400 hover:text-cyan-400 hover:border-indigo-500/25 transition-all"
+      {/* Responsive Canvas PWA Frame Shell */}
+      <div className="w-full max-w-md h-full flex flex-col bg-shell border-x border-theme-border shadow-2xl relative overflow-hidden transition-colors duration-300">
+        {/* Scrollable Container Wrapper */}
+        <div className="flex-1 overflow-x-hidden overflow-y-auto scrollbar-none flex flex-col pb-24 px-6 pt-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="w-full space-y-6"
           >
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
-          <h1 className="text-xl font-bold tracking-tight bg-gradient-to-b from-white to-zinc-400 bg-clip-text text-transparent">
-            User Settings
-          </h1>
-          <div className="w-9 h-9" /> {/* Spacer */}
-        </div>
+            {/* Top Header */}
+            <div className="flex items-center justify-between mb-2">
+              <Link
+                href="/dashboard"
+                className="p-2.5 rounded-xl bg-theme-btn border border-theme-btn-border text-theme-secondary hover:text-theme-text active:scale-95 transition-all"
+              >
+                <ArrowLeft className="w-4 h-4 stroke-[2.5]" />
+              </Link>
+              <h1 className="text-base font-black text-theme-text uppercase tracking-widest">
+                User Settings
+              </h1>
+              <div className="w-9 h-9" /> {/* Spacer */}
+            </div>
 
-        {/* Notifications */}
-        <AnimatePresence>
-          {successMsg && (
-            <motion.div
-              initial={{ opacity: 0, height: 0, y: -10 }}
-              animate={{ opacity: 1, height: 'auto', y: 0 }}
-              exit={{ opacity: 0, height: 0, y: -10 }}
-              className="mb-5 p-3.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-cyan-400 text-xs font-semibold flex items-center gap-2"
-            >
-              <Check className="w-4 h-4 shrink-0" />
-              {successMsg}
-            </motion.div>
-          )}
-          {errorMsg && (
-            <motion.div
-              initial={{ opacity: 0, height: 0, y: -10 }}
-              animate={{ opacity: 1, height: 'auto', y: 0 }}
-              exit={{ opacity: 0, height: 0, y: -10 }}
-              className="mb-5 p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-semibold flex items-center gap-2"
-            >
-              <AlertCircle className="w-4 h-4 shrink-0" />
-              {errorMsg}
-            </motion.div>
-          )}
-        </AnimatePresence>
+            {/* Notifications */}
+            <AnimatePresence>
+              {successMsg && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0, y: -10 }}
+                  animate={{ opacity: 1, height: 'auto', y: 0 }}
+                  exit={{ opacity: 0, height: 0, y: -10 }}
+                  className="mb-5 p-3.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-cyan-400 text-xs font-semibold flex items-center gap-2"
+                >
+                  <Check className="w-4 h-4 shrink-0" />
+                  {successMsg}
+                </motion.div>
+              )}
+              {errorMsg && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0, y: -10 }}
+                  animate={{ opacity: 1, height: 'auto', y: 0 }}
+                  exit={{ opacity: 0, height: 0, y: -10 }}
+                  className="mb-5 p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-semibold flex items-center gap-2"
+                >
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  {errorMsg}
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Profile Information Section */}
-          <div className="space-y-6">
-            <h3 className="text-xs font-black uppercase tracking-widest text-zinc-400">
-              Profile Information
-            </h3>
-
-            {/* Avatar Section */}
-            <div className="space-y-3">
-              <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider block">
-                Profile Avatar
-              </label>
-              <div className="flex flex-col sm:flex-row items-center gap-5">
-                {/* Current Selected Avatar Preview */}
-                <div className="w-20 h-20 rounded-2xl bg-zinc-955 border border-zinc-800 flex items-center justify-center overflow-hidden relative shrink-0 shadow-inner">
-                  {watchedAvatarUrl ? (
-                    /* eslint-disable-next-line @next/next/no-img-element */
-                    <img
-                      src={watchedAvatarUrl}
-                      alt="Profile Avatar"
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src =
-                          'https://api.dicebear.com/7.x/adventurer/svg?seed=default';
-                      }}
-                    />
-                  ) : (
-                    <User className="w-8 h-8 text-zinc-650" />
-                  )}
-                </div>
-
-                {/* Preset Avatar Selection Grid */}
-                <div className="flex-1 w-full">
-                  <div className="grid grid-cols-6 gap-2 w-full bg-zinc-955/40 border border-zinc-850/60 p-2 rounded-2xl">
-                    {AVATAR_PRESETS.map((preset, idx) => (
-                      <button
-                        key={preset}
-                        type="button"
-                        onClick={() => selectPresetAvatar(preset)}
-                        className={`relative w-full aspect-square rounded-xl bg-zinc-955 border ${
-                          watchedAvatarUrl === preset
-                            ? 'border-indigo-500 ring-2 ring-indigo-500/15'
-                            : 'border-zinc-850 hover:border-zinc-700'
-                        } overflow-hidden p-1 transition-all active:scale-95`}
-                      >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              {/* Profile Information Section */}
+              <div className="space-y-6">
+                {/* Avatar Section */}
+                <div className="space-y-3">
+                  <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-550 uppercase tracking-wider block">
+                    Profile Avatar
+                  </label>
+                  <div className="flex flex-col sm:flex-row items-center gap-5">
+                    {/* Current Selected Avatar Preview */}
+                    <div className="w-20 h-20 rounded-2xl bg-zinc-950 border border-zinc-800 flex items-center justify-center overflow-hidden relative shrink-0 shadow-inner">
+                      {watchedAvatarUrl ? (
+                        /* eslint-disable-next-line @next/next/no-img-element */
                         <img
-                          src={preset}
-                          alt={`Preset ${idx}`}
-                          className="w-full h-full object-contain"
+                          src={watchedAvatarUrl}
+                          alt="Profile Avatar"
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src =
+                              'https://api.dicebear.com/7.x/adventurer/svg?seed=default';
+                          }}
                         />
-                      </button>
-                    ))}
+                      ) : (
+                        <User className="w-8 h-8 text-zinc-650" />
+                      )}
+                    </div>
+
+                    {/* Preset Avatar Selection Grid */}
+                    <div className="flex-1 w-full">
+                      <div className="grid grid-cols-6 gap-2 w-full bg-zinc-900/40 border border-zinc-850/60 p-2 rounded-2xl">
+                        {AVATAR_PRESETS.map((preset, idx) => (
+                          <button
+                            key={preset}
+                            type="button"
+                            onClick={() => selectPresetAvatar(preset)}
+                            className={`relative w-full aspect-square rounded-xl bg-zinc-950 border ${
+                              watchedAvatarUrl === preset
+                                ? 'border-indigo-500 ring-2 ring-indigo-500/15'
+                                : 'border-zinc-850 hover:border-zinc-700'
+                            } overflow-hidden p-1 transition-all active:scale-95`}
+                          >
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={preset}
+                              alt={`Preset ${idx}`}
+                              className="w-full h-full object-contain"
+                            />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </div>
+
+                {/* Full Name */}
+                <div>
+                  <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-550 uppercase tracking-wider block">
+                    Full Name
+                  </label>
+                  <div className="relative mt-[10px]">
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-theme-secondary" />
+                    <input
+                      type="text"
+                      {...register('name')}
+                      placeholder="Enter your name"
+                      className={`w-full h-12 bg-zinc-900/20 border ${
+                        errors.name
+                          ? 'border-red-500/50'
+                          : 'border-zinc-800/80 hover:border-zinc-700/80'
+                      } focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 outline-none rounded-2xl pl-11 pr-4 text-xs font-semibold transition-all text-theme-text placeholder-theme-muted`}
+                    />
+                  </div>
+                  {errors.name && (
+                    <span className="text-red-400 text-[10px] font-medium block mt-1.5">
+                      {errors.name.message}
+                    </span>
+                  )}
+                </div>
               </div>
-            </div>
-
-            {/* Full Name */}
-            <div>
-              <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider block">
-                Full Name
-              </label>
-              <div className="relative mt-[10px]">
-                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-555" />
-                <input
-                  type="text"
-                  {...register('name')}
-                  placeholder="Enter your name"
-                  className={`w-full h-12 bg-zinc-955 border ${
-                    errors.name ? 'border-red-500/50' : 'border-zinc-800 hover:border-zinc-700'
-                  } focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 outline-none rounded-xl pl-11 pr-4 text-sm transition-all text-white placeholder-zinc-655`}
-                />
-              </div>
-              {errors.name && (
-                <span className="text-red-400 text-[10px] font-medium block mt-1.5">
-                  {errors.name.message}
-                </span>
-              )}
-            </div>
-          </div>
-
-          <div className="h-px bg-zinc-850/40" />
-
-          {/* Monthly Salary Input */}
-          <div>
-            <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider block">
-              Monthly Salary
-            </label>
-            <div className="relative mt-[10px]">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-semibold text-zinc-555">
-                ₹
-              </span>
-              <input
-                type="number"
-                step="1"
-                {...register('monthlySalary', { valueAsNumber: true })}
-                placeholder="Enter monthly salary"
-                className={`w-full h-12 bg-zinc-955 border ${
-                  errors.monthlySalary
-                    ? 'border-red-500/50'
-                    : 'border-zinc-800 hover:border-zinc-700'
-                } focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 outline-none rounded-xl pl-8 pr-4 text-sm transition-all text-white placeholder-zinc-655 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none`}
-              />
-            </div>
-            {errors.monthlySalary ? (
-              <span className="text-red-400 text-[10px] font-medium block mt-1.5">
-                {errors.monthlySalary.message}
-              </span>
-            ) : (
-              <span className="text-[10px] text-zinc-555 font-bold block leading-none mt-1.5">
-                Used to calculate spending insights and balance.
-              </span>
-            )}
-          </div>
-
-          <div className="h-px bg-zinc-850/40" />
-
-          {/* Reset MPIN Section */}
-          <div className="space-y-4">
-            <h3 className="text-xs font-black uppercase tracking-widest text-zinc-400">
-              Security / Reset MPIN
-            </h3>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {/* Current MPIN */}
+              <div className="h-px bg-zinc-850/40" />
+              {/* Monthly Salary Input */}
               <div>
-                <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider block">
-                  Current MPIN
+                <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-550 uppercase tracking-wider block">
+                  Monthly Salary
                 </label>
                 <div className="relative mt-[10px]">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-theme-secondary">
+                    ₹
+                  </span>
                   <input
-                    type="password"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    maxLength={6}
-                    value={currentMpin}
-                    onChange={(e) => {
-                      const val = e.target.value.replace(/\D/g, '');
-                      setCurrentMpin(val);
-                      setMpinErrorMsg(null);
-                    }}
-                    placeholder="••••"
-                    className="w-full h-12 bg-zinc-955 border border-zinc-800 hover:border-zinc-700 focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 outline-none rounded-xl px-4 text-sm transition-all text-white placeholder-zinc-655 text-center font-bold tracking-widest"
+                    type="number"
+                    step="1"
+                    {...register('monthlySalary', { valueAsNumber: true })}
+                    placeholder="Enter monthly salary"
+                    className={`w-full h-12 bg-zinc-900/20 border ${
+                      errors.monthlySalary
+                        ? 'border-red-500/50'
+                        : 'border-zinc-800/80 hover:border-zinc-700/80'
+                    } focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 outline-none rounded-2xl pl-8 pr-4 text-xs font-semibold transition-all text-theme-text placeholder-theme-muted [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none`}
                   />
                 </div>
-                <span className="text-[9px] text-zinc-555 font-bold block mt-1 leading-tight">
-                  Leave blank if setting for first time.
-                </span>
+                {errors.monthlySalary ? (
+                  <span className="text-red-400 text-[10px] font-medium block mt-1.5">
+                    {errors.monthlySalary.message}
+                  </span>
+                ) : (
+                  <span className="text-[10px] text-theme-muted font-bold block leading-none mt-1.5">
+                    Used to calculate spending insights and balance.
+                  </span>
+                )}
               </div>
+              <div className="h-px bg-zinc-850/40" /> {/* Reset MPIN Section */}
+              <div className="space-y-4">
+                <h3 className="text-[11px] font-extrabold uppercase tracking-widest text-zinc-800 dark:text-zinc-200">
+                  Security Settings
+                </h3>
 
-              {/* New MPIN */}
-              <div>
-                <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider block">
-                  New MPIN
-                </label>
-                <div className="relative mt-[10px]">
-                  <input
-                    type="password"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    maxLength={6}
-                    value={newMpin}
-                    onChange={(e) => {
-                      const val = e.target.value.replace(/\D/g, '');
-                      setNewMpin(val);
-                      setMpinErrorMsg(null);
-                    }}
-                    placeholder="••••"
-                    className="w-full h-12 bg-zinc-955 border border-zinc-800 hover:border-zinc-700 focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 outline-none rounded-xl px-4 text-sm transition-all text-white placeholder-zinc-655 text-center font-bold tracking-widest"
-                  />
-                </div>
-                <span className="text-[9px] text-zinc-555 font-bold block mt-1 leading-tight">
-                  Must be 4 or 6 digits.
-                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowMpinReset(true);
+                    setMpinErrorMsg(null);
+                  }}
+                  className="w-full h-12 flex items-center justify-center gap-2 rounded-2xl border border-theme-btn-border bg-theme-btn text-theme-text font-black uppercase tracking-wider hover:bg-theme-btn/80 active:scale-[0.98] transition-all text-xs cursor-pointer duration-200"
+                >
+                  <Lock className="w-4 h-4 text-theme-secondary stroke-[2.2]" />
+                  Reset Security MPIN
+                </button>
               </div>
-
-              {/* Confirm MPIN */}
-              <div>
-                <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider block">
-                  Confirm MPIN
-                </label>
-                <div className="relative mt-[10px]">
-                  <input
-                    type="password"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    maxLength={6}
-                    value={confirmMpin}
-                    onChange={(e) => {
-                      const val = e.target.value.replace(/\D/g, '');
-                      setConfirmMpin(val);
-                      setMpinErrorMsg(null);
-                    }}
-                    placeholder="••••"
-                    className="w-full h-12 bg-zinc-955 border border-zinc-800 hover:border-zinc-700 focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 outline-none rounded-xl px-4 text-sm transition-all text-white placeholder-zinc-655 text-center font-bold tracking-widest"
-                  />
-                </div>
-                <span className="text-[9px] text-zinc-555 font-bold block mt-1 leading-tight">
-                  Must match new MPIN.
-                </span>
+              <div className="h-px bg-zinc-850/40" />
+              {/* Push Notifications Section */}
+              <div className="space-y-4">
+                <h3 className="text-[11px] font-extrabold uppercase tracking-widest text-zinc-800 dark:text-zinc-200">
+                  Notifications
+                </h3>
+                {pushNotifications.isSupported ? (
+                  <button
+                    type="button"
+                    onClick={
+                      pushNotifications.isSubscribed
+                        ? pushNotifications.unsubscribe
+                        : pushNotifications.subscribe
+                    }
+                    className={`w-full h-12 flex items-center justify-center gap-2 rounded-2xl border ${
+                      pushNotifications.isSubscribed
+                        ? 'border-indigo-500/20 bg-indigo-500/10 text-indigo-400'
+                        : 'border-theme-btn-border bg-theme-btn text-theme-secondary hover:text-theme-text'
+                    } font-black uppercase tracking-wider active:scale-[0.98] transition-all text-xs cursor-pointer duration-200`}
+                  >
+                    {pushNotifications.isSubscribed ? (
+                      <>
+                        <Bell className="w-4 h-4 stroke-[2.2]" />
+                        Push Notifications Enabled
+                      </>
+                    ) : (
+                      <>
+                        <BellOff className="w-4 h-4 stroke-[2.2]" />
+                        Enable Push Notifications
+                      </>
+                    )}
+                  </button>
+                ) : (
+                  <div className="w-full h-12 flex items-center justify-center gap-2 rounded-2xl border border-zinc-800/50 bg-zinc-900/20 text-zinc-500 font-bold uppercase tracking-wider text-xs">
+                    Push Notifications Not Supported
+                  </div>
+                )}
               </div>
-            </div>
-            {mpinErrorMsg && (
-              <span className="text-red-400 text-[10px] font-medium block mt-1">
-                {mpinErrorMsg}
-              </span>
-            )}
-          </div>
+              <div className="h-px bg-zinc-850/40" />
+              {/* Account Section */}
+              <div className="space-y-4">
+                <h3 className="text-[11px] font-extrabold uppercase tracking-widest text-zinc-800 dark:text-zinc-200">
+                  Account
+                </h3>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="w-full h-12 flex items-center justify-center gap-2 rounded-2xl border border-rose-500/20 bg-rose-500/5 text-rose-500 font-black uppercase tracking-wider hover:bg-rose-500/10 active:scale-[0.98] transition-all text-xs cursor-pointer duration-200"
+                >
+                  <LogOut className="w-4 h-4 text-rose-500 stroke-[3]" />
+                  Logout Session
+                </button>
+              </div>
+              {/* Save Button */}
+              <button
+                type="submit"
+                disabled={updateProfileMutation.isPending || !isDirty}
+                className="w-full h-12.5 flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 text-white font-black uppercase tracking-wider active:scale-[0.98] transition-all shadow-lg shadow-indigo-500/10 cursor-pointer disabled:opacity-35 disabled:pointer-events-none text-xs"
+              >
+                {updateProfileMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-white" />
+                    Saving Changes...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4 text-white stroke-[3]" />
+                    Save Preferences
+                  </>
+                )}
+              </button>
+            </form>
 
-          <div className="h-px bg-zinc-850/40" />
-
-          {/* Account Section */}
-          <div className="space-y-4">
-            <h3 className="text-xs font-black uppercase tracking-widest text-zinc-400">Account</h3>
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="w-full h-12 flex items-center justify-center gap-2 rounded-xl border border-rose-500/20 bg-rose-500/5 text-rose-500 font-black uppercase tracking-wider hover:bg-rose-500/10 active:scale-[0.98] transition-all text-xs cursor-pointer duration-200"
+            {/* Reset MPIN Bottom Sheet */}
+            <BottomSheet
+              isOpen={showMpinReset}
+              onClose={() => {
+                setShowMpinReset(false);
+                setCurrentMpin('');
+                setNewMpin('');
+                setConfirmMpin('');
+                setMpinErrorMsg(null);
+              }}
+              title="Reset Security MPIN"
             >
-              <LogOut className="w-4 h-4 text-rose-500 stroke-[3]" />
-              Logout Session
-            </button>
-          </div>
+              <div className="space-y-6 py-4">
+                <span className="text-[10.5px] font-extrabold text-theme-secondary uppercase tracking-wider block">
+                  3-Step Verification Required
+                </span>
 
-          {/* Save Button */}
-          <button
-            type="submit"
-            disabled={updateMutation.isPending || (!isDirty && !newMpin)}
-            className="w-full h-12 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 text-zinc-955 font-black uppercase tracking-wider active:scale-[0.98] transition-all shadow-lg shadow-indigo-500/10 cursor-pointer disabled:opacity-35 disabled:pointer-events-none text-xs"
-          >
-            {updateMutation.isPending ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Saving Changes...
-              </>
-            ) : (
-              <>
-                <Save className="w-4 h-4 text-zinc-955 stroke-[3]" />
-                Save Preferences
-              </>
-            )}
-          </button>
-        </form>
-      </motion.div>
+                <div className="space-y-5">
+                  {/* Current MPIN */}
+                  <div>
+                    <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-555 uppercase tracking-wider block">
+                      Current MPIN
+                    </label>
+                    <div className="relative mt-[10px]">
+                      <input
+                        type="password"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        maxLength={6}
+                        value={currentMpin}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, '');
+                          setCurrentMpin(val);
+                          setMpinErrorMsg(null);
+                        }}
+                        placeholder="••••"
+                        className="w-full h-12 bg-zinc-900/20 border border-zinc-800/80 hover:border-zinc-700/80 focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 outline-none rounded-2xl px-4 text-xs font-semibold transition-all text-theme-text placeholder-theme-muted text-center font-bold tracking-widest"
+                      />
+                    </div>
+                    <span className="text-[9px] text-theme-muted font-bold block mt-1 leading-tight">
+                      Leave blank if setting for first time.
+                    </span>
+                  </div>
+
+                  {/* New MPIN */}
+                  <div>
+                    <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-555 uppercase tracking-wider block">
+                      New MPIN
+                    </label>
+                    <div className="relative mt-[10px]">
+                      <input
+                        type="password"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        maxLength={6}
+                        value={newMpin}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, '');
+                          setNewMpin(val);
+                          setMpinErrorMsg(null);
+                        }}
+                        placeholder="••••"
+                        className="w-full h-12 bg-zinc-900/20 border border-zinc-800/80 hover:border-zinc-700/80 focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 outline-none rounded-2xl px-4 text-xs font-semibold transition-all text-theme-text placeholder-theme-muted text-center font-bold tracking-widest"
+                      />
+                    </div>
+                    <span className="text-[9px] text-theme-muted font-bold block mt-1 leading-tight">
+                      Must be 4 or 6 digits.
+                    </span>
+                  </div>
+
+                  {/* Confirm MPIN */}
+                  <div>
+                    <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-555 uppercase tracking-wider block">
+                      Confirm MPIN
+                    </label>
+                    <div className="relative mt-[10px]">
+                      <input
+                        type="password"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        maxLength={6}
+                        value={confirmMpin}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, '');
+                          setConfirmMpin(val);
+                          setMpinErrorMsg(null);
+                        }}
+                        placeholder="••••"
+                        className="w-full h-12 bg-zinc-900/20 border border-zinc-800/80 hover:border-zinc-700/80 focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 outline-none rounded-2xl px-4 text-xs font-semibold transition-all text-theme-text placeholder-theme-muted text-center font-bold tracking-widest"
+                      />
+                    </div>
+                    <span className="text-[9px] text-theme-muted font-bold block mt-1 leading-tight">
+                      Must match new MPIN.
+                    </span>
+                  </div>
+                </div>
+
+                {mpinErrorMsg && (
+                  <span className="text-red-400 text-[10px] font-medium block">{mpinErrorMsg}</span>
+                )}
+
+                <button
+                  type="button"
+                  onClick={handleMpinSubmitOnly}
+                  disabled={!newMpin || updateMpinMutation.isPending}
+                  className="w-full h-12.5 flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 text-white font-black uppercase tracking-wider active:scale-[0.98] transition-all shadow-lg shadow-indigo-500/10 cursor-pointer disabled:opacity-35 disabled:pointer-events-none text-xs"
+                >
+                  {updateMpinMutation.isPending ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin text-white" />
+                      Updating MPIN...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4 text-white stroke-[3]" />
+                      Update Security MPIN
+                    </>
+                  )}
+                </button>
+              </div>
+            </BottomSheet>
+          </motion.div>
+        </div>
+      </div>
     </div>
   );
 }

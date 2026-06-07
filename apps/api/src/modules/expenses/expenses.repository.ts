@@ -1,7 +1,8 @@
 import { db } from '../../db/index.js';
-import { expenses, splits, accounts } from '../../db/schema.js';
-import { eq, and, gte, lte, desc, asc, sql, inArray } from 'drizzle-orm';
+import { expenses, splits, accounts, outboxEvents } from '../../db/schema.js';
+import { eq, and, gte, lte, desc, asc, sql, inArray, ilike, sum, isNull } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
+import crypto from 'crypto';
 import { Expense, Split } from '@expensio/types';
 import {
   CreateExpenseData,
@@ -67,6 +68,20 @@ export class ExpensesRepository {
           .returning();
       }
 
+      // 4. Insert outbox event for Analytics & Listeners
+      await tx.insert(outboxEvents).values({
+        id: crypto.randomUUID(),
+        eventType: 'expense.created',
+        payload: {
+          expenseId: newExpense.id,
+          userId: data.userId,
+          categoryId: newExpense.category,
+          amount: newExpense.amount,
+          date: newExpense.date,
+        },
+        status: 'pending',
+      });
+
       return { ...newExpense, splits: newSplits };
     });
 
@@ -80,6 +95,7 @@ export class ExpensesRepository {
   async findMany(userId: string, filters: ListExpensesFilters): Promise<PaginatedExpenses> {
     const conditions = [eq(expenses.userId, userId)];
 
+    if (filters.search) conditions.push(ilike(expenses.description, `%${filters.search}%`));
     if (filters.category) conditions.push(eq(expenses.category, filters.category));
     if (filters.startDate) conditions.push(gte(expenses.date, filters.startDate));
     if (filters.endDate) conditions.push(lte(expenses.date, filters.endDate));
@@ -257,6 +273,21 @@ export class ExpensesRepository {
         updatedSplits = await tx.select().from(splits).where(eq(splits.expenseId, id));
       }
 
+      // Insert outbox event for Analytics & Listeners
+      await tx.insert(outboxEvents).values({
+        id: crypto.randomUUID(),
+        eventType: 'expense.updated',
+        payload: {
+          expenseId: updated.id,
+          userId: updated.userId,
+          categoryId: updated.category,
+          amount: updated.amount,
+          date: updated.date,
+          previousAmount: current.amount,
+        },
+        status: 'pending',
+      });
+
       return { ...updated, splits: updatedSplits };
     });
 
@@ -289,6 +320,53 @@ export class ExpensesRepository {
       await tx.delete(splits).where(eq(splits.expenseId, id));
 
       await tx.delete(expenses).where(eq(expenses.id, id));
+
+      // Insert outbox event
+      await tx.insert(outboxEvents).values({
+        id: crypto.randomUUID(),
+        eventType: 'expense.deleted',
+        payload: {
+          expenseId: expense.id,
+          userId: expense.userId,
+          categoryId: expense.category,
+          amount: expense.amount,
+          date: expense.date,
+        },
+        status: 'pending',
+      });
+    });
+  }
+
+  /**
+   * Bulk deletes multiple expenses owned by the user.
+   * Restores balances to accounts and deletes splits.
+   */
+  async bulkDelete(ids: string[], userId: string): Promise<void> {
+    if (ids.length === 0) return;
+
+    const targetExpenses = await db
+      .select()
+      .from(expenses)
+      .where(and(inArray(expenses.id, ids), eq(expenses.userId, userId)));
+
+    if (targetExpenses.length === 0) return;
+
+    const verifiedIds = targetExpenses.map((e) => e.id);
+
+    await db.transaction(async (tx) => {
+      // Restore balances for each account
+      for (const expense of targetExpenses) {
+        await tx
+          .update(accounts)
+          .set({ balance: sql`${accounts.balance} + ${expense.amount}` })
+          .where(eq(accounts.id, expense.accountId));
+      }
+
+      // Delete splits
+      await tx.delete(splits).where(inArray(splits.expenseId, verifiedIds));
+
+      // Delete expenses
+      await tx.delete(expenses).where(inArray(expenses.id, verifiedIds));
     });
   }
 
@@ -304,6 +382,222 @@ export class ExpensesRepository {
       .where(and(eq(accounts.id, accountId), eq(accounts.userId, userId)))
       .limit(1);
     return !!account;
+  }
+
+  /**
+   * Retrieves an existing account ID for the user, or creates a default cash account if none exists.
+   */
+  async getOrCreateDefaultAccount(userId: string): Promise<string> {
+    const [existing] = await db
+      .select({ id: accounts.id })
+      .from(accounts)
+      .where(eq(accounts.userId, userId))
+      .limit(1);
+
+    if (existing) {
+      return existing.id;
+    }
+
+    const newAccountId = `acc_${nanoid(10)}`;
+    await db.insert(accounts).values({
+      id: newAccountId,
+      userId: userId,
+      name: 'Default Cash Account',
+      type: 'cash',
+      balance: 0,
+      currency: 'INR',
+    });
+
+    return newAccountId;
+  }
+
+  // -------------------------------------------------------------------------
+  // FINANCIAL CALCULATIONS (SPLIT-ADJUSTED)
+  // -------------------------------------------------------------------------
+
+  /**
+   * Calculate category net spending in a range using split offsets.
+   */
+  async calculateSplitAdjustedNetSpent(
+    userId: string,
+    categoryId: string,
+    startDate: Date,
+    endDate: Date
+  ): Promise<number> {
+    // Part 1: Personal non-split expenses
+    const [part1] = await db
+      .select({ total: sum(expenses.amount) })
+      .from(expenses)
+      .where(
+        and(
+          eq(expenses.userId, userId),
+          eq(expenses.category, categoryId),
+          eq(expenses.isSplit, false),
+          gte(expenses.date, startDate),
+          lte(expenses.date, endDate),
+          isNull(expenses.deletedAt)
+        )
+      );
+    const personalNonSplit = part1?.total ? Number(part1.total) : 0;
+
+    // Part 2: Personal split expenses paid by me minus splits assigned to others
+    const paidByMeSplitExpenses = await db
+      .select({
+        id: expenses.id,
+        amount: expenses.amount,
+      })
+      .from(expenses)
+      .where(
+        and(
+          eq(expenses.userId, userId),
+          eq(expenses.category, categoryId),
+          eq(expenses.isSplit, true),
+          gte(expenses.date, startDate),
+          lte(expenses.date, endDate),
+          isNull(expenses.deletedAt)
+        )
+      );
+
+    let personalSplitPayerPortion = 0;
+    if (paidByMeSplitExpenses.length > 0) {
+      const expenseIds = paidByMeSplitExpenses.map((e) => e.id);
+      const allSplits = await db
+        .select({
+          expenseId: splits.expenseId,
+          amount: splits.amount,
+        })
+        .from(splits)
+        .where(and(inArray(splits.expenseId, expenseIds), sql`${splits.expenseId} IS NOT NULL`));
+
+      const splitsSumByExpense: Record<string, number> = {};
+      for (const s of allSplits) {
+        if (s.expenseId) {
+          splitsSumByExpense[s.expenseId] = (splitsSumByExpense[s.expenseId] || 0) + s.amount;
+        }
+      }
+
+      for (const exp of paidByMeSplitExpenses) {
+        const othersShare = splitsSumByExpense[exp.id] || 0;
+        personalSplitPayerPortion += Math.max(0, exp.amount - othersShare);
+      }
+    }
+
+    // Part 3: Split liabilities assigned by others to me
+    const [part3] = await db
+      .select({ total: sum(splits.amount) })
+      .from(splits)
+      .innerJoin(expenses, eq(splits.expenseId, expenses.id))
+      .where(
+        and(
+          eq(splits.userId, userId),
+          sql`${expenses.userId} != ${userId}`,
+          eq(expenses.category, categoryId),
+          gte(expenses.date, startDate),
+          lte(expenses.date, endDate),
+          isNull(expenses.deletedAt)
+        )
+      );
+    const splitLiabilities = part3?.total ? Number(part3.total) : 0;
+
+    return Number((personalNonSplit + personalSplitPayerPortion + splitLiabilities).toFixed(2));
+  }
+
+  /**
+   * Calculate category net spending in bulk for a date range to avoid N+1 queries.
+   */
+  async calculateBulkSplitAdjustedNetSpent(
+    userId: string,
+    startDate: Date,
+    endDate: Date
+  ): Promise<Record<string, number>> {
+    const result: Record<string, number> = {};
+
+    // Part 1: Personal non-split expenses
+    const personalNonSplit = await db
+      .select({ category: expenses.category, total: sum(expenses.amount) })
+      .from(expenses)
+      .where(
+        and(
+          eq(expenses.userId, userId),
+          eq(expenses.isSplit, false),
+          gte(expenses.date, startDate),
+          lte(expenses.date, endDate),
+          isNull(expenses.deletedAt)
+        )
+      )
+      .groupBy(expenses.category);
+
+    for (const row of personalNonSplit) {
+      if (row.category && row.total) {
+        result[row.category] = (result[row.category] || 0) + Number(row.total);
+      }
+    }
+
+    // Part 2: Personal split expenses paid by me minus splits assigned to others
+    const paidByMeSplitExpenses = await db
+      .select({
+        id: expenses.id,
+        category: expenses.category,
+        amount: expenses.amount,
+      })
+      .from(expenses)
+      .where(
+        and(
+          eq(expenses.userId, userId),
+          eq(expenses.isSplit, true),
+          gte(expenses.date, startDate),
+          lte(expenses.date, endDate),
+          isNull(expenses.deletedAt)
+        )
+      );
+
+    if (paidByMeSplitExpenses.length > 0) {
+      const expenseIds = paidByMeSplitExpenses.map((e) => e.id);
+      const allSplits = await db
+        .select({
+          expenseId: splits.expenseId,
+          amount: splits.amount,
+        })
+        .from(splits)
+        .where(and(inArray(splits.expenseId, expenseIds), sql`${splits.expenseId} IS NOT NULL`));
+
+      const splitsSumByExpense: Record<string, number> = {};
+      for (const s of allSplits) {
+        if (s.expenseId) {
+          splitsSumByExpense[s.expenseId] = (splitsSumByExpense[s.expenseId] || 0) + s.amount;
+        }
+      }
+
+      for (const exp of paidByMeSplitExpenses) {
+        const othersShare = splitsSumByExpense[exp.id] || 0;
+        const myShare = Math.max(0, exp.amount - othersShare);
+        result[exp.category] = (result[exp.category] || 0) + myShare;
+      }
+    }
+
+    // Part 3: Split liabilities assigned by others to me
+    const splitLiabilities = await db
+      .select({ category: expenses.category, total: sum(splits.amount) })
+      .from(splits)
+      .innerJoin(expenses, eq(splits.expenseId, expenses.id))
+      .where(
+        and(
+          eq(splits.userId, userId),
+          sql`${expenses.userId} != ${userId}`,
+          gte(expenses.date, startDate),
+          lte(expenses.date, endDate),
+          isNull(expenses.deletedAt)
+        )
+      )
+      .groupBy(expenses.category);
+
+    for (const row of splitLiabilities) {
+      if (row.category && row.total) {
+        result[row.category] = (result[row.category] || 0) + Number(row.total);
+      }
+    }
+
+    return result;
   }
 }
 

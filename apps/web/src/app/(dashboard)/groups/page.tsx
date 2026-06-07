@@ -1,7 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Friend, Group, Expense, useFinanceStore } from '../../../store/finance-store';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useFinanceStore } from '../../../store/finance-store';
+import { Group, Expense } from '../../../store/mockData';
+import { useGroups, useCreateGroup } from '../../../hooks/useGroups';
+import { useFriends, Friend } from '../../../hooks/useFriends';
+import { useExpenses, useCreateExpense, useDeleteExpense } from '../../../hooks/useExpenses';
 import GroupCard from '../../../components/shared/GroupCard';
 import BottomSheet from '../../../components/shared/BottomSheet';
 import {
@@ -92,11 +97,28 @@ const getExpenseCategoryIcon = (category: string) => {
 };
 
 export default function GroupsPage() {
-  const { groups, addGroup, friends, expenses, addExpense, deleteExpense, settleWithFriend } =
-    useFinanceStore();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { data: groupsData } = useGroups();
+  const groups = groupsData || [];
+  const createGroupMutation = useCreateGroup();
 
-  // Navigation state: selected group ID
-  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
+  const { data: friendsData } = useFriends();
+  const friends = friendsData || [];
+
+  const { data: expensesData } = useExpenses({ limit: 1000 });
+  const expenses = expensesData?.expenses || [];
+  const createExpenseMutation = useCreateExpense();
+  const deleteExpenseMutation = useDeleteExpense();
+  // Navigation state: selected group ID retrieved from URL search parameter
+  const selectedGroupId = searchParams.get('id');
+  const setSelectedGroupId = (id: string | null) => {
+    if (id) {
+      router.push(`/groups?id=${id}`);
+    } else {
+      router.push(`/groups`);
+    }
+  };
 
   // Sub-tab selection inside Group Detail screen
   const [activeDetailTab, setActiveDetailTab] = useState<
@@ -124,9 +146,10 @@ export default function GroupsPage() {
   const [groupExpenseNote, setGroupExpenseNote] = useState('');
 
   // Settle member overlay state
-  const [activeSettleMemberName, setActiveSettleMemberName] = useState<string | null>(null);
+  const [activeSettleMemberId, setActiveSettleMemberId] = useState<string | null>(null);
   const [settleAmount, setSettleAmount] = useState<number>(0);
   const [showSuccessOverlay, setShowSuccessOverlay] = useState(false);
+  const [isSettleUpModalOpen, setIsSettleUpModalOpen] = useState(false);
 
   const gradientCovers = [
     'from-indigo-600 to-cyan-500',
@@ -140,7 +163,7 @@ export default function GroupsPage() {
     e.preventDefault();
     if (!name || !description) return;
 
-    addGroup({
+    createGroupMutation.mutate({
       name,
       description,
       coverImage: gradientCovers[coverIndex],
@@ -154,11 +177,11 @@ export default function GroupsPage() {
     setIsAddGroupOpen(false);
   };
 
-  const handleMemberToggle = (friendName: string) => {
-    if (selectedMembers.includes(friendName)) {
-      setSelectedMembers(selectedMembers.filter((name) => name !== friendName));
+  const handleMemberToggle = (friendId: string) => {
+    if (selectedMembers.includes(friendId)) {
+      setSelectedMembers(selectedMembers.filter((id) => id !== friendId));
     } else {
-      setSelectedMembers([...selectedMembers, friendName]);
+      setSelectedMembers([...selectedMembers, friendId]);
     }
   };
 
@@ -175,15 +198,12 @@ export default function GroupsPage() {
     const group = groups.find((g) => g.id === selectedGroupId);
     if (!group) return;
 
-    addExpense({
-      title: groupExpenseTitle,
+    createExpenseMutation.mutate({
       amount: Number(groupExpenseAmount),
-      category: groupExpenseCategory,
+      category: groupExpenseCategory as any,
+      paymentMethod: 'UPI',
       date: groupExpenseDate,
-      note: groupExpenseNote,
-      paidBy: 'me',
-      splitWith: group.members,
-      splitType: 'equal',
+      note: groupExpenseTitle,
       groupId: selectedGroupId,
     });
 
@@ -195,35 +215,33 @@ export default function GroupsPage() {
     setIsAddGroupExpenseOpen(false);
   };
 
-  const handleSettleMember = (memberName: string, amount: number) => {
-    setActiveSettleMemberName(memberName);
+  const handleSettleMember = (memberId: string, amount: number) => {
+    setActiveSettleMemberId(memberId);
     setSettleAmount(amount);
   };
 
   const executeMemberSettlement = () => {
-    if (!selectedGroupId || !activeSettleMemberName) return;
+    if (!selectedGroupId || !activeSettleMemberId) return;
 
     // Create a virtual expense representing a settlement in the group
     // To settle, if they owed me, they pay me. If I owed them, I pay them.
     const isUserReceiving = settleAmount > 0;
     const absAmount = Math.abs(settleAmount);
+    const settleFriend = friends.find((f) => f.id === activeSettleMemberId);
+    const settleFriendName = settleFriend ? settleFriend.name : 'Unknown';
 
-    addExpense({
-      title: `Settlement: ${isUserReceiving ? activeSettleMemberName : 'Me'} -> ${isUserReceiving ? 'Me' : activeSettleMemberName}`,
+    createExpenseMutation.mutate({
       amount: absAmount,
-      category: 'Others',
+      category: 'Others' as any,
+      paymentMethod: 'UPI',
       date: new Date().toISOString().split('T')[0],
-      paidBy: isUserReceiving ? activeSettleMemberName : 'me',
-      splitWith: [isUserReceiving ? 'me' : activeSettleMemberName],
-      splitType: 'custom',
-      groupId: selectedGroupId,
       note: `Direct group balance squared up.`,
     });
 
     setShowSuccessOverlay(true);
     setTimeout(() => {
       setShowSuccessOverlay(false);
-      setActiveSettleMemberName(null);
+      setActiveSettleMemberId(null);
     }, 1250);
   };
 
@@ -314,16 +332,18 @@ export default function GroupsPage() {
               <div className="w-7 h-7 rounded-full bg-indigo-600 border-2 border-white dark:border-zinc-950 flex items-center justify-center text-[8.5px] font-extrabold text-white">
                 Me
               </div>
-              {activeGroup.members.slice(0, 4).map((member, idx) => {
+              {activeGroup.members.slice(0, 4).map((memberId, idx) => {
+                const memberFriend = friends.find((f) => f.id === memberId);
+                const memberName = memberFriend ? memberFriend.name : 'Unknown';
                 const colors = ['bg-pink-500', 'bg-emerald-500', 'bg-amber-500', 'bg-sky-500'];
-                const initials = member
+                const initials = memberName
                   .split(' ')
                   .map((n) => n[0])
                   .join('')
                   .slice(0, 2);
                 return (
                   <div
-                    key={member}
+                    key={memberId}
                     className={`w-7 h-7 rounded-full ${colors[idx % colors.length]} border-2 border-white dark:border-zinc-950 flex items-center justify-center text-[8.5px] font-extrabold text-white`}
                   >
                     {initials}
@@ -463,9 +483,9 @@ export default function GroupsPage() {
                       </div>
                       <p className="text-[10px] font-bold text-theme-secondary">
                         {activeGroupUserBalance > 0
-                          ? `${activeGroup.members[0]} owes you ₹${Math.abs(Math.round(activeGroupUserBalance))}.00`
+                          ? `${friends.find((f) => f.id === activeGroup.members[0])?.name || 'Unknown'} owes you ₹${Math.abs(Math.round(activeGroupUserBalance))}.00`
                           : activeGroupUserBalance < 0
-                            ? `You owe ${activeGroup.members[0]} ₹${Math.abs(Math.round(activeGroupUserBalance))}.00`
+                            ? `You owe ${friends.find((f) => f.id === activeGroup.members[0])?.name || 'Unknown'} ₹${Math.abs(Math.round(activeGroupUserBalance))}.00`
                             : 'All settled up inside this group!'}
                       </p>
                     </div>
@@ -522,7 +542,12 @@ export default function GroupsPage() {
                                     month: 'short',
                                     day: 'numeric',
                                   })}{' '}
-                                  • Paid by {isPaidByMe ? 'You' : exp.paidBy.split(' ')[0]}
+                                  • Paid by{' '}
+                                  {isPaidByMe
+                                    ? 'You'
+                                    : (
+                                        friends.find((f) => f.id === exp.paidBy)?.name || 'Unknown'
+                                      ).split(' ')[0]}
                                 </span>
                               </div>
                             </div>
@@ -692,7 +717,12 @@ export default function GroupsPage() {
                                 {exp.title}
                               </h4>
                               <span className="text-[9px] font-bold text-theme-secondary mt-0.5 block">
-                                {exp.date} • Paid by {isPaidByMe ? 'You' : exp.paidBy.split(' ')[0]}
+                                {exp.date} • Paid by{' '}
+                                {isPaidByMe
+                                  ? 'You'
+                                  : (
+                                      friends.find((f) => f.id === exp.paidBy)?.name || 'Unknown'
+                                    ).split(' ')[0]}
                               </span>
                             </div>
                           </div>
@@ -702,7 +732,7 @@ export default function GroupsPage() {
                               ₹{exp.amount.toFixed(2)}
                             </span>
                             <button
-                              onClick={() => deleteExpense(exp.id)}
+                              onClick={() => deleteExpenseMutation.mutate(exp.id)}
                               className="p-2 rounded-xl text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 active:scale-95 transition-all cursor-pointer border-0 bg-transparent"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -747,22 +777,24 @@ export default function GroupsPage() {
                   </div>
 
                   {/* Other members */}
-                  {activeGroup.members.map((member) => {
+                  {activeGroup.members.map((memberId) => {
                     // Compute balance specifically with this member
+                    const memberFriend = friends.find((f) => f.id === memberId);
+                    const memberName = memberFriend ? memberFriend.name : 'Unknown';
                     let balanceWithMember = 0;
                     activeGroupExpenses.forEach((exp) => {
                       const shareCount = activeGroup.members.length + 1;
                       const shareAmount = exp.amount / shareCount;
 
-                      if (exp.paidBy === 'me' && exp.splitWith?.includes(member)) {
+                      if (exp.paidBy === 'me' && exp.splitWith?.includes(memberId)) {
                         balanceWithMember += shareAmount;
-                      } else if (exp.paidBy === member && exp.splitWith?.includes('me')) {
+                      } else if (exp.paidBy === memberId && exp.splitWith?.includes('me')) {
                         balanceWithMember -= shareAmount;
                       }
                     });
 
                     const roundedBal = Number(balanceWithMember.toFixed(2));
-                    const initials = member
+                    const initials = memberName
                       .split(' ')
                       .map((n) => n[0])
                       .join('')
@@ -770,7 +802,7 @@ export default function GroupsPage() {
 
                     return (
                       <div
-                        key={member}
+                        key={memberId}
                         className="p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-850/80 flex items-center justify-between gap-3"
                       >
                         <div className="flex items-center gap-3">
@@ -779,7 +811,7 @@ export default function GroupsPage() {
                           </div>
                           <div>
                             <h4 className="text-xs font-black text-theme-text leading-none">
-                              {member}
+                              {memberName}
                             </h4>
                             <span className="text-[9px] font-bold text-theme-secondary mt-1 block">
                               {roundedBal > 0
@@ -793,8 +825,8 @@ export default function GroupsPage() {
 
                         {roundedBal !== 0 && (
                           <button
-                            onClick={() => handleSettleMember(member, roundedBal)}
-                            className="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-[9px] font-black uppercase tracking-wider cursor-pointer border border-indigo-500/20 active:scale-95 transition-all"
+                            onClick={() => handleSettleMember(memberId, roundedBal)}
+                            className="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-750 text-white text-[9px] font-black uppercase tracking-wider cursor-pointer border border-indigo-500/20 active:scale-95 transition-all"
                           >
                             Settle
                           </button>
@@ -886,21 +918,6 @@ export default function GroupsPage() {
         /* ==================== 1. MAIN GROUPS LIST SHELL SCREEN ================== */
         /* ======================================================================= */
         <div className="space-y-6 animate-fade-in pb-6">
-          {/* Header row layout */}
-          <div className="flex items-center justify-between px-1">
-            <button className="p-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-850 text-theme-text cursor-pointer">
-              <Menu className="w-4.5 h-4.5 stroke-[2.5]" />
-            </button>
-            <div className="relative">
-              <button className="p-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-850 text-theme-text cursor-pointer">
-                <Bell className="w-4.5 h-4.5 stroke-[2.5]" />
-              </button>
-              <span className="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-rose-500 text-white text-[7.5px] font-black flex items-center justify-center border-2 border-white dark:border-zinc-950">
-                2
-              </span>
-            </div>
-          </div>
-
           {/* Title & subtitle info */}
           <div className="px-1 space-y-0.5">
             <h2 className="text-xl font-extrabold tracking-tight text-theme-text">Groups</h2>
@@ -1199,13 +1216,13 @@ export default function GroupsPage() {
               </span>
             ) : (
               <div className="flex gap-2.5 overflow-x-auto pb-1.5 scrollbar-none">
-                {friends.map((friend: Friend) => {
-                  const isChecked = selectedMembers.includes(friend.name);
+                {friends.map((friend) => {
+                  const isChecked = selectedMembers.includes(friend.id);
                   return (
                     <button
                       key={friend.id}
                       type="button"
-                      onClick={() => handleMemberToggle(friend.name)}
+                      onClick={() => handleMemberToggle(friend.id)}
                       className={`flex items-center gap-2.5 px-4 py-2.5 rounded-2xl border font-bold text-xs transition-all shrink-0 cursor-pointer ${
                         isChecked
                           ? 'bg-indigo-500/10 text-indigo-650 dark:text-indigo-400 border-indigo-500/30'
@@ -1337,11 +1354,11 @@ export default function GroupsPage() {
 
       {/* Direct Member Settlement Invoice Sheet */}
       <BottomSheet
-        isOpen={activeSettleMemberName !== null}
-        onClose={() => setActiveSettleMemberName(null)}
+        isOpen={activeSettleMemberId !== null}
+        onClose={() => setActiveSettleMemberId(null)}
         title="Group Settle Balance"
       >
-        {activeSettleMemberName && (
+        {activeSettleMemberId && (
           <div className="space-y-6 relative">
             {showSuccessOverlay && (
               <div className="absolute inset-0 z-50 bg-white/95 dark:bg-zinc-950/95 flex flex-col items-center justify-center gap-3.5 text-center animate-fade-in rounded-3xl">
@@ -1385,7 +1402,9 @@ export default function GroupsPage() {
                     Sender Payer
                   </span>
                   <span className="font-extrabold text-theme-text">
-                    {settleAmount > 0 ? activeSettleMemberName : 'Me (You)'}
+                    {settleAmount > 0
+                      ? friends.find((f) => f.id === activeSettleMemberId)?.name || 'Unknown'
+                      : 'Me (You)'}
                   </span>
                 </div>
 
@@ -1394,7 +1413,9 @@ export default function GroupsPage() {
                     Recipient Receiver
                   </span>
                   <span className="font-extrabold text-theme-text">
-                    {settleAmount > 0 ? 'Me (You)' : activeSettleMemberName}
+                    {settleAmount > 0
+                      ? 'Me (You)'
+                      : friends.find((f) => f.id === activeSettleMemberId)?.name || 'Unknown'}
                   </span>
                 </div>
 
@@ -1416,7 +1437,7 @@ export default function GroupsPage() {
                 <span>Execute</span>
               </button>
               <button
-                onClick={() => setActiveSettleMemberName(null)}
+                onClick={() => setActiveSettleMemberId(null)}
                 className="py-3.5 rounded-xl bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-theme-text font-bold active:scale-98 transition-all text-xs cursor-pointer"
               >
                 Dismiss

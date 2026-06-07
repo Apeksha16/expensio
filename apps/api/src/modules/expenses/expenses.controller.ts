@@ -4,6 +4,7 @@ import {
   createExpenseSchema,
   updateExpenseSchema,
   listExpensesQuerySchema,
+  bulkDeleteExpenseSchema,
 } from './expenses.schemas.js';
 import {
   formatErrorResponse,
@@ -12,6 +13,23 @@ import {
   UnauthorizedError,
   AppError,
 } from '../../utils/errors.js';
+
+// Helpers to map database 'description' to JSON response 'note'
+function mapExpenseResponse(expense: any) {
+  if (!expense) return expense;
+  return {
+    ...expense,
+    note: expense.description || expense.note || null,
+  };
+}
+
+function mapPaginatedExpensesResponse(data: any) {
+  if (!data || !data.expenses) return data;
+  return {
+    ...data,
+    expenses: data.expenses.map(mapExpenseResponse),
+  };
+}
 
 export class ExpensesController {
   // -------------------------------------------------------------------------
@@ -34,7 +52,9 @@ export class ExpensesController {
 
       const expense = await expensesService.createExpense(request.user.id, result.data);
 
-      return reply.status(201).send(formatSuccessResponse(expense, 'Expense created successfully'));
+      return reply
+        .status(201)
+        .send(formatSuccessResponse(mapExpenseResponse(expense), 'Expense created successfully'));
     } catch (err) {
       const error = err as Error | AppError;
       request.log.error(`Failed to create expense: ${error.message}`);
@@ -65,7 +85,7 @@ export class ExpensesController {
 
       const data = await expensesService.listExpenses(request.user.id, result.data);
 
-      return reply.send(formatSuccessResponse(data));
+      return reply.send(formatSuccessResponse(mapPaginatedExpensesResponse(data)));
     } catch (err) {
       const error = err as Error | AppError;
       request.log.error(`Failed to list expenses: ${error.message}`);
@@ -87,7 +107,7 @@ export class ExpensesController {
       const { id } = request.params;
       const expense = await expensesService.getExpense(id, request.user.id);
 
-      return reply.send(formatSuccessResponse(expense));
+      return reply.send(formatSuccessResponse(mapExpenseResponse(expense)));
     } catch (err) {
       const error = err as Error | AppError;
       request.log.error(`Failed to get expense: ${error.message}`);
@@ -99,7 +119,7 @@ export class ExpensesController {
   }
 
   // -------------------------------------------------------------------------
-  // PUT /api/v1/expenses/:id
+  // PATCH /api/v1/expenses/:id
   // -------------------------------------------------------------------------
 
   async update(request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
@@ -119,7 +139,9 @@ export class ExpensesController {
       const { id } = request.params;
       const expense = await expensesService.updateExpense(id, request.user.id, result.data);
 
-      return reply.send(formatSuccessResponse(expense, 'Expense updated successfully'));
+      return reply.send(
+        formatSuccessResponse(mapExpenseResponse(expense), 'Expense updated successfully')
+      );
     } catch (err) {
       const error = err as Error | AppError;
       request.log.error(`Failed to update expense: ${error.message}`);
@@ -145,6 +167,37 @@ export class ExpensesController {
     } catch (err) {
       const error = err as Error | AppError;
       request.log.error(`Failed to delete expense: ${error.message}`);
+      if (error instanceof AppError) {
+        return reply.status(error.statusCode).send(formatErrorResponse(error));
+      }
+      return reply.status(500).send(formatErrorResponse(error));
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // DELETE /api/v1/expenses/bulk
+  // -------------------------------------------------------------------------
+
+  async bulkDelete(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      if (!request.user) throw new UnauthorizedError();
+
+      const result = bulkDeleteExpenseSchema.safeParse(request.body);
+      if (!result.success) {
+        throw new ValidationError('Validation failed', {
+          errors: result.error.errors.map((e) => ({
+            path: e.path.join('.'),
+            message: e.message,
+          })),
+        });
+      }
+
+      await expensesService.bulkDeleteExpenses(result.data.ids, request.user.id);
+
+      return reply.send(formatSuccessResponse(undefined, 'Expenses deleted successfully'));
+    } catch (err) {
+      const error = err as Error | AppError;
+      request.log.error(`Failed to bulk delete expenses: ${error.message}`);
       if (error instanceof AppError) {
         return reply.status(error.statusCode).send(formatErrorResponse(error));
       }

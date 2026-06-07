@@ -19,14 +19,15 @@ export interface Expense {
   amount: number;
   currency: string;
   description?: string | null;
+  note?: string | null;
   category: string;
-  date: Date;
+  date: Date | string;
   accountId: string;
   paymentMethod?: string | null;
   groupId?: string | null;
   isSplit: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: Date | string;
+  updatedAt: Date | string;
 }
 
 export interface Category {
@@ -52,8 +53,10 @@ export interface Budget {
   categoryId: string;
   amount: number;
   period: 'monthly' | 'yearly';
-  startDate: Date;
-  endDate: Date;
+  startDate: Date | string;
+  endDate: Date | string;
+  createdAt: Date | string;
+  updatedAt: Date | string;
 }
 
 export interface Friendship {
@@ -139,4 +142,191 @@ export interface SessionUser {
 export interface AuthResponse {
   user: AuthUser | null;
   session: any | null;
+}
+
+export interface CreateExpenseRequest {
+  amount: number;
+  category: string;
+  paymentMethod: string;
+  date: string;
+  note?: string;
+  accountId?: string;
+  groupId?: string;
+  splitWith?: string[];
+  splitType?: 'equal' | 'percentage';
+  splitPercentages?: Record<string, number>;
+}
+
+export interface UpdateExpenseRequest {
+  amount?: number;
+  category?: string;
+  paymentMethod?: string;
+  date?: string;
+  note?: string;
+  accountId?: string;
+  groupId?: string;
+  splitWith?: string[];
+  splitType?: 'equal' | 'percentage';
+  splitPercentages?: Record<string, number>;
+}
+
+export interface ExpenseFilters {
+  page?: number;
+  limit?: number;
+  search?: string;
+  category?: string;
+  startDate?: string;
+  endDate?: string;
+  accountId?: string;
+  groupId?: string;
+  minAmount?: number;
+  maxAmount?: number;
+  sort?: 'date-desc' | 'date-asc' | 'amount-desc' | 'amount-asc' | 'date' | 'amount' | 'createdAt';
+  sortBy?: 'date' | 'amount' | 'createdAt';
+  sortOrder?: 'asc' | 'desc';
+}
+
+export interface ExpenseListResponse {
+  expenses: Expense[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  };
+}
+
+export interface BulkDeleteExpenseRequest {
+  ids: string[];
+}
+
+export interface DashboardSummaryResponse {
+  monthlySalary: number;
+  totalExpenses: number;
+  remainingBalance: number;
+  spendingPercentage: number;
+  expensesThisMonth: number;
+  totalTransactions: number;
+  categoryBreakdown: {
+    category: string;
+    amount: number;
+    percentage: number;
+  }[];
+  recentExpenses: Expense[];
+  budgetSummary?: {
+    totalBudgetLimit: number;
+    totalSpent: number;
+    overallUtilization: number;
+    activeBudgetsCount: number;
+    isSalaryAllocationExceeded: boolean;
+    topConsumedBudget: {
+      categoryId: string;
+      utilizationPercentage: number;
+      spentAmount: number;
+      budgetAmount: number;
+    } | null;
+  };
+}
+
+export interface BudgetSummary {
+  id: string;
+  categoryId: string;
+  budgetAmount: number;
+  spentAmount: number;
+  remainingAmount: number;
+  utilizationPercentage: number;
+  period: 'monthly' | 'yearly';
+  startDate: string;
+  endDate: string;
+}
+
+export interface CreateBudgetRequest {
+  categoryId: string;
+  amount: number;
+  period: 'monthly' | 'yearly';
+  startDate: string;
+  endDate: string;
+}
+
+export interface UpdateBudgetRequest {
+  amount?: number;
+  period?: 'monthly' | 'yearly';
+  startDate?: string;
+  endDate?: string;
+}
+
+export interface BudgetFilters {
+  period?: 'monthly' | 'yearly';
+  categoryId?: string;
+}
+
+export interface BudgetListResponse {
+  budgets: BudgetSummary[];
+}
+
+export interface AnalyticsSummary {
+  currentMonthSpend: number;
+  previousMonthSpend: number;
+  spendChangePercentage: number;
+  monthlySavings: number;
+  savingsRate: number;
+  highestCategory: {
+    category: string;
+    amount: number;
+  } | null;
+  mostConsumedBudget: {
+    category: string;
+    percentage: number;
+  } | null;
+}
+
+export interface CategoryAnalytics {
+  category: string;
+  amount: number;
+  percentage: number;
+}
+
+export interface MonthlyTrend {
+  month: string;
+  expenses: number;
+  budget: number;
+  savings: number;
+}
+
+export interface AnalyticsResponse {
+  summary: AnalyticsSummary;
+  categoryBreakdown: CategoryAnalytics[];
+  monthlyTrends: MonthlyTrend[];
+}
+
+export interface AppNotificationType {
+  id: string;
+  userId: string;
+  type: 'budget_threshold' | 'budget_exceeded' | 'system';
+  title: string;
+  body: string;
+  isRead: boolean;
+  createdAt: string;
+}
+
+export interface SocketEventPayloads {
+  'budget.threshold.crossed': {
+    budgetId: string;
+    categoryId: string;
+    utilization: number;
+    threshold: number;
+    message: string;
+  };
+  'budget.exceeded': {
+    budgetId: string;
+    categoryId: string;
+    spent: number;
+    limit: number;
+    message: string;
+  };
+  'dashboard.invalidated': {
+    reason: string;
+  };
 }

@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS "expenses_user_id_date_idx" ON "expenses" USING btree ("user_id","date");

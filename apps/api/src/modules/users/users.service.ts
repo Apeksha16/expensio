@@ -1,5 +1,6 @@
 import { User } from '@expensio/types';
 import { userRepository } from './users.repository.js';
+import { hashMpin } from '../../utils/security.js';
 
 export class UsersService {
   /**
@@ -50,6 +51,7 @@ export class UsersService {
     data: {
       name: string;
       monthlySalary: number;
+      mpin: string;
     }
   ): Promise<User> {
     // Validate input
@@ -65,10 +67,17 @@ export class UsersService {
       throw new Error('Monthly salary must be greater than 0');
     }
 
+    if (!data.mpin || (data.mpin.length !== 4 && data.mpin.length !== 6)) {
+      throw new Error('MPIN must be exactly 4 or 6 digits');
+    }
+
+    const mpinHash = hashMpin(data.mpin);
+
     // Update user with onboarding data
     return userRepository.update(userId, {
       name: data.name.trim(),
       monthlySalary: data.monthlySalary,
+      mpin: mpinHash,
       isOnboardingCompleted: true,
     });
   }

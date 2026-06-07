@@ -1,31 +1,25 @@
-import crypto from 'node:crypto';
+import bcrypt from 'bcryptjs';
 import { AppError } from './errors.js';
 
 // Simple in-memory rate limiter store for MPIN attempts
 const mpinLimitStore = new Map<string, { count: number; resetTime: number }>();
 
 /**
- * Generate a secure PBKDF2 hash for a given MPIN.
- * Stores the salt alongside the hash in "salt:hash" format.
+ * Generate a secure bcrypt hash for a given MPIN.
  */
 export function hashMpin(mpin: string): string {
-  const salt = crypto.randomBytes(16).toString('hex');
-  const hash = crypto.pbkdf2Sync(mpin, salt, 10000, 64, 'sha512').toString('hex');
-  return `${salt}:${hash}`;
+  const salt = bcrypt.genSaltSync(10);
+  return bcrypt.hashSync(mpin, salt);
 }
 
 /**
- * Verify an input MPIN against the stored "salt:hash" string.
+ * Verify an input MPIN against the stored bcrypt hash.
  */
 export function verifyMpin(inputMpin: string, storedMpin: string): boolean {
-  if (!storedMpin || !storedMpin.includes(':')) {
+  if (!storedMpin) {
     return false;
   }
-  const [salt, hash] = storedMpin.split(':');
-  const inputHash = crypto.pbkdf2Sync(inputMpin, salt, 10000, 64, 'sha512').toString('hex');
-
-  // Timing safe equal check
-  return crypto.timingSafeEqual(Buffer.from(hash, 'hex'), Buffer.from(inputHash, 'hex'));
+  return bcrypt.compareSync(inputMpin, storedMpin);
 }
 
 /**

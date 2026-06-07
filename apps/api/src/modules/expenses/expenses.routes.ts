@@ -17,9 +17,17 @@ export async function expensesRoutes(fastify: FastifyInstance) {
     expensesController.getOne(req as FastifyRequest<IdParams>, reply)
   );
 
-  /** PUT /api/v1/expenses/:id — update an expense */
+  /** PUT & PATCH /api/v1/expenses/:id — update an expense */
   fastify.put<IdParams>('/api/v1/expenses/:id', auth, (req, reply) =>
     expensesController.update(req as FastifyRequest<IdParams>, reply)
+  );
+  fastify.patch<IdParams>('/api/v1/expenses/:id', auth, (req, reply) =>
+    expensesController.update(req as FastifyRequest<IdParams>, reply)
+  );
+
+  /** DELETE /api/v1/expenses/bulk — bulk delete expenses */
+  fastify.delete('/api/v1/expenses/bulk', auth, (req, reply) =>
+    expensesController.bulkDelete(req, reply)
   );
 
   /** DELETE /api/v1/expenses/:id — delete an expense */

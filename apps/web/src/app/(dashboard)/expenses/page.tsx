@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Expense, useFinanceStore } from '../../../store/finance-store';
+import { useFinanceStore } from '../../../store/finance-store';
+import { Expense } from '../../../store/mockData';
 import ExpenseCard from '../../../components/shared/ExpenseCard';
 import BottomSheet from '../../../components/shared/BottomSheet';
 import { useShallow } from 'zustand/react/shallow';
@@ -33,27 +34,24 @@ import {
   HelpCircle,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import {
+  useExpenses,
+  useUpdateExpense,
+  useDeleteExpense,
+  useBulkDeleteExpenses,
+} from '../../../hooks/useExpenses';
 
 export default function ExpensesPage() {
-  const {
-    expenses,
-    deleteExpense,
-    editExpense,
-    batchDeleteExpenses,
-    isExpensesSelectionActive,
-    setIsExpensesSelectionActive,
-  } = useFinanceStore(
+  const { isExpensesSelectionActive, setIsExpensesSelectionActive } = useFinanceStore(
     useShallow((state) => ({
-      expenses: state.expenses,
-      deleteExpense: state.deleteExpense,
-      editExpense: state.editExpense,
-      batchDeleteExpenses: state.batchDeleteExpenses,
       isExpensesSelectionActive: state.isExpensesSelectionActive,
       setIsExpensesSelectionActive: state.setIsExpensesSelectionActive,
     }))
   );
+
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [page, setPage] = useState(1);
 
   // Calendar states
   const [isCalendarMode, setIsCalendarMode] = useState(false);
@@ -130,56 +128,28 @@ export default function ExpensesPage() {
     setMinAmount('');
     setMaxAmount('');
     setSelectedCategory('All');
+    setPage(1);
   };
 
-  const filteredExpenses = expenses
-    .filter((exp: Expense) => {
-      const matchesSearch =
-        exp.title.toLowerCase().includes(search.toLowerCase()) ||
-        (exp.note && exp.note.toLowerCase().includes(search.toLowerCase()));
+  // React Query Hooks
+  const { data, isLoading, error } = useExpenses({
+    page,
+    limit: 20,
+    search: search || undefined,
+    category: selectedCategory === 'All' ? undefined : selectedCategory,
+    minAmount: minAmount ? Number(minAmount) : undefined,
+    maxAmount: maxAmount ? Number(maxAmount) : undefined,
+    sort: sortBy,
+  });
 
-      const matchesCategory = selectedCategory === 'All' || exp.category === selectedCategory;
+  const deleteMutation = useDeleteExpense();
+  const updateMutation = useUpdateExpense();
+  const bulkDeleteMutation = useBulkDeleteExpenses();
 
-      const isIncome = exp.category === 'Income';
-      const matchesType =
-        typeFilter === 'all' ||
-        (typeFilter === 'income' && isIncome) ||
-        (typeFilter === 'expense' && !isIncome);
-
-      const matchesPayment =
-        paymentMethodFilter === 'All' ||
-        (exp.paymentMethod && exp.paymentMethod === paymentMethodFilter);
-
-      const matchesMinAmount = !minAmount || exp.amount >= Number(minAmount);
-      const matchesMaxAmount = !maxAmount || exp.amount <= Number(maxAmount);
-
-      return (
-        matchesSearch &&
-        matchesCategory &&
-        matchesType &&
-        matchesPayment &&
-        matchesMinAmount &&
-        matchesMaxAmount
-      );
-    })
-    .sort((a, b) => {
-      if (sortBy === 'date-desc') {
-        return new Date(b.date).getTime() - new Date(a.date).getTime();
-      }
-      if (sortBy === 'date-asc') {
-        return new Date(a.date).getTime() - new Date(b.date).getTime();
-      }
-      if (sortBy === 'amount-desc') {
-        return b.amount - a.amount;
-      }
-      if (sortBy === 'amount-asc') {
-        return a.amount - b.amount;
-      }
-      return 0;
-    });
+  const expensesList = data?.expenses || [];
 
   const displayedExpenses = isCalendarMode
-    ? filteredExpenses.filter((exp: Expense) => {
+    ? expensesList.filter((exp: Expense) => {
         const d = new Date(exp.date);
         const matchesMonth = d.getFullYear() === calendarYear && d.getMonth() === calendarMonth;
         if (selectedCalendarDate) {
@@ -187,9 +157,9 @@ export default function ExpensesPage() {
         }
         return matchesMonth;
       })
-    : filteredExpenses;
+    : expensesList;
 
-  const totalMonthSpent = filteredExpenses
+  const totalMonthSpent = expensesList
     .filter((exp: Expense) => {
       const d = new Date(exp.date);
       return (
@@ -211,9 +181,12 @@ export default function ExpensesPage() {
 
   const handleBatchDelete = () => {
     if (selectedIds.length === 0) return;
-    batchDeleteExpenses(selectedIds);
-    setSelectedIds([]);
-    setIsSelectionMode(false);
+    bulkDeleteMutation.mutate(selectedIds, {
+      onSuccess: () => {
+        setSelectedIds([]);
+        setIsSelectionMode(false);
+      },
+    });
   };
 
   const startEditing = (expense: Expense) => {
@@ -229,16 +202,23 @@ export default function ExpensesPage() {
     e.preventDefault();
     if (!activeDetailExpense || !editTitle || !editAmount || isNaN(Number(editAmount))) return;
 
-    editExpense(activeDetailExpense.id, {
-      title: editTitle,
-      amount: Number(editAmount),
-      category: editCategory,
-      date: editDate,
-      note: editNote,
-    });
-
-    setIsEditing(false);
-    setActiveDetailExpense(null);
+    updateMutation.mutate(
+      {
+        id: activeDetailExpense.id,
+        data: {
+          note: editTitle,
+          amount: Number(editAmount),
+          category: editCategory,
+          date: editDate,
+        },
+      },
+      {
+        onSuccess: () => {
+          setIsEditing(false);
+          setActiveDetailExpense(null);
+        },
+      }
+    );
   };
 
   const categoryItems = [
@@ -259,10 +239,29 @@ export default function ExpensesPage() {
     { name: 'Others', icon: HelpCircle },
   ];
 
-  const totalSpent = filteredExpenses.reduce(
+  const totalSpent = expensesList.reduce(
     (acc, curr) => acc + (curr.category === 'Income' ? 0 : curr.amount),
     0
   );
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-3">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
+        <p className="text-xs font-semibold text-zinc-500 uppercase tracking-widest">
+          Loading transactions...
+        </p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-bold text-center">
+        Error loading transactions: {error.message}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 pb-6 relative select-none">
@@ -378,7 +377,7 @@ export default function ExpensesPage() {
           </span>
           <div className="flex items-center gap-1.5 mt-2 flex-wrap">
             <span className="text-base font-black text-zinc-100 leading-none">
-              {filteredExpenses.length}
+              {expensesList.length}
             </span>
             <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-extrabold text-[8px] flex items-center gap-0.5 shrink-0 select-none">
               ▲ 8%
@@ -467,7 +466,7 @@ export default function ExpensesPage() {
                   new Date().getFullYear() === calendarYear;
 
                 // Check if day has expenses
-                const dayExpenses = filteredExpenses.filter((exp: Expense) => {
+                const dayExpenses = expensesList.filter((exp: Expense) => {
                   const d = new Date(exp.date);
                   return (
                     d.getDate() === dayNum &&
@@ -583,7 +582,7 @@ export default function ExpensesPage() {
                     <div className="flex-grow min-w-0">
                       <ExpenseCard
                         expense={expense}
-                        onDelete={deleteExpense}
+                        onDelete={(id) => deleteMutation.mutate(id)}
                         onEdit={(exp) => {
                           setActiveDetailExpense(exp);
                           startEditing(exp);
@@ -602,6 +601,29 @@ export default function ExpensesPage() {
                 );
               })}
             </div>
+
+            {/* Pagination Controls */}
+            {data?.pagination && data.pagination.totalPages > 1 && (
+              <div className="flex items-center justify-center gap-4 mt-6">
+                <button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={!data.pagination.hasPrevPage}
+                  className="p-2 rounded-xl bg-zinc-900/60 border border-zinc-850/60 text-zinc-350 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-zinc-800 transition-colors"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <span className="text-xs font-semibold text-zinc-450">
+                  Page {data.pagination.page} of {data.pagination.totalPages}
+                </span>
+                <button
+                  onClick={() => setPage((p) => Math.min(data.pagination.totalPages, p + 1))}
+                  disabled={!data.pagination.hasNextPage}
+                  className="p-2 rounded-xl bg-zinc-900/60 border border-zinc-850/60 text-zinc-350 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-zinc-800 transition-colors"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -841,7 +863,7 @@ export default function ExpensesPage() {
                 </button>
                 <button
                   onClick={() => {
-                    deleteExpense(activeDetailExpense.id);
+                    deleteMutation.mutate(activeDetailExpense.id);
                     setActiveDetailExpense(null);
                   }}
                   className="py-3.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 font-bold text-xs cursor-pointer outline-none animate-colors"

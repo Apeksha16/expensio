@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '../../store/auth-store';
 import { supabase } from '../../lib/supabase';
+import { useCompleteOnboarding } from '../../hooks/useUser';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -285,7 +286,7 @@ function PersonalInfoStep({ data, onChange, onNext }: Step1Props) {
             <input
               id="salary"
               type="text"
-              inputMode="numeric"
+              inputMode="decimal"
               value={displaySalary}
               onChange={handleSalaryChange}
               placeholder="50,000"
@@ -425,7 +426,8 @@ function ConfirmMpinStep({ data, onChange, onNext }: Step3Props) {
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const { user, isInitialized, isLoading, updateUser, session } = useAuthStore();
+  const { user, isInitialized, isLoading, session } = useAuthStore();
+  const completeOnboardingMutation = useCompleteOnboarding();
 
   const [step, setStep] = useState<Step>(1);
   const [data, setData] = useState<OnboardingData>({
@@ -477,80 +479,34 @@ export default function OnboardingPage() {
         const updatePayload = {
           name: data.name.trim(),
           monthlySalary: Number(data.salary),
+          mpin: data.mpin,
         };
 
-        if (session?.access_token) {
-          try {
-            const res = await fetch(`${API_URL}/api/v1/users/onboarding`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${session.access_token}`,
-              },
-              body: JSON.stringify(updatePayload),
-            });
+        await completeOnboardingMutation.mutateAsync(updatePayload);
 
-            if (res.ok) {
-              const data = await res.json();
-              const userObj = data?.data || data?.user;
-
-              try {
-                await supabase.auth.updateUser({
-                  data: {
-                    isOnboardingCompleted: true,
-                    monthlySalary: updatePayload.monthlySalary,
-                    name: updatePayload.name,
-                  },
-                });
-                console.debug('[Onboarding] Supabase user metadata updated successfully');
-              } catch (metaErr) {
-                console.warn('[Onboarding] Failed to update Supabase user metadata:', metaErr);
-              }
-
-              if (userObj) {
-                updateUser(userObj);
-              } else {
-                updateUser({
-                  name: updatePayload.name,
-                  monthlySalary: updatePayload.monthlySalary,
-                  isOnboardingCompleted: true,
-                });
-              }
-            } else {
-              console.warn('Backend onboarding update failed, using local fallback.');
-              updateUser({
-                name: updatePayload.name,
-                monthlySalary: updatePayload.monthlySalary,
-                isOnboardingCompleted: true,
-              });
-            }
-          } catch {
-            console.warn('Backend unreachable, using local fallback.');
-            updateUser({
-              name: updatePayload.name,
-              monthlySalary: updatePayload.monthlySalary,
+        try {
+          await supabase.auth.updateUser({
+            data: {
               isOnboardingCompleted: true,
-            });
-          }
-        } else {
-          updateUser({
-            name: updatePayload.name,
-            monthlySalary: updatePayload.monthlySalary,
-            isOnboardingCompleted: true,
+              monthlySalary: updatePayload.monthlySalary,
+              name: updatePayload.name,
+            },
           });
+          console.debug('[Onboarding] Supabase user metadata updated successfully');
+        } catch (metaErr) {
+          console.warn('[Onboarding] Failed to update Supabase user metadata:', metaErr);
         }
 
         router.replace('/dashboard');
-      } catch (err) {
-        const e = err as Error;
-        setApiError(e.message || 'Account setup failed. Please try again.');
+      } catch (err: any) {
+        setApiError(err.message || 'Account setup failed. Please try again.');
         setStep(3);
       }
     };
 
     runSetup();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step, data.name, data.salary, session?.access_token, router, updateUser]);
+  }, [step, data.name, data.salary, data.mpin, router]);
 
   // Global loading gate
   if (!isInitialized || isLoading || (!session && !user)) {
@@ -626,37 +582,19 @@ export default function OnboardingPage() {
             {/* Dev bypass button */}
             <button
               type="button"
-              onClick={() => {
+              onClick={async () => {
                 const updatePayload = {
                   name: data.name.trim() || 'Admin root',
                   monthlySalary: Number(data.salary) || 50000,
+                  mpin: data.mpin || '1234',
                 };
 
-                if (session?.access_token) {
-                  fetch(`${API_URL}/api/v1/users/onboarding`, {
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json',
-                      Authorization: `Bearer ${session.access_token}`,
-                    },
-                    body: JSON.stringify(updatePayload),
-                  }).catch(() => {});
+                try {
+                  await completeOnboardingMutation.mutateAsync(updatePayload);
+                  router.replace('/dashboard');
+                } catch (err: any) {
+                  setApiError(err.message || 'Setup failed');
                 }
-
-                const onboardedUser = {
-                  id: session?.user?.id || 'dev-user',
-                  email: session?.user?.email || 'admin@expensio.app',
-                  name: updatePayload.name,
-                  monthlySalary: updatePayload.monthlySalary,
-                  isOnboardingCompleted: true,
-                  isOnboarded: true,
-                  createdAt: session?.user?.created_at
-                    ? new Date(session.user.created_at)
-                    : new Date(),
-                };
-
-                useAuthStore.setState({ user: onboardedUser });
-                router.replace('/dashboard');
               }}
               className="text-[11px] text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 font-bold transition-colors text-center mx-auto focus:outline-none focus:underline cursor-pointer"
             >

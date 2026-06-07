@@ -9,6 +9,15 @@ import NavigationMenu from '../../components/layout/NavigationMenu';
 import { useFinanceStore } from '../../store/finance-store';
 import { useAuthStore } from '../../store/auth-store';
 import { useShallow } from 'zustand/react/shallow';
+import { useCreateExpense } from '../../hooks/useExpenses';
+import { useFriends, Friend } from '../../hooks/useFriends';
+import { useGroups } from '../../hooks/useGroups';
+import {
+  useNotifications,
+  useMarkNotificationRead,
+  useMarkAllNotificationsRead,
+} from '../../hooks/useNotifications';
+import type { Group } from '../../store/mockData';
 import {
   Coffee,
   Car,
@@ -48,9 +57,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const tab = searchParams?.get('tab') || 'home';
 
   const {
-    friends,
-    groups,
-    addExpense,
     isAddExpenseOpen,
     setIsAddExpenseOpen,
     isNotificationsOpen,
@@ -61,9 +67,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     setIsAddBudgetOpen,
   } = useFinanceStore(
     useShallow((state) => ({
-      friends: state.friends,
-      groups: state.groups,
-      addExpense: state.addExpense,
       isAddExpenseOpen: state.isAddExpenseOpen,
       setIsAddExpenseOpen: state.setIsAddExpenseOpen,
       isNotificationsOpen: state.isNotificationsOpen,
@@ -74,6 +77,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       setIsAddBudgetOpen: state.setIsAddBudgetOpen,
     }))
   );
+  const { data: friendsData } = useFriends();
+  const friends: Friend[] = friendsData || [];
+  const { data: groupsData } = useGroups();
+  const groups: Group[] = groupsData || [];
   const { user, session, isInitialized, isLoading } = useAuthStore(
     useShallow((state) => ({
       user: state.user,
@@ -82,6 +89,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       isLoading: state.isLoading,
     }))
   );
+
+  const createExpenseMutation = useCreateExpense();
 
   const showFAB = pathname === '/dashboard' ? tab === 'home' : !isExpensesSelectionActive;
 
@@ -94,41 +103,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [splitWith, setSplitWith] = useState<string[]>([]);
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
 
-  // Notifications interactive state
-  const [notifications, setNotifications] = useState([
-    {
-      id: 'n1',
-      title: 'Owe Split Request',
-      desc: 'Rahul Sharma owes you ₹37.50 for Goa trip splits.',
-      time: '1h ago',
-      category: 'split',
-      dismissed: false,
-    },
-    {
-      id: 'n2',
-      title: 'Budget Limit Warning',
-      desc: 'You used 34% of your Transport monthly allocation.',
-      time: '4h ago',
-      category: 'alert',
-      dismissed: false,
-    },
-    {
-      id: 'n3',
-      title: 'Transaction Confirmed',
-      desc: 'Verified direct salary deposit credit of +₹2,800.00.',
-      time: '1d ago',
-      category: 'income',
-      dismissed: false,
-    },
-    {
-      id: 'n4',
-      title: 'Active Goa Group splits',
-      desc: 'Rahul Sharma added Hotel Booking (₹600.00) in Goa group.',
-      time: '2d ago',
-      category: 'group',
-      dismissed: false,
-    },
-  ]);
+  // Notifications API integration
+  const { data: notifsData } = useNotifications();
+  const notifications = notifsData?.notifications || [];
+  const markReadMutation = useMarkNotificationRead();
+  const markAllReadMutation = useMarkAllNotificationsRead();
+
+  // Helper for formatting relative time
+  const formatTimeAgo = (dateStr: string) => {
+    const diffMs = Date.now() - new Date(dateStr).getTime();
+    const diffMins = Math.round(diffMs / 60000);
+    if (diffMins < 60) return `${diffMins}m ago`;
+    const diffHrs = Math.floor(diffMins / 60);
+    if (diffHrs < 24) return `${diffHrs}h ago`;
+    return `${Math.floor(diffHrs / 24)}d ago`;
+  };
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [isPaymentDropdownOpen, setIsPaymentDropdownOpen] = useState(false);
@@ -189,15 +178,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     const newPercentages: Record<string, number> = {};
     newPercentages['me'] = equalShare + remainder; // Give remainder to 'me'
-    currentSplitWith.forEach((name) => {
-      newPercentages[name] = equalShare;
+    currentSplitWith.forEach((id) => {
+      newPercentages[id] = equalShare;
     });
 
     setSplitPercentages(newPercentages);
-  };
-
-  const handleDismissNotification = (id: string) => {
-    setNotifications(notifications.map((n) => (n.id === id ? { ...n, dismissed: true } : n)));
   };
 
   const showToast = (msg: string) => {
@@ -225,38 +210,42 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       }
     }
 
-    addExpense({
-      title,
-      amount: Number(amount),
-      category,
-      date,
-      paidBy: 'me',
-      splitWith: isSplit ? splitWith : undefined,
-      splitType: finalSplitType,
-      splitPercentages: finalSplitPercentages,
-      groupId: selectedGroupId || undefined,
-      paymentMethod,
-    });
-
-    // Reset Form
-    setAmount('');
-    setTitle('');
-    setCategory('Food');
-    setDate(new Date().toISOString().split('T')[0]);
-    setPaymentMethod('Credit Card');
-    setSplitWith([]);
-    setSplitType('equal');
-    setSplitPercentages({ me: 100 });
-    setSelectedGroupId(null);
-    setIsAddExpenseOpen(false);
+    createExpenseMutation.mutate(
+      {
+        amount: Number(amount),
+        category,
+        paymentMethod,
+        date,
+        note: title,
+        groupId: selectedGroupId || undefined,
+        splitWith: isSplit ? splitWith : undefined,
+        splitType: finalSplitType,
+        splitPercentages: finalSplitPercentages,
+      },
+      {
+        onSuccess: () => {
+          // Reset Form
+          setAmount('');
+          setTitle('');
+          setCategory('Food');
+          setDate(new Date().toISOString().split('T')[0]);
+          setPaymentMethod('Credit Card');
+          setSplitWith([]);
+          setSplitType('equal');
+          setSplitPercentages({ me: 100 });
+          setSelectedGroupId(null);
+          setIsAddExpenseOpen(false);
+        },
+      }
+    );
   };
 
-  const handleFriendToggle = (friendName: string) => {
+  const handleFriendToggle = (friendId: string) => {
     let newSplitWith = [];
-    if (splitWith.includes(friendName)) {
-      newSplitWith = splitWith.filter((name) => name !== friendName);
+    if (splitWith.includes(friendId)) {
+      newSplitWith = splitWith.filter((id) => id !== friendId);
     } else {
-      newSplitWith = [...splitWith, friendName];
+      newSplitWith = [...splitWith, friendId];
     }
     setSplitWith(newSplitWith);
     redistributeEqually(newSplitWith);
@@ -346,9 +335,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div className="w-full max-w-md h-full flex flex-col bg-shell border-x border-theme-border shadow-2xl relative overflow-hidden transition-colors duration-300">
         {/* Scrollable Container Wrapper (header + content scroll together) */}
         <div
-          className={`flex-1 overflow-x-hidden scrollbar-none flex flex-col pb-28 ${
+          className={`flex-1 overflow-x-hidden scrollbar-none flex flex-col pb-[calc(7rem+env(safe-area-inset-bottom))] ${
             isNavMenuOpen ? 'overflow-hidden' : 'overflow-y-auto'
           }`}
+          style={{ overscrollBehaviorY: 'contain' }}
         >
           {/* Mobile Header */}
           <MobileHeader onMenuClick={() => setIsNavMenuOpen(true)} />
@@ -406,6 +396,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <span className="text-3xl font-extrabold text-indigo-600 dark:text-cyan-400">₹</span>
               <input
                 type="number"
+                inputMode="decimal"
                 step="0.01"
                 placeholder="0.00"
                 value={amount}
@@ -483,12 +474,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </label>
               <div className="flex gap-2.5 overflow-x-auto pt-2 pb-2 px-6 -mx-6 scrollbar-none">
                 {friends.map((friend) => {
-                  const isChecked = splitWith.includes(friend.name);
+                  const isChecked = splitWith.includes(friend.id);
                   return (
                     <button
                       key={friend.id}
                       type="button"
-                      onClick={() => handleFriendToggle(friend.name)}
+                      onClick={() => handleFriendToggle(friend.id)}
                       className={`flex items-center gap-2.5 px-4 py-2.5 rounded-2xl border font-bold text-xs transition-all duration-300 shrink-0 cursor-pointer ${
                         isChecked
                           ? 'bg-indigo-500/10 text-indigo-650 dark:text-indigo-400 border-indigo-500/35 ring-1 ring-indigo-500/30 shadow-[0_2px_12px_rgba(99,102,241,0.08)]'
@@ -504,7 +495,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         whileTap={{ scale: 0.8 }}
                         transition={{ type: 'spring', stiffness: 500, damping: 15 }}
                       >
-                        {friend.avatar}
+                        {friend.avatarUrl ? (
+                          <img
+                            src={friend.avatarUrl}
+                            className="w-full h-full rounded-lg object-cover"
+                          />
+                        ) : (
+                          friend.name.slice(0, 2).toUpperCase()
+                        )}
                       </motion.div>
                       <span>{friend.name.split(' ')[0]}</span>
                     </button>
@@ -628,7 +626,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </span>
             <button
               onClick={() => {
-                setNotifications(notifications.map((n) => ({ ...n, dismissed: true })));
+                markAllReadMutation.mutate();
                 showToast('All notifications cleared!');
               }}
               className="text-[9px] font-bold text-theme-secondary hover:text-indigo-500 uppercase tracking-wide cursor-pointer border-0 bg-transparent"
@@ -638,7 +636,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
 
           <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-0.5 scrollbar-thin">
-            {notifications.filter((n) => !n.dismissed).length === 0 ? (
+            {notifications.filter((n) => !n.isRead).length === 0 ? (
               <div className="p-12 rounded-3xl border border-theme-card-border bg-theme-card relative overflow-hidden flex flex-col items-center justify-center gap-3.5 text-center shadow-xs">
                 <div className="w-12 h-12 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-emerald-500 shrink-0">
                   <Check className="w-6 h-6 stroke-[3]" />
@@ -652,7 +650,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </div>
             ) : (
               notifications
-                .filter((n) => !n.dismissed)
+                .filter((n) => !n.isRead)
                 .map((item) => (
                   <div
                     key={item.id}
@@ -662,34 +660,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       <div className="flex flex-col gap-0.5 max-w-[80%]">
                         <span className="text-xs font-bold text-theme-text">{item.title}</span>
                         <p className="text-[10.5px] text-theme-secondary leading-relaxed mt-0.5">
-                          {item.desc}
+                          {item.body}
                         </p>
                       </div>
                       <span className="text-[8px] font-black uppercase text-theme-muted tracking-wider shrink-0">
-                        {item.time}
+                        {formatTimeAgo(item.createdAt)}
                       </span>
                     </div>
 
                     <div className="flex items-center justify-between border-t border-theme-border/60 pt-2.5 mt-0.5">
                       <span className="text-[8px] font-black uppercase text-theme-secondary bg-background border border-theme-border/60 px-2 py-0.5 rounded tracking-wide">
-                        {item.category}
+                        {item.type.replace('_', ' ')}
                       </span>
 
                       <div className="flex items-center gap-2">
-                        {item.category === 'split' && (
-                          <button
-                            onClick={() => {
-                              handleDismissNotification(item.id);
-                              showToast('Splits settled successfully!');
-                            }}
-                            className="px-2.5 py-1 rounded bg-indigo-600 text-white font-bold uppercase tracking-wider text-[8px] hover:scale-105 active:scale-95 transition-all cursor-pointer border-0"
-                          >
-                            Settle
-                          </button>
-                        )}
                         <button
                           onClick={() => {
-                            handleDismissNotification(item.id);
+                            markReadMutation.mutate(item.id);
                             showToast('Notification dismissed');
                           }}
                           className="px-2.5 py-1 rounded bg-zinc-800 border border-zinc-700 text-zinc-550 font-bold uppercase tracking-wider text-[8px] hover:text-zinc-100 hover:bg-zinc-700 active:scale-95 transition-all cursor-pointer"

@@ -1,13 +1,19 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useFinanceStore } from '../../store/finance-store';
 import BalanceHeroCard from './BalanceHeroCard';
 import QuickActions from './QuickActions';
 import ExpenseCard from './ExpenseCard';
 import BottomSheet from './BottomSheet';
-import { useSearchParams } from 'next/navigation';
-import { useShallow } from 'zustand/react/shallow';
+import { useDashboardSummary } from '../../hooks/useDashboard';
+import { useAnalyticsSummary, useHealthScore } from '../../hooks/useAnalytics';
+import {
+  useExpenses,
+  useCreateExpense,
+  useDeleteExpense,
+  mapAPIExpenseToStoreExpense,
+} from '../../hooks/useExpenses';
 import {
   ChevronRight,
   ChevronDown,
@@ -17,12 +23,10 @@ import {
   Plane,
   Camera,
   Check,
-  Image as ImageIcon,
   Loader2,
   Upload,
   X,
   Plus,
-  Calendar,
   HelpCircle,
   Car,
   Zap,
@@ -59,10 +63,6 @@ const mockReceipts = [
 
 export default function DashboardClient() {
   const {
-    expenses,
-    deleteExpense,
-    editExpense,
-    addExpense,
     setIsAddExpenseOpen,
     selectedPeriod,
     setSelectedPeriod,
@@ -81,6 +81,47 @@ export default function DashboardClient() {
   }; // Custom Category Dropdown Analytics Filter
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState('All');
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+
+  // React Query Hooks & Mutations
+  const { data: summary, isLoading: isSummaryLoading } = useDashboardSummary();
+  const createExpenseMutation = useCreateExpense();
+  const deleteExpenseMutation = useDeleteExpense();
+
+  // Dynamic date range calculation
+  const now = new Date();
+  let analyticsFilters: { startDate?: string; endDate?: string } = {};
+
+  if (selectedPeriod === 'This Month') {
+    analyticsFilters = {
+      startDate: new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0],
+      endDate: new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0],
+    };
+  } else if (selectedPeriod === 'Last Month') {
+    analyticsFilters = {
+      startDate: new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString().split('T')[0],
+      endDate: new Date(now.getFullYear(), now.getMonth(), 0).toISOString().split('T')[0],
+    };
+  } else if (selectedPeriod === '3 Months') {
+    analyticsFilters = {
+      startDate: new Date(now.getFullYear(), now.getMonth() - 2, 1).toISOString().split('T')[0],
+      endDate: new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0],
+    };
+  } else if (selectedPeriod === 'Custom') {
+    if (customStartDate) analyticsFilters.startDate = customStartDate;
+    if (customEndDate) analyticsFilters.endDate = customEndDate;
+  }
+
+  const { data: analyticsData, isLoading: isAnalyticsLoading } =
+    useAnalyticsSummary(analyticsFilters);
+  const { data: healthData, isLoading: isHealthLoading } = useHealthScore();
+  const { data: expensesData, isLoading: isExpensesLoading } = useExpenses({
+    limit: 5,
+    category: selectedCategoryFilter !== 'All' ? selectedCategoryFilter : undefined,
+    startDate: analyticsFilters.startDate,
+    endDate: analyticsFilters.endDate,
+  });
+
+  const liveExpenses = expensesData?.expenses || [];
 
   // Receipt Scanner States
   const [isReceiptScannerOpen, setIsReceiptScannerOpen] = useState(false);
@@ -124,71 +165,70 @@ export default function DashboardClient() {
     e.preventDefault();
     if (!scannedExpense || !scannedExpense.title || !scannedExpense.amount) return;
 
-    addExpense({
-      title: scannedExpense.title,
-      amount: Number(scannedExpense.amount),
-      category: scannedExpense.category,
-      date: new Date().toISOString().split('T')[0],
-      note: scannedExpense.note,
-      paidBy: 'me',
-    });
+    createExpenseMutation.mutate(
+      {
+        amount: Number(scannedExpense.amount),
+        category: scannedExpense.category as any,
+        paymentMethod: 'UPI',
+        date: new Date().toISOString().split('T')[0],
+        note: scannedExpense.title,
+      },
+      {
+        onSuccess: (newExp) => {
+          // Store update removed, using React Query invalidation in hook
+
+          showToast('Receipt logged successfully!');
+        },
+        onError: (err) => {
+          showToast(err.message || 'Failed to save expense');
+        },
+      }
+    );
 
     setIsReceiptScannerOpen(false);
     setScanStep('idle');
     setScannedExpense(null);
   };
 
-  const [isLoading, setIsLoading] = useState(true);
   const [activeDetailExpense, setActiveDetailExpense] = useState<any>(null);
 
-  // Loader duration matching mockup transitions
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 350);
-    return () => clearTimeout(timer);
-  }, [tab]);
+  const apiRecentExpenses = useMemo(() => {
+    return summary?.recentExpenses ? summary.recentExpenses.map(mapAPIExpenseToStoreExpense) : [];
+  }, [summary?.recentExpenses]);
 
-  // Calculations for base expenses
-  const mockIncome = 48200;
-  const mockBaseExpenses = 23639;
-  const addedExpenses = expenses
-    .filter((e) => e.paidBy === 'me' && !e.groupId)
-    .reduce((acc, curr) => acc + curr.amount, 0);
+  const handleDeleteExpense = useCallback(
+    (id: string) => {
+      deleteExpenseMutation.mutate(id, {
+        onSuccess: () => showToast('Expense deleted successfully!'),
+        onError: (err) => showToast(err.message || 'Failed to delete expense'),
+      });
+    },
+    [deleteExpenseMutation]
+  );
 
-  const displayExpenses = mockBaseExpenses + addedExpenses;
-  const displayFood = Math.round(displayExpenses * 0.38);
-  const displayShopping = Math.round(displayExpenses * 0.21);
-  const displayTransport = Math.round(displayExpenses * 0.16);
-  const displayBills = Math.round(displayExpenses * 0.12);
-  const displayOthers = Math.round(displayExpenses * 0.13);
+  const handleEditExpense = useCallback((exp: any) => {
+    setActiveDetailExpense(exp);
+  }, []);
 
-  // Colors for Donut segment loops (circumference = 251.32)
-  const segments = [
-    { color: 'stroke-indigo-500 dark:stroke-indigo-400', offset: 0, length: 95.5 }, // Food (38%)
-    { color: 'stroke-emerald-500 dark:stroke-emerald-400', offset: 95.5, length: 52.8 }, // Shopping (21%)
-    { color: 'stroke-amber-500 dark:stroke-amber-400', offset: 148.3, length: 40.2 }, // Transport (16%)
-    { color: 'stroke-rose-500 dark:stroke-rose-400', offset: 188.5, length: 30.2 }, // Bills (12%)
-    { color: 'stroke-cyan-500 dark:stroke-cyan-400', offset: 218.7, length: 32.6 }, // Others (13%)
-  ];
+  const isLoadingData = isSummaryLoading || isAnalyticsLoading || isExpensesLoading;
 
   // Skeletons
-  if (isLoading) {
+  if (isLoadingData) {
     return (
       <div className="space-y-6 pb-6 animate-pulse select-none">
-        <div className="h-52 rounded-[28px] bg-zinc-100 dark:bg-zinc-900/40 border border-theme-border/60" />
+        <div className="h-[200px] rounded-[28px] bg-zinc-100 dark:bg-zinc-900/40 border border-theme-border/60" />
         <div className="space-y-2">
           <div className="h-4 w-24 bg-zinc-200 dark:bg-zinc-900/60 rounded" />
           <div className="flex gap-3 overflow-hidden">
-            <div className="h-12 w-28 bg-zinc-100 dark:bg-zinc-900/40 rounded-2xl shrink-0" />
-            <div className="h-12 w-28 bg-zinc-100 dark:bg-zinc-900/40 rounded-2xl shrink-0" />
-            <div className="h-12 w-28 bg-zinc-100 dark:bg-zinc-900/40 rounded-2xl shrink-0" />
+            <div className="h-[88px] w-28 bg-zinc-100 dark:bg-zinc-900/40 rounded-3xl shrink-0" />
+            <div className="h-[88px] w-28 bg-zinc-100 dark:bg-zinc-900/40 rounded-3xl shrink-0" />
+            <div className="h-[88px] w-28 bg-zinc-100 dark:bg-zinc-900/40 rounded-3xl shrink-0" />
           </div>
         </div>
-        <div className="h-40 rounded-2xl bg-zinc-100 dark:bg-zinc-900/40 border border-theme-border/60" />
+        <div className="h-[280px] rounded-[28px] bg-zinc-100 dark:bg-zinc-900/40 border border-theme-border/60" />
         <div className="space-y-3">
-          <div className="h-16 rounded-2xl bg-zinc-100 dark:bg-zinc-900/40 border border-theme-border/60" />
-          <div className="h-16 rounded-2xl bg-zinc-100 dark:bg-zinc-900/40 border border-theme-border/60" />
+          <div className="h-16 rounded-[20px] bg-zinc-100 dark:bg-zinc-900/40 border border-theme-border/60" />
+          <div className="h-16 rounded-[20px] bg-zinc-100 dark:bg-zinc-900/40 border border-theme-border/60" />
         </div>
       </div>
     );
@@ -200,7 +240,7 @@ export default function DashboardClient() {
   let tabContent = null;
 
   if (tab === 'home') {
-    const recentExpenses = expenses.filter((e) => !e.groupId).slice(0, 3);
+    const isDashboardEmpty = !summary || summary.totalTransactions === 0;
 
     tabContent = (
       <div className="space-y-6 pb-6 select-none relative">
@@ -213,179 +253,273 @@ export default function DashboardClient() {
           onScanReceiptClick={() => setIsReceiptScannerOpen(true)}
         />
 
-        {/* 4. Budget Status Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="p-5 rounded-[28px] bg-gradient-to-br from-indigo-600 via-indigo-500 to-cyan-600 text-white shadow-lg relative overflow-hidden flex flex-col gap-4 border border-indigo-400/20"
-        >
-          <div className="absolute top-[-30%] right-[-10%] w-36 h-36 bg-white/10 rounded-full blur-2xl pointer-events-none" />
-
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black uppercase tracking-widest text-indigo-100">
-              Budget status
-            </span>
-            <Link href="/budgets">
-              <ChevronRight className="w-4 h-4 text-indigo-100 hover:translate-x-0.5 transition-transform" />
-            </Link>
-          </div>
-
-          <span className="text-[10px] font-bold text-indigo-100/80 leading-none">This month</span>
-
-          {/* Semicircular SVG progress ring */}
-          <div className="relative w-44 h-24 mx-auto flex flex-col items-center justify-end select-none mt-2">
-            <svg viewBox="0 0 100 60" className="w-full h-full">
-              {/* Background Track */}
-              <path
-                d="M 10 50 A 40 40 0 0 1 90 50"
-                fill="none"
-                stroke="rgba(255, 255, 255, 0.15)"
-                strokeWidth="8"
-                strokeLinecap="round"
-              />
-              {/* Foreground Progress */}
-              <path
-                d="M 10 50 A 40 40 0 0 1 90 50"
-                fill="none"
-                stroke="white"
-                strokeWidth="8"
-                strokeLinecap="round"
-                strokeDasharray="125.6"
-                strokeDashoffset={125.6 * (1 - 0.72)} // 72% filled
-                className="transition-all duration-1000 ease-out"
-              />
-            </svg>
-            <div className="absolute bottom-1 flex flex-col items-center text-center">
-              <span className="text-xl font-black text-white leading-none">72%</span>
-              <span className="text-[8px] font-bold text-indigo-100/90 leading-none mt-1">
-                of ₹2,000
-              </span>
-            </div>
-          </div>
-
-          {/* Bottom Labels */}
-          <div className="flex justify-between items-center text-[10px] font-bold text-indigo-100 mt-2 px-1">
-            <div className="flex flex-col">
-              <span className="text-white font-black text-xs">₹1,428.70 spent</span>
-            </div>
-            <div className="flex flex-col items-end">
-              <span className="text-white font-black text-xs">₹571.30 left</span>
-            </div>
-          </div>
-
-          <div className="h-px bg-white/10 my-1" />
-
-          <Link
-            href="/budgets"
-            className="text-[10px] font-black uppercase tracking-widest text-center text-white hover:underline mt-0.5"
+        {isDashboardEmpty ? (
+          /* Premium Onboarding Empty State Card */
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-6 rounded-[28px] bg-white dark:bg-zinc-900 border border-zinc-150 dark:border-zinc-805/50 shadow-[0_6px_20px_rgba(0,0,0,0.015)] flex flex-col items-center text-center gap-4.5"
           >
-            View budgets
-          </Link>
-        </motion.div>
-
-        {/* 5. Recent Transactions Feed */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between px-1">
-            <h3 className="text-[11px] font-extrabold uppercase tracking-widest text-zinc-800 dark:text-zinc-200">
-              Recent Transactions
-            </h3>
-            <Link
-              href="/expenses"
-              className="text-[9.5px] font-black uppercase tracking-wider text-indigo-650 dark:text-indigo-400 hover:underline flex items-center gap-0.5"
+            <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 border border-indigo-500/15 flex items-center justify-center text-indigo-650 dark:text-indigo-400 shrink-0">
+              <Sparkles className="w-7 h-7 stroke-[2.25]" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-sm font-extrabold text-zinc-850 dark:text-zinc-100 uppercase tracking-wide">
+                Welcome to Expensio! 🚀
+              </h3>
+              <p className="text-[10px] font-semibold text-zinc-450 dark:text-zinc-500 max-w-xs leading-relaxed">
+                Track your monthly salary, analyze spending categories, and get real-time financial
+                insights. Add your first expense or configure your monthly salary in settings to get
+                started!
+              </p>
+            </div>
+            <div className="flex gap-3 w-full">
+              <button
+                type="button"
+                onClick={() => setIsAddExpenseOpen(true)}
+                className="flex-1 py-3.5 rounded-xl bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest hover:shadow-lg active:scale-97 transition-all cursor-pointer border-0"
+              >
+                Add Expense
+              </button>
+              <Link
+                href="/settings"
+                className="flex-1 py-3.5 rounded-xl bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-905 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 text-[10px] font-black uppercase tracking-widest text-center active:scale-97 transition-all flex items-center justify-center"
+              >
+                Set Salary
+              </Link>
+            </div>
+          </motion.div>
+        ) : (
+          <>
+            {/* 4. Budget Status Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="p-5 rounded-[28px] bg-gradient-to-br from-indigo-600 via-indigo-500 to-cyan-600 text-white shadow-lg relative overflow-hidden flex flex-col gap-4 border border-indigo-400/20"
             >
-              <span>See all</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-          <div className="flex flex-col gap-3">
-            {recentExpenses.length === 0 ? (
-              <div className="p-8 text-center text-xs text-zinc-550 font-bold bg-white dark:bg-zinc-900 border border-theme-card-border rounded-[28px]">
-                No transactions found.
+              <div className="absolute top-[-30%] right-[-10%] w-36 h-36 bg-white/10 rounded-full blur-2xl pointer-events-none" />
+
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-black uppercase tracking-widest text-indigo-100">
+                  Monthly Spending Limit
+                </span>
+                <Link href="/settings">
+                  <ChevronRight className="w-4 h-4 text-indigo-100 hover:translate-x-0.5 transition-transform" />
+                </Link>
               </div>
-            ) : (
-              recentExpenses.map((expense) => (
-                <ExpenseCard
-                  key={expense.id}
-                  expense={expense}
-                  onDelete={deleteExpense}
-                  onEdit={(exp) => setActiveDetailExpense(exp)}
-                  onTap={(exp) => setActiveDetailExpense(exp)}
-                />
-              ))
+
+              <span className="text-[10px] font-bold text-indigo-100/80 leading-none">
+                This calendar month
+              </span>
+
+              {/* Semicircular SVG progress ring */}
+              <div className="relative w-44 h-24 mx-auto flex flex-col items-center justify-end select-none mt-2">
+                <svg viewBox="0 0 100 60" className="w-full h-full">
+                  {/* Background Track */}
+                  <path
+                    d="M 10 50 A 40 40 0 0 1 90 50"
+                    fill="none"
+                    stroke="rgba(255, 255, 255, 0.15)"
+                    strokeWidth="8"
+                    strokeLinecap="round"
+                  />
+                  {/* Foreground Progress */}
+                  <path
+                    d="M 10 50 A 40 40 0 0 1 90 50"
+                    fill="none"
+                    stroke="white"
+                    strokeWidth="8"
+                    strokeLinecap="round"
+                    strokeDasharray="125.6"
+                    strokeDashoffset={125.6 * (1 - Math.min(100, summary.spendingPercentage) / 100)}
+                    className="transition-all duration-1000 ease-out"
+                  />
+                </svg>
+                <div className="absolute bottom-1 flex flex-col items-center text-center">
+                  <span className="text-xl font-black text-white leading-none">
+                    {summary.spendingPercentage}%
+                  </span>
+                  <span className="text-[8px] font-bold text-indigo-100/90 leading-none mt-1">
+                    {summary.monthlySalary > 0
+                      ? `of ₹${summary.monthlySalary.toLocaleString('en-IN')}`
+                      : 'Salary not set'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Bottom Labels */}
+              <div className="flex justify-between items-center text-[10px] font-bold text-indigo-100 mt-2 px-1">
+                <div className="flex flex-col">
+                  <span className="text-white font-black text-xs">
+                    ₹
+                    {summary.totalExpenses.toLocaleString('en-IN', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}{' '}
+                    spent
+                  </span>
+                </div>
+                <div className="flex flex-col items-end">
+                  <span className="text-white font-black text-xs">
+                    {summary.monthlySalary > 0
+                      ? `₹${summary.remainingBalance.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} left`
+                      : 'Setup salary in settings'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="h-px bg-white/10 my-1" />
+
+              <Link
+                href="/settings"
+                className="text-[10px] font-black uppercase tracking-widest text-center text-white hover:underline mt-0.5"
+              >
+                Configure Salary Settings
+              </Link>
+            </motion.div>
+
+            {/* Financial Health Widget */}
+            {!isHealthLoading && healthData && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-5 rounded-[28px] bg-white dark:bg-zinc-900 border border-zinc-150 dark:border-zinc-800 shadow-[0_4px_16px_rgba(0,0,0,0.02)] flex flex-col gap-3"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                        healthData.score >= 80
+                          ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400'
+                          : healthData.score >= 60
+                            ? 'bg-indigo-100 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400'
+                            : 'bg-rose-100 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400'
+                      }`}
+                    >
+                      <Sparkles className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h3 className="text-[11px] font-black uppercase tracking-widest text-theme-text">
+                        Financial Health
+                      </h3>
+                      <p
+                        className={`text-[10px] font-bold ${
+                          healthData.score >= 80
+                            ? 'text-emerald-500'
+                            : healthData.score >= 60
+                              ? 'text-indigo-500'
+                              : 'text-rose-500'
+                        }`}
+                      >
+                        {healthData.riskLevel}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-2xl font-black text-theme-text">{healthData.score}</span>
+                    <span className="text-[10px] font-bold text-theme-secondary">/100</span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 mt-2">
+                  <div className="bg-zinc-50 dark:bg-zinc-950 rounded-xl p-2.5 text-center flex flex-col items-center justify-center border border-zinc-100 dark:border-zinc-850">
+                    <span className="text-[9px] font-black uppercase text-theme-secondary mb-1">
+                      Savings
+                    </span>
+                    <span className="text-[11px] font-bold text-theme-text">
+                      {healthData.metrics.savingsRate}%
+                    </span>
+                  </div>
+                  <div className="bg-zinc-50 dark:bg-zinc-950 rounded-xl p-2.5 text-center flex flex-col items-center justify-center border border-zinc-100 dark:border-zinc-850">
+                    <span className="text-[9px] font-black uppercase text-theme-secondary mb-1">
+                      Budget
+                    </span>
+                    <span className="text-[11px] font-bold text-theme-text">
+                      {healthData.metrics.budgetDiscipline}%
+                    </span>
+                  </div>
+                  <div className="bg-zinc-50 dark:bg-zinc-950 rounded-xl p-2.5 text-center flex flex-col items-center justify-center border border-zinc-100 dark:border-zinc-850">
+                    <span className="text-[9px] font-black uppercase text-theme-secondary mb-1">
+                      Subs
+                    </span>
+                    <span className="text-[11px] font-bold text-theme-text">
+                      {healthData.metrics.subscriptionBurden}%
+                    </span>
+                  </div>
+                </div>
+              </motion.div>
             )}
-          </div>{' '}
-        </div>
+
+            {/* 5. Recent Transactions Feed */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between px-1">
+                <h3 className="text-[11px] font-extrabold uppercase tracking-widest text-zinc-800 dark:text-zinc-200">
+                  Recent Transactions
+                </h3>
+                <Link
+                  href="/expenses"
+                  className="text-[9.5px] font-black uppercase tracking-wider text-indigo-650 dark:text-indigo-400 hover:underline flex items-center gap-0.5"
+                >
+                  <span>See all</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+              <div className="flex flex-col gap-3">
+                {apiRecentExpenses.length === 0 ? (
+                  <div className="p-8 text-center text-xs text-zinc-550 font-bold bg-white dark:bg-zinc-900 border border-theme-card-border rounded-[28px]">
+                    No transactions found.
+                  </div>
+                ) : (
+                  apiRecentExpenses
+                    .slice(0, 5)
+                    .map((expense) => (
+                      <ExpenseCard
+                        key={expense.id}
+                        expense={expense}
+                        onDelete={handleDeleteExpense}
+                        onEdit={handleEditExpense}
+                        onTap={handleEditExpense}
+                      />
+                    ))
+                )}
+              </div>
+            </div>
+          </>
+        )}
       </div>
     );
   }
 
   // ----------------------------------------------------
   // RENDER VIEW B: DETAILED ANALYTICS (tab=overview)
+  // ----------------------------------------------------
   else if (tab === 'overview') {
     const periods = ['This Month', 'Last Month', '3 Months', 'Custom'];
 
-    // Dynamic date range calculation
-    const now = new Date();
-    let startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-    let endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    const totalSpentPeriod = analyticsData?.summary.currentMonthSpend ?? 0;
+    const spendChangePercentage = analyticsData?.summary.spendChangePercentage ?? 0;
 
-    if (selectedPeriod === 'This Month') {
-      startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-      endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-    } else if (selectedPeriod === 'Last Month') {
-      startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-      endDate = new Date(now.getFullYear(), now.getMonth(), 0);
-    } else if (selectedPeriod === '3 Months') {
-      startDate = new Date(now.getFullYear(), now.getMonth() - 2, 1);
-      endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-    } else if (selectedPeriod === 'Custom') {
-      if (customStartDate) startDate = new Date(customStartDate);
-      if (customEndDate) endDate = new Date(customEndDate);
-    }
-
-    startDate.setHours(0, 0, 0, 0);
-    endDate.setHours(23, 59, 59, 999);
-
-    // Filter actual expenses in range
-    const periodExpenses = expenses.filter((e) => {
-      if (e.category === 'Income' || e.paidBy !== 'me') return false;
-      const eDate = new Date(e.date);
-      return eDate >= startDate && eDate <= endDate;
-    });
-
-    const totalSpentPeriod = periodExpenses.reduce((sum, e) => sum + e.amount, 0);
-
-    // Dynamic Chart calculations
-    const getChartCategory = (cat: string) => {
-      if (cat === 'Food') return 'Food';
-      if (cat === 'Shopping' || cat === 'Gifts') return 'Shopping';
-      if (cat === 'Travel' || cat === 'Transport') return 'Travel';
-      if (
-        cat === 'Bills & Utilities' ||
-        cat === 'Credit Card' ||
-        cat === 'Rent' ||
-        cat === 'Utilities' ||
-        cat === 'Bills'
-      )
-        return 'Bills';
-      return 'Others';
+    const getCategoryAmount = (cat: string) => {
+      const found = analyticsData?.categoryBreakdown?.find((c) => c.category === cat);
+      return found ? found.amount : 0;
     };
 
-    const foodSum = periodExpenses
-      .filter((e) => getChartCategory(e.category) === 'Food')
-      .reduce((sum, e) => sum + e.amount, 0);
-    const shoppingSum = periodExpenses
-      .filter((e) => getChartCategory(e.category) === 'Shopping')
-      .reduce((sum, e) => sum + e.amount, 0);
-    const travelSum = periodExpenses
-      .filter((e) => getChartCategory(e.category) === 'Travel')
-      .reduce((sum, e) => sum + e.amount, 0);
-    const billsSum = periodExpenses
-      .filter((e) => getChartCategory(e.category) === 'Bills')
-      .reduce((sum, e) => sum + e.amount, 0);
-    const othersSum = periodExpenses
-      .filter((e) => getChartCategory(e.category) === 'Others')
-      .reduce((sum, e) => sum + e.amount, 0);
+    const foodSum = getCategoryAmount('Food');
+    const shoppingSum = getCategoryAmount('Shopping');
+    const travelSum = getCategoryAmount('Travel') + getCategoryAmount('Transport');
+    const billsSum =
+      getCategoryAmount('Bills') +
+      getCategoryAmount('Bills & Utilities') +
+      getCategoryAmount('Rent') +
+      getCategoryAmount('Credit Card') +
+      getCategoryAmount('Utilities');
+    const othersSum =
+      getCategoryAmount('Others') +
+      getCategoryAmount('Health') +
+      getCategoryAmount('Entertainment') +
+      getCategoryAmount('Education') +
+      getCategoryAmount('Gifts') +
+      getCategoryAmount('Udhaari');
 
     const maxCategorySum = Math.max(foodSum, shoppingSum, travelSum, billsSum, othersSum, 1);
 
@@ -400,15 +534,7 @@ export default function DashboardClient() {
     const yAxisLabel3 = `₹${Math.round(maxCategorySum * 0.5).toLocaleString('en-IN')}`;
     const yAxisLabel2 = `₹${Math.round(maxCategorySum * 0.25).toLocaleString('en-IN')}`;
 
-    const filteredPeriodExpenses = periodExpenses.filter((e) => {
-      if (selectedCategoryFilter === 'All') return true;
-      if (selectedCategoryFilter === 'Others') {
-        return getChartCategory(e.category) === 'Others';
-      }
-      return getChartCategory(e.category) === selectedCategoryFilter;
-    });
-
-    const displayListExpenses = filteredPeriodExpenses.slice(0, 4);
+    const displayListExpenses = liveExpenses.slice(0, 4);
 
     const categoryStyles: Record<string, { bg: string; text: string; icon: any }> = {
       Food: {
@@ -465,12 +591,20 @@ export default function DashboardClient() {
               <span className="text-3xl font-black text-zinc-800 dark:text-zinc-100 mt-1.5 leading-none">
                 ₹{totalSpentPeriod.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
               </span>
-              <span className="text-[9.5px] text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-0.5 mt-1.5 leading-none select-none">
-                ▼ 8%{' '}
-                <span className="font-semibold text-zinc-400 dark:text-zinc-550">
-                  vs last month
+              {spendChangePercentage !== 0 ? (
+                <span
+                  className={`text-[9.5px] font-bold flex items-center gap-0.5 mt-1.5 leading-none select-none ${spendChangePercentage < 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}
+                >
+                  {spendChangePercentage < 0 ? '▼' : '▲'} {Math.abs(spendChangePercentage)}%{' '}
+                  <span className="font-semibold text-zinc-400 dark:text-zinc-550">
+                    vs last month
+                  </span>
                 </span>
-              </span>
+              ) : (
+                <span className="text-[9.5px] text-zinc-500 font-bold flex items-center gap-0.5 mt-1.5 leading-none select-none">
+                  Comparison unavailable
+                </span>
+              )}
             </div>
             <div className="relative">
               <button
@@ -672,122 +806,150 @@ export default function DashboardClient() {
           </div>
         </div>
 
-        {/* Budget Progress Horizontal Carousel */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between px-1">
-            <h3 className="text-[11px] font-extrabold uppercase tracking-widest text-zinc-800 dark:text-zinc-200">
-              Budget Progress
-            </h3>
-            <Link
-              href="/budgets"
-              className="text-[9.5px] font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-0.5"
-            >
-              <span>View all</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </Link>
+        {/* Budget Progress Horizontal Carousel — powered by real API data */}
+        {summary?.budgetSummary && (summary.budgetSummary.activeBudgetsCount ?? 0) > 0 && (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between px-1">
+              <h3 className="text-[11px] font-extrabold uppercase tracking-widest text-zinc-800 dark:text-zinc-200">
+                Budget Progress
+              </h3>
+              <Link
+                href="/budgets"
+                className="text-[9.5px] font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-0.5"
+              >
+                <span>View all</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+
+            {/* Summary cards: top consumed budget + overall utilization */}
+            <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-none select-none">
+              {/* Overall Budget Card */}
+              <div className="w-[160px] p-4 rounded-[22px] bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-xs shrink-0 flex flex-col gap-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-7.5 h-7.5 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+                    <Sparkles className="w-3.5 h-3.5" />
+                  </div>
+                  <span className="text-[9.5px] font-black uppercase tracking-wider text-zinc-800 dark:text-zinc-200">
+                    Overall
+                  </span>
+                </div>
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-[11.5px] font-extrabold text-zinc-900 dark:text-white leading-tight">
+                    {summary.budgetSummary!.overallUtilization ?? 0}%{' '}
+                    <span className="text-[8px] font-bold text-zinc-400 dark:text-zinc-550">
+                      used
+                    </span>
+                  </span>
+                  <span className="text-[8.5px] font-semibold text-theme-secondary">
+                    {summary.budgetSummary!.activeBudgetsCount} budget
+                    {(summary.budgetSummary!.activeBudgetsCount ?? 0) > 1 ? 's' : ''} active
+                  </span>
+                </div>
+                <div className="space-y-1">
+                  <div className="w-full h-1.5 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
+                    <div
+                      className="h-full bg-indigo-500 dark:bg-indigo-400 rounded-full transition-all duration-700"
+                      style={{
+                        width: `${Math.min(100, summary.budgetSummary!.overallUtilization ?? 0)}%`,
+                      }}
+                    />
+                  </div>
+                  <div className="flex justify-end">
+                    <span className="text-[8.5px] font-black text-indigo-600 dark:text-indigo-400">
+                      ₹
+                      {(summary.budgetSummary!.totalBudgetLimit ?? 0).toLocaleString('en-IN', {
+                        maximumFractionDigits: 0,
+                      })}{' '}
+                      total
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Top Consumed Budget Card */}
+              {summary.budgetSummary?.topConsumedBudget && (
+                <div className="w-[160px] p-4 rounded-[22px] bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-xs shrink-0 flex flex-col gap-3">
+                  <div className="flex items-center gap-2">
+                    <div
+                      className={`w-7.5 h-7.5 rounded-xl flex items-center justify-center shrink-0 ${
+                        summary.budgetSummary!.topConsumedBudget!.utilizationPercentage >= 100
+                          ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
+                          : summary.budgetSummary!.topConsumedBudget!.utilizationPercentage >= 75
+                            ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
+                            : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                      }`}
+                    >
+                      <UtensilsCrossed className="w-3.5 h-3.5" />
+                    </div>
+                    <span className="text-[9.5px] font-black uppercase tracking-wider text-zinc-800 dark:text-zinc-200 truncate">
+                      {summary.budgetSummary!.topConsumedBudget!.categoryId}
+                    </span>
+                  </div>
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[11.5px] font-extrabold text-zinc-900 dark:text-white leading-tight">
+                      ₹
+                      {summary.budgetSummary!.topConsumedBudget!.spentAmount.toLocaleString(
+                        'en-IN',
+                        { maximumFractionDigits: 0 }
+                      )}{' '}
+                      <span className="text-[8px] font-bold text-zinc-400 dark:text-zinc-550">
+                        / ₹
+                        {summary.budgetSummary!.topConsumedBudget!.budgetAmount.toLocaleString(
+                          'en-IN',
+                          { maximumFractionDigits: 0 }
+                        )}
+                      </span>
+                    </span>
+                    <span className="text-[8.5px] font-semibold text-theme-secondary">
+                      Highest usage
+                    </span>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="w-full h-1.5 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all duration-700 ${
+                          summary.budgetSummary!.topConsumedBudget!.utilizationPercentage >= 100
+                            ? 'bg-rose-500 dark:bg-rose-400'
+                            : summary.budgetSummary!.topConsumedBudget!.utilizationPercentage >= 75
+                              ? 'bg-amber-500 dark:bg-amber-400'
+                              : 'bg-emerald-500 dark:bg-emerald-400'
+                        }`}
+                        style={{
+                          width: `${Math.min(100, summary.budgetSummary!.topConsumedBudget!.utilizationPercentage)}%`,
+                        }}
+                      />
+                    </div>
+                    <div className="flex justify-end">
+                      <span
+                        className={`text-[8.5px] font-black ${
+                          summary.budgetSummary!.topConsumedBudget!.utilizationPercentage >= 100
+                            ? 'text-rose-600 dark:text-rose-400'
+                            : 'text-emerald-600 dark:text-emerald-400'
+                        }`}
+                      >
+                        {summary.budgetSummary!.topConsumedBudget!.utilizationPercentage}%
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* View All Budgets CTA */}
+              <Link
+                href="/budgets"
+                className="w-[120px] p-4 rounded-[22px] bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-200/60 dark:border-indigo-800/40 shadow-xs shrink-0 flex flex-col items-center justify-center gap-2 text-center group hover:bg-indigo-100 dark:hover:bg-indigo-950/30 transition-colors"
+              >
+                <div className="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center group-hover:scale-105 transition-transform">
+                  <ChevronRight className="w-4.5 h-4.5 stroke-[2.5]" />
+                </div>
+                <span className="text-[9px] font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+                  View All
+                </span>
+              </Link>
+            </div>
           </div>
-
-          <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-none select-none">
-            {/* Budget Card 1 */}
-            <div className="w-[144px] p-4.5 rounded-[22px] bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-xs shrink-0 flex flex-col gap-3">
-              <div className="flex items-center gap-2">
-                <div className="w-7.5 h-7.5 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
-                  <UtensilsCrossed className="w-3.5 h-3.5" />
-                </div>
-                <span className="text-[9.5px] font-black uppercase tracking-wider text-zinc-800 dark:text-zinc-200">
-                  Food
-                </span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[11.5px] font-extrabold text-zinc-900 dark:text-white leading-tight">
-                  ₹{Math.round(foodSum).toLocaleString()}{' '}
-                  <span className="text-[8px] font-bold text-zinc-400 dark:text-zinc-550">
-                    / ₹6,000
-                  </span>
-                </span>
-              </div>
-              <div className="space-y-1">
-                <div className="w-full h-1.5 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
-                  <div
-                    className="h-full bg-indigo-500 dark:bg-indigo-400 rounded-full"
-                    style={{ width: `${Math.min(100, Math.round((foodSum / 6000) * 100))}%` }}
-                  />
-                </div>
-                <div className="flex justify-end">
-                  <span className="text-[8.5px] font-black text-indigo-600 dark:text-indigo-400">
-                    {Math.round((foodSum / 6000) * 100)}%
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Budget Card 2 */}
-            <div className="w-[144px] p-4.5 rounded-[22px] bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-xs shrink-0 flex flex-col gap-3">
-              <div className="flex items-center gap-2">
-                <div className="w-7.5 h-7.5 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
-                  <ShoppingBag className="w-3.5 h-3.5" />
-                </div>
-                <span className="text-[9.5px] font-black uppercase tracking-wider text-zinc-800 dark:text-zinc-200">
-                  Shopping
-                </span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[11.5px] font-extrabold text-zinc-900 dark:text-white leading-tight">
-                  ₹{Math.round(shoppingSum).toLocaleString()}{' '}
-                  <span className="text-[8px] font-bold text-zinc-400 dark:text-zinc-550">
-                    / ₹4,000
-                  </span>
-                </span>
-              </div>
-              <div className="space-y-1">
-                <div className="w-full h-1.5 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
-                  <div
-                    className="h-full bg-emerald-500 dark:bg-emerald-400 rounded-full"
-                    style={{ width: `${Math.min(100, Math.round((shoppingSum / 4000) * 100))}%` }}
-                  />
-                </div>
-                <div className="flex justify-end">
-                  <span className="text-[8.5px] font-black text-emerald-600 dark:text-emerald-400">
-                    {Math.round((shoppingSum / 4000) * 100)}%
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Budget Card 3 */}
-            <div className="w-[144px] p-4.5 rounded-[22px] bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-xs shrink-0 flex flex-col gap-3">
-              <div className="flex items-center gap-2">
-                <div className="w-7.5 h-7.5 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
-                  <Plane className="w-3.5 h-3.5" />
-                </div>
-                <span className="text-[9.5px] font-black uppercase tracking-wider text-zinc-800 dark:text-zinc-200">
-                  Travel
-                </span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[11.5px] font-extrabold text-zinc-900 dark:text-white leading-tight">
-                  ₹{Math.round(travelSum).toLocaleString()}{' '}
-                  <span className="text-[8px] font-bold text-zinc-400 dark:text-zinc-550">
-                    / ₹3,000
-                  </span>
-                </span>
-              </div>
-              <div className="space-y-1">
-                <div className="w-full h-1.5 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
-                  <div
-                    className="h-full bg-amber-500 dark:bg-amber-450 rounded-full"
-                    style={{ width: `${Math.min(100, Math.round((travelSum / 3000) * 100))}%` }}
-                  />
-                </div>
-                <div className="flex justify-end">
-                  <span className="text-[8.5px] font-black text-amber-600 dark:text-amber-450">
-                    {Math.round((travelSum / 3000) * 100)}%
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        )}
 
         {/* You're doing great Congratulations Banner Card */}
         <div className="p-4.5 rounded-[26px] bg-gradient-to-r from-[#5d5fe6] via-[#6366f1] to-[#8b5cf6] text-white relative overflow-hidden flex items-center justify-between shadow-[0_12px_24px_rgba(99,102,241,0.2)]">
@@ -799,12 +961,19 @@ export default function DashboardClient() {
             </div>
             <div className="flex flex-col gap-0.5">
               <span className="text-[11.5px] font-black tracking-wide leading-none">
-                You're doing great! 🎉
+                {spendChangePercentage <= 0 ? "You're doing great! 🎉" : 'Watch your spending! ⚠️'}
               </span>
               <span className="text-[9.5px] text-white/80 font-bold mt-1.5 leading-snug">
-                Your total spending is 8% lower
-                <br />
-                than last month.
+                {spendChangePercentage !== 0 ? (
+                  <>
+                    Your total spending is {Math.abs(spendChangePercentage)}%{' '}
+                    {spendChangePercentage < 0 ? 'lower' : 'higher'}
+                    <br />
+                    than last month.
+                  </>
+                ) : (
+                  <>Comparison unavailable for this period.</>
+                )}
               </span>
             </div>
           </div>
@@ -957,8 +1126,9 @@ export default function DashboardClient() {
             <div className="grid grid-cols-2 gap-3.5">
               <button
                 onClick={() => {
-                  deleteExpense(activeDetailExpense.id);
-                  setActiveDetailExpense(null);
+                  deleteExpenseMutation.mutate(activeDetailExpense.id, {
+                    onSuccess: () => setActiveDetailExpense(null),
+                  });
                 }}
                 className="w-full py-4 rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-500 font-bold border border-rose-500/20 active:scale-98 transition-all text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
               >

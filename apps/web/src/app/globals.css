@@ -115,6 +115,8 @@ body {
   height: 100%;
   overflow: hidden;
   position: relative;
+  overscroll-behavior-y: none;
+  -webkit-touch-callout: none;
 }
 
 body {
@@ -124,7 +126,8 @@ body {
 
 /* Enable smooth momentum touch scrolling */
 .overflow-y-auto,
-.overflow-auto {
+.overflow-auto,
+.scrollable-content {
   -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth;
 }
