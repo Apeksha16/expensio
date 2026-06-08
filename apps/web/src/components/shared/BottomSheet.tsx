@@ -61,7 +61,7 @@ export default function BottomSheet({ isOpen, onClose, title, children }: Bottom
             animate={{ opacity: 0.6 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 z-[100] bg-zinc-950/80 backdrop-blur-sm"
+            className="fixed inset-0 z-[90] bg-zinc-950/80 backdrop-blur-sm"
           />
 
           {/* Bottom sheet content drawer */}
@@ -97,6 +97,7 @@ export default function BottomSheet({ isOpen, onClose, title, children }: Bottom
             <div
               className="flex-1 min-h-0 overflow-y-auto p-6 space-y-8 scrollbar-thin"
               style={{
+                maxHeight: 'calc(85vh - 90px)',
                 paddingBottom: `calc(4rem + env(safe-area-inset-bottom) + ${keyboardHeight}px)`,
               }}
             >

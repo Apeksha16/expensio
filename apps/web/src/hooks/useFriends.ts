@@ -127,6 +127,36 @@ export function useSettleWithFriend() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['friends'] });
       queryClient.invalidateQueries({ queryKey: ['settlements'] });
+      queryClient.invalidateQueries({ queryKey: ['friend-history'] });
     },
+  });
+}
+
+export interface FriendHistoryItem {
+  type: 'split' | 'settlement';
+  id: string;
+  title: string;
+  category?: string;
+  amount: number;
+  date: string;
+  splitAmount?: number;
+  whoPaid: 'you' | 'friend';
+  status: 'pending' | 'settled';
+}
+
+export function useFriendHistory(friendId: string | null) {
+  const token = useAuthStore((state) => state.session?.access_token);
+
+  return useQuery<FriendHistoryItem[]>({
+    queryKey: ['friend-history', friendId],
+    queryFn: async () => {
+      if (!token || !friendId) return [];
+      const res = await fetch(`${API_URL}/api/v1/friends/${friendId}/history`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const json = await res.json();
+      return json.data?.history || [];
+    },
+    enabled: !!token && !!friendId,
   });
 }

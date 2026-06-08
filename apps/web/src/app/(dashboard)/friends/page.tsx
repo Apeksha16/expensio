@@ -8,6 +8,7 @@ import {
   usePendingRequests,
   useRespondRequest,
   useSettleWithFriend,
+  useFriendHistory,
   Friend,
 } from '../../../hooks/useFriends';
 import { useSearchUser } from '../../../hooks/useUser';
@@ -25,6 +26,8 @@ import {
   Users,
   QrCode,
   Scan,
+  Loader2,
+  Handshake,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useShallow } from 'zustand/react/shallow';
@@ -36,6 +39,136 @@ const presetSearchUsers = [
   { name: 'Neha Kapoor', username: 'nehak', avatar: 'NK' },
   { name: 'Sarthak Jain', username: 'sarthakj', avatar: 'SJ' },
 ];
+
+function FriendHistoryContent({ friend, onSettleUp }: { friend: Friend; onSettleUp: () => void }) {
+  const { data: history, isLoading } = useFriendHistory(friend.id);
+
+  return (
+    <div className="space-y-6 pb-6 select-none">
+      {/* Profile Header */}
+      <div className="flex items-center gap-4 p-4 rounded-3xl border border-zinc-100 dark:border-zinc-850 bg-zinc-50/50 dark:bg-zinc-900/20">
+        <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/30 text-indigo-650 dark:text-indigo-400 font-black text-sm flex items-center justify-center shrink-0">
+          {friend.avatarUrl ? (
+            <img src={friend.avatarUrl} alt="" className="w-full h-full object-cover rounded-2xl" />
+          ) : (
+            friend.name.slice(0, 2).toUpperCase()
+          )}
+        </div>
+        <div className="flex-grow min-w-0">
+          <h4 className="text-sm font-black text-theme-text leading-tight truncate">
+            {friend.name}
+          </h4>
+          <span className="text-xs font-bold text-theme-secondary">@{friend.username}</span>
+        </div>
+      </div>
+
+      {/* Balance & Settle Call to Action */}
+      <div className="p-5 rounded-3xl border border-zinc-150 dark:border-zinc-850 bg-white dark:bg-zinc-900/40 flex items-center justify-between shadow-xs">
+        <div className="flex flex-col gap-1">
+          <span className="text-[10px] font-black uppercase text-theme-secondary tracking-widest">
+            {friend.balance > 0 ? 'Owes You' : friend.balance < 0 ? 'You Owe' : 'Status'}
+          </span>
+          <span
+            className={`text-2xl font-black ${friend.balance > 0 ? 'text-emerald-600 dark:text-emerald-455' : friend.balance < 0 ? 'text-rose-600 dark:text-rose-455' : 'text-zinc-550'}`}
+          >
+            ₹{Math.abs(friend.balance).toFixed(2)}
+          </span>
+        </div>
+        {friend.balance !== 0 && (
+          <button
+            onClick={onSettleUp}
+            className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-750 text-white font-black text-[10px] uppercase tracking-wider transition-all cursor-pointer shadow-md shadow-indigo-600/10 border-0"
+          >
+            Settle Balance
+          </button>
+        )}
+      </div>
+
+      {/* Activity History Section */}
+      <div className="space-y-3">
+        <h4 className="text-xs font-black uppercase tracking-widest text-theme-secondary px-1">
+          Activity History
+        </h4>
+        <div className="max-h-[40vh] overflow-y-auto pr-1 space-y-3.5 scrollbar-thin">
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center py-10 gap-3 text-zinc-500">
+              <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+              <span className="text-[10px] font-bold uppercase tracking-wider">
+                Loading history...
+              </span>
+            </div>
+          ) : !history || history.length === 0 ? (
+            <div className="p-8 text-center text-xs text-zinc-555 font-bold bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-850 rounded-[24px]">
+              No shared transactions yet.
+            </div>
+          ) : (
+            history.map((item) => {
+              const isSplit = item.type === 'split';
+              const dateStr = new Date(item.date).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+              });
+
+              return (
+                <div
+                  key={item.id}
+                  className="flex items-center justify-between p-3.5 rounded-2xl border border-zinc-100/50 dark:border-zinc-850/50 bg-white dark:bg-zinc-950/20 shadow-2xs"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div
+                      className={`w-9 h-9 rounded-xl flex items-center justify-center border ${
+                        isSplit
+                          ? 'bg-indigo-500/10 border-indigo-500/20 text-indigo-650 dark:text-indigo-405'
+                          : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-450'
+                      } shrink-0`}
+                    >
+                      {isSplit ? (
+                        <Receipt className="w-4.5 h-4.5" />
+                      ) : (
+                        <Handshake className="w-4.5 h-4.5" />
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-0.5 min-w-0">
+                      <span className="text-xs font-extrabold text-theme-text truncate">
+                        {item.title}
+                      </span>
+                      <span className="text-[9px] font-bold text-theme-secondary">{dateStr}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col items-end gap-1 shrink-0">
+                    <span
+                      className={`text-xs font-black tracking-tight ${
+                        isSplit
+                          ? item.whoPaid === 'you'
+                            ? 'text-emerald-600 dark:text-emerald-455'
+                            : 'text-rose-600 dark:text-rose-455'
+                          : 'text-zinc-500 dark:text-zinc-400'
+                      }`}
+                    >
+                      {isSplit ? (item.whoPaid === 'you' ? '+' : '-') : ''}₹
+                      {isSplit ? item.splitAmount?.toFixed(2) : item.amount.toFixed(2)}
+                    </span>
+                    <span
+                      className={`text-[7.5px] font-black uppercase px-1.5 py-0.5 rounded-md leading-none border ${
+                        item.status === 'settled'
+                          ? 'bg-zinc-100 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 text-zinc-450'
+                          : 'bg-amber-500/10 border-amber-500/20 text-amber-600 dark:text-amber-450'
+                      }`}
+                    >
+                      {item.status}
+                    </span>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function FriendsPage() {
   const { data: friendsData } = useFriends();
@@ -98,6 +231,7 @@ export default function FriendsPage() {
   // Settlement dialog states
   const [activeSettleFriend, setActiveSettleFriend] = useState<Friend | null>(null);
   const [showSuccessOverlay, setShowSuccessOverlay] = useState(false);
+  const [activeHistoryFriend, setActiveHistoryFriend] = useState<Friend | null>(null);
 
   const handleAcceptRequest = (requestId: string) => {
     respondRequestMutation.mutate({ id: requestId, status: 'accepted' });
@@ -233,32 +367,71 @@ export default function FriendsPage() {
           </span>
         </div>
 
-        {/* Card 3: high five illustration */}
-        <div className="rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100/40 dark:border-indigo-900/10 flex items-center justify-center relative overflow-hidden select-none p-1 shadow-xs">
-          <svg viewBox="0 0 100 80" className="w-full h-full max-h-[64px]">
-            <circle cx="50" cy="40" r="28" className="fill-indigo-500/8 dark:fill-indigo-450/10" />
-            <path
-              d="M22,22 L24,20 M18,34 L15,34 M78,22 L76,20 M82,34 L85,34 M50,15 L50,10"
-              stroke="#6366f1"
-              strokeWidth="2"
-              strokeLinecap="round"
-              opacity="0.6"
-            />
-            <circle cx="36" cy="30" r="5" className="fill-indigo-600 dark:fill-indigo-400" />
-            <path
-              d="M28,52 C28,43 34,40 36,40 C38,40 44,43 44,52 Z"
-              className="fill-indigo-500 dark:fill-indigo-500"
-            />
-            <circle cx="64" cy="30" r="5" className="fill-amber-500 dark:fill-amber-400" />
-            <path
-              d="M56,52 C56,43 62,40 64,40 C66,40 72,43 72,52 Z"
-              className="fill-amber-500 dark:fill-amber-500"
-            />
-            <path d="M38,40 L50,22" stroke="#4f46e5" strokeWidth="2.5" strokeLinecap="round" />
-            <path d="M62,40 L50,22" stroke="#d97706" strokeWidth="2.5" strokeLinecap="round" />
-            <circle cx="50" cy="22" r="3" className="fill-yellow-400 animate-pulse" />
-          </svg>
-        </div>
+        {/* Card 3: Net Balance Summary Card */}
+        {(() => {
+          const netBalance = totalYouAreOwed - totalYouOwe;
+          const isOwedNet = netBalance > 0;
+          const isOweNet = netBalance < 0;
+          const isBalanced = netBalance === 0;
+
+          return (
+            <div
+              className={`p-3.5 rounded-2xl border shadow-xs flex flex-col gap-1 min-w-0 justify-between transition-all duration-350 ${
+                isOwedNet
+                  ? 'bg-emerald-500/5 dark:bg-emerald-500/10 border-emerald-500/15 dark:border-emerald-500/10'
+                  : isOweNet
+                    ? 'bg-rose-500/5 dark:bg-rose-500/10 border-rose-500/15 dark:border-rose-500/10'
+                    : 'bg-indigo-500/5 dark:bg-indigo-500/10 border-indigo-500/15 dark:border-indigo-500/10'
+              }`}
+            >
+              <span
+                className={`text-[8.5px] font-black uppercase tracking-widest leading-none ${
+                  isOwedNet
+                    ? 'text-emerald-600 dark:text-emerald-450'
+                    : isOweNet
+                      ? 'text-rose-600 dark:text-rose-455'
+                      : 'text-indigo-650 dark:text-indigo-400'
+                }`}
+              >
+                Net Balance
+              </span>
+              <span
+                className={`text-sm font-black mt-1 tracking-tight leading-none truncate ${
+                  isOwedNet
+                    ? 'text-emerald-600 dark:text-emerald-455'
+                    : isOweNet
+                      ? 'text-rose-600 dark:text-rose-455'
+                      : 'text-indigo-650 dark:text-indigo-400'
+                }`}
+              >
+                {isBalanced
+                  ? 'Balanced'
+                  : `₹${Math.abs(netBalance).toLocaleString('en-IN', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}`}
+              </span>
+              <span className="text-[7.5px] font-bold text-zinc-550 dark:text-zinc-500 mt-1.5 leading-none flex items-center gap-1">
+                {isOwedNet ? (
+                  <>
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                    <span>Net Receivable</span>
+                  </>
+                ) : isOweNet ? (
+                  <>
+                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
+                    <span>Net Payable</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-2.5 h-2.5 text-indigo-500 shrink-0" />
+                    <span>All Squared Up!</span>
+                  </>
+                )}
+              </span>
+            </div>
+          );
+        })()}
       </div>
 
       {/* Filter Navigation Tab Pills */}
@@ -576,7 +749,7 @@ export default function FriendsPage() {
                 <FriendCard
                   key={friend.id}
                   friend={friend}
-                  onSettle={() => handleTriggerSettle(friend)}
+                  onClick={(f) => setActiveHistoryFriend(f)}
                 />
               ))}
             </div>
@@ -835,6 +1008,27 @@ export default function FriendsPage() {
               </button>
             </div>
           </div>
+        )}
+      </BottomSheet>
+
+      {/* 4. Friend Details & History bottom sheet */}
+      <BottomSheet
+        isOpen={activeHistoryFriend !== null}
+        onClose={() => setActiveHistoryFriend(null)}
+        title="Friend Details"
+      >
+        {activeHistoryFriend && (
+          <FriendHistoryContent
+            friend={activeHistoryFriend}
+            onSettleUp={() => {
+              const f = activeHistoryFriend;
+              setActiveHistoryFriend(null);
+              // Wait slightly for the previous modal animation to clear
+              setTimeout(() => {
+                handleTriggerSettle(f);
+              }, 300);
+            }}
+          />
         )}
       </BottomSheet>
     </div>

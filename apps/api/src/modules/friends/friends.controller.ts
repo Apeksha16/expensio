@@ -91,6 +91,26 @@ export class FriendsController {
       return reply.status(500).send(formatErrorResponse(error));
     }
   }
+
+  async getFriendHistory(
+    request: FastifyRequest<{ Params: { friendId: string } }>,
+    reply: FastifyReply
+  ) {
+    try {
+      if (!request.user) throw new UnauthorizedError();
+      const history = await friendsService.getFriendHistory(
+        request.user.id,
+        request.params.friendId
+      );
+      return reply.send(formatSuccessResponse({ history }));
+    } catch (err) {
+      const error = err as Error | AppError;
+      request.log.error(`Failed to get friend history: ${error.message}`);
+      if (error instanceof AppError)
+        return reply.status(error.statusCode).send(formatErrorResponse(error));
+      return reply.status(500).send(formatErrorResponse(error));
+    }
+  }
 }
 
 export const friendsController = new FriendsController();

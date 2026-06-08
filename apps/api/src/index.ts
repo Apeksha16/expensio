@@ -52,6 +52,7 @@ fastify.log.info('BullMQ queue processing is disabled for now.');
 // Register CORS
 fastify.register(cors, {
   origin: env.FRONTEND_URL,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
 });
 
 // Register Rate Limit

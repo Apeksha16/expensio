@@ -321,7 +321,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   if (showSplash) {
     return (
-      <div className="min-h-screen w-full bg-zinc-50 dark:bg-[#060608] flex flex-col items-center justify-center text-zinc-800 dark:text-zinc-200 select-none relative overflow-hidden transition-colors duration-350">
+      <div className="min-h-screen w-full bg-background text-theme-text flex flex-col items-center justify-center select-none relative overflow-hidden transition-colors duration-350">
         {/* Ambient background glows */}
         <div className="absolute top-[-20%] left-[-20%] w-[500px] h-[500px] bg-indigo-600/5 dark:bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none" />
         <div className="absolute bottom-[-20%] right-[-20%] w-[500px] h-[500px] bg-cyan-500/5 dark:bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none" />
@@ -354,9 +354,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               animate={{ scale: [1, 1.04, 1] }}
               transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
             >
-              <div className="h-full w-full rounded-[20px] bg-white dark:bg-zinc-950 flex items-center justify-center">
+              <div className="h-full w-full rounded-[20px] bg-theme-card flex items-center justify-center">
                 <svg
-                  className="h-8 w-8 text-zinc-900 dark:text-zinc-100"
+                  className="h-8 w-8 text-zinc-100"
                   viewBox="0 0 40 40"
                   fill="none"
                   aria-hidden="true"
@@ -370,16 +370,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           </div>
 
           <div className="flex flex-col items-center gap-2 text-center">
-            <h1 className="text-xl font-black tracking-widest uppercase bg-gradient-to-b from-zinc-900 to-zinc-600 dark:from-white dark:to-zinc-400 bg-clip-text text-transparent">
+            <h1 className="text-xl font-black tracking-widest uppercase bg-gradient-to-b from-zinc-100 to-zinc-400 bg-clip-text text-transparent">
               Expensio
             </h1>
-            <p className="text-[10px] font-bold text-zinc-500 dark:text-zinc-550 uppercase tracking-widest animate-pulse">
+            <p className="text-[10px] font-bold text-theme-secondary uppercase tracking-widest animate-pulse">
               Securing connection
             </p>
           </div>
 
           {/* Premium linear page loader with ambient glow */}
-          <div className="w-36 h-1 rounded-full bg-zinc-200 dark:bg-zinc-900 overflow-hidden relative shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)]">
+          <div className="w-36 h-1 rounded-full bg-zinc-800 overflow-hidden relative shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)]">
             <motion.div
               className="h-full bg-gradient-to-r from-indigo-500 via-cyan-400 to-indigo-500 rounded-full shadow-[0_0_8px_rgba(99,102,241,0.6)]"
               initial={{ left: '-40%', width: '40%' }}

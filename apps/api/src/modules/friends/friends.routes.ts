@@ -8,4 +8,5 @@ export async function friendsRoutes(fastify: FastifyInstance) {
   fastify.get('/requests', friendsController.getPendingRequests.bind(friendsController));
   fastify.post('/requests', friendsController.sendRequest.bind(friendsController));
   fastify.patch('/requests/:id', friendsController.respondToRequest.bind(friendsController));
+  fastify.get('/:friendId/history', friendsController.getFriendHistory.bind(friendsController));
 }

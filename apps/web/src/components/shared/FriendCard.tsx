@@ -7,18 +7,16 @@ import { motion } from 'framer-motion';
 
 interface FriendCardProps {
   friend: Friend;
-  onSettle: (id: string) => void;
+  onClick: (friend: Friend) => void;
 }
 
-export default function FriendCard({ friend, onSettle }: FriendCardProps) {
+export default function FriendCard({ friend, onClick }: FriendCardProps) {
   const isOwed = friend.balance > 0;
   const isOwing = friend.balance < 0;
   const isSettled = friend.balance === 0;
 
   const handleCardClick = () => {
-    if (!isSettled) {
-      onSettle(friend.id);
-    }
+    onClick(friend);
   };
 
   return (
@@ -29,18 +27,12 @@ export default function FriendCard({ friend, onSettle }: FriendCardProps) {
       exit={{ opacity: 0, y: -10 }}
       transition={{ type: 'spring', damping: 25, stiffness: 350 }}
       onClick={handleCardClick}
-      className={`p-3.5 rounded-[22px] flex items-center justify-between border border-zinc-100 dark:border-zinc-850 bg-white dark:bg-zinc-900/60 shadow-[0_2px_12px_-3px_rgba(0,0,0,0.015)] select-none transition-all duration-200 ${
-        !isSettled
-          ? 'cursor-pointer active:scale-[0.99] hover:bg-zinc-50/50 dark:hover:bg-zinc-900/80 group'
-          : ''
-      }`}
+      className="p-3.5 rounded-[22px] flex items-center justify-between border border-zinc-100 dark:border-zinc-850 bg-white dark:bg-zinc-900/60 shadow-[0_2px_12px_-3px_rgba(0,0,0,0.015)] select-none transition-all duration-200 cursor-pointer active:scale-[0.99] hover:bg-zinc-50/50 dark:hover:bg-zinc-900/80 group"
     >
       <div className="flex items-center gap-3.5 min-w-0">
         {/* Avatar with dynamic initials background */}
         <div
-          className={`w-10 h-10 rounded-2xl flex items-center justify-center font-black text-xs uppercase tracking-wider shrink-0 transition-transform duration-300 ${
-            !isSettled ? 'group-hover:scale-105' : ''
-          } ${
+          className={`w-10 h-10 rounded-2xl flex items-center justify-center font-black text-xs uppercase tracking-wider shrink-0 transition-transform duration-300 group-hover:scale-105 ${
             isOwed
               ? 'bg-indigo-50 dark:bg-indigo-950/20 text-indigo-650 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/30'
               : isOwing

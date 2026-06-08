@@ -961,7 +961,10 @@ export default function DashboardClient() {
         )}
 
         {/* You're doing great Congratulations Banner Card */}
-        <div className="p-4.5 rounded-[26px] bg-gradient-to-r from-[#5d5fe6] via-[#6366f1] to-[#8b5cf6] text-white relative overflow-hidden flex items-center justify-between shadow-[0_12px_24px_rgba(99,102,241,0.2)]">
+        <Link
+          href="/analytics"
+          className="p-4.5 rounded-[26px] bg-gradient-to-r from-[#5d5fe6] via-[#6366f1] to-[#8b5cf6] text-white relative overflow-hidden flex items-center justify-between shadow-[0_12px_24px_rgba(99,102,241,0.2)] hover:shadow-[0_12px_32px_rgba(99,102,241,0.35)] active:scale-[0.99] transition-all duration-300 group cursor-pointer"
+        >
           <div className="absolute right-[-10%] top-[-30%] w-24 h-24 bg-white/10 rounded-full blur-xl pointer-events-none" />
 
           <div className="flex items-center gap-3.5 z-10">
@@ -987,14 +990,13 @@ export default function DashboardClient() {
             </div>
           </div>
 
-          <button
-            onClick={() => alert('Detailed insight report loaded')}
-            className="w-9 h-9 rounded-full bg-white text-[#6366f1] flex items-center justify-center shrink-0 active:scale-90 hover:scale-105 transition-all shadow-md border-0 cursor-pointer z-10"
+          <div
+            className="w-9 h-9 rounded-full bg-white text-[#6366f1] flex items-center justify-center shrink-0 group-hover:scale-110 transition-all shadow-md select-none z-10"
             aria-label="View deep report details"
           >
             <ChevronRight className="w-5 h-5 stroke-[3]" />
-          </button>
-        </div>
+          </div>
+        </Link>
 
         {/* Date Range Picker BottomSheet */}
         <BottomSheet
