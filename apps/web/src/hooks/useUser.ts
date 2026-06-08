@@ -144,3 +144,40 @@ export function useCompleteOnboarding() {
     },
   });
 }
+
+/**
+ * Hook to search for a user by username
+ */
+export function useSearchUser(username: string) {
+  const session = useAuthStore((state) => state.session);
+
+  return useQuery({
+    queryKey: ['search-user', username],
+    queryFn: async () => {
+      if (!session?.access_token) {
+        throw new Error('Not authenticated');
+      }
+      if (!username || username.trim().length < 3) return null;
+
+      const response = await fetch(
+        `${API_URL}/api/v1/users/search?username=${encodeURIComponent(username.trim())}`,
+        {
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errData = await response.json();
+        throw new Error(errData.error?.message || 'friend not found/ or username doesnt exist');
+      }
+
+      const data = await response.json();
+      return data.data; // contains user info: { id, name, username, avatarUrl }
+    },
+    enabled: !!session?.access_token && username.trim().length >= 3,
+    retry: false,
+    staleTime: 30000, // cache for 30s
+  });
+}

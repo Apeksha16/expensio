@@ -32,6 +32,7 @@ import {
   Zap,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const mockReceipts = [
@@ -72,7 +73,15 @@ export default function DashboardClient() {
     customEndDate,
     setCustomDateRange,
   } = useFinanceStore();
-  const [tab, setTab] = useState('home');
+  const searchParams = useSearchParams();
+  const urlTab = searchParams?.get('tab') || 'home';
+  const [tab, setTab] = useState(urlTab);
+
+  useEffect(() => {
+    if (urlTab && urlTab !== tab) {
+      setTab(urlTab);
+    }
+  }, [urlTab, tab]);
   // Toast notifications state
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const showToast = (msg: string) => {
@@ -283,7 +292,7 @@ export default function DashboardClient() {
               </button>
               <Link
                 href="/settings"
-                className="flex-1 py-3.5 rounded-xl bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-905 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 text-[10px] font-black uppercase tracking-widest text-center active:scale-97 transition-all flex items-center justify-center"
+                className="flex-1 py-3.5 rounded-xl bg-white hover:bg-zinc-100 border border-zinc-200 text-black text-[10px] font-black uppercase tracking-widest text-center active:scale-97 transition-all flex items-center justify-center"
               >
                 Set Salary
               </Link>
@@ -1005,6 +1014,11 @@ export default function DashboardClient() {
                   onChange={(e) => {
                     setCustomDateRange(e.target.value || null, customEndDate);
                   }}
+                  onClick={(e) => {
+                    try {
+                      e.currentTarget.showPicker();
+                    } catch {}
+                  }}
                   className="w-full px-4.5 py-3.5 rounded-2xl bg-zinc-50/50 dark:bg-zinc-900/20 border border-zinc-200/60 dark:border-zinc-850/60 focus:border-indigo-500/40 text-xs font-semibold text-theme-text focus:outline-none transition-colors"
                 />
               </div>
@@ -1017,6 +1031,11 @@ export default function DashboardClient() {
                   value={customEndDate || ''}
                   onChange={(e) => {
                     setCustomDateRange(customStartDate, e.target.value || null);
+                  }}
+                  onClick={(e) => {
+                    try {
+                      e.currentTarget.showPicker();
+                    } catch {}
                   }}
                   className="w-full px-4.5 py-3.5 rounded-2xl bg-zinc-50/50 dark:bg-zinc-900/20 border border-zinc-200/60 dark:border-zinc-850/60 focus:border-indigo-500/40 text-xs font-semibold text-theme-text focus:outline-none transition-colors"
                 />
@@ -1109,7 +1128,7 @@ export default function DashboardClient() {
                 <span className="font-semibold text-zinc-400 dark:text-zinc-500">
                   Payment Method
                 </span>
-                <span className="font-extrabold text-zinc-855 dark:text-zinc-200">
+                <span className="font-extrabold text-zinc-800 dark:text-zinc-200">
                   {activeDetailExpense.paymentMethod || 'UPI / Cash'}
                 </span>
               </div>

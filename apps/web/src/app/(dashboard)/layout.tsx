@@ -357,7 +357,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 setIsAddExpenseOpen(true);
               }
             }}
-            className="fixed bottom-24 right-5 sm:right-auto sm:left-[calc(50%+156px)] w-14 h-14 rounded-full bg-linear-to-br from-indigo-400 via-violet-500 to-cyan-500 flex items-center justify-center text-zinc-950 shadow-[0_8px_32px_rgba(99,102,241,0.35)] hover:shadow-[0_8px_32px_rgba(34,211,238,0.55)] active:scale-90 hover:scale-110 active:shadow-[0_4px_16px_rgba(99,102,241,0.6)] transition-all duration-300 border border-indigo-300/50 z-50 cursor-pointer group"
+            className="fixed bottom-[calc(7.5rem+env(safe-area-inset-bottom))] right-5 sm:right-auto sm:left-[calc(50%+156px)] w-14 h-14 rounded-full bg-linear-to-br from-indigo-400 via-violet-500 to-cyan-500 flex items-center justify-center text-zinc-950 shadow-[0_8px_32px_rgba(99,102,241,0.35)] hover:shadow-[0_8px_32px_rgba(34,211,238,0.55)] active:scale-90 hover:scale-110 active:shadow-[0_4px_16px_rgba(99,102,241,0.6)] transition-all duration-300 border border-indigo-300/50 z-50 cursor-pointer group"
             aria-label={pathname === '/budgets' ? 'Add Budget' : 'Add Expense'}
           >
             {/* Internal neon ambient glow aura */}
@@ -550,11 +550,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 Date & Time
               </label>
               <div className="relative">
-                <Calendar className="w-4 h-4 text-zinc-450 dark:text-zinc-555 absolute left-3.5 top-4" />
+                <Calendar className="w-4 h-4 text-zinc-450 dark:text-zinc-555 absolute left-3.5 top-4 pointer-events-none" />
                 <input
                   type="date"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
+                  onClick={(e) => {
+                    try {
+                      e.currentTarget.showPicker();
+                    } catch {}
+                  }}
                   className="w-full pl-10 pr-4 py-3.5 rounded-2xl bg-zinc-100/85 dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 focus:border-indigo-500 focus:ring-indigo-500/20 focus:outline-none focus:ring-1 text-xs font-semibold text-zinc-800 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-555 transition-colors"
                   required
                 />

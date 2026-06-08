@@ -35,9 +35,11 @@ export class UsersController {
           id: user.id,
           email: user.email,
           name: user.name,
+          username: user.username,
           avatarUrl: user.avatarUrl,
           monthlySalary: user.monthlySalary,
           currency: user.currency,
+          timezone: user.timezone,
           isOnboardingCompleted: user.isOnboardingCompleted,
         })
       );
@@ -144,9 +146,11 @@ export class UsersController {
             id: updatedUser.id,
             email: updatedUser.email,
             name: updatedUser.name,
+            username: updatedUser.username,
             avatarUrl: updatedUser.avatarUrl,
             monthlySalary: updatedUser.monthlySalary,
             currency: updatedUser.currency,
+            timezone: updatedUser.timezone,
             isOnboardingCompleted: updatedUser.isOnboardingCompleted,
           },
           'Onboarding completed successfully'
@@ -216,6 +220,50 @@ export class UsersController {
     } catch (err) {
       const error = err as Error | AppError;
       request.log.error(`Failed to update MPIN: ${error.message}`);
+
+      if (error instanceof AppError) {
+        return reply.status(error.statusCode).send(formatErrorResponse(error));
+      }
+
+      return reply.status(500).send(formatErrorResponse(error));
+    }
+  }
+
+  /**
+   * Search for a user by username
+   */
+  async searchUser(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      if (!request.user) {
+        throw new UnauthorizedError('User not authenticated');
+      }
+
+      const { username } = request.query as { username?: string };
+      if (!username || typeof username !== 'string' || username.trim().length < 3) {
+        throw new ValidationError(
+          'Valid username query parameter of at least 3 characters is required'
+        );
+      }
+
+      const foundUser = await usersService.searchUserByUsername(username.trim());
+      if (!foundUser) {
+        throw new NotFoundError('friend not found/ or username doesnt exist');
+      }
+
+      return reply.send(
+        formatSuccessResponse(
+          {
+            id: foundUser.id,
+            name: foundUser.name,
+            username: foundUser.username,
+            avatarUrl: foundUser.avatarUrl,
+          },
+          'User found'
+        )
+      );
+    } catch (err) {
+      const error = err as Error | AppError;
+      request.log.error(`Failed to search user: ${error.message}`);
 
       if (error instanceof AppError) {
         return reply.status(error.statusCode).send(formatErrorResponse(error));

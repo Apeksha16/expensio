@@ -5,21 +5,36 @@ import { useFinanceStore } from '../../../store/finance-store';
 import {
   useFriends,
   useCreateFriend,
+  usePendingRequests,
+  useRespondRequest,
   useSettleWithFriend,
   Friend,
 } from '../../../hooks/useFriends';
+import { useSearchUser } from '../../../hooks/useUser';
 import { useAuthStore } from '../../../store/auth-store';
 import FriendCard from '../../../components/shared/FriendCard';
 import BottomSheet from '../../../components/shared/BottomSheet';
-import { UserPlus, Search, Check, Sparkles, Receipt, Clock, UserCheck, Users } from 'lucide-react';
+import {
+  UserPlus,
+  Search,
+  Check,
+  Sparkles,
+  Receipt,
+  Clock,
+  UserCheck,
+  Users,
+  QrCode,
+  Scan,
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useShallow } from 'zustand/react/shallow';
 
 const presetSearchUsers = [
-  { name: 'Divya Sharma', username: 'divyas', avatar: 'DS' },
-  { name: 'Aditya Goel', username: 'adityag', avatar: 'AG' },
-  { name: 'Meera Nair', username: 'meeran', avatar: 'MN' },
-  { name: 'Ishan Malhotra', username: 'ishanm', avatar: 'IM' },
+  { name: 'Rahul Sharma', username: 'rahuls', avatar: 'RS' },
+  { name: 'Amit Verma', username: 'amitv', avatar: 'AV' },
+  { name: 'Pranav Singh', username: 'pranavs', avatar: 'PS' },
+  { name: 'Neha Kapoor', username: 'nehak', avatar: 'NK' },
+  { name: 'Sarthak Jain', username: 'sarthakj', avatar: 'SJ' },
 ];
 
 export default function FriendsPage() {
@@ -27,6 +42,10 @@ export default function FriendsPage() {
   const friends = friendsData || [];
   const createFriendMutation = useCreateFriend();
   const settleMutation = useSettleWithFriend();
+  const { data: pendingRequestsData } = usePendingRequests();
+  const inboundRequests = pendingRequestsData?.inbound || [];
+  const outboundRequests = pendingRequestsData?.outbound || [];
+  const respondRequestMutation = useRespondRequest();
   const user = useAuthStore((state) => state.user);
 
   // Greeting based on time of day
@@ -48,8 +67,26 @@ export default function FriendsPage() {
   // Search query & modal states
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddFriendOpen, setIsAddFriendOpen] = useState(false);
-  const [customName, setCustomName] = useState('');
-  const [customUsername, setCustomUsername] = useState('');
+  const [modalSearchQuery, setModalSearchQuery] = useState('');
+  const [debouncedModalSearchQuery, setDebouncedModalSearchQuery] = useState('');
+
+  // Debounce search query inside modal
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedModalSearchQuery(modalSearchQuery);
+    }, 350);
+    return () => clearTimeout(handler);
+  }, [modalSearchQuery]);
+
+  // Search hook calling backend
+  const {
+    data: searchResult,
+    isLoading: isSearching,
+    error: searchError,
+  } = useSearchUser(debouncedModalSearchQuery);
+
+  // Success state for friend request sent
+  const [requestSentUsername, setRequestSentUsername] = useState<string | null>(null);
 
   // Sorting state
   const [sortBy, setSortBy] = useState<'recent' | 'name' | 'owed' | 'owe'>('recent');
@@ -62,55 +99,13 @@ export default function FriendsPage() {
   const [activeSettleFriend, setActiveSettleFriend] = useState<Friend | null>(null);
   const [showSuccessOverlay, setShowSuccessOverlay] = useState(false);
 
-  // Simulated requests list
-  const [requests, setRequests] = useState([
-    { id: 'req_1', name: 'Divya Sharma', username: 'divyas', avatar: 'DS', time: '1h ago' },
-    { id: 'req_2', name: 'Aditya Goel', username: 'adityag', avatar: 'AG', time: '3h ago' },
-  ]);
-
-  const handleAddPresetFriend = (user: (typeof presetSearchUsers)[0]) => {
-    createFriendMutation.mutate(user.username);
-    setSearchQuery('');
-    setIsAddFriendOpen(false);
+  const handleAcceptRequest = (requestId: string) => {
+    respondRequestMutation.mutate({ id: requestId, status: 'accepted' });
   };
 
-  const handleAddCustomFriendSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!customName || !customUsername) return;
-
-    const initials = customName
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .slice(0, 2)
-      .toUpperCase();
-
-    createFriendMutation.mutate(customUsername.toLowerCase().replace('@', ''));
-
-    setCustomName('');
-    setCustomUsername('');
-    setIsAddFriendOpen(false);
+  const handleDeclineRequest = (requestId: string) => {
+    respondRequestMutation.mutate({ id: requestId, status: 'rejected' });
   };
-
-  const handleAcceptRequest = (req: (typeof requests)[0]) => {
-    createFriendMutation.mutate(req.username);
-    setRequests(requests.filter((r) => r.id !== req.id));
-  };
-
-  const handleDeclineRequest = (id: string) => {
-    setRequests(requests.filter((r) => r.id !== id));
-  };
-
-  const searchedPresetUsers = presetSearchUsers.filter((user) => {
-    const isAlreadyFriend = friends.some((f) => f.username === user.username);
-    if (isAlreadyFriend) return false;
-
-    return (
-      searchQuery.length > 0 &&
-      (user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.username.toLowerCase().includes(searchQuery.toLowerCase()))
-    );
-  });
 
   const handleTriggerSettle = (friend: Friend) => {
     setActiveSettleFriend(friend);
@@ -315,7 +310,7 @@ export default function FriendsPage() {
         >
           <span>Requests</span>
           <span className="px-1.5 py-0.5 rounded-full text-[8.5px] font-black leading-none bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-455">
-            {requests.length}
+            {inboundRequests.length}
           </span>
         </button>
       </div>
@@ -421,7 +416,7 @@ export default function FriendsPage() {
       <div className="space-y-3.5 px-1">
         <AnimatePresence mode="popLayout">
           {activeTab === 'requests' ? (
-            requests.length === 0 ? (
+            inboundRequests.length === 0 && outboundRequests.length === 0 ? (
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -434,50 +429,128 @@ export default function FriendsPage() {
                 <div className="space-y-0.5">
                   <span className="text-xs font-black text-theme-text">No Pending Requests</span>
                   <p className="text-[10px] text-theme-secondary leading-relaxed">
-                    Incoming friend split invites will appear here.
+                    Incoming and outgoing friend split requests will appear here.
                   </p>
                 </div>
               </motion.div>
             ) : (
-              <div className="space-y-3">
-                {requests.map((req) => (
-                  <motion.div
-                    key={req.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="p-4 rounded-3xl border border-zinc-150 dark:border-zinc-850/80 bg-white dark:bg-zinc-900/40 backdrop-blur-md flex items-center justify-between group"
-                  >
-                    <div className="flex items-center gap-3.5 min-w-0">
-                      <div className="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/30 text-indigo-650 dark:text-indigo-400 font-black text-xs flex items-center justify-center shrink-0">
-                        {req.avatar}
-                      </div>
-                      <div className="flex flex-col gap-0.5 min-w-0">
-                        <h4 className="text-xs font-black text-theme-text leading-tight truncate">
-                          {req.name}
-                        </h4>
-                        <span className="text-[10px] font-bold text-theme-secondary">
-                          @{req.username}
-                        </span>
-                      </div>
-                    </div>
+              <div className="space-y-6">
+                {/* Received Requests */}
+                {inboundRequests.length > 0 && (
+                  <div className="space-y-3">
+                    <span className="text-[9px] font-black uppercase tracking-wider text-zinc-500 pl-1">
+                      Received Requests ({inboundRequests.length})
+                    </span>
+                    {inboundRequests.map((req: any) => (
+                      <motion.div
+                        key={req.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="p-4 rounded-3xl border border-zinc-150 dark:border-zinc-850/80 bg-white dark:bg-zinc-900/40 backdrop-blur-md flex items-center justify-between group"
+                      >
+                        <div className="flex items-center gap-3.5 min-w-0">
+                          <div className="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/30 text-indigo-650 dark:text-indigo-400 font-black text-xs flex items-center justify-center shrink-0">
+                            {req.avatarUrl ? (
+                              /* eslint-disable-next-line @next/next/no-img-element */
+                              <img
+                                src={req.avatarUrl}
+                                alt=""
+                                className="w-full h-full object-cover rounded-2xl"
+                              />
+                            ) : req.name ? (
+                              req.name
+                                .split(' ')
+                                .map((n: string) => n[0])
+                                .join('')
+                                .slice(0, 2)
+                                .toUpperCase()
+                            ) : (
+                              '@'
+                            )}
+                          </div>
+                          <div className="flex flex-col gap-0.5 min-w-0">
+                            <h4 className="text-xs font-black text-theme-text leading-tight truncate">
+                              {req.name || 'Expensio User'}
+                            </h4>
+                            <span className="text-[10px] font-bold text-theme-secondary">
+                              @{req.username}
+                            </span>
+                          </div>
+                        </div>
 
-                    <div className="flex items-center gap-2 shrink-0">
-                      <button
-                        onClick={() => handleAcceptRequest(req)}
-                        className="px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-[9px] font-black uppercase hover:scale-102 active:scale-95 transition-all cursor-pointer border border-indigo-500/20 shadow-sm"
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button
+                            onClick={() => handleAcceptRequest(req.id)}
+                            disabled={respondRequestMutation.isPending}
+                            className="px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-[9px] font-black uppercase hover:scale-102 active:scale-95 transition-all cursor-pointer border border-indigo-500/20 shadow-sm disabled:opacity-50"
+                          >
+                            Accept
+                          </button>
+                          <button
+                            onClick={() => handleDeclineRequest(req.id)}
+                            disabled={respondRequestMutation.isPending}
+                            className="px-3 py-2 rounded-xl bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-950 border border-zinc-200/60 dark:border-zinc-850 text-theme-text text-[9px] font-black uppercase active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+                          >
+                            Ignore
+                          </button>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Sent Requests */}
+                {outboundRequests.length > 0 && (
+                  <div className="space-y-3">
+                    <span className="text-[9px] font-black uppercase tracking-wider text-zinc-500 pl-1">
+                      Sent Requests ({outboundRequests.length})
+                    </span>
+                    {outboundRequests.map((req: any) => (
+                      <motion.div
+                        key={req.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="p-4 rounded-3xl border border-zinc-150 dark:border-zinc-850/80 bg-white dark:bg-zinc-900/40 backdrop-blur-md flex items-center justify-between group opacity-85"
                       >
-                        Accept
-                      </button>
-                      <button
-                        onClick={() => handleDeclineRequest(req.id)}
-                        className="px-3 py-2 rounded-xl bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-950 border border-zinc-200/60 dark:border-zinc-800 text-theme-text text-[9px] font-black uppercase active:scale-95 transition-all cursor-pointer"
-                      >
-                        Ignore
-                      </button>
-                    </div>
-                  </motion.div>
-                ))}
+                        <div className="flex items-center gap-3.5 min-w-0">
+                          <div className="w-10 h-10 rounded-2xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-500 font-black text-xs flex items-center justify-center shrink-0">
+                            {req.avatarUrl ? (
+                              /* eslint-disable-next-line @next/next/no-img-element */
+                              <img
+                                src={req.avatarUrl}
+                                alt=""
+                                className="w-full h-full object-cover rounded-2xl"
+                              />
+                            ) : req.name ? (
+                              req.name
+                                .split(' ')
+                                .map((n: string) => n[0])
+                                .join('')
+                                .slice(0, 2)
+                                .toUpperCase()
+                            ) : (
+                              '@'
+                            )}
+                          </div>
+                          <div className="flex flex-col gap-0.5 min-w-0">
+                            <h4 className="text-xs font-black text-theme-text leading-tight truncate">
+                              {req.name || 'Expensio User'}
+                            </h4>
+                            <span className="text-[10px] font-bold text-theme-secondary">
+                              @{req.username}
+                            </span>
+                          </div>
+                        </div>
+
+                        <span className="px-2.5 py-1.5 rounded-lg bg-zinc-150 dark:bg-zinc-900 border border-zinc-200/50 dark:border-zinc-850/50 text-[8.5px] font-extrabold uppercase text-theme-secondary tracking-wider">
+                          Pending Response
+                        </span>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
               </div>
             )
           ) : sortedFriends.length === 0 ? (
@@ -510,101 +583,158 @@ export default function FriendsPage() {
           )}
         </AnimatePresence>
       </div>
-
       {/* Add Friend Sheet */}
       <BottomSheet
         isOpen={isAddFriendOpen}
-        onClose={() => setIsAddFriendOpen(false)}
+        onClose={() => {
+          setIsAddFriendOpen(false);
+          setModalSearchQuery('');
+          setDebouncedModalSearchQuery('');
+          setRequestSentUsername(null);
+        }}
         title="Add Friend"
       >
-        <div className="space-y-6">
+        <div className="space-y-6 pb-6 select-none">
           <div className="flex flex-col gap-2">
-            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
-              Search User Database
+            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-550">
+              Friend's Username
             </label>
             <div className="relative">
-              <Search className="w-4 h-4 text-zinc-500 absolute left-4.5 top-3.5" />
+              <span className="absolute left-4.5 top-1/2 -translate-y-1/2 text-sm font-bold text-zinc-500 font-mono">
+                @
+              </span>
               <input
                 type="text"
-                placeholder="Search @username or name..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-3.5 rounded-2xl bg-zinc-50/50 dark:bg-zinc-900/20 border border-zinc-200/60 dark:border-zinc-850/60 focus:border-indigo-500/40 text-sm font-semibold text-theme-text placeholder-zinc-400 focus:outline-none transition-colors"
+                placeholder="Type username (e.g. rahuls)"
+                value={modalSearchQuery}
+                onChange={(e) => {
+                  setModalSearchQuery(e.target.value);
+                  setRequestSentUsername(null);
+                  createFriendMutation.reset();
+                }}
+                className="w-full pl-9 pr-4 py-3.5 rounded-2xl bg-zinc-50/50 dark:bg-zinc-900/20 border border-zinc-200/60 dark:border-zinc-850/60 focus:border-indigo-500/40 text-xs font-bold text-theme-text placeholder-zinc-400 focus:outline-none transition-colors"
               />
             </div>
           </div>
 
-          {searchedPresetUsers.length > 0 && (
-            <div className="space-y-2">
-              <span className="text-[9px] font-black uppercase tracking-wider text-zinc-500">
-                Query Matches
-              </span>
-              <div className="space-y-2 max-h-48 overflow-y-auto">
-                {searchedPresetUsers.map((user) => (
-                  <div
-                    key={user.username}
-                    onClick={() => handleAddPresetFriend(user)}
-                    className="p-3 rounded-2xl border border-zinc-200/60 dark:border-zinc-850 bg-white dark:bg-zinc-900/20 hover:bg-zinc-50 dark:hover:bg-zinc-900/45 cursor-pointer flex items-center justify-between group active:scale-98 transition-all"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-lg bg-zinc-50 dark:bg-zinc-950 border border-zinc-200/60 dark:border-zinc-850 flex items-center justify-center font-bold text-xs text-zinc-400">
-                        {user.avatar}
-                      </div>
-                      <div className="flex flex-col gap-0.5">
-                        <span className="text-xs font-black text-theme-text leading-none">
-                          {user.name}
-                        </span>
-                        <span className="text-[9px] font-bold text-theme-secondary">
-                          @{user.username}
-                        </span>
-                      </div>
-                    </div>
-                    <button className="px-3 py-1.5 rounded-xl bg-indigo-650 hover:bg-indigo-700 text-white border border-indigo-500/20 text-[9px] font-black uppercase group-hover:scale-102 active:scale-95 transition-all">
-                      Add
-                    </button>
+          {/* Status Display Area */}
+          <div className="space-y-4">
+            {/* 1. Searching Loader */}
+            {isSearching && (
+              <div className="flex items-center gap-2.5 text-zinc-550 dark:text-zinc-500 py-2">
+                <span className="w-3.5 h-3.5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                <span className="text-[10px] font-bold">Searching user database...</span>
+              </div>
+            )}
+
+            {/* 2. Success message */}
+            {requestSentUsername && (
+              <div className="p-4.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-450 text-xs font-bold flex flex-col gap-1 items-center text-center animate-fade-in">
+                <span className="text-[11px]">
+                  Friend request sent successfully to @{requestSentUsername}!
+                </span>
+              </div>
+            )}
+
+            {/* Mutation Error */}
+            {createFriendMutation.error && (
+              <div className="text-red-500 dark:text-red-450 text-[10.5px] font-bold flex items-center gap-1.5 py-1 px-1">
+                <span>{(createFriendMutation.error as Error).message}</span>
+              </div>
+            )}
+
+            {/* 3. Validation and Search Errors */}
+            {!isSearching && debouncedModalSearchQuery.trim().length >= 3 && (
+              <>
+                {/* A. Search error (Not Found) */}
+                {searchError && !requestSentUsername && (
+                  <div className="text-red-500 dark:text-red-450 text-[10.5px] font-bold flex items-center gap-1.5 py-1 px-1">
+                    <span>friend not found/ or username doesnt exist</span>
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
+                )}
 
-          <div className="pt-4 border-t border-zinc-200/60 dark:border-zinc-850/40 space-y-4">
-            <span className="text-[10px] font-black uppercase tracking-wider text-zinc-500 block">
-              Manual Add Contact
-            </span>
+                {/* B. Self-search error */}
+                {user?.username &&
+                  debouncedModalSearchQuery.trim().toLowerCase() ===
+                    user.username.toLowerCase() && (
+                    <div className="text-red-500 dark:text-red-450 text-[10.5px] font-bold flex items-center gap-1.5 py-1 px-1">
+                      <span>Cannot send request to yourself</span>
+                    </div>
+                  )}
 
-            <form onSubmit={handleAddCustomFriendSubmit} className="space-y-4">
-              <div className="flex flex-col gap-2">
-                <label className="text-[9px] font-black text-zinc-400">Friend's Name</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Divya Sharma"
-                  value={customName}
-                  onChange={(e) => setCustomName(e.target.value)}
-                  className="w-full px-4 py-3.5 rounded-2xl bg-zinc-50/50 dark:bg-zinc-900/20 border border-zinc-200/60 dark:border-zinc-850/60 focus:border-indigo-500/40 text-xs font-bold text-theme-text placeholder-zinc-400 focus:outline-none transition-colors"
-                  required
-                />
-              </div>
+                {/* C. Already friends */}
+                {friends.some(
+                  (f) =>
+                    f.username?.toLowerCase() === debouncedModalSearchQuery.trim().toLowerCase()
+                ) && (
+                  <div className="text-amber-500 dark:text-amber-450 text-[10.5px] font-bold flex items-center gap-1.5 py-1 px-1">
+                    <span>
+                      You are already friends with @{debouncedModalSearchQuery.trim().toLowerCase()}
+                    </span>
+                  </div>
+                )}
 
-              <div className="flex flex-col gap-2">
-                <label className="text-[9px] font-black text-zinc-400">Username</label>
-                <input
-                  type="text"
-                  placeholder="divyas"
-                  value={customUsername}
-                  onChange={(e) => setCustomUsername(e.target.value)}
-                  className="w-full px-4 py-3.5 rounded-2xl bg-zinc-50/50 dark:bg-zinc-900/20 border border-zinc-200/60 dark:border-zinc-850/60 focus:border-indigo-500/40 text-xs font-bold text-theme-text placeholder-zinc-400 focus:outline-none transition-colors"
-                  required
-                />
-              </div>
+                {/* D. Found user result card */}
+                {searchResult &&
+                  !(
+                    user?.username &&
+                    debouncedModalSearchQuery.trim().toLowerCase() === user.username.toLowerCase()
+                  ) &&
+                  !friends.some(
+                    (f) =>
+                      f.username?.toLowerCase() === debouncedModalSearchQuery.trim().toLowerCase()
+                  ) &&
+                  !requestSentUsername && (
+                    <div className="p-4.5 rounded-3xl border border-indigo-500/10 bg-indigo-500/[0.02] dark:bg-indigo-950/5 flex items-center justify-between group animate-fade-in">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/30 text-indigo-650 dark:text-indigo-400 font-black text-xs flex items-center justify-center shrink-0">
+                          {searchResult.avatarUrl ? (
+                            /* eslint-disable-next-line @next/next/no-img-element */
+                            <img
+                              src={searchResult.avatarUrl}
+                              alt=""
+                              className="w-full h-full object-cover rounded-2xl"
+                            />
+                          ) : searchResult.name ? (
+                            searchResult.name
+                              .split(' ')
+                              .map((n: string) => n[0])
+                              .join('')
+                              .slice(0, 2)
+                              .toUpperCase()
+                          ) : (
+                            '@'
+                          )}
+                        </div>
+                        <div className="flex flex-col gap-0.5 min-w-0">
+                          <span className="text-xs font-black text-theme-text leading-tight truncate">
+                            {searchResult.name || 'Expensio User'}
+                          </span>
+                          <span className="text-[10px] font-mono font-bold text-theme-secondary">
+                            @{searchResult.username}
+                          </span>
+                        </div>
+                      </div>
 
-              <button
-                type="submit"
-                className="w-full py-4 rounded-2xl bg-indigo-600 text-white font-black text-xs uppercase tracking-widest hover:shadow-lg active:scale-98 transition-all cursor-pointer border border-indigo-500/20 hover:bg-indigo-700"
-              >
-                Add Friend Contact
-              </button>
-            </form>
+                      <button
+                        onClick={() => {
+                          createFriendMutation.mutate(searchResult.username, {
+                            onSuccess: () => {
+                              setRequestSentUsername(searchResult.username);
+                              setModalSearchQuery('');
+                              setDebouncedModalSearchQuery('');
+                            },
+                          });
+                        }}
+                        disabled={createFriendMutation.isPending}
+                        className="px-3.5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-[9.5px] font-black uppercase tracking-wider transition-all disabled:opacity-50 flex items-center gap-1.5 cursor-pointer shadow-md shadow-indigo-600/10 border-0"
+                      >
+                        {createFriendMutation.isPending ? 'Sending...' : 'Send Request'}
+                      </button>
+                    </div>
+                  )}
+              </>
+            )}
           </div>
         </div>
       </BottomSheet>

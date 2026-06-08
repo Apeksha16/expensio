@@ -103,6 +103,7 @@ export default function SettingsPage() {
     resolver: zodResolver(updateProfileSchema),
     defaultValues: {
       name: '',
+      username: '',
       avatarUrl: '',
       currency: 'INR',
       timezone: detectedTimezone,
@@ -118,6 +119,7 @@ export default function SettingsPage() {
     if (serverProfile) {
       reset({
         name: serverProfile.name || '',
+        username: serverProfile.username || '',
         avatarUrl: serverProfile.avatarUrl || '',
         currency: 'INR', // Always default to INR
         timezone: serverProfile.timezone || detectedTimezone,
@@ -323,6 +325,37 @@ export default function SettingsPage() {
                   {errors.name && (
                     <span className="text-red-400 text-[10px] font-medium block mt-1.5">
                       {errors.name.message}
+                    </span>
+                  )}
+                </div>
+
+                {/* Username */}
+                <div>
+                  <label className="text-[10px] font-bold text-zinc-400 dark:text-zinc-555 uppercase tracking-wider block">
+                    Username
+                  </label>
+                  <div className="relative mt-[10px]">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-bold text-theme-secondary font-mono">
+                      @
+                    </span>
+                    <input
+                      type="text"
+                      {...register('username')}
+                      placeholder="username"
+                      className={`w-full h-12 bg-zinc-900/20 border ${
+                        errors.username
+                          ? 'border-red-500/50'
+                          : 'border-zinc-800/80 hover:border-zinc-700/80'
+                      } focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/20 outline-none rounded-2xl pl-8 pr-4 text-xs font-semibold transition-all text-theme-text placeholder-theme-muted`}
+                    />
+                  </div>
+                  {errors.username ? (
+                    <span className="text-red-400 text-[10px] font-medium block mt-1.5">
+                      {errors.username.message}
+                    </span>
+                  ) : (
+                    <span className="text-[10px] text-theme-muted font-bold block leading-none mt-1.5">
+                      Used by friends to search and split bills with you.
                     </span>
                   )}
                 </div>

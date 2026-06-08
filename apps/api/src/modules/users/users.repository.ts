@@ -1,6 +1,6 @@
 import { db } from '../../db/index.js';
 import { users } from '../../db/schema.js';
-import { eq, and, ne } from 'drizzle-orm';
+import { eq, and, ne, sql } from 'drizzle-orm';
 import { User } from '@expensio/types';
 
 export class UserRepository {
@@ -33,6 +33,18 @@ export class UserRepository {
   }
 
   /**
+   * Find user by username (case-insensitive)
+   */
+  async findByUsername(username: string): Promise<User | null> {
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(sql`lower(${users.username})`, username.toLowerCase()))
+      .limit(1);
+    return user || null;
+  }
+
+  /**
    * Check if username is taken by another user
    */
   async isUsernameTaken(username: string, excludeUserId?: string): Promise<boolean> {
@@ -52,6 +64,34 @@ export class UserRepository {
   }
 
   /**
+   * Generate a unique default username from the user's name or email
+   */
+  async generateUniqueUsername(name: string | null | undefined, email: string): Promise<string> {
+    let base = '';
+    if (name) {
+      base = name.toLowerCase().replace(/[^a-z0-9_]/g, '');
+    }
+    if (base.length < 3) {
+      base = email
+        .split('@')[0]
+        .toLowerCase()
+        .replace(/[^a-z0-9_]/g, '');
+    }
+    if (base.length < 3) {
+      base = 'user_' + Math.floor(100 + Math.random() * 900);
+    }
+
+    let username = base;
+    let counter = 1;
+    while (await this.isUsernameTaken(username)) {
+      username = `${base}${counter}`;
+      counter++;
+    }
+
+    return username;
+  }
+
+  /**
    * Create a new user
    */
   async create(data: {
@@ -62,12 +102,15 @@ export class UserRepository {
     supabaseAuthId?: string;
     provider?: string;
   }): Promise<User> {
+    const generatedUsername = await this.generateUniqueUsername(data.name, data.email);
+
     const [newUser] = await db
       .insert(users)
       .values({
         id: data.id,
         email: data.email,
         name: data.name || null,
+        username: generatedUsername,
         avatarUrl: data.avatarUrl || null,
         supabaseAuthId: data.supabaseAuthId as any,
         provider: data.provider || 'google',

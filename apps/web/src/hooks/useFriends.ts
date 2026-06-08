@@ -61,6 +61,12 @@ export function useCreateFriend() {
         },
         body: JSON.stringify({ username }),
       });
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(
+          errJson.error?.message || errJson.message || 'Failed to send friend request'
+        );
+      }
       return res.json();
     },
     onSuccess: () => {
@@ -82,6 +88,12 @@ export function useRespondRequest() {
         },
         body: JSON.stringify({ status }),
       });
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(
+          errJson.error?.message || errJson.message || 'Failed to respond to friend request'
+        );
+      }
       return res.json();
     },
     onSuccess: () => {
@@ -104,6 +116,12 @@ export function useSettleWithFriend() {
         },
         body: JSON.stringify({ receiverId, amount }),
       });
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(
+          errJson.error?.message || errJson.message || 'Failed to settle with friend'
+        );
+      }
       return res.json();
     },
     onSuccess: () => {

@@ -579,28 +579,6 @@ export default function OnboardingPage() {
               <ConfirmMpinStep data={data} onChange={updateData} onNext={() => goToStep(4)} />
             )}
 
-            {/* Dev bypass button */}
-            <button
-              type="button"
-              onClick={async () => {
-                const updatePayload = {
-                  name: data.name.trim() || 'Admin root',
-                  monthlySalary: Number(data.salary) || 50000,
-                  mpin: data.mpin || '1234',
-                };
-
-                try {
-                  await completeOnboardingMutation.mutateAsync(updatePayload);
-                  router.replace('/dashboard');
-                } catch (err: any) {
-                  setApiError(err.message || 'Setup failed');
-                }
-              }}
-              className="text-[11px] text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 font-bold transition-colors text-center mx-auto focus:outline-none focus:underline cursor-pointer"
-            >
-              Bypass Onboarding & Go to Dashboard (Dev Mode)
-            </button>
-
             {/* Sign out fallback */}
             <button
               type="button"

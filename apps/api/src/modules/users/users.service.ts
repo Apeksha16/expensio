@@ -18,6 +18,13 @@ export class UsersService {
   }
 
   /**
+   * Find user by username
+   */
+  async searchUserByUsername(username: string): Promise<User | null> {
+    return userRepository.findByUsername(username);
+  }
+
+  /**
    * Update user profile information
    */
   async updateUser(

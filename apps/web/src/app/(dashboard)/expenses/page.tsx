@@ -727,6 +727,11 @@ export default function ExpensesPage() {
                     type="date"
                     value={editDate}
                     onChange={(e) => setEditDate(e.target.value)}
+                    onClick={(e) => {
+                      try {
+                        e.currentTarget.showPicker();
+                      } catch {}
+                    }}
                     className="w-full px-4 py-3.5 rounded-2xl bg-zinc-900/20 border border-zinc-850/60 text-xs font-semibold text-zinc-100 focus:outline-none"
                     required
                   />

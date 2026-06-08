@@ -823,11 +823,11 @@ function BudgetCardAPI({ budget, onDelete, onEdit }: BudgetCardAPIProps) {
               <button
                 type="button"
                 onClick={() => onEdit(budget)}
-                className="p-1.5 rounded-lg bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-950 dark:hover:bg-zinc-800 border border-zinc-100 dark:border-zinc-850 text-theme-secondary hover:text-theme-text active:scale-90 transition-all cursor-pointer flex items-center justify-center shrink-0 outline-none"
+                className="p-1.5 rounded-lg bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 active:scale-90 transition-all cursor-pointer flex items-center justify-center shrink-0 outline-none"
                 aria-label="Edit Budget"
               >
                 <svg
-                  className="w-2.5 h-2.5"
+                  className="w-3.5 h-3.5"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -844,10 +844,10 @@ function BudgetCardAPI({ budget, onDelete, onEdit }: BudgetCardAPIProps) {
             <button
               type="button"
               onClick={() => onDelete(budget.id)}
-              className="p-1.5 rounded-lg bg-zinc-50 hover:bg-rose-50 dark:bg-zinc-950 dark:hover:bg-rose-955 border border-zinc-100 dark:border-zinc-855 hover:border-rose-100 dark:hover:border-rose-900/30 text-zinc-400 hover:text-rose-500 active:scale-90 transition-all cursor-pointer flex items-center justify-center shrink-0 outline-none"
+              className="p-1.5 rounded-lg bg-zinc-100 hover:bg-rose-500/10 dark:bg-zinc-900 dark:hover:bg-rose-500/10 border border-zinc-200 dark:border-zinc-800 hover:border-rose-500/30 dark:hover:border-rose-500/30 text-zinc-500 dark:text-zinc-400 hover:text-rose-500 dark:hover:text-rose-400 active:scale-90 transition-all cursor-pointer flex items-center justify-center shrink-0 outline-none"
               aria-label="Delete Budget"
             >
-              <Trash2 className="w-2.5 h-2.5 transition-colors duration-150" />
+              <Trash2 className="w-3.5 h-3.5 transition-colors duration-150" />
             </button>
           </div>
         </div>

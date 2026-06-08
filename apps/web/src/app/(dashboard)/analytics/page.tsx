@@ -515,7 +515,7 @@ export default function AnalyticsPage() {
             {!hasSalary && (
               <Link
                 href="/settings"
-                className="w-full py-3.5 rounded-xl bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-905 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 text-[10px] font-black uppercase tracking-widest text-center active:scale-97 transition-all flex items-center justify-center gap-1.5"
+                className="w-full py-3.5 rounded-xl bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 text-zinc-300 text-[10px] font-black uppercase tracking-widest text-center active:scale-97 transition-all flex items-center justify-center gap-1.5"
               >
                 <Settings className="w-4 h-4" />
                 <span>Configure Salary</span>
@@ -523,7 +523,7 @@ export default function AnalyticsPage() {
             )}
             <Link
               href="/budgets"
-              className="w-full py-3.5 rounded-xl bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-905 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 text-[10px] font-black uppercase tracking-widest text-center active:scale-97 transition-all flex items-center justify-center gap-1.5"
+              className="w-full py-3.5 rounded-xl bg-zinc-900 hover:bg-zinc-850 border border-zinc-800 text-zinc-300 text-[10px] font-black uppercase tracking-widest text-center active:scale-97 transition-all flex items-center justify-center gap-1.5"
             >
               <PieChart className="w-4 h-4" />
               <span>Setup Category Budget</span>
@@ -749,7 +749,7 @@ export default function AnalyticsPage() {
                 </div>
                 <Link
                   href="/budgets"
-                  className="mt-1 px-4 py-2 rounded-xl bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-905 dark:hover:bg-zinc-850 text-zinc-700 dark:text-zinc-350 text-[9px] font-black uppercase tracking-wider border border-zinc-200 dark:border-zinc-800"
+                  className="mt-1 px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-850 text-zinc-300 text-[9px] font-black uppercase tracking-wider border border-zinc-800"
                 >
                   Create Budget
                 </Link>

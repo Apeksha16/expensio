@@ -70,3 +70,22 @@ export function useAddGroupMember() {
     },
   });
 }
+
+export function useRemoveGroupMember() {
+  const queryClient = useQueryClient();
+  const token = useAuthStore((state) => state.session?.access_token);
+  return useMutation({
+    mutationFn: async ({ groupId, userId }: { groupId: string; userId: string }) => {
+      const res = await fetch(`${API_URL}/api/v1/groups/${groupId}/members/${userId}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return res.json();
+    },
+    onSuccess: (_, { groupId }) => {
+      queryClient.invalidateQueries({ queryKey: ['groups'] });
+    },
+  });
+}

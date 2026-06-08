@@ -4,9 +4,15 @@ import React, { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useFinanceStore } from '../../../store/finance-store';
 import { Group, Expense } from '../../../store/mockData';
-import { useGroups, useCreateGroup } from '../../../hooks/useGroups';
+import {
+  useGroups,
+  useCreateGroup,
+  useAddGroupMember,
+  useRemoveGroupMember,
+} from '../../../hooks/useGroups';
 import { useFriends, Friend } from '../../../hooks/useFriends';
 import { useExpenses, useCreateExpense, useDeleteExpense } from '../../../hooks/useExpenses';
+import { useAuthStore } from '../../../store/auth-store';
 import GroupCard from '../../../components/shared/GroupCard';
 import BottomSheet from '../../../components/shared/BottomSheet';
 import {
@@ -110,6 +116,9 @@ export default function GroupsPage() {
   const expenses = expensesData?.expenses || [];
   const createExpenseMutation = useCreateExpense();
   const deleteExpenseMutation = useDeleteExpense();
+  const addGroupMemberMutation = useAddGroupMember();
+  const removeGroupMemberMutation = useRemoveGroupMember();
+  const authUser = useAuthStore((state) => state.user);
   // Navigation state: selected group ID retrieved from URL search parameter
   const selectedGroupId = searchParams.get('id');
   const setSelectedGroupId = (id: string | null) => {
@@ -129,6 +138,7 @@ export default function GroupsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [groupSearchQuery, setGroupSearchQuery] = useState('');
   const [isAddGroupOpen, setIsAddGroupOpen] = useState(false);
+  const [isGroupOptionsOpen, setIsGroupOptionsOpen] = useState(false);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [coverIndex, setCoverIndex] = useState(0);
@@ -205,6 +215,7 @@ export default function GroupsPage() {
       date: groupExpenseDate,
       note: groupExpenseTitle,
       groupId: selectedGroupId,
+      splitWith: group.members,
     });
 
     setGroupExpenseAmount('');
@@ -304,7 +315,10 @@ export default function GroupsPage() {
             >
               <ArrowLeft className="w-4 h-4 stroke-[3]" />
             </button>
-            <button className="p-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-850 text-theme-text cursor-pointer">
+            <button
+              onClick={() => setIsGroupOptionsOpen(true)}
+              className="p-2.5 rounded-xl bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-850 text-theme-text hover:bg-zinc-50 dark:hover:bg-zinc-800 active:scale-95 transition-all cursor-pointer"
+            >
               <span className="text-[10px] font-black tracking-widest text-theme-secondary">
                 •••
               </span>
@@ -918,12 +932,21 @@ export default function GroupsPage() {
         /* ==================== 1. MAIN GROUPS LIST SHELL SCREEN ================== */
         /* ======================================================================= */
         <div className="space-y-6 animate-fade-in pb-6">
-          {/* Title & subtitle info */}
-          <div className="px-1 space-y-0.5">
-            <h2 className="text-xl font-extrabold tracking-tight text-theme-text">Groups</h2>
-            <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">
-              Manage and settle shared expenses
-            </p>
+          {/* Title, subtitle & Create Group button header row */}
+          <div className="flex items-center justify-between px-1">
+            <div className="space-y-0.5">
+              <h2 className="text-xl font-extrabold tracking-tight text-theme-text">Groups</h2>
+              <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">
+                Manage and settle shared expenses
+              </p>
+            </div>
+            <button
+              onClick={() => setIsAddGroupOpen(true)}
+              className="px-4 py-2 rounded-xl bg-indigo-650 hover:bg-indigo-750 text-white font-black text-[9px] uppercase tracking-wider cursor-pointer active:scale-95 transition-all shadow-md shadow-indigo-500/10 flex items-center gap-1.5 border border-indigo-500/20"
+            >
+              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+              <span>Create Group</span>
+            </button>
           </div>
 
           {/* Hero balance overview banner card */}
@@ -1113,11 +1136,17 @@ export default function GroupsPage() {
                 <div className="w-12 h-12 rounded-2xl bg-zinc-50 dark:bg-zinc-900 flex items-center justify-center text-zinc-400 border border-zinc-200/60 dark:border-zinc-850">
                   <FolderOpen className="w-6 h-6" />
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-1 flex flex-col items-center">
                   <p className="text-sm font-black text-theme-text">No groups found</p>
-                  <p className="text-xs text-theme-secondary">
-                    Adjust your filters or search keywords.
+                  <p className="text-xs text-theme-secondary mb-2">
+                    Adjust your filters or search keywords, or create a new group.
                   </p>
+                  <button
+                    onClick={() => setIsAddGroupOpen(true)}
+                    className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs active:scale-98 transition-all cursor-pointer border-0 shadow-md shadow-indigo-500/10"
+                  >
+                    Create a Group
+                  </button>
                 </div>
               </div>
             ) : (
@@ -1130,15 +1159,6 @@ export default function GroupsPage() {
               </div>
             )}
           </div>
-
-          {/* FAB button in bottom right */}
-          <button
-            onClick={() => setIsAddGroupOpen(true)}
-            className="fixed bottom-24 right-5 w-14 h-14 rounded-full bg-linear-to-br from-indigo-400 via-violet-500 to-cyan-500 flex items-center justify-center text-zinc-950 shadow-[0_8px_32px_rgba(99,102,241,0.35)] active:scale-90 hover:scale-105 transition-all duration-300 border border-indigo-300/50 z-40 cursor-pointer"
-            aria-label="Add Group"
-          >
-            <Plus className="w-6 h-6 stroke-[3]" />
-          </button>
         </div>
       )}
 
@@ -1314,6 +1334,11 @@ export default function GroupsPage() {
                 type="date"
                 value={groupExpenseDate}
                 onChange={(e) => setGroupExpenseDate(e.target.value)}
+                onClick={(e) => {
+                  try {
+                    e.currentTarget.showPicker();
+                  } catch {}
+                }}
                 className="w-full px-4 py-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-850 text-xs font-semibold text-theme-text focus:outline-none"
                 required
               />
@@ -1443,6 +1468,142 @@ export default function GroupsPage() {
                 Dismiss
               </button>
             </div>
+          </div>
+        )}
+      </BottomSheet>
+
+      {/* Group Options (Settings) Bottom Sheet */}
+      <BottomSheet
+        isOpen={isGroupOptionsOpen}
+        onClose={() => setIsGroupOptionsOpen(false)}
+        title="Group Settings"
+      >
+        {activeGroup && (
+          <div className="space-y-6 pb-6 select-none">
+            {/* Group details banner */}
+            <div className="p-4.5 rounded-2xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-850 space-y-1.5 shadow-inner">
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 rounded-lg bg-indigo-500/10 text-indigo-500 flex items-center justify-center">
+                  <FolderOpen className="w-3.5 h-3.5" />
+                </div>
+                <h4 className="text-xs font-black text-theme-text uppercase tracking-wider">
+                  {activeGroup.name}
+                </h4>
+              </div>
+              <p className="text-[11px] font-medium text-theme-secondary leading-relaxed pl-7">
+                {activeGroup.description}
+              </p>
+            </div>
+
+            {/* Friends to add section */}
+            <div className="space-y-3">
+              <h4 className="text-[9px] font-black uppercase tracking-widest text-zinc-500 pl-1">
+                Add Friends to Group
+              </h4>
+              {friends.filter((f) => !activeGroup.members.includes(f.id)).length === 0 ? (
+                <div className="p-3.5 rounded-2xl border border-dashed border-zinc-250 dark:border-zinc-800 text-center">
+                  <span className="text-[10px] text-theme-secondary font-bold">
+                    All your friends are already in this group.
+                  </span>
+                </div>
+              ) : (
+                <div className="space-y-2.5 max-h-48 overflow-y-auto pr-1 scrollbar-thin">
+                  {friends
+                    .filter((f) => !activeGroup.members.includes(f.id))
+                    .map((friend) => (
+                      <div
+                        key={friend.id}
+                        className="flex items-center justify-between p-3 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-850/80 shadow-xs"
+                      >
+                        <span className="text-xs font-extrabold text-theme-text">
+                          {friend.name}
+                        </span>
+                        <button
+                          onClick={() => {
+                            addGroupMemberMutation.mutate({
+                              groupId: activeGroup.id,
+                              userId: friend.id,
+                            });
+                          }}
+                          className="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-750 text-white text-[9px] font-black uppercase tracking-wider cursor-pointer active:scale-95 transition-all border-0"
+                        >
+                          Add
+                        </button>
+                      </div>
+                    ))}
+                </div>
+              )}
+            </div>
+
+            {/* Manage current members list */}
+            <div className="space-y-3">
+              <h4 className="text-[9px] font-black uppercase tracking-widest text-zinc-500 pl-1">
+                Group Members ({activeGroup.members.length + 1})
+              </h4>
+              <div className="space-y-2.5 max-h-48 overflow-y-auto pr-1 scrollbar-thin">
+                {/* Me Row */}
+                <div className="flex items-center justify-between p-3 rounded-2xl bg-white dark:bg-zinc-900 border border-indigo-500/10 shadow-xs">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-6.5 h-6.5 rounded-lg bg-indigo-650 flex items-center justify-center text-[8.5px] font-extrabold text-white">
+                      Me
+                    </div>
+                    <div>
+                      <span className="text-xs font-black text-theme-text block leading-none">
+                        Me (You)
+                      </span>
+                      <span className="text-[8.5px] font-bold text-theme-secondary mt-1 block leading-none">
+                        Group Owner
+                      </span>
+                    </div>
+                  </div>
+                  <span className="text-[8px] font-black uppercase tracking-wider text-indigo-650 dark:text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded leading-none">
+                    Owner
+                  </span>
+                </div>
+
+                {/* Other members */}
+                {activeGroup.members.map((memberId) => {
+                  const memberFriend = friends.find((f) => f.id === memberId);
+                  const memberName = memberFriend ? memberFriend.name : 'Unknown Friend';
+                  const initials = memberName
+                    .split(' ')
+                    .map((n) => n[0])
+                    .join('')
+                    .slice(0, 2);
+                  return (
+                    <div
+                      key={memberId}
+                      className="flex items-center justify-between p-3 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-850/80 shadow-xs animate-fade-in"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-6.5 h-6.5 rounded-lg bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-850 flex items-center justify-center text-[8.5px] font-extrabold text-theme-secondary">
+                          {initials}
+                        </div>
+                        <span className="text-xs font-extrabold text-theme-text">{memberName}</span>
+                      </div>
+                      <button
+                        onClick={() => {
+                          removeGroupMemberMutation.mutate({
+                            groupId: activeGroup.id,
+                            userId: memberId,
+                          });
+                        }}
+                        className="px-2.5 py-1.5 rounded-xl text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 text-[9px] font-black uppercase tracking-wider cursor-pointer active:scale-95 transition-all border border-rose-500/10"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <button
+              onClick={() => setIsGroupOptionsOpen(false)}
+              className="w-full py-3.5 rounded-2xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-theme-text font-black text-xs uppercase tracking-widest cursor-pointer active:scale-98 transition-all"
+            >
+              Close Settings
+            </button>
           </div>
         )}
       </BottomSheet>

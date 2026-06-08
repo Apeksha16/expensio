@@ -238,7 +238,7 @@ export default function NavigationMenu({ isOpen, onClose, style, showToast }: Na
               className={`flex flex-col items-center justify-center p-4 rounded-2xl border transition-all cursor-pointer gap-2 ${
                 item.active
                   ? 'bg-indigo-500/10 border-indigo-500/30 text-indigo-655 dark:text-indigo-400'
-                  : 'bg-white dark:bg-zinc-900/40 border-zinc-200/80 dark:border-zinc-80 border-zinc-800/70 dark:border-zinc-800/80 text-zinc-650 dark:text-zinc-400 hover:border-zinc-300 hover:text-zinc-855'
+                  : 'bg-white dark:bg-zinc-900/40 border-zinc-200/80 dark:border-zinc-800 border-zinc-800/70 dark:border-zinc-800/80 text-zinc-650 dark:text-zinc-400 hover:border-zinc-300 hover:text-zinc-100'
               }`}
             >
               <div

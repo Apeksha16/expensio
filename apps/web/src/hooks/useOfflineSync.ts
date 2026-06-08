@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useAuthStore } from '../store/auth-store';
 import { db } from '../utils/indexeddb';
 import { useQueryClient } from '@tanstack/react-query';
@@ -6,15 +6,17 @@ import { useQueryClient } from '@tanstack/react-query';
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 export function useOfflineSync() {
-  const [isOnline, setIsOnline] = useState(true);
+  const [isOnline, setIsOnline] = useState(typeof window !== 'undefined' ? navigator.onLine : true);
   const [isSyncing, setIsSyncing] = useState(false);
+  const isSyncingRef = useRef(false);
   const session = useAuthStore((state) => state.session);
   const queryClient = useQueryClient();
 
   // Process offline queue
   const syncQueue = useCallback(async () => {
-    if (!isOnline || !session?.access_token || isSyncing) return;
+    if (!navigator.onLine || !session?.access_token || isSyncingRef.current) return;
 
+    isSyncingRef.current = true;
     setIsSyncing(true);
     try {
       const pendingMutations = await db.mutations
@@ -113,9 +115,16 @@ export function useOfflineSync() {
     } catch (err) {
       console.error('[Sync] Failed to process queue', err);
     } finally {
+      isSyncingRef.current = false;
       setIsSyncing(false);
     }
-  }, [isOnline, session?.access_token, queryClient, isSyncing]);
+  }, [session?.access_token, queryClient]);
+
+  // Keep a ref to the latest syncQueue to avoid dependencies in useEffect
+  const syncQueueRef = useRef(syncQueue);
+  useEffect(() => {
+    syncQueueRef.current = syncQueue;
+  }, [syncQueue]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -123,7 +132,7 @@ export function useOfflineSync() {
 
       const handleOnline = () => {
         setIsOnline(true);
-        syncQueue();
+        syncQueueRef.current();
       };
       const handleOffline = () => setIsOnline(false);
 
@@ -132,7 +141,7 @@ export function useOfflineSync() {
 
       // Attempt to sync on startup if online
       if (navigator.onLine) {
-        syncQueue();
+        syncQueueRef.current();
       }
 
       return () => {
@@ -140,7 +149,7 @@ export function useOfflineSync() {
         window.removeEventListener('offline', handleOffline);
       };
     }
-  }, [syncQueue]);
+  }, []);
 
   return { isOnline, isSyncing, syncQueue };
 }

@@ -3,6 +3,14 @@ import { usersController } from './users.controller.js';
 
 export async function usersRoutes(fastify: FastifyInstance) {
   fastify.get(
+    '/api/v1/users/search',
+    {
+      preHandler: [fastify.authenticate],
+    },
+    usersController.searchUser.bind(usersController)
+  );
+
+  fastify.get(
     '/api/v1/users/me',
     {
       preHandler: [fastify.authenticate],
