@@ -77,6 +77,9 @@ export default function RootLayout({
           </AuthProvider>
         </QueryProvider>
         <PWARegister />
+        <div className="fixed bottom-0 right-0 p-1 text-[10px] text-gray-500 z-50 pointer-events-none">
+          v1.0.0
+        </div>
       </body>
     </html>
   );
