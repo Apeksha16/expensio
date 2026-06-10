@@ -192,6 +192,9 @@ export default function NavigationMenu({ isOpen, onClose, style, showToast }: Na
           <LogOut className="w-4 h-4 text-rose-500" />
           <span>Logout Session</span>
         </button>
+        <div className="mt-3 pb-1 text-center text-[10px] font-bold text-zinc-400 dark:text-zinc-600 uppercase tracking-widest">
+          Version {process.env.NEXT_PUBLIC_APP_VERSION || 'v1.0.0'}
+        </div>
       </div>
     </motion.div>
   );
@@ -265,6 +268,9 @@ export default function NavigationMenu({ isOpen, onClose, style, showToast }: Na
           <LogOut className="w-4 h-4" />
           <span>Sign Out from Account</span>
         </button>
+        <div className="mt-3 text-center text-[10px] font-bold text-zinc-400 dark:text-zinc-600 uppercase tracking-widest">
+          Version {process.env.NEXT_PUBLIC_APP_VERSION || 'v1.0.0'}
+        </div>
       </div>
     </motion.div>
   );
@@ -333,6 +339,9 @@ export default function NavigationMenu({ isOpen, onClose, style, showToast }: Na
           <LogOut className="w-4 h-4" />
           <span>Reset Store & Log Out</span>
         </button>
+        <div className="mt-3 text-center text-[10px] font-bold text-zinc-400 dark:text-zinc-600 uppercase tracking-widest">
+          Version {process.env.NEXT_PUBLIC_APP_VERSION || 'v1.0.0'}
+        </div>
       </div>
     </motion.div>
   );
@@ -396,6 +405,9 @@ export default function NavigationMenu({ isOpen, onClose, style, showToast }: Na
           <LogOut className="w-3.5 h-3.5 text-rose-500" />
           <span>Logout Session</span>
         </button>
+        <div className="mt-3 pb-1 text-center text-[9px] font-bold text-zinc-400 dark:text-zinc-600 uppercase tracking-widest">
+          Version {process.env.NEXT_PUBLIC_APP_VERSION || 'v1.0.0'}
+        </div>
       </div>
     </motion.div>
   );

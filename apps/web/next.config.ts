@@ -9,7 +9,7 @@ const withSerwist = withSerwistInit({
 
 const nextConfig: NextConfig = {
   env: {
-    NEXT_PUBLIC_APP_VERSION: `v1.0.${Date.now()}`,
+    NEXT_PUBLIC_APP_VERSION: 'v1.0.0',
   },
 };
 
