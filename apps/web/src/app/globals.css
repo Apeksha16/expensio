@@ -98,6 +98,12 @@
   --color-zinc-200: var(--color-zinc-200);
   --color-zinc-100: var(--color-zinc-100);
   --color-white: var(--color-white);
+
+  /* Custom Indigo colors */
+  --color-indigo-405: #818cf8;
+  --color-indigo-455: #7376f5;
+  --color-indigo-650: #493fd7;
+  --color-indigo-750: #3d34b6;
 }
 
 body,

@@ -702,14 +702,14 @@ export default function ExpensesPage() {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2 min-w-0">
                   <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">
                     Category
                   </label>
                   <select
                     value={editCategory}
                     onChange={(e) => setEditCategory(e.target.value)}
-                    className="w-full px-4 py-3.5 rounded-2xl bg-zinc-900/20 border border-zinc-850/60 text-xs font-semibold text-zinc-100 focus:outline-none focus:border-indigo-500/40"
+                    className="w-full min-w-0 max-w-full px-3 py-3.5 rounded-2xl bg-zinc-900/20 border border-zinc-850/60 text-xs font-semibold text-zinc-100 focus:outline-none focus:border-indigo-500/40"
                   >
                     <option value="Food">Food</option>
                     <option value="Travel">Travel</option>
@@ -719,7 +719,7 @@ export default function ExpensesPage() {
                   </select>
                 </div>
 
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2 min-w-0">
                   <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">
                     Date
                   </label>
@@ -732,7 +732,7 @@ export default function ExpensesPage() {
                         e.currentTarget.showPicker();
                       } catch {}
                     }}
-                    className="w-full px-4 py-3.5 rounded-2xl bg-zinc-900/20 border border-zinc-850/60 text-xs font-semibold text-zinc-100 focus:outline-none"
+                    className="w-full min-w-0 max-w-full px-3 py-3.5 rounded-2xl bg-zinc-900/20 border border-zinc-850/60 text-xs font-semibold text-zinc-100 focus:outline-none"
                     required
                   />
                 </div>

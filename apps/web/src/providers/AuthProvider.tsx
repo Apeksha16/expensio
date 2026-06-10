@@ -244,7 +244,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             );
             window.location.replace('/login');
           }
-        }, 800);
+        }, 8000);
       }
     } else {
       // User is logged in
@@ -271,7 +271,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               );
               window.location.replace('/onboarding');
             }
-          }, 800);
+          }, 8000);
         }
       } else {
         // User is onboarded
@@ -287,7 +287,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               );
               window.location.replace('/dashboard');
             }
-          }, 800);
+          }, 8000);
         }
       }
     }

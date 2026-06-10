@@ -544,13 +544,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           )}
 
           {/* Date, payment method */}
-          <div className="grid grid-cols-2 gap-5">
-            <div className="flex flex-col gap-3">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-3 min-w-0">
               <label className="text-[10px] font-black uppercase tracking-widest text-theme-secondary">
                 Date & Time
               </label>
-              <div className="relative">
-                <Calendar className="w-4 h-4 text-zinc-450 dark:text-zinc-555 absolute left-3.5 top-4 pointer-events-none" />
+              <div className="relative w-full min-w-0">
+                <Calendar className="w-4 h-4 text-zinc-455 dark:text-zinc-500 absolute left-3 top-4 pointer-events-none" />
                 <input
                   type="date"
                   value={date}
@@ -560,23 +560,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       e.currentTarget.showPicker();
                     } catch {}
                   }}
-                  className="w-full pl-10 pr-4 py-3.5 rounded-2xl bg-zinc-100/85 dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 focus:border-indigo-500 focus:ring-indigo-500/20 focus:outline-none focus:ring-1 text-xs font-semibold text-zinc-800 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-555 transition-colors"
+                  className="w-full min-w-0 max-w-full pl-9 pr-2.5 py-3.5 rounded-2xl bg-zinc-100/85 dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 focus:border-indigo-500 focus:ring-indigo-500/20 focus:outline-none focus:ring-1 text-xs font-semibold text-zinc-800 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-555 transition-colors"
                   required
                 />
               </div>
             </div>
 
-            <div className="flex flex-col gap-3 relative">
+            <div className="flex flex-col gap-3 relative min-w-0">
               <label className="text-[10px] font-black uppercase tracking-widest text-theme-secondary">
                 Payment Method
               </label>
               <button
                 type="button"
                 onClick={() => setIsPaymentDropdownOpen(!isPaymentDropdownOpen)}
-                className="w-full px-4 py-3.5 rounded-2xl bg-zinc-100/85 dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/20 text-xs font-semibold text-zinc-100 dark:text-zinc-100 transition-colors flex items-center justify-between cursor-pointer"
+                className="w-full min-w-0 max-w-full px-3 py-3.5 rounded-2xl bg-zinc-100/85 dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/20 text-xs font-semibold text-zinc-100 dark:text-zinc-100 transition-colors flex items-center justify-between cursor-pointer"
               >
-                <span>{paymentMethod}</span>
-                <ChevronDown className="w-4 h-4 text-zinc-400 dark:text-zinc-555" />
+                <span className="truncate">{paymentMethod}</span>
+                <ChevronDown className="w-4 h-4 text-zinc-450 dark:text-zinc-500 shrink-0" />
               </button>
 
               {isPaymentDropdownOpen && (

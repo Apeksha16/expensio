@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 
@@ -12,7 +13,14 @@ interface BottomSheetProps {
 }
 
 export default function BottomSheet({ isOpen, onClose, title, children }: BottomSheetProps) {
+  const [mounted, setMounted] = useState(false);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -51,7 +59,9 @@ export default function BottomSheet({ isOpen, onClose, title, children }: Bottom
     };
   }, []);
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <>
@@ -106,6 +116,7 @@ export default function BottomSheet({ isOpen, onClose, title, children }: Bottom
           </motion.div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

@@ -940,13 +940,15 @@ export default function GroupsPage() {
                 Manage and settle shared expenses
               </p>
             </div>
-            <button
-              onClick={() => setIsAddGroupOpen(true)}
-              className="px-4 py-2 rounded-xl bg-indigo-650 hover:bg-indigo-750 text-white font-black text-[9px] uppercase tracking-wider cursor-pointer active:scale-95 transition-all shadow-md shadow-indigo-500/10 flex items-center gap-1.5 border border-indigo-500/20"
-            >
-              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-              <span>Create Group</span>
-            </button>
+            {groups.length > 0 && (
+              <button
+                onClick={() => setIsAddGroupOpen(true)}
+                className="px-4 py-2 rounded-xl bg-indigo-650 hover:bg-indigo-750 text-white font-black text-[9px] uppercase tracking-wider cursor-pointer active:scale-95 transition-all shadow-md shadow-indigo-500/10 flex items-center gap-1.5 border border-indigo-500/20"
+              >
+                <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                <span>Create Group</span>
+              </button>
+            )}
           </div>
 
           {/* Hero balance overview banner card */}
@@ -1174,7 +1176,7 @@ export default function GroupsPage() {
       >
         <form onSubmit={handleAddGroupSubmit} className="space-y-6">
           <div className="flex flex-col gap-2">
-            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+            <label className="text-[10px] font-black uppercase tracking-widest text-theme-secondary">
               Group Name
             </label>
             <input
@@ -1182,13 +1184,13 @@ export default function GroupsPage() {
               placeholder="e.g. Flatmates 402"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-4 py-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-850 text-sm font-semibold text-theme-text placeholder-zinc-400 focus:outline-none"
+              className="w-full px-4 py-3.5 rounded-2xl bg-zinc-100/85 dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 focus:border-indigo-500 focus:ring-indigo-500/20 focus:outline-none focus:ring-1 text-sm font-semibold text-theme-text placeholder-zinc-400 transition-colors"
               required
             />
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+            <label className="text-[10px] font-black uppercase tracking-widest text-theme-secondary">
               Description
             </label>
             <input
@@ -1196,14 +1198,14 @@ export default function GroupsPage() {
               placeholder="Rent, utilities, groceries splits..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-4 py-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-850 text-sm font-semibold text-theme-text placeholder-zinc-400 focus:outline-none"
+              className="w-full px-4 py-3.5 rounded-2xl bg-zinc-100/85 dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 focus:border-indigo-500 focus:ring-indigo-500/20 focus:outline-none focus:ring-1 text-sm font-semibold text-theme-text placeholder-zinc-400 transition-colors"
               required
             />
           </div>
 
           {/* Select Banner Style (gradients, NO images) */}
           <div className="flex flex-col gap-2.5">
-            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+            <label className="text-[10px] font-black uppercase tracking-widest text-theme-secondary">
               Select Banner Style
             </label>
             <div className="flex gap-2.5 pb-1 overflow-x-auto scrollbar-none">
@@ -1227,7 +1229,7 @@ export default function GroupsPage() {
 
           {/* Group Member Selection Checklist */}
           <div className="flex flex-col gap-2.5">
-            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+            <label className="text-[10px] font-black uppercase tracking-widest text-theme-secondary">
               Add Group Members
             </label>
             {friends.length === 0 ? (
@@ -1243,10 +1245,10 @@ export default function GroupsPage() {
                       key={friend.id}
                       type="button"
                       onClick={() => handleMemberToggle(friend.id)}
-                      className={`flex items-center gap-2.5 px-4 py-2.5 rounded-2xl border font-bold text-xs transition-all shrink-0 cursor-pointer ${
+                      className={`flex items-center gap-2.5 px-4 py-2.5 rounded-2xl border font-bold text-xs transition-all duration-300 shrink-0 cursor-pointer ${
                         isChecked
-                          ? 'bg-indigo-500/10 text-indigo-650 dark:text-indigo-400 border-indigo-500/30'
-                          : 'bg-zinc-50 dark:bg-zinc-900 border-zinc-200/50 dark:border-zinc-800 text-zinc-550'
+                          ? 'bg-indigo-500/10 text-indigo-650 dark:text-indigo-400 border-indigo-500/35 ring-1 ring-indigo-500/30 shadow-[0_2px_12px_rgba(99,102,241,0.08)]'
+                          : 'bg-zinc-150/80 dark:bg-zinc-900/40 border-zinc-200/60 dark:border-zinc-800/30 text-zinc-550 dark:text-zinc-455 hover:bg-zinc-200/50 dark:hover:bg-zinc-900/60 hover:text-zinc-800 dark:hover:text-zinc-200'
                       }`}
                     >
                       <span>{friend.name.split(' ')[0]}</span>
@@ -1274,7 +1276,7 @@ export default function GroupsPage() {
       >
         <form onSubmit={handleAddGroupExpenseSubmit} className="space-y-6">
           <div className="flex flex-col items-center gap-1.5 py-4 border-b border-zinc-100 dark:border-zinc-850/60">
-            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+            <span className="text-[10px] font-black uppercase tracking-widest text-theme-secondary">
               Bill Amount
             </span>
             <div className="flex items-center gap-1.5">
@@ -1295,7 +1297,7 @@ export default function GroupsPage() {
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+            <label className="text-[10px] font-black uppercase tracking-widest text-theme-secondary">
               Bill Description
             </label>
             <input
@@ -1303,20 +1305,20 @@ export default function GroupsPage() {
               placeholder="Rent booking, hotel stay, team lunch..."
               value={groupExpenseTitle}
               onChange={(e) => setGroupExpenseTitle(e.target.value)}
-              className="w-full px-4 py-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-850 text-sm font-semibold text-theme-text focus:outline-none placeholder-zinc-400"
+              className="w-full px-4 py-3.5 rounded-2xl bg-zinc-100/85 dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 focus:border-indigo-500 focus:ring-indigo-500/20 focus:outline-none focus:ring-1 text-sm font-semibold text-theme-text placeholder-zinc-400 transition-colors"
               required
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+            <div className="flex flex-col gap-2 min-w-0">
+              <label className="text-[10px] font-black uppercase tracking-widest text-theme-secondary">
                 Category
               </label>
               <select
                 value={groupExpenseCategory}
                 onChange={(e) => setGroupExpenseCategory(e.target.value)}
-                className="w-full px-4 py-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-850 text-xs font-semibold text-theme-text focus:outline-none focus:border-indigo-500/40"
+                className="w-full min-w-0 max-w-full px-3 py-3.5 rounded-2xl bg-zinc-100/85 dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 focus:border-indigo-500 focus:ring-indigo-500/20 focus:outline-none focus:ring-1 text-xs font-semibold text-theme-text transition-colors select-none"
               >
                 <option value="Food">Food</option>
                 <option value="Travel">Travel</option>
@@ -1326,8 +1328,8 @@ export default function GroupsPage() {
               </select>
             </div>
 
-            <div className="flex flex-col gap-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+            <div className="flex flex-col gap-2 min-w-0">
+              <label className="text-[10px] font-black uppercase tracking-widest text-theme-secondary">
                 Bill Date
               </label>
               <input
@@ -1339,14 +1341,14 @@ export default function GroupsPage() {
                     e.currentTarget.showPicker();
                   } catch {}
                 }}
-                className="w-full px-4 py-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-850 text-xs font-semibold text-theme-text focus:outline-none"
+                className="w-full min-w-0 max-w-full px-3 py-3.5 rounded-2xl bg-zinc-100/85 dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 focus:border-indigo-500 focus:ring-indigo-500/20 focus:outline-none focus:ring-1 text-xs font-semibold text-theme-text transition-colors"
                 required
               />
             </div>
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+            <label className="text-[10px] font-black uppercase tracking-widest text-theme-secondary">
               Memo Details
             </label>
             <input
@@ -1354,7 +1356,7 @@ export default function GroupsPage() {
               placeholder="e.g. Split equally among members"
               value={groupExpenseNote}
               onChange={(e) => setGroupExpenseNote(e.target.value)}
-              className="w-full px-4 py-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-850 text-sm font-semibold text-theme-text focus:outline-none placeholder-zinc-400"
+              className="w-full px-4 py-3.5 rounded-2xl bg-zinc-100/85 dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 focus:border-indigo-500 focus:ring-indigo-500/20 focus:outline-none focus:ring-1 text-sm font-semibold text-theme-text placeholder-zinc-400 transition-colors"
             />
           </div>
 
@@ -1411,7 +1413,7 @@ export default function GroupsPage() {
               </div>
 
               <div className="flex flex-col items-center justify-center gap-1.5 py-2">
-                <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">
+                <span className="text-[9px] font-bold text-theme-secondary uppercase tracking-widest">
                   Settlement Sum
                 </span>
                 <span
@@ -1423,7 +1425,7 @@ export default function GroupsPage() {
 
               <div className="space-y-2 text-xs">
                 <div className="flex justify-between py-1.5 border-b border-zinc-150 dark:border-zinc-850">
-                  <span className="text-zinc-500 font-bold uppercase tracking-wider text-[9px]">
+                  <span className="text-theme-secondary font-bold uppercase tracking-wider text-[9px]">
                     Sender Payer
                   </span>
                   <span className="font-extrabold text-theme-text">
@@ -1434,7 +1436,7 @@ export default function GroupsPage() {
                 </div>
 
                 <div className="flex justify-between py-1.5 border-b border-zinc-150 dark:border-zinc-850">
-                  <span className="text-zinc-500 font-bold uppercase tracking-wider text-[9px]">
+                  <span className="text-theme-secondary font-bold uppercase tracking-wider text-[9px]">
                     Recipient Receiver
                   </span>
                   <span className="font-extrabold text-theme-text">
@@ -1445,7 +1447,7 @@ export default function GroupsPage() {
                 </div>
 
                 <div className="flex justify-between py-1.5">
-                  <span className="text-zinc-500 font-bold uppercase tracking-wider text-[9px]">
+                  <span className="text-theme-secondary font-bold uppercase tracking-wider text-[9px]">
                     Group Reference
                   </span>
                   <span className="font-extrabold text-theme-text">{activeGroup?.name}</span>

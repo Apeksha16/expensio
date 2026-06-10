@@ -1006,7 +1006,7 @@ export default function DashboardClient() {
         >
           <div className="space-y-6 select-none">
             <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2 min-w-0">
                 <span className="text-[10.5px] font-extrabold uppercase tracking-widest text-zinc-400 dark:text-zinc-550">
                   Start Date
                 </span>
@@ -1021,10 +1021,10 @@ export default function DashboardClient() {
                       e.currentTarget.showPicker();
                     } catch {}
                   }}
-                  className="w-full px-4.5 py-3.5 rounded-2xl bg-zinc-50/50 dark:bg-zinc-900/20 border border-zinc-200/60 dark:border-zinc-850/60 focus:border-indigo-500/40 text-xs font-semibold text-theme-text focus:outline-none transition-colors"
+                  className="w-full min-w-0 max-w-full px-3 py-3.5 rounded-2xl bg-zinc-50/50 dark:bg-zinc-900/20 border border-zinc-200/60 dark:border-zinc-850/60 focus:border-indigo-500/40 text-xs font-semibold text-theme-text focus:outline-none transition-colors"
                 />
               </div>
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2 min-w-0">
                 <span className="text-[10.5px] font-extrabold uppercase tracking-widest text-zinc-400 dark:text-zinc-550">
                   End Date
                 </span>
@@ -1039,7 +1039,7 @@ export default function DashboardClient() {
                       e.currentTarget.showPicker();
                     } catch {}
                   }}
-                  className="w-full px-4.5 py-3.5 rounded-2xl bg-zinc-50/50 dark:bg-zinc-900/20 border border-zinc-200/60 dark:border-zinc-850/60 focus:border-indigo-500/40 text-xs font-semibold text-theme-text focus:outline-none transition-colors"
+                  className="w-full min-w-0 max-w-full px-3 py-3.5 rounded-2xl bg-zinc-50/50 dark:bg-zinc-900/20 border border-zinc-200/60 dark:border-zinc-850/60 focus:border-indigo-500/40 text-xs font-semibold text-theme-text focus:outline-none transition-colors"
                 />
               </div>
             </div>

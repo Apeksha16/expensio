@@ -25,15 +25,32 @@ export class AuthService {
 
   async verifyToken(token: string): Promise<SupabaseUser> {
     try {
-      const { data, error } = await this.supabase.auth.getUser(token);
-
-      if (error || !data.user) {
+      // Fast path: verify JWT token locally using Supabase JWT secret
+      const decoded = jwt.verify(token, env.SUPABASE_JWT_SECRET) as any;
+      if (!decoded || !decoded.sub) {
+        throw new Error('Invalid authentication token payload');
+      }
+      return {
+        id: decoded.sub,
+        email: decoded.email || '',
+        user_metadata: decoded.user_metadata || {},
+        app_metadata: decoded.app_metadata || {},
+        aud: decoded.aud || 'authenticated',
+        created_at: decoded.iat
+          ? new Date(decoded.iat * 1000).toISOString()
+          : new Date().toISOString(),
+      } as any;
+    } catch (jwtError: any) {
+      // Fallback: if local verification fails (e.g. key rotation or expired), query Supabase API
+      try {
+        const { data, error } = await this.supabase.auth.getUser(token);
+        if (error || !data.user) {
+          throw new Error('Invalid or expired authentication token');
+        }
+        return data.user;
+      } catch (apiError: any) {
         throw new Error('Invalid or expired authentication token');
       }
-
-      return data.user;
-    } catch (error: any) {
-      throw new Error('Invalid or expired authentication token');
     }
   }
 
