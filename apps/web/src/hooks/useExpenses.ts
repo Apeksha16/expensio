@@ -235,7 +235,42 @@ export function useCreateExpense() {
         throw err;
       }
     },
-    onSuccess: () => {
+    onMutate: async (newExpense) => {
+      await queryClient.cancelQueries({ queryKey: ['expenses'] });
+      await queryClient.cancelQueries({ queryKey: ['dashboard-summary'] });
+
+      const previousExpenses = queryClient.getQueryData(['expenses']);
+      const previousSummary = queryClient.getQueryData(['dashboard-summary']);
+
+      // Optimistically add the new expense to the dashboard summary recent expenses
+      queryClient.setQueryData(['dashboard-summary', session?.user?.id], (old: any) => {
+        if (!old) return old;
+        const optimisticExpense = {
+          id: `temp-${Date.now()}`,
+          amount: newExpense.amount,
+          description: newExpense.note || 'New Expense',
+          category: newExpense.category,
+          date: newExpense.date || new Date().toISOString(),
+          paymentMethod: newExpense.paymentMethod || 'Credit Card',
+        };
+        return {
+          ...old,
+          totalExpenses: old.totalExpenses + newExpense.amount,
+          recentExpenses: [optimisticExpense, ...old.recentExpenses].slice(0, 5),
+        };
+      });
+
+      return { previousExpenses, previousSummary };
+    },
+    onError: (err, newExpense, context) => {
+      if (context?.previousExpenses) {
+        queryClient.setQueryData(['expenses'], context.previousExpenses);
+      }
+      if (context?.previousSummary) {
+        queryClient.setQueryData(['dashboard-summary', session?.user?.id], context.previousSummary);
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['expenses'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-summary'] });
       queryClient.invalidateQueries({ queryKey: ['analytics'] });
@@ -276,9 +311,36 @@ export function useUpdateExpense() {
       const dataJson = await response.json();
       return mapAPIExpenseToStoreExpense(dataJson.data);
     },
-    onSuccess: (updatedExpense) => {
+    onMutate: async ({ id, data }) => {
+      await queryClient.cancelQueries({ queryKey: ['expenses'] });
+      await queryClient.cancelQueries({ queryKey: ['dashboard-summary'] });
+
+      const previousExpenses = queryClient.getQueryData(['expenses']);
+      const previousSummary = queryClient.getQueryData(['dashboard-summary']);
+
+      queryClient.setQueryData(['dashboard-summary', session?.user?.id], (old: any) => {
+        if (!old) return old;
+        return {
+          ...old,
+          recentExpenses: old.recentExpenses.map((exp: any) =>
+            exp.id === id ? { ...exp, ...data } : exp
+          ),
+        };
+      });
+
+      return { previousExpenses, previousSummary };
+    },
+    onError: (err, variables, context) => {
+      if (context?.previousExpenses) {
+        queryClient.setQueryData(['expenses'], context.previousExpenses);
+      }
+      if (context?.previousSummary) {
+        queryClient.setQueryData(['dashboard-summary', session?.user?.id], context.previousSummary);
+      }
+    },
+    onSettled: (data, error, variables) => {
       queryClient.invalidateQueries({ queryKey: ['expenses'] });
-      queryClient.invalidateQueries({ queryKey: ['expense', updatedExpense.id] });
+      queryClient.invalidateQueries({ queryKey: ['expense', variables.id] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-summary'] });
       queryClient.invalidateQueries({ queryKey: ['analytics'] });
       queryClient.invalidateQueries({ queryKey: ['budgets'] });
@@ -313,7 +375,35 @@ export function useDeleteExpense() {
         );
       }
     },
-    onSuccess: (_, id) => {
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ['expenses'] });
+      await queryClient.cancelQueries({ queryKey: ['dashboard-summary'] });
+
+      const previousExpenses = queryClient.getQueryData(['expenses']);
+      const previousSummary = queryClient.getQueryData(['dashboard-summary']);
+
+      queryClient.setQueryData(['dashboard-summary', session?.user?.id], (old: any) => {
+        if (!old) return old;
+        const expToDelete = old.recentExpenses.find((e: any) => e.id === id);
+        const amountToDeduct = expToDelete ? expToDelete.amount : 0;
+        return {
+          ...old,
+          totalExpenses: Math.max(0, old.totalExpenses - amountToDeduct),
+          recentExpenses: old.recentExpenses.filter((e: any) => e.id !== id),
+        };
+      });
+
+      return { previousExpenses, previousSummary };
+    },
+    onError: (err, variables, context) => {
+      if (context?.previousExpenses) {
+        queryClient.setQueryData(['expenses'], context.previousExpenses);
+      }
+      if (context?.previousSummary) {
+        queryClient.setQueryData(['dashboard-summary', session?.user?.id], context.previousSummary);
+      }
+    },
+    onSettled: (data, error, id) => {
       queryClient.invalidateQueries({ queryKey: ['expenses'] });
       queryClient.invalidateQueries({ queryKey: ['expense', id] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-summary'] });

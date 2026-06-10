@@ -309,11 +309,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       !!effectiveUser.monthlySalary
     : false;
 
+  const isAuthRedirectRoute = ['/login', '/register', '/onboarding'].includes(pathname);
+
   const showSplash =
     !isInitialized ||
     isLoading ||
     (isAuthenticated && !isOnboarded && pathname !== '/onboarding') ||
-    (!isAuthenticated && !isPublicRoute);
+    (!isAuthenticated && !isPublicRoute) ||
+    (isAuthenticated && isOnboarded && isAuthRedirectRoute);
 
   if (showSplash) {
     return (

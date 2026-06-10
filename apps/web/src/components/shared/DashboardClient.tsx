@@ -219,29 +219,7 @@ export default function DashboardClient() {
     setActiveDetailExpense(exp);
   }, []);
 
-  const isLoadingData = isSummaryLoading || isAnalyticsLoading || isExpensesLoading;
-
-  // Skeletons
-  if (isLoadingData) {
-    return (
-      <div className="space-y-6 pb-6 animate-pulse select-none">
-        <div className="h-[200px] rounded-[28px] bg-zinc-100 dark:bg-zinc-900/40 border border-theme-border/60" />
-        <div className="space-y-2">
-          <div className="h-4 w-24 bg-zinc-200 dark:bg-zinc-900/60 rounded" />
-          <div className="flex gap-3 overflow-hidden">
-            <div className="h-[88px] w-28 bg-zinc-100 dark:bg-zinc-900/40 rounded-3xl shrink-0" />
-            <div className="h-[88px] w-28 bg-zinc-100 dark:bg-zinc-900/40 rounded-3xl shrink-0" />
-            <div className="h-[88px] w-28 bg-zinc-100 dark:bg-zinc-900/40 rounded-3xl shrink-0" />
-          </div>
-        </div>
-        <div className="h-[280px] rounded-[28px] bg-zinc-100 dark:bg-zinc-900/40 border border-theme-border/60" />
-        <div className="space-y-3">
-          <div className="h-16 rounded-[20px] bg-zinc-100 dark:bg-zinc-900/40 border border-theme-border/60" />
-          <div className="h-16 rounded-[20px] bg-zinc-100 dark:bg-zinc-900/40 border border-theme-border/60" />
-        </div>
-      </div>
-    );
-  }
+  // No global loading lock - let components render conditionally or gracefully handling undefined
 
   // ----------------------------------------------------
   // RENDER VIEW A: HOME DASHBOARD (tab=home)
@@ -508,40 +486,59 @@ export default function DashboardClient() {
     const totalSpentPeriod = analyticsData?.summary.currentMonthSpend ?? 0;
     const spendChangePercentage = analyticsData?.summary.spendChangePercentage ?? 0;
 
-    const getCategoryAmount = (cat: string) => {
-      const found = analyticsData?.categoryBreakdown?.find((c) => c.category === cat);
-      return found ? found.amount : 0;
-    };
+    const chartData = useMemo(() => {
+      const getCategoryAmount = (cat: string) => {
+        const found = analyticsData?.categoryBreakdown?.find((c) => c.category === cat);
+        return found ? found.amount : 0;
+      };
 
-    const foodSum = getCategoryAmount('Food');
-    const shoppingSum = getCategoryAmount('Shopping');
-    const travelSum = getCategoryAmount('Travel') + getCategoryAmount('Transport');
-    const billsSum =
-      getCategoryAmount('Bills') +
-      getCategoryAmount('Bills & Utilities') +
-      getCategoryAmount('Rent') +
-      getCategoryAmount('Credit Card') +
-      getCategoryAmount('Utilities');
-    const othersSum =
-      getCategoryAmount('Others') +
-      getCategoryAmount('Health') +
-      getCategoryAmount('Entertainment') +
-      getCategoryAmount('Education') +
-      getCategoryAmount('Gifts') +
-      getCategoryAmount('Udhaari');
+      const foodSum = getCategoryAmount('Food');
+      const shoppingSum = getCategoryAmount('Shopping');
+      const travelSum = getCategoryAmount('Travel') + getCategoryAmount('Transport');
+      const billsSum =
+        getCategoryAmount('Bills') +
+        getCategoryAmount('Bills & Utilities') +
+        getCategoryAmount('Rent') +
+        getCategoryAmount('Credit Card') +
+        getCategoryAmount('Utilities');
+      const othersSum =
+        getCategoryAmount('Others') +
+        getCategoryAmount('Health') +
+        getCategoryAmount('Entertainment') +
+        getCategoryAmount('Education') +
+        getCategoryAmount('Gifts') +
+        getCategoryAmount('Udhaari');
 
-    const maxCategorySum = Math.max(foodSum, shoppingSum, travelSum, billsSum, othersSum, 1);
+      const maxCategorySum = Math.max(foodSum, shoppingSum, travelSum, billsSum, othersSum, 1);
 
-    const foodHeight = `${Math.max(10, Math.round((foodSum / maxCategorySum) * 100))}%`;
-    const shoppingHeight = `${Math.max(10, Math.round((shoppingSum / maxCategorySum) * 100))}%`;
-    const travelHeight = `${Math.max(10, Math.round((travelSum / maxCategorySum) * 100))}%`;
-    const billsHeight = `${Math.max(10, Math.round((billsSum / maxCategorySum) * 100))}%`;
-    const othersHeight = `${Math.max(10, Math.round((othersSum / maxCategorySum) * 100))}%`;
+      const foodHeight = `${Math.max(10, Math.round((foodSum / maxCategorySum) * 100))}%`;
+      const shoppingHeight = `${Math.max(10, Math.round((shoppingSum / maxCategorySum) * 100))}%`;
+      const travelHeight = `${Math.max(10, Math.round((travelSum / maxCategorySum) * 100))}%`;
+      const billsHeight = `${Math.max(10, Math.round((billsSum / maxCategorySum) * 100))}%`;
+      const othersHeight = `${Math.max(10, Math.round((othersSum / maxCategorySum) * 100))}%`;
 
-    const yAxisLabel5 = `₹${Math.round(maxCategorySum).toLocaleString('en-IN')}`;
-    const yAxisLabel4 = `₹${Math.round(maxCategorySum * 0.75).toLocaleString('en-IN')}`;
-    const yAxisLabel3 = `₹${Math.round(maxCategorySum * 0.5).toLocaleString('en-IN')}`;
-    const yAxisLabel2 = `₹${Math.round(maxCategorySum * 0.25).toLocaleString('en-IN')}`;
+      const yAxisLabel5 = `₹${Math.round(maxCategorySum).toLocaleString('en-IN')}`;
+      const yAxisLabel4 = `₹${Math.round(maxCategorySum * 0.75).toLocaleString('en-IN')}`;
+      const yAxisLabel3 = `₹${Math.round(maxCategorySum * 0.5).toLocaleString('en-IN')}`;
+      const yAxisLabel2 = `₹${Math.round(maxCategorySum * 0.25).toLocaleString('en-IN')}`;
+
+      return {
+        foodSum,
+        shoppingSum,
+        travelSum,
+        billsSum,
+        othersSum,
+        foodHeight,
+        shoppingHeight,
+        travelHeight,
+        billsHeight,
+        othersHeight,
+        yAxisLabel5,
+        yAxisLabel4,
+        yAxisLabel3,
+        yAxisLabel2,
+      };
+    }, [analyticsData]);
 
     const displayListExpenses = liveExpenses.slice(0, 4);
 
@@ -668,10 +665,10 @@ export default function DashboardClient() {
           <div className="flex h-44 mt-2 relative select-none">
             {/* Y Axis Labels */}
             <div className="flex flex-col justify-between h-36 text-[8px] font-bold text-zinc-400 dark:text-zinc-550 text-right w-8 pr-2 select-none z-10">
-              <span>{yAxisLabel5}</span>
-              <span>{yAxisLabel4}</span>
-              <span>{yAxisLabel3}</span>
-              <span>{yAxisLabel2}</span>
+              <span>{chartData.yAxisLabel5}</span>
+              <span>{chartData.yAxisLabel4}</span>
+              <span>{chartData.yAxisLabel3}</span>
+              <span>{chartData.yAxisLabel2}</span>
               <span>₹0</span>
             </div>
 
@@ -689,36 +686,36 @@ export default function DashboardClient() {
               {[
                 {
                   label: 'Food',
-                  amount: `₹${Math.round(foodSum).toLocaleString()}`,
-                  height: foodHeight,
+                  amount: `₹${Math.round(chartData.foodSum).toLocaleString()}`,
+                  height: chartData.foodHeight,
                   color: 'bg-indigo-500 dark:bg-indigo-400',
                   key: 'Food',
                 },
                 {
                   label: 'Shop',
-                  amount: `₹${Math.round(shoppingSum).toLocaleString()}`,
-                  height: shoppingHeight,
+                  amount: `₹${Math.round(chartData.shoppingSum).toLocaleString()}`,
+                  height: chartData.shoppingHeight,
                   color: 'bg-emerald-500 dark:bg-emerald-400',
                   key: 'Shopping',
                 },
                 {
                   label: 'Travel',
-                  amount: `₹${Math.round(travelSum).toLocaleString()}`,
-                  height: travelHeight,
+                  amount: `₹${Math.round(chartData.travelSum).toLocaleString()}`,
+                  height: chartData.travelHeight,
                   color: 'bg-amber-500 dark:bg-amber-400',
                   key: 'Travel',
                 },
                 {
                   label: 'Bills',
-                  amount: `₹${Math.round(billsSum).toLocaleString()}`,
-                  height: billsHeight,
+                  amount: `₹${Math.round(chartData.billsSum).toLocaleString()}`,
+                  height: chartData.billsHeight,
                   color: 'bg-rose-500 dark:bg-rose-400',
                   key: 'Bills',
                 },
                 {
                   label: 'Others',
-                  amount: `₹${Math.round(othersSum).toLocaleString()}`,
-                  height: othersHeight,
+                  amount: `₹${Math.round(chartData.othersSum).toLocaleString()}`,
+                  height: chartData.othersHeight,
                   color: 'bg-zinc-450 dark:bg-zinc-650',
                   key: 'Others',
                 },
@@ -735,14 +732,12 @@ export default function DashboardClient() {
                     <span className="text-[7.5px] font-black text-zinc-700 dark:text-zinc-300 mb-1 leading-none scale-90 select-none">
                       {bar.amount}
                     </span>
-                    <motion.div
-                      initial={{ height: 0 }}
-                      animate={{ height: bar.height }}
-                      transition={{ duration: 0.7, ease: 'easeOut', delay: idx * 0.08 }}
-                      className={`w-4.5 rounded-t-md ${bar.color} shadow-xs relative overflow-hidden`}
+                    <div
+                      style={{ height: bar.height }}
+                      className={`w-4.5 rounded-t-md ${bar.color} shadow-xs relative overflow-hidden transition-all duration-700 ease-out`}
                     >
                       <div className="absolute inset-0 bg-gradient-to-t from-white/0 to-white/10" />
-                    </motion.div>
+                    </div>
                     <span className="text-[8.5px] font-extrabold text-zinc-400 dark:text-zinc-500 mt-2 leading-none uppercase select-none">
                       {bar.label}
                     </span>

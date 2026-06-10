@@ -508,8 +508,11 @@ export default function OnboardingPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step, data.name, data.salary, data.mpin, router]);
 
+  const isOnboarded =
+    user && (user.isOnboardingCompleted ?? (user as any).isOnboarded) && user.monthlySalary;
+
   // Global loading gate
-  if (!isInitialized || isLoading || (!session && !user)) {
+  if (!isInitialized || isLoading || (!session && !user) || isOnboarded) {
     return (
       <div
         className="min-h-screen bg-background flex items-center justify-center"

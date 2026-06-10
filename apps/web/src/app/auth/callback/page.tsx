@@ -28,13 +28,16 @@ export default function AuthCallbackPage() {
         if (code) {
           console.debug('AuthCallbackPage: exchanging code for session');
           const { error } = await supabase.auth.exchangeCodeForSession(code);
-          if (error) throw error;
+          if (error) {
+            // Check if we already have a session (e.g. user reloaded the page)
+            const { data } = await supabase.auth.getSession();
+            if (!data.session) {
+              throw error;
+            }
+          }
         }
 
-        // Prefer reacting to the client's auth event. If the client already
-        // created the session during initialization, `getSession()` will return
-        // it immediately. Otherwise listen for `SIGNED_IN` and redirect once
-        // the subscription reports the session.
+        // Prefer reacting to the client's auth event
         console.debug(
           'AuthCallbackPage: waiting for session (onAuthStateChange + polling fallback)'
         );
@@ -63,11 +66,11 @@ export default function AuthCallbackPage() {
           await new Promise((resolve) => setTimeout(resolve, 150));
         }
 
-        throw new Error('No session found after Google sign-in.');
+        throw new Error('No session found after sign-in.');
       } catch (err) {
         console.error('Auth callback failed:', err);
-        setMessage(err instanceof Error ? err.message : 'Unable to complete sign in.');
-        setTimeout(() => router.replace('/login'), 1800);
+        setMessage('Authentication failed. Redirecting to login...');
+        setTimeout(() => router.replace('/login'), 1500);
       }
     };
 

@@ -32,7 +32,7 @@ export function useDashboardSummary() {
       return resJson.data;
     },
     enabled: !!session?.access_token,
-    staleTime: 60000, // 1 minute
+    staleTime: 5 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus: false,
   });
 }

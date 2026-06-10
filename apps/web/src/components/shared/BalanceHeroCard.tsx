@@ -3,7 +3,6 @@
 import React from 'react';
 import { TrendingDown, BarChart2, Loader2 } from 'lucide-react';
 import { useDashboardSummary } from '../../hooks/useDashboard';
-import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 
 export default function BalanceHeroCard() {
@@ -13,11 +12,9 @@ export default function BalanceHeroCard() {
   const displayExpenses = dashboardSummary?.totalExpenses ?? 0;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 15 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="relative overflow-hidden rounded-[32px] bg-white/90 dark:bg-zinc-900/90 border border-zinc-200/50 dark:border-zinc-800/80 shadow-[0_12px_32px_rgba(99,102,241,0.06)] active:scale-[0.99] transition-all cursor-pointer group flex flex-col gap-5 p-6"
+    <div
+      onClick={() => router.push('/dashboard?tab=overview')}
+      className="relative overflow-hidden rounded-[32px] bg-white dark:bg-zinc-900 border border-zinc-200/50 dark:border-zinc-800 shadow-sm active:scale-[0.99] transition-transform cursor-pointer group flex flex-col gap-5 p-6 animate-in slide-in-from-bottom-4 duration-500"
     >
       {/* Ambient background glows */}
       <div className="absolute top-12 left-[55%] w-1.5 h-1.5 rounded-full bg-indigo-400/25 pointer-events-none z-0" />
@@ -57,9 +54,9 @@ export default function BalanceHeroCard() {
       <div className="absolute right-6 top-1/2 -translate-y-1/2 w-20 h-20 flex items-center justify-center shrink-0 pointer-events-none z-0">
         {/* Ambient pulsing background glow */}
         <div className="absolute w-28 h-28 rounded-full bg-[radial-gradient(circle,rgba(99,102,241,0.18),transparent_70%)] blur-lg pointer-events-none z-0" />
-        {/* Outer squircle glow */}
-        <div className="absolute inset-0 rounded-[24px] bg-linear-to-br from-indigo-500/10 to-purple-500/10 border border-indigo-500/20 dark:border-indigo-400/10 shadow-[0_8px_24px_rgba(99,102,241,0.08)] backdrop-blur-md" />
-        {/* Middle glassmorphic layer */}
+        {/* Outer squircle border */}
+        <div className="absolute inset-0 rounded-[24px] bg-linear-to-br from-indigo-500/5 to-purple-500/5 border border-indigo-500/20 dark:border-indigo-400/10 shadow-sm" />
+        {/* Middle layer */}
         <div className="absolute inset-1.5 rounded-[20px] bg-linear-to-br from-white/10 to-white/0 dark:from-white/5 dark:to-white/0 border border-white/20 dark:border-zinc-800/60" />
         {/* Inner solid gradient badge */}
         <div className="absolute inset-3 rounded-[16px] bg-linear-to-br from-indigo-500 via-indigo-650 to-purple-600 flex items-center justify-center border border-white/20 dark:border-white/10 shadow-[inset_0_2px_4px_rgba(255,255,255,0.4),0_4px_12px_rgba(99,102,241,0.3)]">
@@ -126,6 +123,6 @@ export default function BalanceHeroCard() {
         <span>View full analytics</span>
         <span className="text-[10px] font-black">&gt;</span>
       </div>
-    </motion.div>
+    </div>
   );
 }
