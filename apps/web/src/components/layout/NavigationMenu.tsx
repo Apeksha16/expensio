@@ -415,7 +415,7 @@ export default function NavigationMenu({ isOpen, onClose, style, showToast }: Na
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="absolute inset-0 z-[60] overflow-hidden rounded-[40px] pointer-events-auto">
+        <div className="absolute inset-0 z-[60] overflow-hidden pointer-events-auto">
           {/* Menu Backdrop Overlay */}
           <motion.div
             initial={{ opacity: 0 }}
