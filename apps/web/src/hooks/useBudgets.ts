@@ -87,14 +87,19 @@ export function useCreateBudget() {
   const queryClient = useQueryClient();
   const session = useAuthStore((state) => state.session);
 
-  return useMutation<BudgetSummary, Error, CreateBudgetRequest>({
+  return useMutation<BudgetSummary, Error, CreateBudgetRequest & { _idempotencyKey?: string }>({
     mutationFn: async (payload) => {
       if (!session?.access_token) throw new Error('Not authenticated');
+
+      if (!payload._idempotencyKey) {
+        payload._idempotencyKey = crypto.randomUUID();
+      }
+
       try {
         return await apiFetch<BudgetSummary>('/api/v1/budgets', session.access_token, {
           method: 'POST',
           headers: {
-            'Idempotency-Key': crypto.randomUUID(),
+            'Idempotency-Key': payload._idempotencyKey,
           },
           body: JSON.stringify(payload),
         });
@@ -172,6 +177,7 @@ export function useDeleteBudget() {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
+
       if (!response.ok) {
         const err = await response.json().catch(() => ({}));
         throw new Error(err?.error?.message || 'Failed to delete budget');

@@ -34,33 +34,12 @@ import {
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Skeleton } from '@expensio/ui';
 
-const mockReceipts = [
-  {
-    merchant: 'Starbucks Coffee',
-    amount: 320.0,
-    category: 'Food',
-    items: '1x Caramel Macchiato, 1x Butter Croissant ☕',
-  },
-  {
-    merchant: 'Decathlon Sports',
-    amount: 1899.0,
-    category: 'Shopping',
-    items: '1x Running Shoes, 2x Sports Socks 👟',
-  },
-  {
-    merchant: 'Uber India',
-    amount: 245.5,
-    category: 'Transport',
-    items: 'Ride from Airport to Hotel 🚗',
-  },
-  {
-    merchant: 'PVR Cinemas',
-    amount: 650.0,
-    category: 'Entertainment',
-    items: '2x Movie Tickets, 1x Popcorn Combo 🍿',
-  },
-];
+import dynamic from 'next/dynamic';
+
+const ExpenseDetailsModal = dynamic(() => import('./modals/ExpenseDetailsModal'), { ssr: false });
+const ReceiptScannerModal = dynamic(() => import('./modals/ReceiptScannerModal'), { ssr: false });
 
 export default function DashboardClient() {
   const {
@@ -132,71 +111,20 @@ export default function DashboardClient() {
 
   const liveExpenses = expensesData?.expenses || [];
 
-  // Receipt Scanner States
+  // Receipt Scanner state
   const [isReceiptScannerOpen, setIsReceiptScannerOpen] = useState(false);
-  const [scanStep, setScanStep] = useState<'idle' | 'uploading' | 'review'>('idle');
-  const [scanProgress, setScanProgress] = useState(0);
-  const [scanStatusText, setScanStatusText] = useState('');
-  const [scannedExpense, setScannedExpense] = useState<{
-    title: string;
-    amount: string;
-    category: string;
-    note: string;
-  } | null>(null);
 
-  const handleMockReceiptSelect = (receipt: (typeof mockReceipts)[0]) => {
-    setScanStep('uploading');
-    setScanProgress(0);
-    setScanStatusText('Uploading receipt image...');
-
-    let progress = 0;
-    const interval = setInterval(() => {
-      progress += 20;
-      setScanProgress(progress);
-      if (progress === 40) {
-        setScanStatusText('Analyzing receipt layout with AI...');
-      } else if (progress === 80) {
-        setScanStatusText('Extracting items and total bill value...');
-      } else if (progress >= 100) {
-        clearInterval(interval);
-        setScanStep('review');
-        setScannedExpense({
-          title: receipt.merchant,
-          amount: receipt.amount.toString(),
-          category: receipt.category,
-          note: receipt.items,
-        });
-      }
-    }, 300);
-  };
-
-  const handleScannedExpenseSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!scannedExpense || !scannedExpense.title || !scannedExpense.amount) return;
-
-    createExpenseMutation.mutate(
-      {
-        amount: Number(scannedExpense.amount),
-        category: scannedExpense.category as any,
-        paymentMethod: 'UPI',
-        date: new Date().toISOString().split('T')[0],
-        note: scannedExpense.title,
+  const handleScannedExpenseSubmit = (expenseData: any) => {
+    createExpenseMutation.mutate(expenseData, {
+      onSuccess: () => {
+        showToast('Receipt logged successfully!');
       },
-      {
-        onSuccess: (newExp) => {
-          // Store update removed, using React Query invalidation in hook
-
-          showToast('Receipt logged successfully!');
-        },
-        onError: (err) => {
-          showToast(err.message || 'Failed to save expense');
-        },
-      }
-    );
+      onError: (err) => {
+        showToast(err.message || 'Failed to save expense');
+      },
+    });
 
     setIsReceiptScannerOpen(false);
-    setScanStep('idle');
-    setScannedExpense(null);
   };
 
   const [activeDetailExpense, setActiveDetailExpense] = useState<any>(null);
@@ -232,15 +160,36 @@ export default function DashboardClient() {
     tabContent = (
       <div className="space-y-6 pb-6 select-none relative">
         {/* 1. Wallet Hero Card */}
-        <BalanceHeroCard />
+        {isSummaryLoading ? (
+          <Skeleton variant="rounded" className="w-full h-40 rounded-[32px]" />
+        ) : (
+          <BalanceHeroCard />
+        )}
 
         {/* 2. Squircle Quick Actions */}
-        <QuickActions
-          onAddExpenseClick={() => setIsAddExpenseOpen(true)}
-          onScanReceiptClick={() => setIsReceiptScannerOpen(true)}
-        />
+        {isSummaryLoading ? (
+          <div className="grid grid-cols-2 gap-4">
+            <Skeleton variant="rounded" className="h-16 rounded-[28px]" />
+            <Skeleton variant="rounded" className="h-16 rounded-[28px]" />
+          </div>
+        ) : (
+          <QuickActions
+            onAddExpenseClick={() => setIsAddExpenseOpen(true)}
+            onScanReceiptClick={() => setIsReceiptScannerOpen(true)}
+          />
+        )}
 
-        {isDashboardEmpty ? (
+        {isSummaryLoading ? (
+          <div className="flex flex-col gap-6">
+            <Skeleton variant="rounded" className="w-full h-48 rounded-[28px]" />
+            <Skeleton variant="rounded" className="w-full h-24 rounded-[28px]" />
+            <div className="space-y-3">
+              <Skeleton variant="rectangular" className="w-32 h-4 rounded" />
+              <Skeleton variant="rounded" className="w-full h-16 rounded-[20px]" />
+              <Skeleton variant="rounded" className="w-full h-16 rounded-[20px]" />
+            </div>
+          </div>
+        ) : isDashboardEmpty ? (
           /* Premium Onboarding Empty State Card */
           <motion.div
             initial={{ opacity: 0, y: 15 }}
@@ -748,7 +697,7 @@ export default function DashboardClient() {
           </div>
         </div>
 
-        {/* Recent Expenses List with customized mockup list */}
+        {/* Recent Expenses List */}
         <div className="space-y-3">
           <div className="flex items-center justify-between px-1">
             <h3 className="text-[11px] font-extrabold uppercase tracking-widest text-zinc-800 dark:text-zinc-200">
@@ -788,11 +737,11 @@ export default function DashboardClient() {
                       >
                         <Icon className="w-4.5 h-4.5" />
                       </div>
-                      <div className="flex flex-col gap-0.5">
-                        <span className="text-[11.5px] font-extrabold text-zinc-850 dark:text-zinc-200">
+                      <div className="flex flex-col gap-0.5 min-w-0">
+                        <span className="text-[11.5px] font-extrabold text-zinc-850 dark:text-zinc-200 truncate max-w-[150px] sm:max-w-[220px]">
                           {exp.title}
                         </span>
-                        <span className="text-[8.5px] font-bold text-zinc-400 dark:text-zinc-500 tracking-wide uppercase">
+                        <span className="text-[8.5px] font-bold text-zinc-400 dark:text-zinc-500 tracking-wide uppercase truncate">
                           {formattedDate} · {exp.category}
                         </span>
                       </div>
@@ -1079,287 +1028,24 @@ export default function DashboardClient() {
     <>
       {tabContent}
 
-      {/* 1. Detail View bottom sheet */}
-      <BottomSheet
-        isOpen={activeDetailExpense !== null}
+      <ExpenseDetailsModal
+        expense={activeDetailExpense}
         onClose={() => setActiveDetailExpense(null)}
-        title="Expense Details"
-      >
-        {activeDetailExpense && (
-          <div className="space-y-6 select-none">
-            <div className="p-5 rounded-3xl border border-zinc-200/60 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/60 flex items-center justify-between shadow-xs">
-              <div className="flex flex-col gap-0.5">
-                <span className="text-[10px] font-black text-zinc-400 dark:text-zinc-550 uppercase tracking-widest leading-none">
-                  Total Value
-                </span>
-                <span className="text-3xl font-black text-theme-text mt-1.5 leading-none">
-                  ₹{activeDetailExpense.amount.toFixed(2)}
-                </span>
-              </div>
-              <span className="text-[10px] font-black uppercase text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 border border-indigo-500/20 px-3 py-1 rounded-full shrink-0">
-                {activeDetailExpense.category}
-              </span>
-            </div>
-
-            <div className="rounded-2xl border border-zinc-200/50 dark:border-zinc-800/80 bg-white dark:bg-zinc-900/20 p-4 space-y-4 shadow-sm">
-              <div className="flex items-center justify-between pb-3.5 border-b border-zinc-800/60 dark:border-zinc-800/60 text-xs">
-                <span className="font-semibold text-zinc-400 dark:text-zinc-500">
-                  Merchant Name
-                </span>
-                <span className="font-extrabold text-zinc-800 dark:text-zinc-200">
-                  {activeDetailExpense.title}
-                </span>
-              </div>
-              <div className="flex items-center justify-between pb-3.5 border-b border-zinc-800/60 dark:border-zinc-800/60 text-xs">
-                <span className="font-semibold text-zinc-400 dark:text-zinc-500">Date</span>
-                <span className="font-extrabold text-zinc-800 dark:text-zinc-200">
-                  {new Date(activeDetailExpense.date).toLocaleDateString('en-US', {
-                    weekday: 'short',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                  })}
-                </span>
-              </div>
-              <div className="flex items-center justify-between pb-3.5 border-b border-zinc-800/60 dark:border-zinc-800/60 text-xs">
-                <span className="font-semibold text-zinc-400 dark:text-zinc-500">
-                  Payment Method
-                </span>
-                <span className="font-extrabold text-zinc-800 dark:text-zinc-200">
-                  {activeDetailExpense.paymentMethod || 'UPI / Cash'}
-                </span>
-              </div>
-              {activeDetailExpense.note && (
-                <div className="flex flex-col gap-1.5 text-xs">
-                  <span className="font-semibold text-zinc-400 dark:text-zinc-500">Notes</span>
-                  <p className="text-[11px] text-zinc-600 dark:text-zinc-400 font-semibold leading-relaxed border border-zinc-100 dark:border-zinc-850 bg-zinc-50/50 dark:bg-zinc-900/20 px-3 py-2 rounded-xl">
-                    {activeDetailExpense.note}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            <div className="grid grid-cols-2 gap-3.5">
-              <button
-                onClick={() => {
-                  deleteExpenseMutation.mutate(activeDetailExpense.id, {
-                    onSuccess: () => setActiveDetailExpense(null),
-                  });
-                }}
-                className="w-full py-4 rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-500 font-bold border border-rose-500/20 active:scale-98 transition-all text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-sm"
-              >
-                Delete Expense
-              </button>
-              <button
-                onClick={() => {
-                  setActiveDetailExpense(null);
-                }}
-                className="w-full py-4 rounded-2xl bg-indigo-600 text-white font-bold text-xs uppercase tracking-widest hover:shadow-lg active:scale-98 transition-all cursor-pointer shadow-md select-none border-0"
-              >
-                Close Details
-              </button>
-            </div>
-          </div>
-        )}
-      </BottomSheet>
-
-      {/* 3. Receipt Scanner bottom sheet */}
-      <BottomSheet
-        isOpen={isReceiptScannerOpen}
-        onClose={() => {
-          setIsReceiptScannerOpen(false);
-          setScanStep('idle');
-          setScannedExpense(null);
+        onDelete={(id) => {
+          deleteExpenseMutation.mutate(id, {
+            onSuccess: () => setActiveDetailExpense(null),
+          });
         }}
-        title="Smart Receipt Scanner"
-      >
-        {scanStep === 'idle' && (
-          <div className="space-y-6 select-none">
-            <div className="p-8 rounded-3xl border-2 border-dashed border-zinc-200 dark:border-zinc-850 bg-zinc-50/50 dark:bg-zinc-900/10 flex flex-col items-center justify-center gap-4 text-center cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900/30 transition-colors">
-              <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500 shrink-0">
-                <Camera className="w-7 h-7 stroke-[2.25]" />
-              </div>
-              <div className="space-y-1">
-                <span className="text-xs font-bold text-zinc-800 dark:text-zinc-200">
-                  Upload receipt image
-                </span>
-                <p className="text-[10px] text-zinc-400 dark:text-zinc-500 max-w-xs mx-auto">
-                  Drag and drop files, browse gallery, or capture live photos to initiate OCR
-                  parsing
-                </p>
-              </div>
-              <div className="flex gap-2.5 mt-2 justify-center">
-                <button
-                  type="button"
-                  onClick={() => handleMockReceiptSelect(mockReceipts[0])}
-                  className="px-3.5 py-2 rounded-xl bg-zinc-800 dark:bg-zinc-900 border border-zinc-800 dark:border-zinc-800 text-[10px] font-black uppercase text-zinc-650 dark:text-zinc-350 cursor-pointer flex items-center gap-1 hover:bg-zinc-200"
-                >
-                  <Upload className="w-3.5 h-3.5" />
-                  <span>Gallery</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleMockReceiptSelect(mockReceipts[2])}
-                  className="px-3.5 py-2 rounded-xl bg-zinc-800 dark:bg-zinc-900 border border-zinc-800 dark:border-zinc-800 text-[10px] font-black uppercase text-zinc-650 dark:text-zinc-350 cursor-pointer flex items-center gap-1 hover:bg-zinc-200"
-                >
-                  <Camera className="w-3.5 h-3.5" />
-                  <span>Camera</span>
-                </button>
-              </div>
-            </div>
+        isDeleting={deleteExpenseMutation.isPending}
+      />
 
-            <div className="space-y-3">
-              <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400 dark:text-zinc-500 px-1">
-                Try standard mock samples
-              </span>
-              <div className="grid grid-cols-2 gap-3">
-                {mockReceipts.map((receipt, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => handleMockReceiptSelect(receipt)}
-                    className="p-3.5 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 hover:bg-zinc-50 dark:hover:bg-zinc-900 active:scale-[0.98] transition-all text-left flex flex-col gap-1 cursor-pointer shadow-xs"
-                  >
-                    <span className="text-[10.5px] font-extrabold text-zinc-800 dark:text-zinc-200 truncate">
-                      {receipt.merchant}
-                    </span>
-                    <span className="text-xs font-black text-indigo-605 dark:text-indigo-400 mt-1">
-                      ₹{receipt.amount.toFixed(2)}
-                    </span>
-                    <span className="text-[8px] text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-wider mt-1">
-                      {receipt.category}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
+      <ReceiptScannerModal
+        isOpen={isReceiptScannerOpen}
+        onClose={() => setIsReceiptScannerOpen(false)}
+        onSubmitExpense={handleScannedExpenseSubmit}
+        isSubmitting={createExpenseMutation.isPending}
+      />
 
-        {scanStep === 'uploading' && (
-          <div className="py-12 flex flex-col items-center justify-center gap-5 text-center select-none">
-            <div className="relative w-16 h-16 flex items-center justify-center">
-              <Loader2 className="w-12 h-12 text-indigo-600 animate-spin stroke-[2.5]" />
-              <div className="absolute w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-            </div>
-            <div className="space-y-2">
-              <span className="text-xs font-bold text-zinc-800 dark:text-zinc-200 block">
-                {scanStatusText}
-              </span>
-              <div className="w-48 h-1 rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden mx-auto mt-2">
-                <motion.div
-                  className="h-full bg-indigo-600"
-                  initial={{ width: 0 }}
-                  animate={{ width: `${scanProgress}%` }}
-                  transition={{ duration: 0.3 }}
-                />
-              </div>
-              <span className="text-[9px] text-zinc-400 dark:text-zinc-500 font-bold block">
-                {scanProgress}% completed
-              </span>
-            </div>
-          </div>
-        )}
-
-        {scanStep === 'review' && scannedExpense && (
-          <form onSubmit={handleScannedExpenseSubmit} className="space-y-5">
-            <div className="p-4 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 flex items-start gap-3 select-none">
-              <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-450 flex items-center justify-center shrink-0">
-                <Check className="w-4.5 h-4.5 stroke-[3]" />
-              </div>
-              <div className="flex flex-col gap-0.5">
-                <span className="text-xs font-black uppercase text-emerald-600 dark:text-emerald-450 leading-none">
-                  Scanning complete
-                </span>
-                <span className="text-[10px] text-zinc-500 dark:text-zinc-400 font-semibold leading-relaxed mt-1">
-                  AI has successfully extracted total sum, items, and merchant information. Please
-                  verify below.
-                </span>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex flex-col gap-2">
-                  <label className="text-[9.5px] font-black uppercase tracking-wider text-zinc-400 dark:text-zinc-550 px-1">
-                    Merchant
-                  </label>
-                  <input
-                    type="text"
-                    value={scannedExpense.title}
-                    onChange={(e) =>
-                      setScannedExpense({ ...scannedExpense, title: e.target.value })
-                    }
-                    className="w-full px-4 py-3 rounded-xl bg-zinc-100/80 dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/20 text-xs font-semibold text-zinc-850 dark:text-zinc-100 placeholder:text-zinc-550 transition-colors"
-                    required
-                  />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="text-[9.5px] font-black uppercase tracking-wider text-zinc-400 dark:text-zinc-550 px-1">
-                    Amount (₹)
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={scannedExpense.amount}
-                    onChange={(e) =>
-                      setScannedExpense({ ...scannedExpense, amount: e.target.value })
-                    }
-                    className="w-full px-4 py-3 bg-zinc-100/80 dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/20 text-xs font-semibold text-zinc-850 dark:text-zinc-100 transition-colors"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <label className="text-[9.5px] font-black uppercase tracking-wider text-zinc-400 dark:text-zinc-550 px-1">
-                  Category
-                </label>
-                <select
-                  value={scannedExpense.category}
-                  onChange={(e) =>
-                    setScannedExpense({ ...scannedExpense, category: e.target.value })
-                  }
-                  className="w-full px-4 py-3 rounded-xl bg-zinc-105/85 dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/20 text-xs font-semibold text-zinc-850 dark:text-zinc-100 transition-colors"
-                >
-                  <option value="Food">Food</option>
-                  <option value="Shopping">Shopping</option>
-                  <option value="Bills & Utilities">Bills & Utilities</option>
-                  <option value="Health">Health</option>
-                  <option value="Investments">Investments</option>
-                  <option value="Entertainment">Entertainment</option>
-                  <option value="Education">Education</option>
-                  <option value="Transport">Transport</option>
-                  <option value="Credit Card">Credit Card</option>
-                  <option value="Udhaari">Udhaari</option>
-                  <option value="Rent">Rent</option>
-                  <option value="Travel">Travel</option>
-                  <option value="Gifts">Gifts</option>
-                  <option value="Others">Others</option>
-                </select>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <label className="text-[9.5px] font-black uppercase tracking-wider text-zinc-400 dark:text-zinc-550 px-1">
-                  Extracted Items Description
-                </label>
-                <textarea
-                  value={scannedExpense.note}
-                  onChange={(e) => setScannedExpense({ ...scannedExpense, note: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl bg-zinc-105/85 dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/20 text-xs font-semibold text-zinc-850 dark:text-zinc-100 min-h-[60px] max-h-[100px] resize-none transition-colors"
-                />
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              className="w-full py-4 rounded-2xl bg-indigo-600 text-white font-bold text-xs uppercase tracking-widest hover:shadow-lg active:scale-98 transition-all cursor-pointer shadow-md select-none border-0"
-            >
-              Confirm & Save Expense
-            </button>
-          </form>
-        )}
-      </BottomSheet>
       <AnimatePresence>
         {toastMessage && (
           <motion.div

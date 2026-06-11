@@ -179,9 +179,13 @@ export function useCreateExpense() {
     CreateExpenseRequest,
     { previousExpenses: any; previousSummary: any }
   >({
-    mutationFn: async (expenseData) => {
+    mutationFn: async (expenseData: CreateExpenseRequest & { _idempotencyKey?: string }) => {
       if (!session?.access_token) {
         throw new Error('Not authenticated');
+      }
+
+      if (!expenseData._idempotencyKey) {
+        expenseData._idempotencyKey = crypto.randomUUID();
       }
 
       try {
@@ -190,7 +194,7 @@ export function useCreateExpense() {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${session.access_token}`,
-            'Idempotency-Key': crypto.randomUUID(),
+            'Idempotency-Key': expenseData._idempotencyKey,
           },
           body: JSON.stringify(expenseData),
         });
@@ -235,6 +239,7 @@ export function useCreateExpense() {
               icon: 'offline',
             },
             paidBy: { id: session.user.id, name: 'You', avatar: null },
+            isOffline: true,
           } as unknown as StoreExpense;
         }
         throw err;

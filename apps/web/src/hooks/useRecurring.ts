@@ -71,16 +71,26 @@ export function useSubscriptionInsights() {
 
 export function useCreateRecurring() {
   const queryClient = useQueryClient();
-  const token = useAuthStore((state) => state.session?.access_token);
+  const session = useAuthStore((state) => state.session);
 
   return useMutation({
-    mutationFn: async (payload: Partial<RecurringExpense>) => {
+    mutationFn: async (data: Partial<RecurringExpense> & { _idempotencyKey?: string }) => {
+      if (!session?.access_token) {
+        throw new Error('Not authenticated');
+      }
+
+      if (!data._idempotencyKey) {
+        data._idempotencyKey = crypto.randomUUID();
+      }
+
+      const { _idempotencyKey, ...payload } = data;
+
       const res = await fetch(`${API_URL}/api/v1/recurring`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-          'Idempotency-Key': crypto.randomUUID(),
+          Authorization: `Bearer ${session.access_token}`,
+          'Idempotency-Key': _idempotencyKey,
         },
         body: JSON.stringify(payload),
       });

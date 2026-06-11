@@ -40,6 +40,8 @@ import {
   useDeleteExpense,
   useBulkDeleteExpenses,
 } from '../../../hooks/useExpenses';
+import { useWindowVirtualizer } from '@tanstack/react-virtual';
+import { Button } from '@expensio/ui';
 
 export default function ExpensesPage() {
   const { isExpensesSelectionActive, setIsExpensesSelectionActive } = useFinanceStore(
@@ -148,6 +150,8 @@ export default function ExpensesPage() {
 
   const expensesList = data?.expenses || [];
 
+  const parentRef = React.useRef<HTMLDivElement>(null);
+
   const displayedExpenses = isCalendarMode
     ? expensesList.filter((exp: Expense) => {
         const d = new Date(exp.date);
@@ -158,6 +162,12 @@ export default function ExpensesPage() {
         return matchesMonth;
       })
     : expensesList;
+
+  const virtualizer = useWindowVirtualizer({
+    count: displayedExpenses.length,
+    estimateSize: () => 80, // Approximate height of ExpenseCard + spacing
+    overscan: 5,
+  });
 
   const totalMonthSpent = expensesList
     .filter((exp: Expense) => {
@@ -527,12 +537,20 @@ export default function ExpensesPage() {
             </div>
           </div>
         ) : (
-          <div className="relative pl-0 ml-[-22px] mr-[-14px]">
+          <div className="relative pl-0 ml-[-22px] mr-[-14px]" ref={parentRef}>
             {/* Continuous vertical timeline line */}
             <div className="absolute left-[48px] top-2 bottom-2 w-0.5 bg-zinc-250 dark:bg-zinc-800/50 pointer-events-none z-0" />
 
-            <div className="space-y-4">
-              {displayedExpenses.map((expense: Expense) => {
+            {/* Virtualized list container */}
+            <div
+              style={{
+                height: `${virtualizer.getTotalSize()}px`,
+                width: '100%',
+                position: 'relative',
+              }}
+            >
+              {virtualizer.getVirtualItems().map((virtualItem) => {
+                const expense = displayedExpenses[virtualItem.index];
                 const dateObj = new Date(expense.date);
                 const monthStr = dateObj.toLocaleDateString('en-US', { month: 'short' });
                 const dayStr = dateObj.toLocaleDateString('en-US', { day: 'numeric' });
@@ -560,42 +578,56 @@ export default function ExpensesPage() {
                   categoryDotColors[expense.category] || 'bg-zinc-400 shadow-zinc-400/20';
 
                 return (
-                  <div key={expense.id} className="flex gap-2 relative items-start group">
-                    {/* Left Date Block (w-9) */}
-                    <div className="w-9 text-right shrink-0 flex flex-col justify-center pt-2.5 select-none leading-none">
-                      <span className="text-[8px] font-black uppercase text-theme-secondary leading-none">
-                        {monthStr}
-                      </span>
-                      <span className="text-base font-black text-theme-text mt-1 leading-none tabular-nums">
-                        {dayStr}
-                      </span>
-                    </div>
+                  <div
+                    key={virtualItem.key}
+                    data-index={virtualItem.index}
+                    ref={virtualizer.measureElement}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      transform: `translateY(${virtualItem.start}px)`,
+                      paddingBottom: '16px', // spacing between items
+                    }}
+                  >
+                    <div className="flex gap-2 relative items-start group">
+                      {/* Left Date Block (w-9) */}
+                      <div className="w-9 text-right shrink-0 flex flex-col justify-center pt-2.5 select-none leading-none">
+                        <span className="text-[8px] font-black uppercase text-theme-secondary leading-none">
+                          {monthStr}
+                        </span>
+                        <span className="text-base font-black text-theme-text mt-1 leading-none tabular-nums">
+                          {dayStr}
+                        </span>
+                      </div>
 
-                    {/* Line and Dot Column */}
-                    <div className="flex flex-col items-center h-full w-2 relative shrink-0 pt-3.5 z-10 select-none">
-                      <div
-                        className={`w-2.5 h-2.5 rounded-full border border-white dark:border-zinc-950 ${dotColor} shadow-md`}
-                      />
-                    </div>
+                      {/* Line and Dot Column */}
+                      <div className="flex flex-col items-center h-full w-2 relative shrink-0 pt-3.5 z-10 select-none">
+                        <div
+                          className={`w-2.5 h-2.5 rounded-full border border-white dark:border-zinc-950 ${dotColor} shadow-md`}
+                        />
+                      </div>
 
-                    {/* Right Card Block (flex-grow) */}
-                    <div className="flex-grow min-w-0">
-                      <ExpenseCard
-                        expense={expense}
-                        onDelete={(id) => deleteMutation.mutate(id)}
-                        onEdit={(exp) => {
-                          setActiveDetailExpense(exp);
-                          startEditing(exp);
-                        }}
-                        onTap={(exp) => {
-                          setActiveDetailExpense(exp);
-                          setIsEditing(false);
-                        }}
-                        isSelectionMode={isSelectionMode}
-                        isSelected={selectedIds.includes(expense.id)}
-                        onSelectToggle={handleSelectToggle}
-                        timelineMode={true}
-                      />
+                      {/* Right Card Block (flex-grow) */}
+                      <div className="flex-grow min-w-0">
+                        <ExpenseCard
+                          expense={expense}
+                          onDelete={(id) => deleteMutation.mutate(id)}
+                          onEdit={(exp) => {
+                            setActiveDetailExpense(exp);
+                            startEditing(exp);
+                          }}
+                          onTap={(exp) => {
+                            setActiveDetailExpense(exp);
+                            setIsEditing(false);
+                          }}
+                          isSelectionMode={isSelectionMode}
+                          isSelected={selectedIds.includes(expense.id)}
+                          onSelectToggle={handleSelectToggle}
+                          timelineMode={true}
+                        />
+                      </div>
                     </div>
                   </div>
                 );

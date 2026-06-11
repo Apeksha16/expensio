@@ -20,10 +20,14 @@ export const useAuthStore = create<AuthState>((set) => ({
   isLoading: true,
   isInitialized: false,
   setSession: (session, user) => set({ session, user, isLoading: false }),
-  clearSession: () => set({ session: null, user: null, isLoading: false }),
+  clearSession: () => {
+    set({ session: null, user: null, isLoading: false });
+    import('../providers/QueryProvider').then((m) => m.clearAllDataAndRedirect());
+  },
   setLoading: (loading) => set({ isLoading: loading }),
   setInitialized: (initialized) => set({ isInitialized: initialized }),
-  updateUser: (user) => set((state) => ({
-    user: state.user ? { ...state.user, ...user } : null
-  })),
+  updateUser: (user) =>
+    set((state) => ({
+      user: state.user ? { ...state.user, ...user } : null,
+    })),
 }));

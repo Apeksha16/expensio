@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useShallow } from 'zustand/react/shallow';
+import { Button } from '@expensio/ui';
 
 const presetSearchUsers = [
   { name: 'Rahul Sharma', username: 'rahuls', avatar: 'RS' },
@@ -75,12 +76,9 @@ function FriendHistoryContent({ friend, onSettleUp }: { friend: Friend; onSettle
           </span>
         </div>
         {friend.balance !== 0 && (
-          <button
-            onClick={onSettleUp}
-            className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-750 text-white font-black text-[10px] uppercase tracking-wider transition-all cursor-pointer shadow-md shadow-indigo-600/10 border-0"
-          >
+          <Button size="sm" variant="primary" onClick={onSettleUp}>
             Settle Balance
-          </button>
+          </Button>
         )}
       </div>
 
@@ -318,16 +316,17 @@ export default function FriendsPage() {
             Track and settle split balances
           </p>
         </div>
-        <button
+        <Button
+          variant="primary"
+          className="!p-2.5 !min-h-0"
           onClick={() => {
             setSearchQuery('');
             setIsAddFriendOpen(true);
           }}
-          className="p-2.5 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 font-bold active:scale-95 hover:scale-105 transition-all shadow-md shadow-indigo-600/15 cursor-pointer border border-indigo-500/20"
           aria-label="Add Friend"
         >
           <UserPlus className="w-4 h-4 stroke-[3]" />
-        </button>
+        </Button>
       </div>
 
       {/* Aggregate Debt balances & High Five Illustration Card */}
@@ -653,20 +652,22 @@ export default function FriendsPage() {
                         </div>
 
                         <div className="flex items-center gap-2 shrink-0">
-                          <button
+                          <Button
+                            size="sm"
+                            variant="primary"
                             onClick={() => handleAcceptRequest(req.id)}
                             disabled={respondRequestMutation.isPending}
-                            className="px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-[9px] font-black uppercase hover:scale-102 active:scale-95 transition-all cursor-pointer border border-indigo-500/20 shadow-sm disabled:opacity-50"
                           >
                             Accept
-                          </button>
-                          <button
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="secondary"
                             onClick={() => handleDeclineRequest(req.id)}
                             disabled={respondRequestMutation.isPending}
-                            className="px-3 py-2 rounded-xl bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-950 border border-zinc-200/60 dark:border-zinc-850 text-theme-text text-[9px] font-black uppercase active:scale-95 transition-all cursor-pointer disabled:opacity-50"
                           >
                             Ignore
-                          </button>
+                          </Button>
                         </div>
                       </motion.div>
                     ))}

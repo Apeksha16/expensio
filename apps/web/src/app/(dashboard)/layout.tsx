@@ -50,6 +50,7 @@ import {
   Gift,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Button } from '@expensio/ui';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -609,13 +610,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
           </div>
 
-          <button
+          <Button
             type="submit"
             disabled={createExpenseMutation.isPending}
-            className="w-full py-4.5 rounded-2xl bg-linear-to-tr from-indigo-500 to-cyan-500 text-white font-bold text-xs uppercase tracking-widest hover:shadow-lg hover:shadow-indigo-500/10 active:scale-98 transition-all border border-emerald-300/20 cursor-pointer shadow-md disabled:opacity-70 disabled:cursor-not-allowed"
+            isLoading={createExpenseMutation.isPending}
+            loadingText="Saving..."
+            variant="primary"
+            fullWidth
+            className="py-4.5 rounded-2xl bg-linear-to-tr from-indigo-500 to-cyan-500 text-xs tracking-widest shadow-md border-emerald-300/20"
           >
-            {createExpenseMutation.isPending ? 'Saving...' : 'Save Expense'}
-          </button>
+            Save Expense
+          </Button>
         </form>
       </BottomSheet>
 

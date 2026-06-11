@@ -25,6 +25,7 @@ import { usePushNotifications } from '../../hooks/usePushNotifications';
 import { updateProfileSchema, UpdateProfileInput } from '@expensio/validation';
 import { supabase } from '../../lib/supabase';
 import BottomSheet from '../../components/shared/BottomSheet';
+import { Button } from '@expensio/ui';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -398,17 +399,18 @@ export default function SettingsPage() {
                   Security Settings
                 </h3>
 
-                <button
+                <Button
                   type="button"
+                  variant="secondary"
+                  fullWidth
                   onClick={() => {
                     setShowMpinReset(true);
                     setMpinErrorMsg(null);
                   }}
-                  className="w-full h-12 flex items-center justify-center gap-2 rounded-2xl border border-theme-btn-border bg-theme-btn text-theme-text font-black uppercase tracking-wider hover:bg-theme-btn/80 active:scale-[0.98] transition-all text-xs cursor-pointer duration-200"
                 >
                   <Lock className="w-4 h-4 text-theme-secondary stroke-[2.2]" />
                   Reset Security MPIN
-                </button>
+                </Button>
               </div>
               <div className="h-px bg-zinc-850/40" />
               {/* Push Notifications Section */}
@@ -417,18 +419,15 @@ export default function SettingsPage() {
                   Notifications
                 </h3>
                 {pushNotifications.isSupported ? (
-                  <button
+                  <Button
                     type="button"
+                    variant={pushNotifications.isSubscribed ? 'primary' : 'secondary'}
+                    fullWidth
                     onClick={
                       pushNotifications.isSubscribed
                         ? pushNotifications.unsubscribe
                         : pushNotifications.subscribe
                     }
-                    className={`w-full h-12 flex items-center justify-center gap-2 rounded-2xl border ${
-                      pushNotifications.isSubscribed
-                        ? 'border-indigo-500/20 bg-indigo-500/10 text-indigo-400'
-                        : 'border-theme-btn-border bg-theme-btn text-theme-secondary hover:text-theme-text'
-                    } font-black uppercase tracking-wider active:scale-[0.98] transition-all text-xs cursor-pointer duration-200`}
                   >
                     {pushNotifications.isSubscribed ? (
                       <>
@@ -441,7 +440,7 @@ export default function SettingsPage() {
                         Enable Push Notifications
                       </>
                     )}
-                  </button>
+                  </Button>
                 ) : (
                   <div className="w-full h-12 flex items-center justify-center gap-2 rounded-2xl border border-zinc-800/50 bg-zinc-900/20 text-zinc-500 font-bold uppercase tracking-wider text-xs">
                     Push Notifications Not Supported
@@ -454,33 +453,23 @@ export default function SettingsPage() {
                 <h3 className="text-[11px] font-extrabold uppercase tracking-widest text-zinc-800 dark:text-zinc-200">
                   Account
                 </h3>
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="w-full h-12 flex items-center justify-center gap-2 rounded-2xl border border-rose-500/20 bg-rose-500/5 text-rose-500 font-black uppercase tracking-wider hover:bg-rose-500/10 active:scale-[0.98] transition-all text-xs cursor-pointer duration-200"
-                >
+                <Button type="button" variant="danger" fullWidth onClick={handleLogout}>
                   <LogOut className="w-4 h-4 text-rose-500 stroke-[3]" />
                   Logout Session
-                </button>
+                </Button>
               </div>
               {/* Save Button */}
-              <button
+              <Button
                 type="submit"
-                disabled={updateProfileMutation.isPending || !isDirty}
-                className="w-full h-12.5 flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 text-white font-black uppercase tracking-wider active:scale-[0.98] transition-all shadow-lg shadow-indigo-500/10 cursor-pointer disabled:opacity-35 disabled:pointer-events-none text-xs"
+                variant="primary"
+                fullWidth
+                disabled={!isDirty}
+                isLoading={updateProfileMutation.isPending}
+                loadingText="Saving Changes..."
               >
-                {updateProfileMutation.isPending ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin text-white" />
-                    Saving Changes...
-                  </>
-                ) : (
-                  <>
-                    <Save className="w-4 h-4 text-white stroke-[3]" />
-                    Save Preferences
-                  </>
-                )}
-              </button>
+                <Save className="w-4 h-4 text-white stroke-[3]" />
+                Save Preferences
+              </Button>
             </form>
 
             {/* Reset MPIN Bottom Sheet */}
@@ -584,24 +573,18 @@ export default function SettingsPage() {
                   <span className="text-red-400 text-[10px] font-medium block">{mpinErrorMsg}</span>
                 )}
 
-                <button
+                <Button
                   type="button"
+                  variant="primary"
+                  fullWidth
+                  disabled={!newMpin}
+                  isLoading={updateMpinMutation.isPending}
+                  loadingText="Updating MPIN..."
                   onClick={handleMpinSubmitOnly}
-                  disabled={!newMpin || updateMpinMutation.isPending}
-                  className="w-full h-12.5 flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-500 to-cyan-500 hover:from-indigo-600 hover:to-cyan-600 text-white font-black uppercase tracking-wider active:scale-[0.98] transition-all shadow-lg shadow-indigo-500/10 cursor-pointer disabled:opacity-35 disabled:pointer-events-none text-xs"
                 >
-                  {updateMpinMutation.isPending ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin text-white" />
-                      Updating MPIN...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="w-4 h-4 text-white stroke-[3]" />
-                      Update Security MPIN
-                    </>
-                  )}
-                </button>
+                  <Save className="w-4 h-4 text-white stroke-[3]" />
+                  Update Security MPIN
+                </Button>
               </div>
             </BottomSheet>
           </motion.div>

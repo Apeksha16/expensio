@@ -44,6 +44,7 @@ import {
   Car,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '@expensio/ui';
 
 // Helper to compute user's net balance in a specific group
 function getGroupUserBalance(group: Group, expenses: Expense[]) {
@@ -586,13 +587,13 @@ export default function GroupsPage() {
                     )}
                   </div>
 
-                  <button
+                  <Button
+                    variant="outline"
+                    fullWidth
                     onClick={() => setIsAddGroupExpenseOpen(true)}
-                    className="w-full py-3.5 rounded-2xl bg-indigo-650/5 hover:bg-indigo-650/10 border border-indigo-500/20 hover:border-indigo-500/40 text-indigo-650 dark:text-indigo-400 font-black text-[10px] uppercase tracking-widest cursor-pointer mt-1 flex items-center justify-center gap-1.5 active:scale-98 transition-all"
                   >
-                    <Plus className="w-3.5 h-3.5 stroke-[3]" />
-                    <span>Add Expense</span>
-                  </button>
+                    <Plus className="w-3.5 h-3.5" /> Add Expense
+                  </Button>
                 </div>
 
                 {/* 4. Balance Illustration Card */}
@@ -838,12 +839,13 @@ export default function GroupsPage() {
                         </div>
 
                         {roundedBal !== 0 && (
-                          <button
+                          <Button
+                            size="sm"
+                            variant="primary"
                             onClick={() => handleSettleMember(memberId, roundedBal)}
-                            className="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-750 text-white text-[9px] font-black uppercase tracking-wider cursor-pointer border border-indigo-500/20 active:scale-95 transition-all"
                           >
                             Settle
-                          </button>
+                          </Button>
                         )}
                       </div>
                     );
@@ -904,27 +906,28 @@ export default function GroupsPage() {
 
           {/* Fixed Docked Action Buttons Footer */}
           <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl border-t border-zinc-150 dark:border-zinc-850/60 flex items-center justify-center gap-4 z-40 max-w-md mx-auto">
-            <button
+            <Button
+              variant="secondary"
+              className="flex-1"
               onClick={() => {
                 if (activeGroup.members.length > 0) {
                   handleSettleMember(activeGroup.members[0], activeGroupUserBalance);
                 }
               }}
-              className="flex-1 py-3.5 rounded-2xl bg-zinc-550/10 hover:bg-zinc-550/15 border border-zinc-200 dark:border-zinc-850 text-theme-text font-black text-xs uppercase tracking-widest cursor-pointer active:scale-[0.98] transition-all"
             >
               Request Payment
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="primary"
+              className="flex-1"
               onClick={() => {
                 if (activeGroup.members.length > 0) {
                   handleSettleMember(activeGroup.members[0], activeGroupUserBalance);
                 }
               }}
-              className="flex-1 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-750 text-white font-black text-xs uppercase tracking-widest cursor-pointer shadow-md shadow-indigo-500/10 active:scale-[0.98] transition-all border-0 flex items-center justify-center gap-1.5"
             >
-              <ArrowUpRight className="w-4 h-4 stroke-[3]" />
-              <span>Settle Up</span>
-            </button>
+              <ArrowUpRight className="w-4 h-4" /> Settle Up
+            </Button>
           </div>
         </div>
       ) : (
@@ -941,13 +944,9 @@ export default function GroupsPage() {
               </p>
             </div>
             {groups.length > 0 && (
-              <button
-                onClick={() => setIsAddGroupOpen(true)}
-                className="px-4 py-2 rounded-xl bg-indigo-650 hover:bg-indigo-750 text-white font-black text-[9px] uppercase tracking-wider cursor-pointer active:scale-95 transition-all shadow-md shadow-indigo-500/10 flex items-center gap-1.5 border border-indigo-500/20"
-              >
-                <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-                <span>Create Group</span>
-              </button>
+              <Button size="sm" variant="primary" onClick={() => setIsAddGroupOpen(true)}>
+                <Plus className="w-3.5 h-3.5" /> Create Group
+              </Button>
             )}
           </div>
 
@@ -1143,12 +1142,9 @@ export default function GroupsPage() {
                   <p className="text-xs text-theme-secondary mb-2">
                     Adjust your filters or search keywords, or create a new group.
                   </p>
-                  <button
-                    onClick={() => setIsAddGroupOpen(true)}
-                    className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs active:scale-98 transition-all cursor-pointer border-0 shadow-md shadow-indigo-500/10"
-                  >
+                  <Button variant="primary" onClick={() => setIsAddGroupOpen(true)}>
                     Create a Group
-                  </button>
+                  </Button>
                 </div>
               </div>
             ) : (
@@ -1259,12 +1255,9 @@ export default function GroupsPage() {
             )}
           </div>
 
-          <button
-            type="submit"
-            className="w-full py-4.5 rounded-2xl bg-indigo-600 text-white font-black text-xs uppercase tracking-widest hover:shadow-lg active:scale-98 transition-all cursor-pointer border border-indigo-500/20"
-          >
+          <Button type="submit" variant="primary" fullWidth>
             Create Shared Group
-          </button>
+          </Button>
         </form>
       </BottomSheet>
 
@@ -1370,12 +1363,9 @@ export default function GroupsPage() {
             </div>
           )}
 
-          <button
-            type="submit"
-            className="w-full py-4.5 rounded-2xl bg-indigo-600 text-white font-black text-xs uppercase tracking-widest hover:shadow-lg active:scale-98 transition-all cursor-pointer border border-indigo-500/20"
-          >
+          <Button type="submit" variant="primary" fullWidth>
             Distribute Bill Splits
-          </button>
+          </Button>
         </form>
       </BottomSheet>
 
@@ -1456,19 +1446,12 @@ export default function GroupsPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <button
-                onClick={executeMemberSettlement}
-                className="py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-750 text-white font-black text-xs uppercase tracking-widest hover:shadow-lg active:scale-98 transition-all cursor-pointer flex items-center justify-center gap-1.5 border border-indigo-500/20"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-white fill-white" />
-                <span>Execute</span>
-              </button>
-              <button
-                onClick={() => setActiveSettleMemberId(null)}
-                className="py-3.5 rounded-xl bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-theme-text font-bold active:scale-98 transition-all text-xs cursor-pointer"
-              >
+              <Button variant="primary" onClick={executeMemberSettlement}>
+                <Sparkles className="w-3.5 h-3.5" /> Execute
+              </Button>
+              <Button variant="secondary" onClick={() => setActiveSettleMemberId(null)}>
                 Dismiss
-              </button>
+              </Button>
             </div>
           </div>
         )}
@@ -1520,17 +1503,18 @@ export default function GroupsPage() {
                         <span className="text-xs font-extrabold text-theme-text">
                           {friend.name}
                         </span>
-                        <button
+                        <Button
+                          size="sm"
+                          variant="primary"
                           onClick={() => {
                             addGroupMemberMutation.mutate({
                               groupId: activeGroup.id,
                               userId: friend.id,
                             });
                           }}
-                          className="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-750 text-white text-[9px] font-black uppercase tracking-wider cursor-pointer active:scale-95 transition-all border-0"
                         >
                           Add
-                        </button>
+                        </Button>
                       </div>
                     ))}
                 </div>
@@ -1583,17 +1567,18 @@ export default function GroupsPage() {
                         </div>
                         <span className="text-xs font-extrabold text-theme-text">{memberName}</span>
                       </div>
-                      <button
+                      <Button
+                        size="sm"
+                        variant="danger"
                         onClick={() => {
                           removeGroupMemberMutation.mutate({
                             groupId: activeGroup.id,
                             userId: memberId,
                           });
                         }}
-                        className="px-2.5 py-1.5 rounded-xl text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 text-[9px] font-black uppercase tracking-wider cursor-pointer active:scale-95 transition-all border border-rose-500/10"
                       >
                         Remove
-                      </button>
+                      </Button>
                     </div>
                   );
                 })}

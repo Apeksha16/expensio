@@ -154,7 +154,7 @@ const categoryMeta: Record<
   },
 };
 
-export default function ExpenseCard({
+export const ExpenseCard = React.memo(function ExpenseCard({
   expense,
   onDelete,
   onEdit,
@@ -362,4 +362,6 @@ export default function ExpenseCard({
       </AnimatePresence>
     </div>
   );
-}
+});
+
+export default ExpenseCard;

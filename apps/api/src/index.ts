@@ -123,26 +123,7 @@ const start = async () => {
       await db.execute(sql`SELECT 1`);
       fastify.log.info('Database connection verified successfully via Drizzle ORM');
 
-      // Ensure mock friends exist in the database for splits integrity
-      try {
-        const mockFriends = [
-          { id: 'f1', email: 'rahul@expensio.com', name: 'Rahul Sharma', username: 'rahuls' },
-          { id: 'f2', email: 'amit@expensio.com', name: 'Amit Verma', username: 'amitv' },
-          { id: 'f3', email: 'pranav@expensio.com', name: 'Pranav Singh', username: 'pranavs' },
-          { id: 'f4', email: 'neha@expensio.com', name: 'Neha Kapoor', username: 'nehak' },
-          { id: 'f5', email: 'sarthak@expensio.com', name: 'Sarthak Jain', username: 'sarthakj' },
-        ];
-        for (const friend of mockFriends) {
-          await db.execute(sql`
-            INSERT INTO "users" (id, email, name, username, is_onboarding_completed)
-            VALUES (${friend.id}, ${friend.email}, ${friend.name}, ${friend.username}, true)
-            ON CONFLICT (id) DO NOTHING
-          `);
-        }
-        fastify.log.info('Mock friends seeded/verified in database');
-      } catch (seedError: any) {
-        fastify.log.error(`Failed to seed mock friends: ${seedError.message}`);
-      }
+      // Removed mock friends seeding logic for production readiness
     } catch (dbError: any) {
       fastify.log.warn(`Database connection verification failed: ${dbError.message}`);
       fastify.log.warn(

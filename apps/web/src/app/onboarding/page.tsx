@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '../../store/auth-store';
 import { supabase } from '../../lib/supabase';
 import { useCompleteOnboarding } from '../../hooks/useUser';
+import { Button } from '@expensio/ui';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -296,13 +297,15 @@ function PersonalInfoStep({ data, onChange, onNext }: Step1Props) {
         </div>
       </div>
 
-      <button
+      <Button
         type="submit"
         disabled={!isValid}
-        className="w-full rounded-xl bg-zinc-100 text-zinc-950 border-none px-4 py-3.5 text-xs font-black uppercase tracking-wider transition-all hover:bg-zinc-200 disabled:bg-zinc-800 disabled:text-zinc-550 disabled:cursor-not-allowed cursor-pointer shadow-sm flex items-center justify-center"
+        variant="secondary"
+        fullWidth
+        className="mt-2 text-xs font-black uppercase tracking-wider shadow-sm"
       >
         Continue
-      </button>
+      </Button>
     </form>
   );
 }
@@ -340,13 +343,15 @@ function CreateMpinStep({ data, onChange, onNext }: Step2Props) {
         Used to securely access your account.
       </p>
 
-      <button
+      <Button
         type="submit"
         disabled={!isValid}
-        className="w-full rounded-xl bg-zinc-100 text-zinc-950 border-none px-4 py-3.5 text-xs font-black uppercase tracking-wider transition-all hover:bg-zinc-200 disabled:bg-zinc-800 disabled:text-zinc-550 disabled:cursor-not-allowed cursor-pointer shadow-sm flex items-center justify-center"
+        variant="secondary"
+        fullWidth
+        className="mt-2 text-xs font-black uppercase tracking-wider shadow-sm"
       >
         Continue
-      </button>
+      </Button>
     </form>
   );
 }
@@ -411,13 +416,15 @@ function ConfirmMpinStep({ data, onChange, onNext }: Step3Props) {
         </AnimatePresence>
       </div>
 
-      <button
+      <Button
         type="submit"
         disabled={!isValid}
-        className="w-full rounded-xl bg-zinc-100 text-zinc-950 border-none px-4 py-3.5 text-xs font-black uppercase tracking-wider transition-all hover:bg-zinc-200 disabled:bg-zinc-800 disabled:text-zinc-550 disabled:cursor-not-allowed cursor-pointer shadow-sm flex items-center justify-center"
+        variant="secondary"
+        fullWidth
+        className="mt-2 text-xs font-black uppercase tracking-wider shadow-sm"
       >
         Create Account
-      </button>
+      </Button>
     </form>
   );
 }

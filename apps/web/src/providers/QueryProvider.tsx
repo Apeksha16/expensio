@@ -7,6 +7,16 @@ import { get, set, del } from 'idb-keyval';
 import { ReactNode, useState, useEffect } from 'react';
 import { useOfflineSync } from '../hooks/useOfflineSync';
 
+export async function clearAllDataAndRedirect() {
+  if (typeof window !== 'undefined') {
+    const { clear } = await import('idb-keyval');
+    await clear();
+    localStorage.clear();
+    sessionStorage.clear();
+    window.location.href = '/login?expired=true';
+  }
+}
+
 function OfflineSyncHandler() {
   useOfflineSync();
   return null;
@@ -32,6 +42,16 @@ export default function QueryProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // Only run on client
     if (typeof window !== 'undefined') {
+      // Global 401 Interceptor
+      const originalFetch = window.fetch;
+      window.fetch = async (...args) => {
+        const response = await originalFetch(...args);
+        if (response.status === 401) {
+          clearAllDataAndRedirect();
+        }
+        return response;
+      };
+
       const idbPersister = createAsyncStoragePersister({
         storage: {
           getItem: async (key) => {
