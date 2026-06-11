@@ -122,7 +122,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
           console.debug('[AuthProvider] Initial session found via getSession');
           setSession(session, buildFallbackUser(session));
-          await syncUserWithBackend(session);
+
+          // Fire and forget sync to prevent blocking the UI during backend cold starts
+          syncUserWithBackend(session).catch((err) => {
+            console.error('[AuthProvider] Background sync failed:', err);
+          });
         } else {
           console.debug('[AuthProvider] No initial session found via getSession');
           clearSession();

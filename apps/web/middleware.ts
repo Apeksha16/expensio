@@ -31,13 +31,26 @@ export async function middleware(request: NextRequest) {
 
   let user = null;
 
+  if (!supabaseUrl) {
+    // If environment variables are missing, skip edge auth to prevent infinite loops
+    return response;
+  }
+
   try {
     const {
       data: { user: supabaseUser },
+      error,
     } = await supabase.auth.getUser();
-    user = supabaseUser;
+
+    if (error) {
+      // Token is invalid or expired
+      user = null;
+    } else {
+      user = supabaseUser;
+    }
   } catch (e) {
-    user = null;
+    // Network failure (e.g. timeout) - do not force logout, let client handle it
+    return response;
   }
 
   const publicRoutes = [
@@ -60,9 +73,15 @@ export async function middleware(request: NextRequest) {
     path === '/sw.js';
 
   if (!user && !isPublicRoute && !isInternal) {
+    // If the user is unauthenticated on a protected route, we must redirect.
+    // However, to prevent infinite loops where the client thinks they are logged in,
+    // we clear the sb-access-token cookie so the client also logs out.
     const url = request.nextUrl.clone();
     url.pathname = '/login';
-    return NextResponse.redirect(url);
+    const redirectResponse = NextResponse.redirect(url);
+    redirectResponse.cookies.delete('sb-access-token');
+    redirectResponse.cookies.delete('sb-refresh-token');
+    return redirectResponse;
   }
 
   // Redirect authenticated users away from auth pages
