@@ -58,15 +58,7 @@ import compress from '@fastify/compress';
 
 fastify.log.info('BullMQ queue processing is disabled for now.');
 
-// Register Health Route (Fix 4)
-fastify.get('/health', async (request, reply) => {
-  try {
-    await db.execute(sql`SELECT 1`);
-    return reply.status(200).send({ status: 'ok', db: 'connected', uptime: process.uptime() });
-  } catch (err: any) {
-    return reply.status(503).send({ status: 'error', db: 'disconnected', message: err.message });
-  }
-});
+// Health Route is registered below via healthRoutes plugin
 
 // Register Compression (Fix 1)
 fastify.register(compress, { global: true, encodings: ['br', 'gzip'], threshold: 1024 });
