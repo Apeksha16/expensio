@@ -6,7 +6,9 @@ import { expenses, budgets, splits } from '../../db/schema.js';
 import { eventBus } from '../../utils/event.bus.js';
 import crypto from 'crypto';
 
-const redisConnection = new Redis(env.REDIS_URL || 'redis://localhost:6379');
+const redisConnection = new Redis(env.REDIS_URL || 'redis://localhost:6379', {
+  maxRetriesPerRequest: null,
+});
 
 function computeSplits(
   amount: number,
