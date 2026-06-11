@@ -244,16 +244,7 @@ export default function ExpensesPage() {
     0
   );
 
-  if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] gap-3">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
-        <p className="text-xs font-semibold text-zinc-500 uppercase tracking-widest">
-          Loading transactions...
-        </p>
-      </div>
-    );
-  }
+  // Full page loader removed to use skeleton loaders inline
 
   if (error) {
     return (
@@ -516,7 +507,16 @@ export default function ExpensesPage() {
           </div>
         )}
 
-        {displayedExpenses.length === 0 ? (
+        {isLoading ? (
+          <div className="space-y-4 pt-2">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="flex gap-2 relative items-start animate-pulse">
+                <div className="w-9 h-10 bg-zinc-200 dark:bg-zinc-800 rounded-md shrink-0 mt-2" />
+                <div className="flex-grow min-w-0 h-20 bg-zinc-200 dark:bg-zinc-800 rounded-[28px]" />
+              </div>
+            ))}
+          </div>
+        ) : displayedExpenses.length === 0 ? (
           <div className="p-12 rounded-2xl border border-zinc-800/60 bg-zinc-900/20 backdrop-blur-md flex flex-col items-center justify-center gap-3 text-center">
             <div className="w-12 h-12 rounded-2xl bg-zinc-900 flex items-center justify-center text-zinc-650 border border-zinc-800/60">
               <ShoppingBag className="w-6 h-6 text-zinc-450" />
@@ -641,10 +641,11 @@ export default function ExpensesPage() {
           <div className="flex items-center gap-2">
             <button
               onClick={handleBatchDelete}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-500 text-white font-bold active:scale-95 transition-all text-[9px] font-black uppercase cursor-pointer shadow-md shadow-rose-500/10 hover:bg-rose-600"
+              disabled={bulkDeleteMutation.isPending}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-500 text-white font-bold active:scale-95 transition-all text-[9px] font-black uppercase cursor-pointer shadow-md shadow-rose-500/10 hover:bg-rose-600 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Trash2 className="w-3.5 h-3.5" />
-              <span>Delete</span>
+              <span>{bulkDeleteMutation.isPending ? 'Deleting...' : 'Delete'}</span>
             </button>
             <button
               onClick={() => {
@@ -753,9 +754,10 @@ export default function ExpensesPage() {
               <div className="grid grid-cols-2 gap-4">
                 <button
                   type="submit"
-                  className="py-4 rounded-xl bg-gradient-to-tr from-indigo-500 to-cyan-500 text-zinc-950 font-black text-xs uppercase tracking-widest hover:shadow-lg active:scale-98 transition-all cursor-pointer border border-emerald-300/20"
+                  disabled={updateMutation.isPending}
+                  className="py-4 rounded-xl bg-gradient-to-tr from-indigo-500 to-cyan-500 text-zinc-950 font-black text-xs uppercase tracking-widest hover:shadow-lg active:scale-98 transition-all cursor-pointer border border-emerald-300/20 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Save Modifications
+                  {updateMutation.isPending ? 'Saving...' : 'Save Modifications'}
                 </button>
                 <button
                   type="button"

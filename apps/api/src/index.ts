@@ -1,11 +1,14 @@
+import './instrument.js';
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
+import * as Sentry from '@sentry/node';
 import { db } from './db/index.js';
 import { sql } from 'drizzle-orm';
 import { healthRoutes } from './routes/health.js';
 import { SocketManager, socketManagerInstance } from './sockets/socket.manager.js';
 import { env } from './config/env.js';
 import authPlugin from './plugins/auth.plugin.js';
+import performancePlugin from './plugins/performance.plugin.js';
 import idempotencyPlugin from './plugins/idempotency.plugin.js';
 import errorHandlerPlugin from './plugins/error-handler.plugin.js';
 import { authRoutes } from './modules/auth/index.js';
@@ -28,6 +31,8 @@ import { budgetForecastWorker } from './jobs/budget-forecast.worker.js';
 import { outboxWorker } from './jobs/outbox.worker.js';
 import { cleanupSubscriptionsWorker } from './jobs/cleanup-subscriptions.worker.js';
 import { notificationCleanupWorker } from './jobs/notification-cleanup.worker.js';
+import { syncWorker } from './modules/sync/sync.worker.js';
+import { syncQueue } from './modules/sync/sync.queue.js';
 import { API_VERSION } from './version.js';
 
 import fastifyRateLimit from '@fastify/rate-limit';
@@ -47,7 +52,24 @@ const fastify = Fastify({
   },
 });
 
+Sentry.setupFastifyErrorHandler(fastify);
+
+import compress from '@fastify/compress';
+
 fastify.log.info('BullMQ queue processing is disabled for now.');
+
+// Register Health Route (Fix 4)
+fastify.get('/health', async (request, reply) => {
+  try {
+    await db.execute(sql`SELECT 1`);
+    return reply.status(200).send({ status: 'ok', db: 'connected', uptime: process.uptime() });
+  } catch (err: any) {
+    return reply.status(503).send({ status: 'error', db: 'disconnected', message: err.message });
+  }
+});
+
+// Register Compression (Fix 1)
+fastify.register(compress, { global: true, encodings: ['br', 'gzip'], threshold: 1024 });
 
 // Register CORS
 fastify.register(cors, {
@@ -69,6 +91,9 @@ fastify.register(fastifyRateLimit, {
     };
   },
 });
+
+// Register Observability & Performance Plugin
+fastify.register(performancePlugin);
 
 // Register Error Handler Plugin
 fastify.register(errorHandlerPlugin);
@@ -153,19 +178,35 @@ const start = async () => {
 };
 
 // Handle graceful shutdown
-const shutdown = async () => {
-  fastify.log.info('Shutting down server...');
+const shutdown = async (signal: string) => {
+  fastify.log.info(`Received ${signal} — starting graceful shutdown`);
   recurringExpenseWorker.stop();
   budgetForecastWorker.stop();
   outboxWorker.stop();
   cleanupSubscriptionsWorker.stop();
   notificationCleanupWorker.stop();
   socketManagerInstance.getIO()?.close();
-  await fastify.close();
+
+  await fastify.close(); // stops accepting new requests, drains in-flight
+  await syncWorker.close(); // let running BullMQ jobs finish
+  await syncQueue.close(); // close queue connection
+  await Sentry.flush(2000); // flush pending Sentry events
+
   process.exit(0);
 };
 
-process.on('SIGINT', shutdown);
-process.on('SIGTERM', shutdown);
+process.on('SIGINT', () => shutdown('SIGINT'));
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+
+process.on('unhandledRejection', (reason, promise) => {
+  Sentry.captureException(reason);
+  fastify.log.error({ reason, promise }, 'Unhandled Promise Rejection');
+});
+
+process.on('uncaughtException', (err) => {
+  Sentry.captureException(err);
+  fastify.log.fatal(err, 'Uncaught Exception — shutting down');
+  process.exit(1);
+});
 
 start();

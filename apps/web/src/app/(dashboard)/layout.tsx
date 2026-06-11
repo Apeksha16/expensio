@@ -611,9 +611,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
           <button
             type="submit"
-            className="w-full py-4.5 rounded-2xl bg-linear-to-tr from-indigo-500 to-cyan-500 text-white font-bold text-xs uppercase tracking-widest hover:shadow-lg hover:shadow-indigo-500/10 active:scale-98 transition-all border border-emerald-300/20 cursor-pointer shadow-md"
+            disabled={createExpenseMutation.isPending}
+            className="w-full py-4.5 rounded-2xl bg-linear-to-tr from-indigo-500 to-cyan-500 text-white font-bold text-xs uppercase tracking-widest hover:shadow-lg hover:shadow-indigo-500/10 active:scale-98 transition-all border border-emerald-300/20 cursor-pointer shadow-md disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            Save Expense
+            {createExpenseMutation.isPending ? 'Saving...' : 'Save Expense'}
           </button>
         </form>
       </BottomSheet>

@@ -193,7 +193,7 @@ export default function NavigationMenu({ isOpen, onClose, style, showToast }: Na
           <span>Logout Session</span>
         </button>
         <div className="mt-3 pb-1 text-center text-[10px] font-bold text-zinc-400 dark:text-zinc-600 uppercase tracking-widest">
-          Version {process.env.NEXT_PUBLIC_APP_VERSION || 'v2.0.1'}
+          Version {process.env.NEXT_PUBLIC_APP_VERSION || 'v2.0.2'}
         </div>
       </div>
     </motion.div>
@@ -269,7 +269,7 @@ export default function NavigationMenu({ isOpen, onClose, style, showToast }: Na
           <span>Sign Out from Account</span>
         </button>
         <div className="mt-3 text-center text-[10px] font-bold text-zinc-400 dark:text-zinc-600 uppercase tracking-widest">
-          Version {process.env.NEXT_PUBLIC_APP_VERSION || 'v2.0.1'}
+          Version {process.env.NEXT_PUBLIC_APP_VERSION || 'v2.0.2'}
         </div>
       </div>
     </motion.div>
@@ -340,7 +340,7 @@ export default function NavigationMenu({ isOpen, onClose, style, showToast }: Na
           <span>Reset Store & Log Out</span>
         </button>
         <div className="mt-3 text-center text-[10px] font-bold text-zinc-400 dark:text-zinc-600 uppercase tracking-widest">
-          Version {process.env.NEXT_PUBLIC_APP_VERSION || 'v2.0.1'}
+          Version {process.env.NEXT_PUBLIC_APP_VERSION || 'v2.0.2'}
         </div>
       </div>
     </motion.div>
@@ -406,7 +406,7 @@ export default function NavigationMenu({ isOpen, onClose, style, showToast }: Na
           <span>Logout Session</span>
         </button>
         <div className="mt-3 pb-1 text-center text-[9px] font-bold text-zinc-400 dark:text-zinc-600 uppercase tracking-widest">
-          Version {process.env.NEXT_PUBLIC_APP_VERSION || 'v2.0.1'}
+          Version {process.env.NEXT_PUBLIC_APP_VERSION || 'v2.0.2'}
         </div>
       </div>
     </motion.div>

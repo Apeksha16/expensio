@@ -189,23 +189,7 @@ export default function BudgetsPage() {
     });
   };
 
-  // ── Loading / Error states ─────────────────────────────────────────────────
-  if (isLoading) {
-    return (
-      <div className="space-y-6 pb-6 animate-pulse select-none">
-        <div className="h-8 w-32 bg-zinc-200 dark:bg-zinc-800 rounded" />
-        <div className="h-48 rounded-[26px] bg-zinc-100 dark:bg-zinc-900/40 border border-theme-border/60" />
-        <div className="space-y-4">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="h-20 rounded-3xl bg-zinc-100 dark:bg-zinc-900/40 border border-theme-border/60"
-            />
-          ))}
-        </div>
-      </div>
-    );
-  }
+  // Loading skeleton moved to inline list
 
   if (isError) {
     return (
@@ -354,7 +338,16 @@ export default function BudgetsPage() {
 
       {/* Budget Cards Grid */}
       <div className="space-y-4 px-1">
-        {budgets.length === 0 ? (
+        {isLoading ? (
+          <div className="space-y-4 pt-2">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="h-32 rounded-[28px] bg-zinc-100 dark:bg-zinc-900/40 border border-theme-border/60 animate-pulse"
+              />
+            ))}
+          </div>
+        ) : budgets.length === 0 ? (
           <div className="p-12 rounded-3xl border border-zinc-200/50 dark:border-zinc-800/60 bg-white dark:bg-zinc-900/20 backdrop-blur-md flex flex-col items-center justify-center gap-3 text-center">
             <div className="w-12 h-12 rounded-2xl bg-zinc-550 dark:bg-zinc-900/60 border border-zinc-200/60 dark:border-zinc-805 flex items-center justify-center text-zinc-400 dark:text-zinc-550">
               <PieChart className="w-6 h-6" />

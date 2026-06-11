@@ -9,9 +9,7 @@ export default function SubscriptionsPage() {
   const { data: insights, isLoading: insightsLoading } = useSubscriptionInsights();
   const [activeTab, setActiveTab] = useState<'subscriptions' | 'upcoming'>('subscriptions');
 
-  if (isLoading || insightsLoading) {
-    return <div className="p-8 text-center text-gray-500">Loading your bills...</div>;
-  }
+  // Loading skeletons are displayed inline
 
   const items = recurringItems || [];
 
@@ -58,13 +56,19 @@ export default function SubscriptionsPage() {
       {activeTab === 'subscriptions' && (
         <div className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
-            <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-6">
+            <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-6 relative">
+              {insightsLoading ? (
+                <div className="absolute inset-0 bg-zinc-200/50 animate-pulse rounded-xl" />
+              ) : null}
               <h2 className="text-indigo-900 font-semibold mb-1 text-sm">Monthly Run Rate</h2>
               <p className="text-2xl font-bold text-indigo-700">
                 ₹{totalMonthlyBurn.toLocaleString(undefined, { maximumFractionDigits: 0 })}
               </p>
             </div>
-            <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-6">
+            <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-6 relative">
+              {insightsLoading ? (
+                <div className="absolute inset-0 bg-zinc-200/50 animate-pulse rounded-xl" />
+              ) : null}
               <h2 className="text-emerald-900 font-semibold mb-1 text-sm">Annual Commitment</h2>
               <p className="text-2xl font-bold text-emerald-700">
                 ₹{totalAnnualBurn.toLocaleString(undefined, { maximumFractionDigits: 0 })}
@@ -73,7 +77,14 @@ export default function SubscriptionsPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {subscriptions.length === 0 ? (
+            {isLoading ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="h-32 bg-zinc-200 dark:bg-zinc-800 rounded-xl animate-pulse"
+                />
+              ))
+            ) : subscriptions.length === 0 ? (
               <p className="text-gray-500">No active subscriptions tracked yet.</p>
             ) : (
               subscriptions.map((sub) => <SubscriptionCard key={sub.id} subscription={sub} />)
@@ -85,7 +96,16 @@ export default function SubscriptionsPage() {
       {activeTab === 'upcoming' && (
         <div className="space-y-6">
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            {bills.length === 0 ? (
+            {isLoading ? (
+              <div className="p-4 space-y-4">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-16 bg-zinc-200 dark:bg-zinc-800 rounded-lg animate-pulse"
+                  />
+                ))}
+              </div>
+            ) : bills.length === 0 ? (
               <div className="p-8 text-center text-gray-500">No upcoming bills tracked.</div>
             ) : (
               <ul className="divide-y divide-gray-200">

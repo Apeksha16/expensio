@@ -65,8 +65,15 @@ export class SocketManager {
     return this.io;
   }
 
+  hasActiveConnection(userId: string): boolean {
+    if (!this.io) return false;
+    const room = this.io.sockets.adapter.rooms.get(userId);
+    return room !== undefined && room.size > 0;
+  }
+
   emitToUser(userId: string, eventName: string, payload: any) {
     if (this.io) {
+      if (!this.hasActiveConnection(userId)) return;
       // Rooms are named after user ids
       this.io.to(userId).emit(eventName, payload);
       this.logger.debug(`[SocketManager] Emitted ${eventName} to user room ${userId}`);

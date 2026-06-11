@@ -196,24 +196,22 @@ export class ExpensesService {
     }
 
     // Fetch them all first to know categories and amounts for the event bus
-    const expensesToDelete = await Promise.all(
-      ids.map((id) => expensesRepository.findById(id, userId))
-    );
+    const expensesToDelete = await expensesRepository.findByIds(ids, userId);
 
     await expensesRepository.bulkDelete(ids, userId);
 
-    for (const exp of expensesToDelete) {
-      if (exp) {
+    await Promise.all(
+      expensesToDelete.filter(Boolean).map(async (exp) => {
         await eventBus.publish('expense.deleted', {
           expenseId: exp.id,
           userId,
-          categoryId: exp.category,
           amount: exp.amount,
+          categoryId: exp.category,
           date: new Date(exp.date),
         });
         socketManagerInstance.emitToUser(userId, 'expense.deleted', { expenseId: exp.id });
-      }
-    }
+      })
+    );
   }
 
   // -------------------------------------------------------------------------

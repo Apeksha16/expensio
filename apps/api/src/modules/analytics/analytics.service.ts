@@ -1,6 +1,27 @@
 import { analyticsRepository } from './analytics.repository.js';
 import { AnalyticsResponse, MonthlyTrend, CategoryAnalytics } from '@expensio/types';
 import { AnalyticsFiltersInput } from '@expensio/validation';
+import Redis from 'ioredis';
+import { env } from '../../config/env.js';
+
+const redisClient = new Redis(env.REDIS_URL || 'redis://localhost:6379');
+
+let redisHits = 0;
+let redisMisses = 0;
+
+setInterval(
+  () => {
+    const total = redisHits + redisMisses;
+    if (total > 0) {
+      console.log(
+        `[Redis Cache] hits=${redisHits} misses=${redisMisses} ratio=${((redisHits / total) * 100).toFixed(1)}%`
+      );
+    }
+    redisHits = 0;
+    redisMisses = 0;
+  },
+  10 * 60 * 1000
+).unref();
 
 export class AnalyticsService {
   /**
@@ -11,6 +32,23 @@ export class AnalyticsService {
     filters: AnalyticsFiltersInput
   ): Promise<AnalyticsResponse> {
     const now = new Date();
+
+    // Determine the current month string for the cache key
+    const isExactMonth = filters.month && filters.year && !filters.startDate;
+    const currentMonthStr = isExactMonth
+      ? `${filters.year}-${String(filters.month).padStart(2, '0')}`
+      : `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+    const cacheKey = `analytics:summary:${userId}:${currentMonthStr}`;
+    const cached = await redisClient.get(cacheKey);
+    if (cached) {
+      console.log(`[Redis Cache] HIT ${cacheKey}`);
+      redisHits++;
+      return JSON.parse(cached);
+    }
+    console.log(`[Redis Cache] MISS ${cacheKey}`);
+    redisMisses++;
+
     let start: Date;
     let end: Date;
 
@@ -43,17 +81,12 @@ export class AnalyticsService {
     }
 
     // 3. Query all raw aggregates in parallel to optimize DB load
-    // If the request is for an exact month, we can use the aggregated table
     let currentMonthSpend = 0;
     let previousMonthSpend = 0;
     let categoryRows: { category: string; amount: number }[] = [];
     let allBudgets: any[] = [];
     let salary = 0;
 
-    const isExactMonth = filters.month && filters.year && !filters.startDate;
-    const currentMonthStr = isExactMonth
-      ? `${filters.year}-${String(filters.month).padStart(2, '0')}`
-      : `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
     const prevMonthNum = filters.month ? filters.month - 1 : now.getMonth();
     const prevYearNum =
       prevMonthNum === 0
@@ -132,7 +165,6 @@ export class AnalyticsService {
     });
 
     // 8. Most Consumed Budget
-    // Find active budgets overlapping this month and compare utilization percentage
     const currentMonthBudgets = allBudgets.filter((b) => {
       const bStart = new Date(b.startDate);
       const bEnd = new Date(b.endDate);
@@ -203,7 +235,7 @@ export class AnalyticsService {
       });
     }
 
-    return {
+    const result = {
       summary: {
         currentMonthSpend,
         previousMonthSpend,
@@ -216,6 +248,10 @@ export class AnalyticsService {
       categoryBreakdown,
       monthlyTrends,
     };
+
+    await redisClient.set(cacheKey, JSON.stringify(result), 'EX', 3600);
+
+    return result;
   }
 }
 

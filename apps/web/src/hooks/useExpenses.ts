@@ -173,7 +173,12 @@ export function useCreateExpense() {
   const queryClient = useQueryClient();
   const session = useAuthStore((state) => state.session);
 
-  return useMutation<StoreExpense, Error, CreateExpenseRequest>({
+  return useMutation<
+    StoreExpense,
+    Error,
+    CreateExpenseRequest,
+    { previousExpenses: any; previousSummary: any }
+  >({
     mutationFn: async (expenseData) => {
       if (!session?.access_token) {
         throw new Error('Not authenticated');
@@ -286,7 +291,12 @@ export function useUpdateExpense() {
   const queryClient = useQueryClient();
   const session = useAuthStore((state) => state.session);
 
-  return useMutation<StoreExpense, Error, { id: string; data: UpdateExpenseRequest }>({
+  return useMutation<
+    StoreExpense,
+    Error,
+    { id: string; data: UpdateExpenseRequest },
+    { previousExpenses: any; previousSummary: any }
+  >({
     mutationFn: async ({ id, data }) => {
       if (!session?.access_token) {
         throw new Error('Not authenticated');
@@ -328,6 +338,14 @@ export function useUpdateExpense() {
         };
       });
 
+      queryClient.setQueriesData({ queryKey: ['expenses'] }, (old: any) => {
+        if (!old || !old.expenses) return old;
+        return {
+          ...old,
+          expenses: old.expenses.map((exp: any) => (exp.id === id ? { ...exp, ...data } : exp)),
+        };
+      });
+
       return { previousExpenses, previousSummary };
     },
     onError: (err, variables, context) => {
@@ -355,7 +373,7 @@ export function useDeleteExpense() {
   const queryClient = useQueryClient();
   const session = useAuthStore((state) => state.session);
 
-  return useMutation<void, Error, string>({
+  return useMutation<void, Error, string, { previousExpenses: any; previousSummary: any }>({
     mutationFn: async (id) => {
       if (!session?.access_token) {
         throw new Error('Not authenticated');
@@ -390,6 +408,14 @@ export function useDeleteExpense() {
           ...old,
           totalExpenses: Math.max(0, old.totalExpenses - amountToDeduct),
           recentExpenses: old.recentExpenses.filter((e: any) => e.id !== id),
+        };
+      });
+
+      queryClient.setQueriesData({ queryKey: ['expenses'] }, (old: any) => {
+        if (!old || !old.expenses) return old;
+        return {
+          ...old,
+          expenses: old.expenses.filter((e: any) => e.id !== id),
         };
       });
 

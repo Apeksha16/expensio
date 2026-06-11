@@ -130,21 +130,9 @@ export default function AnalyticsPage() {
 
   const yearsList = [currentYear - 1, currentYear, currentYear + 1];
 
-  if (isLoading) {
-    return (
-      <div className="space-y-6 pb-20 animate-pulse select-none">
-        <div className="h-10 w-48 bg-zinc-200 dark:bg-zinc-800 rounded-lg" />
-        <div className="grid grid-cols-2 gap-4">
-          <div className="h-28 rounded-3xl bg-zinc-100 dark:bg-zinc-900/50 border border-theme-border/60" />
-          <div className="h-28 rounded-3xl bg-zinc-100 dark:bg-zinc-900/50 border border-theme-border/60" />
-        </div>
-        <div className="h-56 rounded-3xl bg-zinc-100 dark:bg-zinc-900/50 border border-theme-border/60" />
-        <div className="h-44 rounded-3xl bg-zinc-100 dark:bg-zinc-900/50 border border-theme-border/60" />
-      </div>
-    );
-  }
+  // Loading skeleton moved to inline content
 
-  if (error || !analytics) {
+  if (!isLoading && (error || !analytics)) {
     return (
       <div className="p-8 text-center bg-white dark:bg-zinc-900 border border-theme-card-border rounded-[28px] space-y-4">
         <AlertTriangle className="w-12 h-12 text-rose-500 mx-auto" />
@@ -158,7 +146,11 @@ export default function AnalyticsPage() {
     );
   }
 
-  const { summary, categoryBreakdown, monthlyTrends } = analytics;
+  const summary =
+    analytics?.summary ||
+    ({ currentMonthSpend: 0, monthlySavings: 0, savingsRate: 0, spendChangePercentage: 0 } as any);
+  const categoryBreakdown = analytics?.categoryBreakdown || [];
+  const monthlyTrends = analytics?.monthlyTrends || [];
   const userSalary = user?.monthlySalary || 0;
 
   // Determine check for empty states
@@ -484,7 +476,16 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      {isEmpty ? (
+      {isLoading ? (
+        <div className="space-y-6 pt-4 animate-pulse select-none">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="h-28 rounded-[24px] bg-zinc-100 dark:bg-zinc-900/50 border border-theme-border/60" />
+            <div className="h-28 rounded-[24px] bg-zinc-100 dark:bg-zinc-900/50 border border-theme-border/60" />
+          </div>
+          <div className="h-56 rounded-[28px] bg-zinc-100 dark:bg-zinc-900/50 border border-theme-border/60" />
+          <div className="h-44 rounded-[28px] bg-zinc-100 dark:bg-zinc-900/50 border border-theme-border/60" />
+        </div>
+      ) : isEmpty ? (
         /* Empty state component */
         <motion.div
           initial={{ opacity: 0, y: 15 }}

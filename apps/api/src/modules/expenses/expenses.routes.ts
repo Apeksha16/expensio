@@ -10,11 +10,96 @@ export async function expensesRoutes(fastify: FastifyInstance) {
   fastify.post('/api/v1/expenses', auth, (req, reply) => expensesController.create(req, reply));
 
   /** GET /api/v1/expenses — list expenses with filters & pagination */
-  fastify.get('/api/v1/expenses', auth, (req, reply) => expensesController.list(req, reply));
+  fastify.get(
+    '/api/v1/expenses',
+    {
+      ...auth,
+      schema: {
+        querystring: {
+          type: 'object',
+          properties: {
+            page: { type: 'number' },
+            limit: { type: 'number' },
+            cursorDate: { type: 'string' },
+            cursorId: { type: 'string' },
+            categoryId: { type: 'string' },
+          },
+        },
+        response: {
+          200: {
+            type: 'object',
+            properties: {
+              success: { type: 'boolean' },
+              data: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  additionalProperties: false,
+                  properties: {
+                    id: { type: 'string' },
+                    userId: { type: 'string' },
+                    amount: { type: 'number' },
+                    currency: { type: 'string' },
+                    description: { type: ['string', 'null'] },
+                    category: { type: 'string', nullable: true },
+                    date: { type: 'string', format: 'date-time' },
+                    accountId: { type: 'string', nullable: true },
+                    paymentMethod: { type: 'string', nullable: true },
+                    isSplit: { type: 'boolean' },
+                    createdAt: { type: 'string', nullable: true },
+                  },
+                },
+              },
+              pagination: {
+                type: 'object',
+                properties: {
+                  total: { type: 'number' },
+                  page: { type: 'number' },
+                  limit: { type: 'number' },
+                  hasNextPage: { type: 'boolean' },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    (req, reply) => expensesController.list(req, reply)
+  );
 
   /** GET /api/v1/expenses/:id — get a single expense with its splits */
-  fastify.get<IdParams>('/api/v1/expenses/:id', auth, (req, reply) =>
-    expensesController.getOne(req as FastifyRequest<IdParams>, reply)
+  fastify.get<IdParams>(
+    '/api/v1/expenses/:id',
+    {
+      ...auth,
+      schema: {
+        response: {
+          200: {
+            type: 'object',
+            properties: {
+              success: { type: 'boolean' },
+              data: {
+                type: 'object',
+                additionalProperties: false,
+                properties: {
+                  id: { type: 'string' },
+                  userId: { type: 'string' },
+                  amount: { type: 'number' },
+                  currency: { type: 'string' },
+                  description: { type: ['string', 'null'] },
+                  category: { type: 'string', nullable: true },
+                  date: { type: 'string' },
+                  accountId: { type: 'string', nullable: true },
+                  isSplit: { type: 'boolean' },
+                  createdAt: { type: 'string', nullable: true },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    (req, reply) => expensesController.getOne(req as FastifyRequest<IdParams>, reply)
   );
 
   /** PUT & PATCH /api/v1/expenses/:id — update an expense */

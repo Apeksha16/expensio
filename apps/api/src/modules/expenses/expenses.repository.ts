@@ -1,6 +1,21 @@
 import { db } from '../../db/index.js';
 import { expenses, splits, accounts, outboxEvents } from '../../db/schema.js';
-import { eq, and, gte, lte, desc, asc, sql, inArray, ilike, sum, isNull } from 'drizzle-orm';
+import {
+  eq,
+  and,
+  gte,
+  lte,
+  desc,
+  asc,
+  sql,
+  inArray,
+  ilike,
+  isNull,
+  lt,
+  or,
+  sum,
+  SQL,
+} from 'drizzle-orm';
 import { nanoid } from 'nanoid';
 import crypto from 'crypto';
 import { Expense, Split } from '@expensio/types';
@@ -12,6 +27,14 @@ import {
   ListExpensesFilters,
   ExpenseWithSplits,
 } from './expenses.types.js';
+
+export type CursorFilters = {
+  userId: string;
+  limit: number;
+  cursorDate?: string;
+  cursorId?: string;
+  categoryId?: string;
+};
 
 export class ExpensesRepository {
   // -------------------------------------------------------------------------
@@ -166,6 +189,73 @@ export class ExpensesRepository {
   }
 
   // -------------------------------------------------------------------------
+  // READ — Keyset cursor pagination (Fix 5)
+  // -------------------------------------------------------------------------
+
+  async findManyWithCursor(
+    filters: CursorFilters
+  ): Promise<{
+    data: ExpenseWithSplits[];
+    nextCursor: { date: string; id: string } | null;
+    hasNextPage: boolean;
+  }> {
+    const whereClause: SQL[] = [eq(expenses.userId, filters.userId), isNull(expenses.deletedAt)];
+
+    if (filters.categoryId) {
+      whereClause.push(eq(expenses.category, filters.categoryId));
+    }
+
+    if (filters.cursorDate && filters.cursorId) {
+      const cDate = new Date(filters.cursorDate);
+      whereClause.push(
+        or(
+          lt(expenses.date, cDate),
+          and(eq(expenses.date, cDate), lt(expenses.id, filters.cursorId))
+        )!
+      );
+    }
+
+    const rows = await db
+      .select()
+      .from(expenses)
+      .where(and(...whereClause))
+      .orderBy(desc(expenses.date), desc(expenses.id))
+      .limit(filters.limit + 1);
+
+    const hasNextPage = rows.length > filters.limit;
+    if (hasNextPage) {
+      rows.pop();
+    }
+
+    if (rows.length === 0) {
+      return { data: [], nextCursor: null, hasNextPage: false };
+    }
+
+    // Fetch splits for the expenses
+    const expenseIds = rows.map((e) => e.id);
+    let allSplits: any[] = [];
+    if (expenseIds.length > 0) {
+      allSplits = await db.select().from(splits).where(inArray(splits.expenseId, expenseIds));
+    }
+
+    const splitsByExpense = allSplits.reduce<Record<string, any[]>>((acc, s) => {
+      acc[s.expenseId] = acc[s.expenseId] || [];
+      acc[s.expenseId].push(s);
+      return acc;
+    }, {});
+
+    const nextCursor = hasNextPage
+      ? { date: rows[rows.length - 1].date.toISOString(), id: rows[rows.length - 1].id }
+      : null;
+
+    return {
+      data: rows.map((e) => ({ ...e, splits: splitsByExpense[e.id] ?? [] })),
+      nextCursor,
+      hasNextPage,
+    };
+  }
+
+  // -------------------------------------------------------------------------
   // READ — single by ID
   // -------------------------------------------------------------------------
 
@@ -181,6 +271,14 @@ export class ExpensesRepository {
     const splitRows = await db.select().from(splits).where(eq(splits.expenseId, id));
 
     return { ...expense, splits: splitRows };
+  }
+
+  async findByIds(ids: string[], userId: string): Promise<Expense[]> {
+    if (!ids || ids.length === 0) return [];
+    return db
+      .select()
+      .from(expenses)
+      .where(and(inArray(expenses.id, ids), eq(expenses.userId, userId)));
   }
 
   // -------------------------------------------------------------------------
@@ -355,12 +453,14 @@ export class ExpensesRepository {
 
     await db.transaction(async (tx) => {
       // Restore balances for each account
-      for (const expense of targetExpenses) {
-        await tx
-          .update(accounts)
-          .set({ balance: sql`${accounts.balance} + ${expense.amount}` })
-          .where(eq(accounts.id, expense.accountId));
-      }
+      await Promise.all(
+        targetExpenses.map((expense) =>
+          tx
+            .update(accounts)
+            .set({ balance: sql`${accounts.balance} + ${expense.amount}` })
+            .where(eq(accounts.id, expense.accountId))
+        )
+      );
 
       // Delete splits
       await tx.delete(splits).where(inArray(splits.expenseId, verifiedIds));
