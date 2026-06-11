@@ -19,7 +19,7 @@
     "@expensio/shared": "*",
     "@expensio/types": "*",
     "@expensio/validation": "*",
-    "@fastify/compress": "^9.0.0",
+    "@fastify/compress": "^7.0.3",
     "@fastify/cors": "^8.5.0",
     "@fastify/rate-limit": "^9.1.0",
     "@sentry/node": "^10.57.0",
