@@ -102,6 +102,10 @@ export class AuthService {
     await this.supabaseService.signInWithGoogle();
   }
 
+  async loginWithEmail(email: string) {
+    await this.supabaseService.signInWithOtp(email);
+  }
+
   async completeOnboarding(profileData: Partial<UserProfile>): Promise<{success: boolean, error?: string}> {
     if (profileData.username) {
       const exists = await this.supabaseService.checkUsernameExists(profileData.username);

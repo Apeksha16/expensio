@@ -1,8 +1,8 @@
 # Build and Deploy to Cloudflare Pages
 Write-Host "Building Angular production bundle..."
-npm run build --configuration production
+npx ng build --configuration production
 
-Write-Host "Deploying to Cloudflare Pages..."
-npx wrangler pages deploy dist/expensio --project-name expensio
+Write-Host "Deploying to Firebase Hosting..."
+firebase deploy --only hosting --project expensio-b16b0
 
 Write-Host "Deployment complete!"

@@ -20,7 +20,18 @@ export class SupabaseService {
     const { data, error } = await this.supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.origin + '/dashboard' // or logic to handle redirect
+        redirectTo: window.location.origin
+      }
+    });
+    if (error) throw error;
+    return data;
+  }
+
+  async signInWithOtp(email: string) {
+    const { data, error } = await this.supabase.auth.signInWithOtp({
+      email: email,
+      options: {
+        emailRedirectTo: window.location.origin
       }
     });
     if (error) throw error;
