@@ -1,9 +1,11 @@
-import { Component, inject, OnInit, effect } from '@angular/core';
+import { Component, inject, OnInit, effect, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { ExpenseService } from '../../../core/services/expense.service';
+import { BudgetService } from '../../../core/services/budget.service';
 import { ConfirmService } from '../../../core/services/confirm.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { DatePickerComponent } from '../date-picker/date-picker';
 
 @Component({
@@ -49,68 +51,79 @@ import { DatePickerComponent } from '../date-picker/date-picker';
         <div class="flex justify-between items-center py-3 px-6 bg-black text-white sticky top-0 z-10">
           <h2 class="text-xl font-extrabold tracking-tight">{{ isEditing ? 'Edit expense' : 'Add expense' }}</h2>
           <div class="flex gap-2">
-            <button *ngIf="isEditing" type="button" (click)="delete()" class="w-8 h-8 bg-red-500 flex items-center justify-center border-2 border-transparent hover:border-white transition-colors rounded-none text-white">
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+            <button *ngIf="isEditing" type="button" (click)="delete()" [disabled]="isDeleting() || isSaving()" class="w-8 h-8 bg-red-500 flex items-center justify-center border-2 border-transparent hover:border-white transition-colors rounded-none text-white disabled:opacity-50">
+              <svg *ngIf="!isDeleting()" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+              <svg *ngIf="isDeleting()" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
             </button>
           </div>
         </div>
 
         <div class="p-6">
-          <form [formGroup]="expenseForm" (ngSubmit)="onSubmit()" class="space-y-6">
+          <form [formGroup]="expenseForm" (ngSubmit)="onSubmit()" class="space-y-4">
             
             <!-- Amount -->
-            <div class="space-y-1">
-              <label class="block text-[10px] font-extrabold uppercase tracking-widest text-gray-500">Amount</label>
-              <div class="relative">
-                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-3xl font-extrabold text-black">₹</span>
+            <div class="flex flex-col gap-1">
+              <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase">Amount</label>
+              <div class="relative group">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <span class="text-gray-500 font-medium">₹</span>
+                </div>
                 <input type="number" formControlName="amount" placeholder="0"
                   (keydown)="preventE($event)"
-                  class="w-full bg-white border-2 border-black rounded-none p-4 pl-12 text-3xl font-extrabold focus:outline-none focus:bg-gray-50 transition-colors">
+                  class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-[#1a2e22] hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans pl-8">
               </div>
             </div>
 
             <!-- Name -->
-            <div class="space-y-1">
-              <label class="block text-[10px] font-extrabold uppercase tracking-widest text-gray-500">Expense Name</label>
-              <input type="text" formControlName="title" placeholder="e.g. Coffee"
-                class="w-full bg-white border-2 border-black rounded-none p-4 font-bold text-lg focus:outline-none focus:bg-gray-50 transition-colors">
+            <div class="flex flex-col gap-1">
+              <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase">Expense Name</label>
+              <div class="relative group">
+                <input type="text" formControlName="title" placeholder="e.g. Coffee"
+                  class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-[#1a2e22] hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans">
+              </div>
             </div>
 
-            <!-- Categories -->
-            <div class="space-y-1">
-              <label class="block text-[10px] font-extrabold uppercase tracking-widest text-gray-500">Category</label>
+            <!-- Budgets -->
+            <div class="flex flex-col gap-1" *ngIf="budgetService.budgets().length > 0">
+              <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase">Budget</label>
               <div class="grid grid-cols-4 gap-2">
-                <button *ngFor="let cat of categories" type="button" (click)="expenseForm.patchValue({category: cat.name})"
-                  class="flex flex-col items-center justify-center gap-1 p-2 border-2 rounded-none transition-all h-20"
-                  [ngClass]="expenseForm.get('category')?.value === cat.name ? 'border-black bg-black text-white' : 'border-gray-200 bg-white text-gray-500 hover:border-black hover:text-black'">
-                  <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                <button *ngFor="let cat of budgetCategories()" type="button" (click)="expenseForm.patchValue({category: cat.name})"
+                  class="flex flex-col items-center justify-center gap-1 p-2 border-2 rounded-none transition-all min-h-[60px]"
+                  [ngClass]="expenseForm.get('category')?.value === cat.name ? 'border-[#1a2e22] bg-[#1a2e22] text-white' : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
                     <path [attr.d]="cat.path"></path>
                   </svg>
-                  <span class="text-[9px] font-bold uppercase tracking-wider text-center line-clamp-1 w-full overflow-hidden text-ellipsis">{{ cat.name }}</span>
+                  <span class="text-[9px] font-semibold uppercase tracking-wider text-center line-clamp-1 w-full overflow-hidden text-ellipsis">{{ cat.name }}</span>
                 </button>
               </div>
             </div>
             
             <!-- Date -->
-            <div class="space-y-1">
-              <label class="block text-[10px] font-extrabold uppercase tracking-widest text-gray-500">Date</label>
+            <div class="flex flex-col gap-1">
+              <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase">Date</label>
               <button type="button" (click)="isDatePickerOpen = true"
-                class="w-full text-left bg-white border-2 border-black rounded-none p-4 font-bold text-lg focus:outline-none hover:bg-gray-50 transition-colors flex justify-between items-center">
+                class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-[#1a2e22] hover:border-gray-300 block p-2.5 outline-none transition-all min-h-[44px] touch-manipulation font-sans flex justify-between items-center text-left">
                 <span>{{ expenseForm.get('date')?.value | date:'MMM d, yyyy' }}</span>
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                <svg class="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
               </button>
             </div>
 
             <!-- Bottom Buttons -->
-            <div class="pt-2 flex gap-2">
+            <div class="mt-4 flex gap-4">
               <button type="button" (click)="close()"
-                class="flex-1 bg-white text-black border-2 border-black rounded-none p-4 font-bold text-lg hover:bg-gray-100 transition-colors">
+                class="flex-1 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-white border-2 border-gray-200 text-gray-900 hover:border-gray-300 text-center">
                 Cancel
               </button>
-              <button type="submit" [disabled]="!expenseForm.valid"
-                class="flex-1 bg-black text-white border-2 border-black rounded-none p-4 font-bold text-lg 
-                       hover:bg-white hover:text-black transition-colors disabled:opacity-50 disabled:hover:bg-black disabled:hover:text-white">
-                {{ isEditing ? 'Update' : 'Save' }}
+              <button type="submit" [disabled]="!expenseForm.valid || isSaving() || isDeleting()"
+                class="flex-1 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-[#1a2e22] hover:bg-[#2f4d3b] text-white disabled:opacity-70 disabled:cursor-not-allowed disabled:active:scale-100">
+                <svg *ngIf="isSaving()" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>{{ isSaving() ? 'Saving...' : (isEditing ? 'Update' : 'Save') }}</span>
               </button>
             </div>
           </form>
@@ -129,27 +142,23 @@ import { DatePickerComponent } from '../date-picker/date-picker';
 })
 export class BottomSheetComponent implements OnInit {
   expenseService = inject(ExpenseService);
+  budgetService = inject(BudgetService);
   private confirmService = inject(ConfirmService);
+  private toastService = inject(ToastService);
   private fb = inject(FormBuilder);
 
   expenseForm!: FormGroup;
   isEditing = false;
   isDatePickerOpen = false;
+  isSaving = signal(false);
+  isDeleting = signal(false);
 
-  categories = [
-    { name: 'Food', path: 'M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2 M7 2v20 M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7' },
-    { name: 'Transport', path: 'M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2 M7 17a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm10 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z' },
-    { name: 'Shopping', path: 'M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z M3 6h18 M16 10a4 4 0 0 1-8 0' },
-    { name: 'Utilities', path: 'M13 2L3 14h9l-1 8 10-12h-9l1-8z' },
-    { name: 'Entertain', path: 'M2 10h20 M8 2v4 M16 2v4 M2 14h20 M2 18h20 M2 6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6z' },
-    { name: 'Health', path: 'M22 12h-4l-3 9L9 3l-3 9H2' },
-    { name: 'Travel', path: 'M22 2 11 13 M22 2l-7 20-4-9-9-4Z' },
-    { name: 'Education', path: 'M4 19.5A2.5 2.5 0 0 1 6.5 17H20 M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z' },
-    { name: 'Bills', path: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8' },
-    { name: 'Gifts', path: 'M20 12v10H4V12 M2 7h20v5H2z M12 22V7 M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z' },
-    { name: 'Invest', path: 'M23 6l-9.5 9.5-5-5L1 18 M17 6h6v6' },
-    { name: 'Other', path: 'M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0-2 0 M19 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0-2 0 M5 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0-2 0' }
-  ];
+  budgetCategories = computed(() => {
+    return this.budgetService.budgets().map(b => ({
+      name: b.name,
+      path: b.icon_path || 'M20 12v10H4V12 M2 7h20v5H2z M12 22V7 M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z' // Fallback icon
+    }));
+  });
 
   constructor() {
     effect(() => {
@@ -164,7 +173,7 @@ export class BottomSheetComponent implements OnInit {
           this.expenseForm.reset({
             title: editing?.title || '',
             amount: editing?.amount || null,
-            category: editing?.category || 'Food',
+            category: editing?.category || 'Others',
             date: editing?.date ? new Date(editing.date).toISOString().substring(0, 10) : new Date().toISOString().substring(0, 10)
           });
         }
@@ -185,7 +194,7 @@ export class BottomSheetComponent implements OnInit {
     this.expenseForm = this.fb.group({
       title: [editing?.title || '', Validators.required],
       amount: [editing?.amount || null, [Validators.required, Validators.min(0.01)]],
-      category: [editing?.category || 'Food', Validators.required],
+      category: [editing?.category || 'Others', Validators.required],
       date: [editing?.date ? new Date(editing.date).toISOString().substring(0, 10) : new Date().toISOString().substring(0, 10), Validators.required]
     });
   }
@@ -210,17 +219,26 @@ export class BottomSheetComponent implements OnInit {
         title: 'Delete Expense',
         message: 'Are you sure you want to delete this expense? This action cannot be undone.',
         confirmText: 'Delete',
-        onConfirm: () => {
+        onConfirm: async () => {
+          this.isDeleting.set(true);
           const id = this.expenseService.editingExpense()!.id;
-          this.expenseService.deleteExpense(id);
-          this.close();
+          const success = await this.expenseService.deleteExpense(id);
+          this.isDeleting.set(false);
+          
+          if (success) {
+            this.toastService.showSuccess('Expense deleted');
+            this.close();
+          } else {
+            this.toastService.showError('Failed to delete expense');
+          }
         }
       });
     }
   }
 
-  onSubmit() {
-    if (this.expenseForm.valid) {
+  async onSubmit() {
+    if (this.expenseForm.valid && !this.isSaving()) {
+      this.isSaving.set(true);
       const formValue = this.expenseForm.value;
       const expenseData = {
         title: formValue.title,
@@ -229,14 +247,22 @@ export class BottomSheetComponent implements OnInit {
         date: new Date(formValue.date).toISOString()
       };
 
+      let success = false;
       if (this.isEditing) {
         const id = this.expenseService.editingExpense()!.id;
-        this.expenseService.updateExpense(id, expenseData);
+        success = await this.expenseService.updateExpense(id, expenseData);
       } else {
-        this.expenseService.addExpense(expenseData);
+        success = await this.expenseService.addExpense(expenseData);
       }
 
-      this.close();
+      this.isSaving.set(false);
+      
+      if (success) {
+        this.toastService.showSuccess(this.isEditing ? 'Expense updated' : 'Expense added');
+        this.close();
+      } else {
+        this.toastService.showError('Failed to save expense');
+      }
     }
   }
 }

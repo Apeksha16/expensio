@@ -1,11 +1,11 @@
-import { Component, inject, signal, effect, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, signal, effect, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { animate, style, transition, trigger } from '@angular/animations';
-import { FriendService } from '../../../core/services/friend.service';
+import { FriendService, FriendData } from '../../../core/services/friend.service';
 import { UserProfile } from '../../../core/services/auth';
-import { Subject, Subscription, of, timer } from 'rxjs';
-import { debounceTime, distinctUntilChanged, switchMap, filter, tap } from 'rxjs/operators';
+import { Subject, Subscription, of, timer, from } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, filter, tap, catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-friend-sheet',
@@ -58,83 +58,78 @@ import { debounceTime, distinctUntilChanged, switchMap, filter, tap } from 'rxjs
         
         <!-- ADD MODE -->
         <ng-container *ngIf="isAddMode">
-          
-          <div class="space-y-1 shrink-0">
-            <label class="block text-[10px] font-extrabold uppercase tracking-widest text-gray-500">Search User</label>
-            <div class="relative">
-              <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-              <input 
-                type="text" 
-                [(ngModel)]="searchQuery"
-                (ngModelChange)="onSearchChange($event)"
-                class="w-full bg-white border-2 border-black rounded-none p-4 pl-12 font-bold text-lg focus:outline-none focus:bg-gray-50 transition-colors"
-                placeholder="Username or email..."
-              >
-            </div>
-          </div>
-
-          <!-- Search Results -->
-          <div class="flex flex-col gap-2 min-h-[150px] max-h-[40vh] overflow-y-auto pr-2 relative">
-             <div *ngIf="isSearching" class="text-center p-4 flex justify-center items-center gap-2">
-                <svg class="animate-spin h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Searching...</p>
-             </div>
-
-             <div *ngIf="searchQuery && searchQuery.trim().length > 0 && searchQuery.trim().length < 3" class="text-center p-4">
-               <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Type at least 3 characters</p>
-             </div>
-
-             <div *ngIf="!isSearching && searchQuery.trim().length >= 3 && searchResults.length === 0" class="text-center p-4">
-               <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">No users found</p>
-             </div>
-             
-             <div *ngIf="!searchQuery" class="text-center p-4">
-               <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Type to search</p>
-             </div>
-
-             <button 
-               *ngFor="let user of searchResults"
-               (click)="selectUser(user)"
-               class="flex items-center gap-4 p-3 border-2 transition-colors rounded-none text-left shrink-0"
-               [ngClass]="selectedUser?.username === user.username ? 'border-black bg-gray-50' : 'border-gray-200 bg-white hover:border-black'"
-             >
-                <div class="w-10 h-10 rounded-full border-2 border-black bg-gray-200 flex items-center justify-center font-extrabold text-lg text-black shrink-0">
-                  {{ user.name.charAt(0) }}
+            <form (submit)="$event.preventDefault(); sendRequest()" class="space-y-4">
+              <div class="flex flex-col gap-1 shrink-0">
+                <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase">Search User</label>
+                <div class="relative group">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                  </div>
+                  <input 
+                    type="text" 
+                    name="query"
+                    [(ngModel)]="searchQuery"
+                    (ngModelChange)="onSearchChange($event)"
+                    class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-[#1a2e22] hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans pl-10"
+                    placeholder="Username or email..."
+                  >
                 </div>
-                <div class="flex flex-col flex-1">
-                  <span class="font-extrabold text-black">{{ user.name }}</span>
-                  <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{{ '@' + user.username }}</span>
-                </div>
-             </button>
-          </div>
+              </div>
 
-          <!-- Bottom Buttons -->
-          <div class="pt-2 flex gap-2 shrink-0">
-            <button type="button" (click)="close()"
-              class="flex-1 bg-white text-black border-2 border-black rounded-none p-4 font-bold text-lg hover:bg-gray-100 transition-colors">
-              Cancel
-            </button>
-            <button type="button" [disabled]="!selectedUser" (click)="sendRequest()"
-              class="flex-1 bg-black text-white border-2 border-black rounded-none p-4 font-bold text-lg 
-                     hover:bg-white hover:text-black transition-colors disabled:opacity-50 disabled:hover:bg-black disabled:hover:text-white">
-              Send Request
-            </button>
-          </div>
+              <!-- Search Results -->
+              <div class="flex flex-col gap-2 min-h-[150px] max-h-[40vh] overflow-y-auto pr-2 relative">
+                 <div *ngIf="isSearching" class="text-center p-4 flex justify-center items-center gap-2">
+                    <svg class="animate-spin h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Searching...</p>
+                 </div>
+
+                 <button 
+                   type="button"
+                   *ngFor="let user of searchResults"
+                   (click)="selectUser(user)"
+                   class="flex items-center gap-4 p-3 border-2 transition-colors rounded-none text-left shrink-0"
+                   [ngClass]="selectedUser?.username === user.username ? 'border-black bg-gray-50' : 'border-gray-200 bg-white hover:border-black'"
+                 >
+                    <div class="w-10 h-10 rounded-full border-2 border-black bg-gray-200 flex items-center justify-center font-extrabold text-lg text-black shrink-0">
+                      {{ user.name.charAt(0) }}
+                    </div>
+                    <div class="flex flex-col flex-1">
+                      <span class="font-extrabold text-black">{{ user.name }}</span>
+                      <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{{ '@' + user.username }}</span>
+                    </div>
+                 </button>
+              </div>
+
+              <!-- Actions for Add Mode -->
+              <div class="mt-4 flex gap-4 shrink-0">
+                <button type="button" (click)="close()"
+                  class="flex-1 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-white border-2 border-gray-200 text-gray-900 hover:border-gray-300 text-center">
+                  Cancel
+                </button>
+                <button type="submit" [disabled]="!selectedUser || isSending"
+                  class="flex-1 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-[#1a2e22] hover:bg-[#2f4d3b] text-white disabled:opacity-70 disabled:cursor-not-allowed disabled:active:scale-100">
+                  <svg *ngIf="isSending" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>{{ isSending ? 'Sending...' : 'Send Request' }}</span>
+                </button>
+              </div>
+            </form>
         </ng-container>
-
 
         <!-- REMOVE MODE -->
         <ng-container *ngIf="!isAddMode && targetFriend">
           <div class="flex flex-col items-center py-6 gap-4">
              <div class="w-24 h-24 rounded-full border-4 border-black bg-gray-200 flex items-center justify-center font-extrabold text-5xl text-black shrink-0">
-               {{ targetFriend.name.charAt(0) }}
+               {{ targetFriend.profile.name.charAt(0) }}
              </div>
              <div class="text-center">
-               <h3 class="font-extrabold text-2xl text-black">{{ targetFriend.name }}</h3>
-               <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mt-1">{{ '@' + targetFriend.username }}</p>
+               <h3 class="font-extrabold text-2xl text-black">{{ targetFriend.profile.name }}</h3>
+               <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mt-1">{{ '@' + targetFriend.profile.username }}</p>
              </div>
              
              <p class="text-center text-sm font-bold text-black mt-4 max-w-[250px]">
@@ -143,13 +138,13 @@ import { debounceTime, distinctUntilChanged, switchMap, filter, tap } from 'rxjs
           </div>
 
           <!-- Bottom Buttons -->
-          <div class="pt-2 flex gap-2 shrink-0">
+          <div class="pt-2 flex gap-3 shrink-0">
             <button type="button" (click)="close()"
-              class="flex-1 bg-white text-black border-2 border-black rounded-none p-4 font-bold text-lg hover:bg-gray-100 transition-colors">
+              class="flex-1 bg-white text-gray-900 p-3.5 font-bold text-sm tracking-wide transition-all border-2 border-gray-200 active:scale-[0.98] rounded-none hover:border-gray-300 text-center">
               Cancel
             </button>
             <button type="button" (click)="confirmRemove()"
-              class="flex-1 bg-red-600 text-white border-2 border-red-600 rounded-none p-4 font-bold text-lg hover:bg-white hover:text-red-600 transition-colors">
+              class="flex-1 bg-red-600 text-white p-3.5 font-bold text-sm tracking-wide transition-all border-2 border-transparent active:scale-[0.98] rounded-none flex items-center justify-center gap-2">
               Remove
             </button>
           </div>
@@ -161,6 +156,7 @@ import { debounceTime, distinctUntilChanged, switchMap, filter, tap } from 'rxjs
 })
 export class FriendSheetComponent implements OnInit, OnDestroy {
   friendService = inject(FriendService);
+  cdr = inject(ChangeDetectorRef);
 
   isVisible = signal(false);
   
@@ -168,6 +164,7 @@ export class FriendSheetComponent implements OnInit, OnDestroy {
   searchResults: UserProfile[] = [];
   selectedUser: UserProfile | null = null;
   isSearching = false;
+  isSending = false;
 
   private searchSubject = new Subject<string>();
   private searchSubscription!: Subscription;
@@ -182,8 +179,9 @@ export class FriendSheetComponent implements OnInit, OnDestroy {
         this.searchResults = [];
         this.selectedUser = null;
         this.isSearching = false;
+        this.isSending = false;
       }
-    }, { allowSignalWrites: true });
+    });
   }
 
   ngOnInit() {
@@ -192,22 +190,25 @@ export class FriendSheetComponent implements OnInit, OnDestroy {
         if (query.trim().length < 3) {
           this.searchResults = [];
           this.isSearching = false;
-        } else {
-          this.isSearching = true;
+          this.cdr.detectChanges();
         }
       }),
       filter(query => query.trim().length >= 3),
-      debounceTime(300),
+      debounceTime(500),
       distinctUntilChanged(),
+      tap(() => {
+        this.isSearching = true;
+        this.cdr.detectChanges();
+      }),
       switchMap(query => {
-        // Simulate network delay and automatic cancellation of stale requests
-        return timer(200).pipe(
-          switchMap(() => of(this.friendService.searchUsers(query)))
+        return from(this.friendService.searchUsers(query)).pipe(
+          catchError(() => of([]))
         );
       })
     ).subscribe(results => {
       this.searchResults = results;
       this.isSearching = false;
+      this.cdr.detectChanges();
     });
   }
 
@@ -215,7 +216,7 @@ export class FriendSheetComponent implements OnInit, OnDestroy {
     return this.friendService.sheetMode() === 'add';
   }
 
-  get targetFriend(): UserProfile | null {
+  get targetFriend(): FriendData | null {
     return this.friendService.selectedFriend();
   }
 
@@ -228,16 +229,18 @@ export class FriendSheetComponent implements OnInit, OnDestroy {
     this.selectedUser = user;
   }
 
-  sendRequest() {
+  async sendRequest() {
     if (this.selectedUser) {
-      this.friendService.addFriend(this.selectedUser);
+      this.isSending = true;
+      await this.friendService.sendRequest(this.selectedUser);
+      this.isSending = false;
       this.close();
     }
   }
 
   confirmRemove() {
     if (this.targetFriend) {
-      this.friendService.removeFriend(this.targetFriend.username);
+      this.friendService.removeFriend(this.targetFriend.id);
       this.close();
     }
   }

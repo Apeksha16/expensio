@@ -28,8 +28,12 @@
   --font-sans: 'Poppins', ui-sans-serif, system-ui, sans-serif;
 }
 
-body {
-  @apply bg-background text-text antialiased min-h-screen;
+html, body {
+  @apply bg-background text-text antialiased w-full min-h-screen overflow-x-hidden m-0 p-0;
+}
+
+app-root {
+  @apply block w-full min-h-screen;
 }
 
 /* Remove number input spin buttons globally */

@@ -7,6 +7,9 @@ import { FriendService } from '../../core/services/friend.service';
   selector: 'app-splits',
   standalone: true,
   imports: [CommonModule],
+  host: {
+    class: 'block h-full'
+  },
   template: `
     <div class="h-full bg-gray-50 p-4 flex flex-col gap-4">
       
@@ -80,20 +83,20 @@ import { FriendService } from '../../core/services/friend.service';
 
         <!-- Friends List -->
         <div class="flex-1 flex flex-col gap-1.5 pb-16 mt-2" *ngIf="splitService.activeTab() === 'friends'">
-          <ng-container *ngIf="friendService.friends().length > 0; else emptyFriends">
+          <ng-container *ngIf="friendService.acceptedFriends().length > 0; else emptyFriends">
             <button 
-              *ngFor="let friend of friendService.friends()"
+              *ngFor="let friend of friendService.acceptedFriends()"
               class="w-full bg-gray-200 rounded-none p-4 flex items-center justify-between text-left hover:bg-gray-300 transition-colors active:bg-gray-400"
             >
               <div class="flex flex-col gap-0.5">
-                <span class="font-extrabold text-lg text-black">{{ friend.name }}</span>
-                <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{{ '@' + friend.username }}</span>
+                <span class="font-extrabold text-lg text-black">{{ friend.profile.name }}</span>
+                <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{{ '@' + friend.profile.username }}</span>
               </div>
               
               <div class="flex flex-col items-end">
-                <span *ngIf="getBalance(friend.username) === 0" class="text-gray-500 font-extrabold tracking-tight">Settled up</span>
-                <span *ngIf="getBalance(friend.username) > 0" class="text-green-600 font-extrabold tracking-tight text-xl">Owes you ₹{{ getBalance(friend.username) | number:'1.0-0' }}</span>
-                <span *ngIf="getBalance(friend.username) < 0" class="text-red-600 font-extrabold tracking-tight text-xl">You owe ₹{{ Math.abs(getBalance(friend.username)) | number:'1.0-0' }}</span>
+                <span *ngIf="getBalance(friend.profile.id) === 0" class="text-gray-500 font-extrabold tracking-tight">Settled up</span>
+                <span *ngIf="getBalance(friend.profile.id) > 0" class="text-green-600 font-extrabold tracking-tight text-xl">Owes you ₹{{ getBalance(friend.profile.id) | number:'1.0-0' }}</span>
+                <span *ngIf="getBalance(friend.profile.id) < 0" class="text-red-600 font-extrabold tracking-tight text-xl">You owe ₹{{ Math.abs(getBalance(friend.profile.id)) | number:'1.0-0' }}</span>
               </div>
             </button>
           </ng-container>
@@ -155,7 +158,7 @@ export class Splits implements OnInit {
     }, 2000);
   }
 
-  getBalance(username: string): number {
-    return this.splitService.balances()[username] || 0;
+  getBalance(id: string): number {
+    return this.splitService.balances()[id] || 0;
   }
 }

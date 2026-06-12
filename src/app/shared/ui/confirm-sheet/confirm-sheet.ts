@@ -39,18 +39,18 @@ import { ConfirmService } from '../../../core/services/confirm.service';
       <!-- Sheet Content -->
       <div 
         @slideUp
-        class="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-l-2 border-r-2 border-black z-[110] p-6 pb-8 flex flex-col gap-6"
+        class="fixed bottom-0 left-0 right-0 bg-white z-[110] p-6 pb-8 flex flex-col gap-6"
       >
         <div class="flex flex-col gap-2">
           <h2 class="text-2xl font-extrabold tracking-tight text-black">{{ confirmService.config()?.title }}</h2>
           <p class="text-gray-500 font-bold leading-relaxed">{{ confirmService.config()?.message }}</p>
         </div>
         
-        <div class="flex gap-2 mt-2">
-          <button (click)="close()" class="flex-1 bg-white text-black border-2 border-black rounded-none p-4 font-bold text-lg hover:bg-gray-100 transition-colors">
+        <div class="flex gap-3 mt-2">
+          <button (click)="close()" class="flex-1 bg-white text-gray-900 p-3.5 font-bold text-sm tracking-wide transition-all border-2 border-gray-200 active:scale-[0.98] rounded-none hover:border-gray-300 text-center">
             {{ confirmService.config()?.cancelText }}
           </button>
-          <button (click)="confirm()" class="flex-1 bg-red-500 text-white border-2 border-transparent rounded-none p-4 font-bold text-lg hover:border-black transition-colors">
+          <button (click)="confirm()" class="flex-1 bg-red-600 text-white p-3.5 font-bold text-sm tracking-wide transition-all border-2 border-transparent active:scale-[0.98] rounded-none flex items-center justify-center gap-2">
             {{ confirmService.config()?.confirmText }}
           </button>
         </div>

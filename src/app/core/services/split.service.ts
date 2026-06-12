@@ -1,26 +1,31 @@
 import { Injectable, signal, PLATFORM_ID, inject, computed } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { AuthService } from './auth';
+import { SupabaseService } from './supabase.service';
 
 export interface SplitParticipant {
-  username: string;
+  userId: string;
   amountOwed: number;
 }
 
 export interface SplitExpense {
   id: string;
   title: string;
-  totalAmount: number;
-  payerUsername: string;
+  total_amount: number;
+  payer_id: string;
   participants: SplitParticipant[];
-  groupId?: string;
+  participant_ids: string[];
+  group_id?: string | null;
   date: string;
+  created_at: string;
 }
 
 export interface SplitGroup {
   id: string;
   name: string;
-  members: string[]; // usernames
+  creator_id: string;
+  members: string[]; // user ids
+  created_at: string;
 }
 
 @Injectable({
@@ -29,9 +34,7 @@ export interface SplitGroup {
 export class SplitService {
   private platformId = inject(PLATFORM_ID);
   private authService = inject(AuthService);
-
-  private readonly STORAGE_SPLITS = 'expensio_splits';
-  private readonly STORAGE_GROUPS = 'expensio_groups';
+  private supabase = inject(SupabaseService);
 
   // Sheet state
   readonly isSheetOpen = signal<boolean>(false);
@@ -42,71 +45,126 @@ export class SplitService {
   readonly activeTab = signal<'friends' | 'groups'>('friends');
 
   // Data state
-  readonly splits = signal<SplitExpense[]>(this.loadData<SplitExpense[]>(this.STORAGE_SPLITS, []));
-  readonly groups = signal<SplitGroup[]>(this.loadData<SplitGroup[]>(this.STORAGE_GROUPS, []));
+  readonly splits = signal<SplitExpense[]>([]);
+  readonly groups = signal<SplitGroup[]>([]);
 
-  private loadData<T>(key: string, defaultVal: T): T {
+  constructor() {
     if (isPlatformBrowser(this.platformId)) {
-      const stored = localStorage.getItem(key);
-      if (stored) return JSON.parse(stored);
+      // Small delay to ensure auth is ready or wait for auth events
+      setTimeout(() => {
+        this.loadData();
+        this.setupRealtime();
+      }, 100);
     }
-    return defaultVal;
   }
 
-  private saveData(key: string, data: any) {
-    if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem(key, JSON.stringify(data));
-    }
+  private async loadData() {
+    const user = this.authService.userProfile();
+    if (!user) return;
+
+    // Load Groups
+    const { data: groupsData } = await this.supabase.client
+      .from('split_groups')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (groupsData) this.groups.set(groupsData);
+
+    // Load Expenses
+    const { data: expensesData } = await this.supabase.client
+      .from('split_expenses')
+      .select('*')
+      .order('date', { ascending: false });
+    if (expensesData) this.splits.set(expensesData);
+  }
+
+  private setupRealtime() {
+    this.supabase.client
+      .channel('public:split_groups')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'split_groups' }, () => {
+        this.loadData();
+      })
+      .subscribe();
+
+    this.supabase.client
+      .channel('public:split_expenses')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'split_expenses' }, () => {
+        this.loadData();
+      })
+      .subscribe();
   }
 
   // --- Actions ---
 
-  addSplit(split: SplitExpense) {
-    this.splits.update(curr => [split, ...curr]);
-    this.saveData(this.STORAGE_SPLITS, this.splits());
+  async addSplit(split: Omit<SplitExpense, 'id' | 'created_at'>) {
+    const { data, error } = await this.supabase.client
+      .from('split_expenses')
+      .insert([split])
+      .select()
+      .single();
+      
+    if (error) console.error('Error adding split:', error);
+    else if (data) this.loadData();
   }
 
-  createGroup(group: SplitGroup) {
-    this.groups.update(curr => [group, ...curr]);
-    this.saveData(this.STORAGE_GROUPS, this.groups());
+  async createGroup(group: Omit<SplitGroup, 'id' | 'created_at'>) {
+    const { data, error } = await this.supabase.client
+      .from('split_groups')
+      .insert([group])
+      .select()
+      .single();
+
+    if (error) console.error('Error creating group:', error);
+    else if (data) this.loadData();
   }
 
-  updateGroup(group: SplitGroup) {
-    this.groups.update(curr => curr.map(g => g.id === group.id ? group : g));
-    this.saveData(this.STORAGE_GROUPS, this.groups());
+  async updateGroup(group: SplitGroup) {
+    const { data, error } = await this.supabase.client
+      .from('split_groups')
+      .update({ name: group.name, members: group.members })
+      .eq('id', group.id)
+      .select()
+      .single();
+
+    if (error) console.error('Error updating group:', error);
+    else if (data) this.loadData();
   }
 
-  deleteGroup(id: string) {
-    this.groups.update(curr => curr.filter(g => g.id !== id));
-    this.saveData(this.STORAGE_GROUPS, this.groups());
+  async deleteGroup(id: string) {
+    const { error } = await this.supabase.client
+      .from('split_groups')
+      .delete()
+      .eq('id', id);
+
+    if (error) console.error('Error deleting group:', error);
+    else this.loadData();
   }
 
   // --- Computations ---
 
   // Calculate balances. Positive = they owe you. Negative = you owe them.
   balances = computed(() => {
-    const currentUser = this.authService.userProfile()?.username;
+    const currentUser = this.authService.userProfile()?.id;
     if (!currentUser) return {};
 
     const balanceMap: Record<string, number> = {};
 
     this.splits().forEach(split => {
-      const isPayer = split.payerUsername === currentUser;
+      const isPayer = split.payer_id === currentUser;
 
       if (isPayer) {
         // You paid. Others owe you.
         split.participants.forEach(p => {
-          if (p.username !== currentUser) {
-            balanceMap[p.username] = (balanceMap[p.username] || 0) + p.amountOwed;
+          if (p.userId !== currentUser) {
+            balanceMap[p.userId] = (balanceMap[p.userId] || 0) + p.amountOwed;
           }
         });
       } else {
         // Someone else paid.
         // Did you participate?
-        const myParticipant = split.participants.find(p => p.username === currentUser);
+        const myParticipant = split.participants.find(p => p.userId === currentUser);
         if (myParticipant) {
           // You owe the payer
-          balanceMap[split.payerUsername] = (balanceMap[split.payerUsername] || 0) - myParticipant.amountOwed;
+          balanceMap[split.payer_id] = (balanceMap[split.payer_id] || 0) - myParticipant.amountOwed;
         }
       }
     });

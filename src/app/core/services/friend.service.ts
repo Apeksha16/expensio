@@ -1,75 +1,144 @@
-import { Injectable, signal, PLATFORM_ID, inject } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
-import { UserProfile } from './auth';
+import { Injectable, signal, inject, effect, untracked } from '@angular/core';
+import { UserProfile, AuthService } from './auth';
+import { SupabaseService } from './supabase.service';
+
+export interface FriendRelationship {
+  id: string;
+  requester_id: string;
+  addressee_id: string;
+  status: 'pending' | 'accepted';
+  created_at: string;
+  requester?: UserProfile;
+  addressee?: UserProfile;
+}
+
+export interface FriendData {
+  id: string;
+  status: 'pending' | 'accepted';
+  isIncoming: boolean;
+  profile: UserProfile;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class FriendService {
-  private platformId = inject(PLATFORM_ID);
-
-  private readonly STORAGE_KEY = 'expensio_friends';
+  private authService = inject(AuthService);
+  private supabaseService = inject(SupabaseService);
 
   // Sheet state
   readonly isSheetOpen = signal<boolean>(false);
   readonly sheetMode = signal<'add' | 'remove'>('add');
-  readonly selectedFriend = signal<UserProfile | null>(null);
-
-  // Mock Database of other users for search
-  private readonly MOCK_USERS: UserProfile[] = [
-    { name: 'Alice Smith', username: 'alice99', email: 'alice@example.com', salary: 60000, avatarId: 2 },
-    { name: 'Bob Jones', username: 'bobj', email: 'bob.j@example.com', salary: 75000, avatarId: 3 },
-    { name: 'Charlie Brown', username: 'charlieb', email: 'charlie@example.com', salary: 50000, avatarId: 4 },
-    { name: 'Diana Prince', username: 'wonderd', email: 'diana@example.com', salary: 120000, avatarId: 5 },
-    { name: 'Ethan Hunt', username: 'ethanh', email: 'ethan@example.com', salary: 90000, avatarId: 6 },
-    { name: 'Fiona Gallagher', username: 'fionag', email: 'fiona@example.com', salary: 45000, avatarId: 7 },
-    { name: 'George Miller', username: 'georgem', email: 'george@example.com', salary: 55000, avatarId: 8 },
-    { name: 'Hannah Abbott', username: 'hannah_a', email: 'hannah@example.com', salary: 65000, avatarId: 9 },
-    { name: 'Ian Wright', username: 'ianw', email: 'ian@example.com', salary: 70000, avatarId: 10 },
-  ];
+  readonly selectedFriend = signal<FriendData | null>(null);
 
   // Data state
-  readonly friends = signal<UserProfile[]>(this.loadFriends());
+  readonly isLoading = signal(false);
+  readonly acceptedFriends = signal<FriendData[]>([]);
+  readonly incomingRequests = signal<FriendData[]>([]);
+  readonly outgoingRequests = signal<FriendData[]>([]);
 
-  private loadFriends(): UserProfile[] {
-    if (isPlatformBrowser(this.platformId)) {
-      const stored = localStorage.getItem(this.STORAGE_KEY);
-      if (stored) {
-        return JSON.parse(stored);
+  private realtimeChannel: any = null;
+
+  constructor() {
+    effect(() => {
+      const user = this.authService.currentUser();
+      if (user) {
+        untracked(() => {
+          this.fetchFriends();
+          this.setupRealtime();
+        });
+      } else {
+        this.acceptedFriends.set([]);
+        this.incomingRequests.set([]);
+        this.outgoingRequests.set([]);
+        if (this.realtimeChannel) {
+          this.supabaseService.client.removeChannel(this.realtimeChannel);
+          this.realtimeChannel = null;
+        }
       }
+    });
+  }
+
+  private setupRealtime() {
+    if (this.realtimeChannel) return;
+    this.realtimeChannel = this.supabaseService.client.channel('public:friends')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'friends' }, payload => {
+        this.fetchFriends();
+      })
+      .subscribe();
+  }
+
+  async fetchFriends() {
+    const user = this.authService.currentUser();
+    if (!user) return;
+
+    this.isLoading.set(true);
+    const { data, error } = await this.supabaseService.client
+      .from('friends')
+      .select(`
+        id,
+        status,
+        requester_id,
+        addressee_id,
+        created_at,
+        requester:profiles!friends_requester_id_fkey(*),
+        addressee:profiles!friends_addressee_id_fkey(*)
+      `)
+      .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`);
+
+    if (!error && data) {
+      const allData: FriendData[] = data.map((row: any) => {
+        const isIncoming = row.addressee_id === user.id;
+        return {
+          id: row.id,
+          status: row.status,
+          isIncoming,
+          profile: isIncoming ? row.requester : row.addressee
+        };
+      });
+
+      this.acceptedFriends.set(allData.filter(f => f.status === 'accepted'));
+      this.incomingRequests.set(allData.filter(f => f.status === 'pending' && f.isIncoming));
+      this.outgoingRequests.set(allData.filter(f => f.status === 'pending' && !f.isIncoming));
     }
-    // Start with one mock friend for demonstration
-    return [
-      this.MOCK_USERS[0]
-    ];
+    this.isLoading.set(false);
   }
 
-  private saveFriends() {
-    if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.friends()));
+  async searchUsers(query: string): Promise<UserProfile[]> {
+    const { data, error } = await this.supabaseService.client
+      .rpc('search_users_for_friendship', { search_query: query });
+      
+    if (!error && data) {
+      return data as UserProfile[];
     }
+    return [];
   }
 
-  searchUsers(query: string): UserProfile[] {
-    if (!query || query.trim().length === 0) return [];
-    
-    const lowerQuery = query.toLowerCase().trim();
-    return this.MOCK_USERS.filter(u => 
-      u.username.toLowerCase().includes(lowerQuery) || 
-      u.email.toLowerCase().includes(lowerQuery)
-    ).filter(u => !this.friends().some(f => f.username === u.username)); // Exclude already added friends
+  async sendRequest(targetUser: UserProfile) {
+    const user = this.authService.currentUser();
+    if (!user) return;
+
+    await this.supabaseService.client
+      .from('friends')
+      .insert({
+        requester_id: user.id,
+        addressee_id: targetUser.id,
+        status: 'pending'
+      });
   }
 
-  addFriend(user: UserProfile) {
-    if (!this.friends().some(f => f.username === user.username)) {
-      this.friends.update(curr => [...curr, user]);
-      this.saveFriends();
-    }
+  async acceptRequest(friendshipId: string) {
+    await this.supabaseService.client
+      .from('friends')
+      .update({ status: 'accepted' })
+      .eq('id', friendshipId);
   }
 
-  removeFriend(username: string) {
-    this.friends.update(curr => curr.filter(f => f.username !== username));
-    this.saveFriends();
+  async removeFriend(friendshipId: string) {
+    await this.supabaseService.client
+      .from('friends')
+      .delete()
+      .eq('id', friendshipId);
   }
 
   openAddSheet() {
@@ -78,7 +147,7 @@ export class FriendService {
     this.isSheetOpen.set(true);
   }
 
-  openRemoveSheet(friend: UserProfile) {
+  openRemoveSheet(friend: FriendData) {
     this.sheetMode.set('remove');
     this.selectedFriend.set(friend);
     this.isSheetOpen.set(true);

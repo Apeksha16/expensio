@@ -3,13 +3,14 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService, UserProfile } from '../../core/services/auth';
 import { ConfirmService } from '../../core/services/confirm.service';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="min-h-screen bg-gray-50 p-6 flex flex-col gap-8 pb-12">
+    <div class="bg-gray-50 p-6 flex flex-col gap-8">
       
       <!-- Top Selected Avatar & Selection List -->
       <div class="flex flex-col items-center gap-6 mt-4">
@@ -36,62 +37,86 @@ import { ConfirmService } from '../../core/services/confirm.service';
       <div class="flex flex-col gap-6">
         
         <!-- Editable Name -->
-        <div class="flex flex-col gap-2">
-          <label class="text-sm font-extrabold tracking-widest uppercase text-black">Full Name</label>
-          <input 
-            type="text" 
-            [ngModel]="pendingProfile().name" 
-            (ngModelChange)="updateField('name', $event)"
-            class="w-full bg-white border-2 border-black rounded-none p-4 font-bold text-lg focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 transition-all"
-            placeholder="Your Name"
-          >
+        <div class="flex flex-col gap-1">
+          <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase">Full Name</label>
+          <div class="relative group">
+            <input 
+              type="text" 
+              [ngModel]="pendingProfile().name" 
+              (ngModelChange)="updateField('name', $event)"
+              class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-[#1a2e22] hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans"
+              placeholder="e.g. Jane Doe"
+            >
+          </div>
         </div>
 
         <!-- Non-editable Username -->
-        <div class="flex flex-col gap-2 opacity-60">
-          <label class="text-sm font-extrabold tracking-widest uppercase text-black">Username</label>
-          <input 
-            type="text" 
-            [value]="pendingProfile().username"
-            disabled
-            class="w-full bg-gray-200 border-2 border-gray-400 text-gray-500 rounded-none p-4 font-bold text-lg cursor-not-allowed"
-          >
+        <div class="flex flex-col gap-1">
+          <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase">Username</label>
+          <div class="relative group">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <span class="text-gray-500 font-medium">@</span>
+            </div>
+            <input 
+              type="text" 
+              [value]="pendingProfile().username"
+              disabled
+              class="w-full bg-gray-50 border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans pl-8 opacity-50 cursor-not-allowed"
+            >
+          </div>
         </div>
 
         <!-- Non-editable Email -->
-        <div class="flex flex-col gap-2 opacity-60">
-          <label class="text-sm font-extrabold tracking-widest uppercase text-black">Email</label>
-          <input 
-            type="text" 
-            [value]="pendingProfile().email"
-            disabled
-            class="w-full bg-gray-200 border-2 border-gray-400 text-gray-500 rounded-none p-4 font-bold text-lg cursor-not-allowed"
-          >
+        <div class="flex flex-col gap-1">
+          <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase">Email</label>
+          <div class="relative group">
+            <input 
+              type="text" 
+              [value]="pendingProfile().email"
+              disabled
+              class="w-full bg-gray-50 border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans opacity-50 cursor-not-allowed"
+            >
+          </div>
         </div>
 
         <!-- Editable Salary -->
-        <div class="flex flex-col gap-2 mt-4">
-          <label class="text-sm font-extrabold tracking-widest uppercase text-blue-600">Monthly Salary</label>
-          <input 
-            type="number" 
-            [ngModel]="pendingProfile().salary" 
-            (ngModelChange)="updateField('salary', $event)"
-            (keydown)="preventE($event)"
-            class="w-full bg-white border-2 border-blue-600 rounded-none p-4 font-bold text-lg focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 transition-all"
-            placeholder="e.g. 50000"
-          >
+        <div class="flex flex-col gap-1">
+          <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase">Monthly Salary</label>
+          <div class="relative group">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <span class="text-gray-500 font-medium">₹</span>
+            </div>
+            <input 
+              type="text" 
+              inputmode="numeric"
+              [ngModel]="formattedSalary" 
+              (ngModelChange)="formatSalary($event)"
+              class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-[#1a2e22] hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans pl-8 pr-12"
+              placeholder="0"
+            >
+            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+              <span class="text-gray-400 text-xs">INR</span>
+            </div>
+          </div>
         </div>
 
       </div>
 
       <!-- Update Button -->
       <button 
-        [disabled]="!isDirty()"
+        [disabled]="!isDirty() || isUpdating()"
         (click)="handleUpdate()"
-        class="w-full mt-4 p-4 font-extrabold text-lg transition-colors border-2 rounded-none"
-        [ngClass]="isDirty() ? 'bg-black text-white border-black hover:bg-gray-800' : 'bg-gray-200 text-gray-400 border-gray-300 cursor-not-allowed'"
+        class="w-full bg-black text-white p-3.5 font-bold text-sm tracking-wide transition-all border-2 border-transparent active:scale-[0.98] mt-4 rounded-none disabled:opacity-50 disabled:bg-black disabled:active:scale-100 disabled:cursor-not-allowed flex items-center justify-center gap-2"
       >
-        UPDATE PROFILE
+        @if (isUpdating()) {
+          <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          Updating...
+        } @else {
+          Update Profile
+        }
       </button>
     </div>
   `
@@ -99,8 +124,10 @@ import { ConfirmService } from '../../core/services/confirm.service';
 export class Profile {
   authService = inject(AuthService);
   private confirmService = inject(ConfirmService);
+  private toastService = inject(ToastService);
 
   pendingProfile = signal<UserProfile>({ ...this.authService.userProfile() });
+  isUpdating = signal(false);
 
   isDirty = computed(() => {
     const current = this.authService.userProfile();
@@ -141,30 +168,61 @@ export class Profile {
     this.pendingProfile.update(p => ({ ...p, [field]: value }));
   }
 
-  preventE(event: KeyboardEvent) {
-    if (['e', 'E', '+', '-'].includes(event.key)) {
-      event.preventDefault();
-    }
+  get formattedSalary(): string {
+    const val = this.pendingProfile().salary;
+    if (!val) return '';
+    return new Intl.NumberFormat('en-IN').format(val);
   }
 
-  handleUpdate() {
-    if (!this.isDirty()) return;
+  formatSalary(value: string) {
+    if (!value) {
+      this.updateField('salary', 0);
+      return;
+    }
+    let rawValue = value.toString().replace(/[^0-9]/g, '');
+    if (!rawValue) {
+      this.updateField('salary', 0);
+      return;
+    }
+    if (parseInt(rawValue) > 999999) {
+      rawValue = '999999';
+    }
+    this.updateField('salary', parseInt(rawValue));
+  }
 
+  async handleUpdate() {
+    if (!this.isDirty() || this.isUpdating()) return;
+
+    this.isUpdating.set(true);
     const current = this.authService.userProfile();
     const pending = this.pendingProfile();
 
-    if (current.salary !== pending.salary) {
-      this.confirmService.open({
-        title: 'Update Salary',
-        message: 'Applying the monthly salary will take effect from the 1st of the upcoming month only.',
-        confirmText: 'Apply Updates',
-        cancelText: 'Cancel',
-        onConfirm: () => {
-          this.authService.updateProfile(this.pendingProfile());
-        }
-      });
-    } else {
-      this.authService.updateProfile(this.pendingProfile());
+    try {
+      if (current.salary !== pending.salary) {
+        this.confirmService.open({
+          title: 'Update Salary',
+          message: 'Applying the monthly salary will take effect from the 1st of the upcoming month only.',
+          confirmText: 'Apply Updates',
+          cancelText: 'Cancel',
+          onConfirm: async () => {
+            this.isUpdating.set(true); // reset because confirm is async
+            await this.authService.updateProfile(this.pendingProfile());
+            this.toastService.showSuccess('Profile updated successfully!', 2000);
+            this.isUpdating.set(false);
+          }
+        });
+        // If they click cancel, the confirm sheet just closes, but we need to reset updating state
+        // The confirm sheet might need to handle onCancel if we wanted to strictly reset it there. 
+        // For simplicity, we can reset it right after opening since the actual update happens in onConfirm.
+        this.isUpdating.set(false); 
+      } else {
+        await this.authService.updateProfile(this.pendingProfile());
+        this.toastService.showSuccess('Profile updated successfully!', 2000);
+        this.isUpdating.set(false);
+      }
+    } catch (e) {
+      this.isUpdating.set(false);
+      this.toastService.showError('Failed to update profile');
     }
   }
 }

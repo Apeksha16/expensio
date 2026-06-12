@@ -7,8 +7,11 @@ import { MonthPickerComponent } from '../../shared/ui/month-picker/month-picker'
   selector: 'app-expenses',
   standalone: true,
   imports: [CommonModule, MonthPickerComponent],
+  host: {
+    class: 'block h-full'
+  },
   template: `
-    <div class="min-h-screen bg-gray-50 p-4 flex flex-col gap-4">
+    <div class="h-full bg-gray-50 p-4 flex flex-col gap-4">
       
       <!-- Header Area -->
       <div class="bg-black text-white p-5 border border-black rounded-none">
@@ -27,7 +30,7 @@ import { MonthPickerComponent } from '../../shared/ui/month-picker/month-picker'
       <!-- Expense List -->
       <div class="flex-1 flex flex-col gap-1.5 pb-16 mt-2">
         
-        <ng-container *ngIf="isInitialLoading(); else contentArea">
+        <ng-container *ngIf="expenseService.isLoading(); else contentArea">
            <div *ngFor="let i of [1,2,3,4,5]" class="w-full bg-gray-200 rounded-none p-3 h-20 animate-pulse flex justify-between items-center">
              <div class="flex flex-col gap-2 w-1/2">
                <div class="h-4 bg-gray-300 w-3/4"></div>
@@ -94,16 +97,10 @@ export class Expenses implements OnInit, AfterViewInit, OnDestroy {
   expenseService = inject(ExpenseService);
   isMonthPickerOpen = false;
   
-  // Simulation
-  isInitialLoading = signal(true);
-
   @ViewChild('scrollTrigger') scrollTrigger!: ElementRef;
   private observer: IntersectionObserver | null = null;
 
   ngOnInit() {
-    setTimeout(() => {
-      this.isInitialLoading.set(false);
-    }, 2000);
   }
 
   ngAfterViewInit() {

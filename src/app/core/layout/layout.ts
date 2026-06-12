@@ -15,11 +15,12 @@ import { BudgetService } from '../services/budget.service';
 import { ConfirmService } from '../services/confirm.service';
 import { FriendService } from '../services/friend.service';
 import { SplitService } from '../services/split.service';
+import { ToastComponent } from '../../shared/ui/toast/toast';
 
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule, BottomSheetComponent, ConfirmSheetComponent, BudgetSheetComponent, FriendSheetComponent, SplitSheetComponent, GroupSheetComponent],
+  imports: [CommonModule, RouterModule, BottomSheetComponent, ConfirmSheetComponent, BudgetSheetComponent, FriendSheetComponent, SplitSheetComponent, GroupSheetComponent, ToastComponent],
   animations: [slideInAnimation],
   template: `
     <div class="min-h-screen bg-gray-50 flex flex-col relative w-full">
@@ -122,6 +123,9 @@ import { SplitService } from '../services/split.service';
       <app-friend-sheet></app-friend-sheet>
       <app-split-sheet></app-split-sheet>
       <app-group-sheet></app-group-sheet>
+
+      <!-- Global Toasts -->
+      <app-toast></app-toast>
     </div>
   `
 })

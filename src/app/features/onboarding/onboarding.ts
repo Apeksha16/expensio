@@ -1,6 +1,7 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth';
+import { ToastService } from '../../core/services/toast.service';
 import { FormsModule, NgForm } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Button } from '../../shared/ui/button/button';
@@ -52,19 +53,25 @@ import { Button } from '../../shared/ui/button/button';
               <input type="text" id="username" name="username" required
                 [disabled]="isLoading()"
                 pattern="^[a-zA-Z0-9_]+$"
-                [(ngModel)]="formData.username" #usernameModel="ngModel"
+                [(ngModel)]="formData.username" 
+                (ngModelChange)="usernameError.set('')"
+                #usernameModel="ngModel"
                 [ngClass]="{
-                  'border-red-500 focus:border-red-500 hover:border-red-500': usernameModel.invalid && (usernameModel.touched || onboardingForm.submitted),
-                  'border-gray-200 focus:border-[#1a2e22] hover:border-gray-300': !(usernameModel.invalid && (usernameModel.touched || onboardingForm.submitted))
+                  'border-red-500 focus:border-red-500 hover:border-red-500': (usernameModel.invalid && (usernameModel.touched || onboardingForm.submitted)) || usernameError(),
+                  'border-gray-200 focus:border-[#1a2e22] hover:border-gray-300': !((usernameModel.invalid && (usernameModel.touched || onboardingForm.submitted)) || usernameError())
                 }"
                 class="w-full bg-white border-2 text-gray-900 text-sm rounded-none focus:ring-0 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans pl-8 disabled:opacity-50 disabled:bg-gray-50" 
                 placeholder="janedoe">
             </div>
-            <p class="text-[10px] text-red-500 min-h-[16px] transition-opacity duration-200"
-               [class.opacity-0]="!usernameModel.invalid || (!usernameModel.touched && !onboardingForm.submitted)"
-               [class.opacity-100]="usernameModel.invalid && (usernameModel.touched || onboardingForm.submitted)">
-               Letters, numbers, and underscores only. No spaces.
-            </p>
+            @if (usernameError()) {
+              <p class="text-[10px] text-red-500 min-h-[16px]">{{ usernameError() }}</p>
+            } @else {
+              <p class="text-[10px] text-red-500 min-h-[16px] transition-opacity duration-200"
+                 [class.opacity-0]="!usernameModel.invalid || (!usernameModel.touched && !onboardingForm.submitted)"
+                 [class.opacity-100]="usernameModel.invalid && (usernameModel.touched || onboardingForm.submitted)">
+                 Letters, numbers, and underscores only. No spaces.
+              </p>
+            }
           </div>
 
           <div class="flex flex-col gap-1">
@@ -109,17 +116,44 @@ import { Button } from '../../shared/ui/button/button';
   `,
   styles: ``,
 })
-export class Onboarding {
+export class Onboarding implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
+  private toastService = inject(ToastService);
 
   isLoading = signal(false);
+  usernameError = signal('');
 
   formData = {
     name: '',
     username: '',
     salary: ''
   };
+
+  ngOnInit() {
+    const profile = this.authService.userProfile();
+    
+    // Populate the name from the auth profile (e.g., Google Account name)
+    if (profile.name && profile.name.toLowerCase() !== 'user') {
+      this.formData.name = profile.name;
+    }
+
+    // Auto-generate a username based on their actual name
+    if (this.formData.name) {
+      this.formData.username = this.generateUsername(this.formData.name);
+    } else if (profile.username && profile.username !== 'user') {
+      // Fallback to the email-based username if name wasn't provided
+      this.formData.username = profile.username.replace(/[^a-zA-Z0-9_]/g, '');
+    }
+  }
+
+  private generateUsername(name: string): string {
+    // Basic permutation: remove spaces, convert to lowercase, add a random 3-digit suffix
+    // e.g., "Jane Doe" -> "janedoe"
+    const cleanName = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const randomSuffix = Math.floor(100 + Math.random() * 900);
+    return cleanName + randomSuffix.toString();
+  }
 
   formatSalary(value: string) {
     if (!value) {
@@ -137,15 +171,33 @@ export class Onboarding {
     this.formData.salary = new Intl.NumberFormat('en-IN').format(parseInt(rawValue));
   }
 
-  onCompleteOnboarding(form: NgForm) {
+  async onCompleteOnboarding(form: NgForm) {
+    this.usernameError.set('');
     if (form.invalid) return;
     
     this.isLoading.set(true);
     
-    setTimeout(() => {
-      this.isLoading.set(false);
-      this.authService.completeOnboarding();
-      this.router.navigate(['/dashboard']);
-    }, 3000);
+    const salaryNum = parseInt(this.formData.salary.replace(/[^0-9]/g, '')) || 0;
+    
+    const result = await this.authService.completeOnboarding({
+      name: this.formData.name,
+      username: this.formData.username,
+      salary: salaryNum
+    });
+    
+    this.isLoading.set(false);
+
+    if (result && result.success === false) {
+      if (result.error === 'username_taken') {
+        this.usernameError.set('This username is already taken. Please choose another.');
+        this.toastService.showError('Username is already taken');
+      } else {
+        this.toastService.showError('An error occurred during onboarding. Please try again.');
+      }
+      return;
+    }
+
+    this.toastService.showSuccess('Profile setup complete!', 2000);
+    this.router.navigate(['/dashboard']);
   }
 }

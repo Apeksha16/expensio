@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, ViewChild, ElementRef, OnDestroy, signal, inject, OnInit } from '@angular/core';
+import { Component, AfterViewInit, ViewChild, ElementRef, OnDestroy, signal, inject, OnInit, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Chart } from 'chart.js/auto';
 import { ExpenseService } from '../../core/services/expense.service';
@@ -7,6 +7,9 @@ import { ExpenseService } from '../../core/services/expense.service';
   selector: 'app-dashboard',
   standalone: true,
   imports: [CommonModule],
+  host: {
+    class: 'flex flex-col h-full'
+  },
   template: `
     <div class="flex-1 bg-gray-50 p-6 flex flex-col gap-6 pb-20">
       
@@ -45,7 +48,7 @@ import { ExpenseService } from '../../core/services/expense.service';
             </button>
           </div>
           <p (click)="toggleMask()" class="text-4xl font-extrabold tracking-tight cursor-pointer select-none">
-            {{ isMasked() ? '••••••••' : '₹2,450.00' }}
+            {{ isMasked() ? '••••••••' : (thisMonthTotal() | currency:'INR':'symbol':'1.2-2') }}
           </p>
         </div>
 
@@ -116,41 +119,29 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   chartType: 'weekly' | 'monthly' = 'weekly';
   chartInstance: any;
   isMasked = signal(true);
-  isInitialLoading = signal(true);
+  isInitialLoading = signal(false);
 
   @ViewChild('chartCanvas') chartCanvas!: ElementRef;
 
-  private weeklyData = {
-    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-    datasets: [{
-      label: 'Expenses',
-      data: [120, 190, 300, 50, 20, 30, 400],
-      backgroundColor: '#000000',
-      borderWidth: 2,
-      borderColor: '#000000',
-      borderRadius: 0,
-      borderSkipped: false,
-    }]
-  };
+  thisMonthTotal = computed(() => {
+    const month = this.expenseService.activeMonth();
+    return this.expenseService.expenses()
+      .filter(e => e.date.startsWith(month))
+      .reduce((sum, e) => sum + e.amount, 0);
+  });
 
-  private monthlyData = {
-    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-    datasets: [{
-      label: 'Expenses',
-      data: [450, 600, 320, 1080],
-      backgroundColor: '#000000',
-      borderWidth: 2,
-      borderColor: '#000000',
-      borderRadius: 0,
-      borderSkipped: false,
-    }]
-  };
+  constructor() {
+    effect(() => {
+      // Whenever expenses change, update chart if initialized
+      const _ = this.expenseService.expenses(); // track dependency
+      if (!this.isInitialLoading()) {
+        this.updateChartData();
+      }
+    });
+  }
 
   ngOnInit() {
-    setTimeout(() => {
-      this.isInitialLoading.set(false);
-      setTimeout(() => this.initChart(), 0);
-    }, 2000);
+    // Initial loading is now immediate, no simulation
   }
 
   ngAfterViewInit() {
@@ -185,7 +176,7 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
     
     this.chartInstance = new Chart(ctx, {
       type: 'bar',
-      data: this.chartType === 'weekly' ? this.weeklyData : this.monthlyData,
+      data: this.getChartData(),
       options: {
         responsive: true,
         maintainAspectRatio: false,
@@ -241,6 +232,7 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
               drawTicks: false,
             },
             ticks: {
+              maxTicksLimit: 5,
               font: {
                 family: 'sans-serif',
                 weight: 'bold',
@@ -262,8 +254,55 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
 
   private updateChartData() {
     if (this.chartInstance) {
-      this.chartInstance.data = this.chartType === 'weekly' ? this.weeklyData : this.monthlyData;
+      this.chartInstance.data = this.getChartData();
       this.chartInstance.update();
+    }
+  }
+
+  private getChartData() {
+    const expenses = this.expenseService.expenses();
+    
+    if (this.chartType === 'weekly') {
+      // Very basic grouping by day of week for current month
+      const days = [0, 0, 0, 0, 0, 0, 0];
+      expenses.forEach(e => {
+        const d = new Date(e.date);
+        let day = d.getDay() - 1;
+        if (day === -1) day = 6; // Sunday
+        days[day] += e.amount;
+      });
+      return {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        datasets: [{
+          label: 'Expenses',
+          data: days,
+          backgroundColor: '#000000',
+          borderWidth: 2,
+          borderColor: '#000000',
+          borderRadius: 0,
+          borderSkipped: false,
+        }]
+      };
+    } else {
+      // Grouping by week of month
+      const weeks = [0, 0, 0, 0];
+      expenses.forEach(e => {
+        const d = new Date(e.date);
+        const week = Math.min(Math.floor((d.getDate() - 1) / 7), 3);
+        weeks[week] += e.amount;
+      });
+      return {
+        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4+'],
+        datasets: [{
+          label: 'Expenses',
+          data: weeks,
+          backgroundColor: '#000000',
+          borderWidth: 2,
+          borderColor: '#000000',
+          borderRadius: 0,
+          borderSkipped: false,
+        }]
+      };
     }
   }
 }

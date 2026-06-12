@@ -57,40 +57,60 @@ import { AuthService } from '../../../core/services/auth';
         </div>
 
         <div class="p-6">
-          <form [formGroup]="groupForm" (ngSubmit)="onSubmit()" class="space-y-6">
+          <ng-container *ngIf="friendService.acceptedFriends().length > 0; else noFriends">
+            <form [formGroup]="groupForm" (ngSubmit)="onSubmit()" class="space-y-4">
             
-            <div class="space-y-1">
-              <label class="block text-[10px] font-extrabold uppercase tracking-widest text-gray-500">Group Name</label>
+            <div class="flex flex-col gap-1">
+              <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase">Group Name</label>
               <input type="text" formControlName="name" placeholder="Goa Trip, Roommates..." 
-                class="w-full bg-white border-2 border-black rounded-none p-4 font-bold text-lg focus:outline-none focus:bg-gray-50 transition-colors">
+                class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-[#1a2e22] hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans">
             </div>
 
-            <div class="space-y-1">
-              <label class="block text-[10px] font-extrabold uppercase tracking-widest text-gray-500">Group Members</label>
+            <div class="flex flex-col gap-1">
+              <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase">Group Members</label>
               <div class="flex flex-col gap-2">
-                <label class="flex items-center gap-3 p-4 bg-white border-2 border-black cursor-not-allowed">
-                  <input type="checkbox" checked disabled class="w-6 h-6 accent-black border-2 border-black">
-                  <span class="font-bold text-lg text-gray-500">Me (Admin)</span>
+                <label class="flex items-center gap-3 p-3 bg-white border-2 border-gray-200 cursor-not-allowed">
+                  <input type="checkbox" checked disabled class="w-5 h-5 accent-[#1a2e22] border-2 border-gray-300 rounded-none focus:ring-0">
+                  <span class="font-bold text-sm text-gray-400">Me (Admin)</span>
                 </label>
                 
-                <label *ngFor="let friend of friendService.friends()" class="flex items-center gap-3 p-4 bg-white border-2 border-black cursor-pointer hover:bg-gray-50 transition-colors">
-                  <input type="checkbox" (change)="toggleGroupMember(friend.username)" [checked]="isGroupMember(friend.username)" class="w-6 h-6 accent-black border-2 border-black">
-                  <span class="font-bold text-lg">{{ friend.name }}</span>
+                <label *ngFor="let friend of friendService.acceptedFriends()" class="flex items-center gap-3 p-3 bg-white border-2 border-gray-200 cursor-pointer hover:border-[#1a2e22] transition-colors">
+                  <input type="checkbox" (change)="toggleGroupMember(friend.profile.id)" [checked]="isGroupMember(friend.profile.id)" class="w-5 h-5 accent-[#1a2e22] border-2 border-gray-300 rounded-none focus:ring-0">
+                  <span class="font-bold text-sm text-gray-900">{{ friend.profile.name }}</span>
                 </label>
               </div>
             </div>
 
-            <div class="pt-2 flex gap-2">
+            <div class="mt-4 flex gap-4">
               <button type="button" (click)="close()"
-                class="flex-1 bg-white text-black border-2 border-black rounded-none p-4 font-bold text-lg hover:bg-gray-100 transition-colors">
+                class="flex-1 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-white border-2 border-gray-200 text-gray-900 hover:border-gray-300 text-center">
                 Cancel
               </button>
               <button type="submit" [disabled]="groupForm.invalid || selectedGroupMembers().length === 0"
-                class="flex-1 bg-black text-white border-2 border-black rounded-none p-4 font-bold text-lg hover:bg-white hover:text-black transition-colors disabled:opacity-50 disabled:hover:bg-black disabled:hover:text-white">
+                class="flex-1 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-[#1a2e22] hover:bg-[#2f4d3b] text-white disabled:opacity-70 disabled:cursor-not-allowed disabled:active:scale-100">
                 {{ isEditing ? 'Update' : 'Save' }}
               </button>
             </div>
           </form>
+          </ng-container>
+
+          <ng-template #noFriends>
+            <div class="flex flex-col items-center justify-center py-8 text-center gap-4">
+              <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
+                <svg class="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-gray-900 mb-1">No friends yet</h3>
+                <p class="text-sm text-gray-500">You need to add friends before you can create a group.</p>
+              </div>
+              <button type="button" (click)="close()"
+                class="mt-4 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-6 py-2 text-sm min-h-[44px] bg-[#1a2e22] hover:bg-[#2f4d3b] text-white">
+                Okay
+              </button>
+            </div>
+          </ng-template>
         </div>
       </div>
     </ng-container>
@@ -112,11 +132,11 @@ export class GroupSheetComponent implements OnInit {
       const group = this.splitService.editingGroup();
       if (group) {
         this.isEditing = true;
-        const currentUsername = this.authService.userProfile().username;
+        const currentUserId = this.authService.userProfile().id;
         this.groupForm.patchValue({
           name: group.name
         });
-        this.selectedGroupMembers.set(group.members.filter(m => m !== currentUsername));
+        this.selectedGroupMembers.set(group.members.filter(m => m !== currentUserId));
       } else {
         this.isEditing = false;
         if (this.groupForm) {
@@ -133,17 +153,17 @@ export class GroupSheetComponent implements OnInit {
     });
   }
 
-  toggleGroupMember(username: string) {
+  toggleGroupMember(id: string) {
     const current = this.selectedGroupMembers();
-    if (current.includes(username)) {
-      this.selectedGroupMembers.set(current.filter(u => u !== username));
+    if (current.includes(id)) {
+      this.selectedGroupMembers.set(current.filter(u => u !== id));
     } else {
-      this.selectedGroupMembers.set([...current, username]);
+      this.selectedGroupMembers.set([...current, id]);
     }
   }
 
-  isGroupMember(username: string) {
-    return this.selectedGroupMembers().includes(username);
+  isGroupMember(id: string) {
+    return this.selectedGroupMembers().includes(id);
   }
 
   close() {
@@ -170,17 +190,21 @@ export class GroupSheetComponent implements OnInit {
     if (this.groupForm.invalid || this.selectedGroupMembers().length === 0) return;
 
     const v = this.groupForm.value;
-    const currentUsername = this.authService.userProfile().username;
-
-    const group: SplitGroup = {
-      id: this.isEditing ? this.splitService.editingGroup()!.id : Date.now().toString(),
-      name: v.name,
-      members: [currentUsername, ...this.selectedGroupMembers()]
-    };
+    const currentUserId = this.authService.userProfile().id;
 
     if (this.isEditing) {
+      const group: SplitGroup = {
+        ...this.splitService.editingGroup()!,
+        name: v.name,
+        members: [currentUserId, ...this.selectedGroupMembers()]
+      };
       this.splitService.updateGroup(group);
     } else {
+      const group: Omit<SplitGroup, 'id' | 'created_at'> = {
+        name: v.name,
+        creator_id: currentUserId,
+        members: [currentUserId, ...this.selectedGroupMembers()]
+      };
       this.splitService.createGroup(group);
     }
 

@@ -7,6 +7,9 @@ import { UserProfile } from '../../core/services/auth';
   selector: 'app-friends',
   standalone: true,
   imports: [CommonModule],
+  host: {
+    class: 'block h-full'
+  },
   template: `
     <div class="h-full bg-gray-50 p-4 flex flex-col gap-4">
       
@@ -32,7 +35,7 @@ import { UserProfile } from '../../core/services/auth';
       </ng-container>
 
       <ng-template #contentArea>
-        <ng-container *ngIf="friendService.friends().length > 0; else emptyState">
+        <ng-container *ngIf="friendService.acceptedFriends().length > 0 || friendService.incomingRequests().length > 0 || friendService.outgoingRequests().length > 0; else emptyState">
           <!-- Top Summary Box -->
           <div class="bg-black text-white p-5 border border-black rounded-none flex flex-col gap-4 relative overflow-hidden">
             <!-- Abstract Decoration -->
@@ -41,29 +44,90 @@ import { UserProfile } from '../../core/services/auth';
             <div class="flex flex-col relative z-10">
               <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Total Friends</span>
               <span class="text-4xl font-extrabold tracking-tight">
-                {{ friendService.friends().length | number:'2.0-0' }}
+                {{ friendService.acceptedFriends().length | number:'2.0-0' }}
               </span>
             </div>
           </div>
 
-          <!-- Friends List -->
-          <div class="flex-1 flex flex-col gap-1.5 pb-16 mt-2">
-            <button 
-              *ngFor="let friend of friendService.friends()"
-              (click)="friendService.openRemoveSheet(friend)"
-              class="w-full bg-gray-200 rounded-none p-3 flex items-center gap-4 text-left hover:bg-gray-300 transition-colors active:bg-gray-400"
-            >
-              <div class="w-12 h-12 rounded-full border-2 border-black bg-white flex items-center justify-center font-extrabold text-xl text-black shrink-0">
-                {{ friend.name.charAt(0) }}
-              </div>
-              
-              <div class="flex flex-col gap-0.5 flex-1">
-                <span class="font-extrabold text-lg text-black">{{ friend.name }}</span>
-                <div class="flex items-center gap-2 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
-                  <span>{{ '@' + friend.username }}</span>
+          <!-- Lists Container -->
+          <div class="flex-1 flex flex-col gap-6 pb-16 mt-4">
+            
+            <!-- Incoming Requests -->
+            <div *ngIf="friendService.incomingRequests().length > 0" class="flex flex-col gap-2">
+              <h3 class="text-xs font-extrabold text-gray-500 uppercase tracking-widest ml-1">Friend Requests</h3>
+              <div class="flex flex-col gap-1.5">
+                <div 
+                  *ngFor="let req of friendService.incomingRequests()"
+                  class="w-full bg-white border-2 border-black rounded-none p-3 flex items-center justify-between gap-4"
+                >
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full border-2 border-black bg-gray-200 flex items-center justify-center font-extrabold text-lg text-black shrink-0">
+                      {{ req.profile.name.charAt(0) }}
+                    </div>
+                    <div class="flex flex-col gap-0.5">
+                      <span class="font-extrabold text-sm text-black">{{ req.profile.name }}</span>
+                      <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{{ '@' + req.profile.username }}</span>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <button (click)="friendService.removeFriend(req.id)" class="w-8 h-8 flex items-center justify-center border-2 border-gray-200 hover:border-gray-400 active:bg-gray-100 transition-colors">
+                      <svg class="w-4 h-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                    <button (click)="friendService.acceptRequest(req.id)" class="w-8 h-8 flex items-center justify-center bg-black border-2 border-black hover:bg-gray-800 active:bg-gray-700 transition-colors">
+                      <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    </button>
+                  </div>
                 </div>
               </div>
-            </button>
+            </div>
+
+            <!-- Outgoing Requests -->
+            <div *ngIf="friendService.outgoingRequests().length > 0" class="flex flex-col gap-2">
+              <h3 class="text-xs font-extrabold text-gray-500 uppercase tracking-widest ml-1">Sent Requests</h3>
+              <div class="flex flex-col gap-1.5">
+                <div 
+                  *ngFor="let req of friendService.outgoingRequests()"
+                  class="w-full bg-gray-100 rounded-none p-3 flex items-center justify-between gap-4"
+                >
+                  <div class="flex items-center gap-3 opacity-60">
+                    <div class="w-10 h-10 rounded-full border-2 border-gray-400 bg-gray-200 flex items-center justify-center font-extrabold text-lg text-gray-500 shrink-0">
+                      {{ req.profile.name.charAt(0) }}
+                    </div>
+                    <div class="flex flex-col gap-0.5">
+                      <span class="font-extrabold text-sm text-gray-600">{{ req.profile.name }}</span>
+                      <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Pending</span>
+                    </div>
+                  </div>
+                  <button (click)="friendService.removeFriend(req.id)" class="text-[10px] font-bold text-red-500 uppercase tracking-widest px-2 py-1 border-2 border-transparent hover:border-red-200 active:bg-red-50 transition-colors">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Accepted Friends -->
+            <div *ngIf="friendService.acceptedFriends().length > 0" class="flex flex-col gap-2">
+              <h3 class="text-xs font-extrabold text-gray-500 uppercase tracking-widest ml-1">Your Friends</h3>
+              <div class="flex flex-col gap-1.5">
+                <button 
+                  *ngFor="let friend of friendService.acceptedFriends()"
+                  (click)="friendService.openRemoveSheet(friend)"
+                  class="w-full bg-gray-200 rounded-none p-3 flex items-center gap-4 text-left hover:bg-gray-300 transition-colors active:bg-gray-400"
+                >
+                  <div class="w-12 h-12 rounded-full border-2 border-black bg-white flex items-center justify-center font-extrabold text-xl text-black shrink-0">
+                    {{ friend.profile.name.charAt(0) }}
+                  </div>
+                  
+                  <div class="flex flex-col gap-0.5 flex-1">
+                    <span class="font-extrabold text-lg text-black">{{ friend.profile.name }}</span>
+                    <div class="flex items-center gap-2 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                      <span>{{ '@' + friend.profile.username }}</span>
+                    </div>
+                  </div>
+                </button>
+              </div>
+            </div>
+
           </div>
         </ng-container>
 

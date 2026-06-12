@@ -1,4 +1,4 @@
-import { Component, inject, computed, signal, OnInit } from '@angular/core';
+import { Component, inject, computed, signal, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BudgetService } from '../../core/services/budget.service';
 import { ExpenseService } from '../../core/services/expense.service';
@@ -9,8 +9,11 @@ import { MonthPickerComponent } from '../../shared/ui/month-picker/month-picker'
   selector: 'app-budgets',
   standalone: true,
   imports: [CommonModule, MonthPickerComponent],
+  host: {
+    class: 'flex flex-col h-full'
+  },
   template: `
-    <div class="min-h-screen bg-gray-50 p-4 flex flex-col gap-4">
+    <div class="flex-1 bg-gray-50 p-4 flex flex-col gap-4 pb-20">
       
       <!-- Top Summary Box -->
       <div class="bg-black text-white p-5 border border-black rounded-none flex flex-col gap-4 relative overflow-hidden">
@@ -36,7 +39,7 @@ import { MonthPickerComponent } from '../../shared/ui/month-picker/month-picker'
         <div class="h-2 w-full bg-gray-800 rounded-none overflow-hidden flex relative z-10">
           <div 
             class="h-full bg-white transition-all duration-1000 ease-out"
-            [style.width.%]="!isInitialLoading() ? globalProgressPercent() : 0"
+            [style.width.%]="!budgetService.isLoading() && animateBars() ? globalProgressPercent() : 0"
           ></div>
         </div>
       </div>
@@ -50,9 +53,9 @@ import { MonthPickerComponent } from '../../shared/ui/month-picker/month-picker'
       </div>
 
       <!-- Goals List -->
-      <div class="flex-1 flex flex-col gap-1.5 pb-16 mt-2">
+      <div class="flex-1 flex flex-col gap-1.5 mt-2">
         
-        <ng-container *ngIf="isInitialLoading(); else contentArea">
+        <ng-container *ngIf="budgetService.isLoading(); else contentArea">
            <div *ngFor="let i of [1,2,3,4,5]" class="w-full bg-gray-200 rounded-none p-3 flex flex-col gap-2">
              <div class="flex justify-between items-center w-full">
                <div class="flex flex-col gap-2 w-1/2">
@@ -88,7 +91,7 @@ import { MonthPickerComponent } from '../../shared/ui/month-picker/month-picker'
               <div class="h-1.5 w-full bg-gray-300 rounded-none overflow-hidden">
                 <div 
                   class="h-full transition-all duration-1000 ease-out"
-                  [style.width.%]="!isInitialLoading() ? getPercent(budget.name, budget.amount) : 0"
+                  [style.width.%]="!budgetService.isLoading() && animateBars() ? getPercent(budget.name, budget.amount) : 0"
                   [ngClass]="getColorClass(budget.name, budget.amount)"
                 ></div>
               </div>
@@ -119,16 +122,21 @@ import { MonthPickerComponent } from '../../shared/ui/month-picker/month-picker'
     </app-month-picker>
   `
 })
-export class Budgets implements OnInit {
+export class Budgets implements OnInit, AfterViewInit {
   budgetService = inject(BudgetService);
   expenseService = inject(ExpenseService);
   private authService = inject(AuthService);
 
-  isInitialLoading = signal(true);
   isMonthPickerOpen = false;
+  animateBars = signal(false);
 
   ngOnInit() {
-    setTimeout(() => this.isInitialLoading.set(false), 2000);
+  }
+
+  ngAfterViewInit() {
+    setTimeout(() => {
+      this.animateBars.set(true);
+    }, 50);
   }
 
   getActiveMonthLabel() {

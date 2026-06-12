@@ -1,5 +1,7 @@
-import { Injectable, signal, computed, Inject } from '@angular/core';
+import { Injectable, signal, computed, Inject, effect, inject } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
+import { SupabaseService } from './supabase.service';
+import { AuthService } from './auth';
 
 export interface Expense {
   id: string;
@@ -13,9 +15,22 @@ export interface Expense {
   providedIn: 'root'
 })
 export class ExpenseService {
+  private supabaseService = inject(SupabaseService);
+  private authService = inject(AuthService);
+
+  readonly isLoading = signal(false);
+
   constructor(@Inject(DOCUMENT) private document: Document) {
-    this.generateDummyData();
-    this.applyFilterAndPagination();
+    effect(() => {
+      const user = this.authService.currentUser();
+      const month = this.activeMonth(); // Track month changes
+      if (user) {
+        this.fetchExpenses(month);
+      } else {
+        this.allExpenses.set([]);
+        this.applyFilterAndPagination();
+      }
+    });
   }
   
   // All expenses in memory
@@ -40,35 +55,35 @@ export class ExpenseService {
     return `${d.getFullYear()}-${m}`;
   }
 
-  // Generate 150 dummy expenses across the last 12 months
-  private generateDummyData() {
-    const categories = ['Food', 'Transport', 'Shopping', 'Utilities', 'Entertainment', 'Other'];
-    const dummy: Expense[] = [];
-    const now = new Date();
+  async fetchExpenses(monthStr?: string) {
+    this.isLoading.set(true);
+    const month = monthStr || this.activeMonth();
+
+    const [year, m] = month.split('-');
+    const startDate = `${year}-${m}-01T00:00:00.000Z`;
     
-    for (let i = 0; i < 150; i++) {
-      const pastDate = new Date();
-      // Random date within the last 12 months
-      pastDate.setDate(now.getDate() - Math.floor(Math.random() * 365));
+    // Calculate the start of the next month
+    const nextMDate = new Date(parseInt(year), parseInt(m), 1);
+    const nextMonthStr = `${nextMDate.getFullYear()}-${(nextMDate.getMonth() + 1).toString().padStart(2, '0')}-01T00:00:00.000Z`;
+
+    const { data, error } = await this.supabaseService.client
+      .from('expenses')
+      .select('*')
+      .gte('date', startDate)
+      .lt('date', nextMonthStr)
+      .order('date', { ascending: false });
       
-      dummy.push({
-        id: i.toString(),
-        title: `Dummy Expense ${i}`,
-        amount: parseFloat((Math.random() * 500 + 10).toFixed(2)),
-        category: categories[Math.floor(Math.random() * categories.length)],
-        date: pastDate.toISOString()
-      });
+    if (!error && data) {
+      this.allExpenses.set(data as Expense[]);
+      this.applyFilterAndPagination();
     }
-    
-    // Sort descending by date
-    dummy.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    this.allExpenses.set(dummy);
+    this.isLoading.set(false);
   }
 
   setMonthFilter(monthStr: string) {
     this.activeMonth.set(monthStr);
     this.currentPage.set(1);
-    this.applyFilterAndPagination();
+    // fetchExpenses is automatically called by the effect
   }
 
   loadMore() {
@@ -103,29 +118,71 @@ export class ExpenseService {
     setTimeout(() => this.editingExpense.set(null), 300); // Clear after animation
   }
 
-  addExpense(expense: Omit<Expense, 'id'>) {
-    const newExpense: Expense = {
-      ...expense,
-      id: Math.random().toString(36).substring(2, 11)
-    };
-    this.allExpenses.update(exps => {
-      const updated = [newExpense, ...exps];
-      return updated.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    });
-    this.applyFilterAndPagination();
+  async addExpense(expense: Omit<Expense, 'id'>): Promise<boolean> {
+    const user = this.authService.currentUser();
+    if (!user) return false;
+
+    const { data, error } = await this.supabaseService.client
+      .from('expenses')
+      .insert({
+        user_id: user.id,
+        title: expense.title,
+        amount: expense.amount,
+        category: expense.category,
+        date: expense.date
+      })
+      .select()
+      .single();
+
+    if (!error && data) {
+      this.allExpenses.update(exps => {
+        const updated = [data as Expense, ...exps];
+        return updated.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      });
+      this.applyFilterAndPagination();
+      return true;
+    }
+    
+    if (error) {
+      console.error('Supabase addExpense error:', error);
+    }
+    return false;
   }
 
-  updateExpense(id: string, data: Omit<Expense, 'id'>) {
-    this.allExpenses.update(exps => {
-      const updated = exps.map(exp => exp.id === id ? { ...data, id } : exp);
-      return updated.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    });
-    this.applyFilterAndPagination();
+  async updateExpense(id: string, data: Omit<Expense, 'id'>): Promise<boolean> {
+    const { error } = await this.supabaseService.client
+      .from('expenses')
+      .update({
+        title: data.title,
+        amount: data.amount,
+        category: data.category,
+        date: data.date
+      })
+      .eq('id', id);
+
+    if (!error) {
+      this.allExpenses.update(exps => {
+        const updated = exps.map(exp => exp.id === id ? { ...exp, ...data } : exp);
+        return updated.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      });
+      this.applyFilterAndPagination();
+      return true;
+    }
+    return false;
   }
 
-  deleteExpense(id: string) {
-    this.allExpenses.update(exps => exps.filter(exp => exp.id !== id));
-    this.applyFilterAndPagination();
+  async deleteExpense(id: string): Promise<boolean> {
+    const { error } = await this.supabaseService.client
+      .from('expenses')
+      .delete()
+      .eq('id', id);
+
+    if (!error) {
+      this.allExpenses.update(exps => exps.filter(exp => exp.id !== id));
+      this.applyFilterAndPagination();
+      return true;
+    }
+    return false;
   }
 
   getConsumedForCategory(category: string): number {
