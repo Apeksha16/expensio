@@ -1,0 +1,161 @@
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { SplitService } from '../../core/services/split.service';
+import { FriendService } from '../../core/services/friend.service';
+
+@Component({
+  selector: 'app-splits',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
+    <div class="h-full bg-gray-50 p-4 flex flex-col gap-4">
+      
+      <ng-container *ngIf="isInitialLoading(); else contentArea">
+        <!-- Top Summary Box Shimmer -->
+        <div class="bg-black text-white p-5 border border-black rounded-none flex flex-col gap-4 relative overflow-hidden h-[124px]">
+          <div class="flex justify-between relative z-10 mt-2">
+            <div class="flex flex-col gap-2">
+              <div class="h-3 bg-gray-800 w-24 animate-pulse"></div>
+              <div class="h-8 bg-gray-800 w-16 animate-pulse mt-1"></div>
+            </div>
+            <div class="flex flex-col gap-2 items-end">
+              <div class="h-3 bg-gray-800 w-24 animate-pulse"></div>
+              <div class="h-8 bg-gray-800 w-16 animate-pulse mt-1"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- List Shimmer -->
+        <div class="flex flex-col gap-1.5 pb-16 mt-2">
+           <div *ngFor="let i of [1,2,3]" class="w-full bg-gray-200 rounded-none p-4 flex items-center gap-4 h-[76px] animate-pulse">
+             <div class="flex flex-col gap-2 flex-1">
+               <div class="h-4 bg-gray-300 w-1/3"></div>
+               <div class="h-3 bg-gray-300 w-1/4"></div>
+             </div>
+             <div class="h-6 bg-gray-300 w-16"></div>
+           </div>
+        </div>
+      </ng-container>
+
+      <ng-template #contentArea>
+        <!-- Top Summary Box -->
+        <div class="bg-black text-white p-5 border border-black rounded-none flex flex-col gap-4 relative overflow-hidden">
+          <div class="absolute -right-10 -top-10 w-32 h-32 bg-gray-800 rounded-full opacity-50 blur-2xl pointer-events-none"></div>
+
+          <div class="flex justify-between relative z-10 gap-4">
+            <div class="flex flex-col flex-1 min-w-0">
+              <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">You Are Owed</span>
+              <span class="text-3xl font-extrabold tracking-tight text-green-400 truncate">
+                ₹{{ splitService.totalOwedToYou() | number:'1.0-0' }}
+              </span>
+            </div>
+            <div class="flex flex-col flex-1 min-w-0 text-right">
+              <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">You Owe</span>
+              <span class="text-3xl font-extrabold tracking-tight text-red-400 truncate">
+                ₹{{ splitService.totalYouOwe() | number:'1.0-0' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="flex border-b-2 border-black mt-2">
+          <button 
+            (click)="splitService.activeTab.set('friends')"
+            [class.bg-black]="splitService.activeTab() === 'friends'"
+            [class.text-white]="splitService.activeTab() === 'friends'"
+            class="flex-1 py-3 font-extrabold tracking-widest uppercase transition-colors"
+          >
+            Friends
+          </button>
+          <button 
+            (click)="splitService.activeTab.set('groups')"
+            [class.bg-black]="splitService.activeTab() === 'groups'"
+            [class.text-white]="splitService.activeTab() === 'groups'"
+            class="flex-1 py-3 font-extrabold tracking-widest uppercase transition-colors"
+          >
+            Groups
+          </button>
+        </div>
+
+        <!-- Friends List -->
+        <div class="flex-1 flex flex-col gap-1.5 pb-16 mt-2" *ngIf="splitService.activeTab() === 'friends'">
+          <ng-container *ngIf="friendService.friends().length > 0; else emptyFriends">
+            <button 
+              *ngFor="let friend of friendService.friends()"
+              class="w-full bg-gray-200 rounded-none p-4 flex items-center justify-between text-left hover:bg-gray-300 transition-colors active:bg-gray-400"
+            >
+              <div class="flex flex-col gap-0.5">
+                <span class="font-extrabold text-lg text-black">{{ friend.name }}</span>
+                <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{{ '@' + friend.username }}</span>
+              </div>
+              
+              <div class="flex flex-col items-end">
+                <span *ngIf="getBalance(friend.username) === 0" class="text-gray-500 font-extrabold tracking-tight">Settled up</span>
+                <span *ngIf="getBalance(friend.username) > 0" class="text-green-600 font-extrabold tracking-tight text-xl">Owes you ₹{{ getBalance(friend.username) | number:'1.0-0' }}</span>
+                <span *ngIf="getBalance(friend.username) < 0" class="text-red-600 font-extrabold tracking-tight text-xl">You owe ₹{{ Math.abs(getBalance(friend.username)) | number:'1.0-0' }}</span>
+              </div>
+            </button>
+          </ng-container>
+
+          <ng-template #emptyFriends>
+            <div class="flex-1 flex flex-col items-center justify-center p-8 text-center">
+              <div class="w-32 h-32 bg-gray-200 border-2 border-transparent rounded-full flex items-center justify-center mb-6">
+                <svg class="w-12 h-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+              </div>
+              <p class="text-gray-500 font-extrabold text-xl">No splits yet</p>
+              <p class="text-gray-400 font-bold text-sm mt-2 max-w-[250px]">Tap the + button to add an expense with a friend.</p>
+            </div>
+          </ng-template>
+        </div>
+
+        <!-- Groups List -->
+        <div class="flex-1 flex flex-col gap-1.5 pb-16 mt-2" *ngIf="splitService.activeTab() === 'groups'">
+          <ng-container *ngIf="splitService.groups().length > 0; else emptyGroups">
+            <button 
+              *ngFor="let group of splitService.groups()"
+              (click)="splitService.openGroupSheet(group)"
+              class="w-full bg-gray-200 rounded-none p-4 flex flex-col gap-1 text-left hover:bg-gray-300 transition-colors active:bg-gray-400"
+            >
+              <span class="font-extrabold text-lg text-black">{{ group.name }}</span>
+              <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{{ group.members.length }} members</span>
+            </button>
+          </ng-container>
+
+          <ng-template #emptyGroups>
+            <div class="flex-1 flex flex-col items-center justify-center p-8 text-center">
+              <div class="w-32 h-32 bg-gray-200 border-2 border-transparent rounded-full flex items-center justify-center mb-6">
+                <svg class="w-12 h-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
+              <p class="text-gray-500 font-extrabold text-xl">No groups yet</p>
+              <p class="text-gray-400 font-bold text-sm mt-2 max-w-[250px]">Tap the + button below to create your first group.</p>
+            </div>
+          </ng-template>
+        </div>
+
+      </ng-template>
+
+    </div>
+  `
+})
+export class Splits implements OnInit {
+  splitService = inject(SplitService);
+  friendService = inject(FriendService);
+
+  isInitialLoading = signal(true);
+  Math = Math; // for template
+
+  ngOnInit() {
+    setTimeout(() => {
+      this.isInitialLoading.set(false);
+    }, 2000);
+  }
+
+  getBalance(username: string): number {
+    return this.splitService.balances()[username] || 0;
+  }
+}

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dropdown (Select) Component</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .animate-fade-in-up {
+      animation: fadeInUp 0.15s ease-out forwards;
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 p-8 font-sans h-screen">
+  <div class="max-w-md mx-auto space-y-8 bg-white p-8 border border-gray-200 h-full relative">
+    <h1 class="text-2xl font-bold mb-4">Dropdown Component</h1>
+
+    <!-- Single Select Dropdown -->
+    <div class="flex flex-col gap-1 relative z-10" id="dropdown-container">
+      <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase">Select Option</label>
+      
+      <!-- Backdrop -->
+      <div id="backdrop" class="fixed inset-0 z-40 bg-transparent hidden" aria-hidden="true"></div>
+      
+      <div class="relative">
+        <!-- Trigger Button -->
+        <button
+          id="trigger-btn"
+          type="button"
+          class="trigger-button w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:outline-none focus:ring-0 focus:border-[#1a2e22] flex items-center justify-between p-2.5 outline-none transition-all hover:border-gray-300 min-h-[44px] touch-manipulation font-sans"
+        >
+          <span id="selected-text" class="text-gray-400 truncate pr-2">Select...</span>
+          <svg id="chevron-icon" class="w-4 h-4 text-gray-500 transition-transform duration-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </button>
+
+        <!-- Dropdown Options -->
+        <div id="dropdown-menu" class="hidden absolute left-0 right-0 top-full mt-1 z-50 bg-white shadow-xl border border-gray-200 rounded-none max-h-60 overflow-auto animate-fade-in-up min-w-full">
+          <ul class="py-1">
+            <li>
+              <button type="button" class="option-btn w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100 flex items-center justify-between group transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#1a2e22] cursor-pointer touch-manipulation text-gray-700">
+                <span class="font-medium truncate">Option 1</span>
+              </button>
+            </li>
+            <li>
+              <button type="button" class="option-btn w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100 flex items-center justify-between group transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#1a2e22] cursor-pointer touch-manipulation text-gray-700">
+                <span class="font-medium truncate">Option 2</span>
+              </button>
+            </li>
+            <li>
+              <button type="button" class="option-btn w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100 flex items-center justify-between group transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#1a2e22] cursor-pointer touch-manipulation text-[#1a2e22] bg-gray-50">
+                <span class="font-medium truncate">Option 3 (Selected State)</span>
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Disabled Dropdown -->
+    <div class="flex flex-col gap-1 relative z-0 mt-8">
+      <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase">Disabled Select</label>
+      <div class="relative">
+        <button
+          type="button"
+          disabled
+          class="trigger-button w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:outline-none focus:ring-0 flex items-center justify-between p-2.5 outline-none transition-all min-h-[44px] touch-manipulation font-sans opacity-60 cursor-not-allowed bg-gray-50"
+        >
+          <span class="text-gray-900 truncate pr-2">Disabled Value</span>
+          <svg class="w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Simple JS to demonstrate open/close state
+    const triggerBtn = document.getElementById('trigger-btn');
+    const dropdownMenu = document.getElementById('dropdown-menu');
+    const chevronIcon = document.getElementById('chevron-icon');
+    const backdrop = document.getElementById('backdrop');
+    const optionBtns = document.querySelectorAll('.option-btn');
+    const selectedText = document.getElementById('selected-text');
+
+    let isOpen = false;
+
+    function toggleDropdown() {
+      isOpen = !isOpen;
+      if (isOpen) {
+        dropdownMenu.classList.remove('hidden');
+        backdrop.classList.remove('hidden');
+        chevronIcon.classList.add('rotate-180');
+        triggerBtn.classList.add('border-[#1a2e22]');
+      } else {
+        dropdownMenu.classList.add('hidden');
+        backdrop.classList.add('hidden');
+        chevronIcon.classList.remove('rotate-180');
+        triggerBtn.classList.remove('border-[#1a2e22]');
+      }
+    }
+
+    triggerBtn.addEventListener('click', toggleDropdown);
+    backdrop.addEventListener('click', toggleDropdown);
+
+    optionBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        // Mock selection
+        selectedText.textContent = btn.querySelector('span').textContent;
+        selectedText.classList.remove('text-gray-400');
+        selectedText.classList.add('text-gray-900');
+        toggleDropdown();
+      });
+    });
+  </script>
+</body>
+</html>

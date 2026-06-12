@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Table Component</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8 font-sans h-screen">
+  <div class="max-w-4xl mx-auto h-full flex flex-col">
+    <h1 class="text-2xl font-bold mb-4">Table Component</h1>
+
+    <div class="flex-1 bg-white border border-gray-200 shadow-sm flex flex-col overflow-hidden max-h-[500px]">
+      <!-- Scrollable Table Wrapper -->
+      <div class="flex-1 overflow-auto min-h-0">
+        <table class="w-full text-left text-sm text-gray-600">
+          <thead class="bg-gray-50 border-b border-gray-200 sticky top-0 z-10">
+            <tr>
+              <th class="px-6 py-4 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors select-none group w-32 text-xs font-medium text-gray-500 uppercase tracking-wide">
+                <div class="flex items-center gap-1">
+                  Date
+                  <span class="text-gray-900">↓</span>
+                </div>
+              </th>
+              <th class="px-6 py-4 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors select-none group text-xs font-medium text-gray-500 uppercase tracking-wide">
+                <div class="flex items-center gap-1">
+                  Description
+                  <span class="text-gray-300 group-hover:text-gray-500">↕</span>
+                </div>
+              </th>
+              <th class="px-6 py-4 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors select-none group text-xs font-medium text-gray-500 uppercase tracking-wide">
+                <div class="flex items-center gap-1">
+                  Customer
+                  <span class="text-gray-300 group-hover:text-gray-500">↕</span>
+                </div>
+              </th>
+              <th class="px-6 py-4 text-right bg-gray-50 text-xs font-medium text-gray-500 uppercase tracking-wide">
+                Amount
+              </th>
+              <th class="px-6 py-4 text-right bg-gray-50 text-xs font-medium text-gray-500 uppercase tracking-wide">
+                Action
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <!-- Normal Row -->
+            <tr class="hover:bg-gray-50/50 transition-colors group">
+              <td class="px-2 py-3 whitespace-nowrap">
+                <span class="bg-gray-100 text-gray-600 px-2.5 py-0.5 rounded text-xs font-medium">Oct 24, 2023</span>
+              </td>
+              <td class="px-2 py-3 font-semibold text-gray-900 text-sm">Product Name A</td>
+              <td class="px-2 py-3 text-gray-600 text-sm">John Doe</td>
+              <td class="px-2 py-3 text-right font-medium text-gray-900 text-sm">₹1,500.00</td>
+              <td class="px-2 py-3 text-right">
+                <div class="flex items-center justify-end gap-3">
+                  <button class="text-gray-400 hover:text-gray-600 transition-colors" title="Edit">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                  </button>
+                  <button class="text-gray-400 hover:text-red-600 transition-colors disabled:opacity-50" title="Remove">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <!-- Row 2 -->
+            <tr class="hover:bg-gray-50/50 transition-colors group">
+              <td class="px-2 py-3 whitespace-nowrap">
+                <span class="bg-gray-100 text-gray-600 px-2.5 py-0.5 rounded text-xs font-medium">Oct 25, 2023</span>
+              </td>
+              <td class="px-2 py-3 font-semibold text-gray-900 text-sm">Product Name B</td>
+              <td class="px-2 py-3 text-gray-600 text-sm">Jane Smith</td>
+              <td class="px-2 py-3 text-right font-medium text-gray-900 text-sm">₹2,300.00</td>
+              <td class="px-2 py-3 text-right">
+                <div class="flex items-center justify-end gap-3">
+                  <button class="text-gray-400 hover:text-gray-600 transition-colors" title="Edit">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                  </button>
+                  <button class="text-gray-400 hover:text-red-600 transition-colors disabled:opacity-50" title="Remove">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination Controls -->
+      <div class="flex-shrink-0 flex flex-wrap items-center justify-between gap-4 border-t border-gray-200 bg-gray-50 px-4 py-3 mt-auto">
+        <p class="text-sm text-gray-500">
+          Showing <span class="font-medium text-gray-900">1</span> to <span class="font-medium text-gray-900">10</span> of <span class="font-medium text-gray-900">45</span> results
+        </p>
+
+        <div class="flex items-center gap-2">
+          <button type="button" disabled
+            class="px-3 py-2 text-sm font-medium border border-gray-200 bg-white text-gray-700 rounded-none hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-black touch-manipulation transition-colors">
+            Previous
+          </button>
+          <button type="button"
+            class="px-3 py-2 text-sm font-medium border border-gray-200 bg-white text-gray-700 rounded-none hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-black touch-manipulation transition-colors">
+            Next
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

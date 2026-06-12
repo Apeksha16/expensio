@@ -1,1 +1,48 @@
-/* You can add global styles to this file, and also import other style files */
+@import "tailwindcss";
+
+:root {
+  /* Global Theme Variables */
+  --app-primary: #3b82f6; /* blue-500 */
+  --app-primary-foreground: #ffffff;
+  
+  --app-secondary: #64748b; /* slate-500 */
+  --app-secondary-foreground: #ffffff;
+  
+  --app-background: #f8fafc; /* slate-50 */
+  --app-surface: #ffffff;
+  
+  --app-text: #0f172a; /* slate-900 */
+  --app-text-muted: #64748b; /* slate-500 */
+}
+
+@theme {
+  --color-primary: var(--app-primary);
+  --color-primary-foreground: var(--app-primary-foreground);
+  --color-secondary: var(--app-secondary);
+  --color-secondary-foreground: var(--app-secondary-foreground);
+  --color-background: var(--app-background);
+  --color-surface: var(--app-surface);
+  --color-text: var(--app-text);
+  --color-text-muted: var(--app-text-muted);
+  
+  --font-sans: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  @apply bg-background text-text antialiased min-h-screen;
+}
+
+/* Remove number input spin buttons globally */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+  display: none;
+  opacity: 0;
+  pointer-events: none;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
