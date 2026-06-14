@@ -447,5 +447,7 @@ begin
 end;
 $$;
 
+
+
 -- Reload schema cache to ensure API access to new RPCs
 NOTIFY pgrst, 'reload schema';

@@ -81,8 +81,8 @@ export class FriendService {
         requester_id,
         addressee_id,
         created_at,
-        requester:profiles!friends_requester_id_fkey(*),
-        addressee:profiles!friends_addressee_id_fkey(*)
+        requester:profiles!requester_id(*),
+        addressee:profiles!addressee_id(*)
       `)
       .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`);
 
@@ -100,6 +100,8 @@ export class FriendService {
       this.acceptedFriends.set(allData.filter(f => f.status === 'accepted'));
       this.incomingRequests.set(allData.filter(f => f.status === 'pending' && f.isIncoming));
       this.outgoingRequests.set(allData.filter(f => f.status === 'pending' && !f.isIncoming));
+    } else if (error) {
+      console.error('Error fetching friends:', error);
     }
     this.isLoading.set(false);
   }
@@ -118,27 +120,36 @@ export class FriendService {
     const user = this.authService.currentUser();
     if (!user) return;
 
-    await this.supabaseService.client
+    const { error } = await this.supabaseService.client
       .from('friends')
       .insert({
         requester_id: user.id,
         addressee_id: targetUser.id,
         status: 'pending'
       });
+      
+    if (error) console.error('Error sending friend request:', error);
+    else this.fetchFriends();
   }
 
   async acceptRequest(friendshipId: string) {
-    await this.supabaseService.client
+    const { error } = await this.supabaseService.client
       .from('friends')
       .update({ status: 'accepted' })
       .eq('id', friendshipId);
+      
+    if (error) console.error('Error accepting friend request:', error);
+    else this.fetchFriends();
   }
 
   async removeFriend(friendshipId: string) {
-    await this.supabaseService.client
+    const { error } = await this.supabaseService.client
       .from('friends')
       .delete()
       .eq('id', friendshipId);
+      
+    if (error) console.error('Error removing friend:', error);
+    else this.fetchFriends();
   }
 
   openAddSheet() {
