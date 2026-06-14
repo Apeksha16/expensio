@@ -64,105 +64,34 @@ export class AuthService {
           avatarId: metadata['avatarId'] || 1
         });
 
-        // Routing Logic
-        const isNewUser = metadata['newUser'] !== 'N'; // defaults to true/y if not set
-        const onboardingStatus = metadata['onboardingStatus'] || 'N'; 
+        // Always onboarded since onboarding happens pre-signup now
+        this.isOnboarded.set(true);
 
-        if (isNewUser) {
-          if (onboardingStatus === 'N') {
-            this.isOnboarded.set(false);
-            this.router.navigate(['/onboarding']);
-          } else {
-            // Already onboarded somehow? User requested:
-            // "else go to dashbaord page and update onbaodig status to N and newUser status to N also"
-            this.isOnboarded.set(true);
-            await this.markAsNotNewUser();
-            this.router.navigate(['/dashboard']);
-          }
-        } else {
-          this.isOnboarded.set(true);
-          // If already on login, redirect to dashboard
-          if (this.router.url.includes('/login') || this.router.url === '/') {
-            this.router.navigate(['/dashboard']);
-          }
+        // Update local storage cache for device persistence
+        if (isPlatformBrowser(this.platformId)) {
+          localStorage.setItem('lastUser', JSON.stringify({
+            email: session.user.email,
+            name: metadata['full_name'] || metadata['name'] || 'User',
+            avatarId: metadata['avatarId'] || 1
+          }));
+        }
+
+        // If on login/auth routes, redirect to dashboard
+        const isAuthRoute = ['/login', '/mpin', '/forgot', '/reset', '/onboarding', '/set-mpin', '/confirm-mpin'].some(route => this.router.url.includes(route));
+        if (isAuthRoute || this.router.url === '/') {
+          this.router.navigate(['/dashboard']);
         }
       } else {
         this.isAuthenticated.set(false);
         this.currentUser.set(null);
         this.isOnboarded.set(false);
-        if (!this.router.url.includes('/login')) {
+        
+        const isAuthRoute = ['/login', '/mpin', '/forgot', '/reset', '/onboarding', '/set-mpin', '/confirm-mpin'].some(route => this.router.url.includes(route));
+        if (!isAuthRoute) {
           this.router.navigate(['/login']);
         }
       }
     });
-  }
-
-  async login(onboarded: boolean = false) {
-    // Left for compatibility if called directly, but we rely on Google Auth mostly now
-    await this.supabaseService.signInWithGoogle();
-  }
-
-  async loginWithEmail(email: string) {
-    await this.supabaseService.signInWithOtp(email);
-  }
-
-  async completeOnboarding(profileData: Partial<UserProfile>): Promise<{success: boolean, error?: string}> {
-    if (profileData.username) {
-      const exists = await this.supabaseService.checkUsernameExists(profileData.username);
-      if (exists) {
-        return { success: false, error: 'username_taken' };
-      }
-    }
-
-    const user = this.currentUser();
-    if (!user) {
-      return { success: false, error: 'not_authenticated' };
-    }
-
-    // Save to the public profiles table
-    try {
-      await this.supabaseService.saveUserProfile(user.id, {
-        name: profileData.name,
-        username: profileData.username,
-        salary: profileData.salary,
-        avatar_id: profileData.avatarId || 1
-      });
-    } catch (dbError) {
-      console.error('Error saving profile to DB', dbError);
-      return { success: false, error: 'db_error' };
-    }
-
-    // Update Auth Metadata
-    const { error } = await this.supabaseService.client.auth.updateUser({
-      data: {
-        full_name: profileData.name,
-        preferred_username: profileData.username,
-        salary: profileData.salary,
-        newUser: 'N',
-        onboardingStatus: 'N'
-      }
-    });
-
-    if (!error) {
-      this.userProfile.update(current => ({ ...current, ...profileData }));
-      this.isOnboarded.set(true);
-      return { success: true };
-    } else {
-      console.error('Error updating onboarding metadata', error);
-      return { success: false, error: 'metadata_error' };
-    }
-  }
-
-  private async markAsNotNewUser() {
-    const { error } = await this.supabaseService.client.auth.updateUser({
-      data: {
-        newUser: 'N',
-        onboardingStatus: 'N'
-      }
-    });
-    if (error) {
-      console.error('Error updating user metadata', error);
-    }
   }
 
   async logout() {

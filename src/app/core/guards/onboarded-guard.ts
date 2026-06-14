@@ -6,9 +6,5 @@ export const onboardedGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  if (authService.isOnboarded()) {
-    return true;
-  }
-
-  return router.parseUrl('/onboarding');
+  return true;
 };

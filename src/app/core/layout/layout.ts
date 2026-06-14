@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { Router, RouterModule, ChildrenOutletContexts, NavigationEnd } from '@angular/router';
+import { Router, RouterModule, ChildrenOutletContexts, NavigationEnd, RouterOutlet } from '@angular/router';
 import { CommonModule, DOCUMENT, Location } from '@angular/common';
 import { slideInAnimation } from '../animations/route-animations';
 import { AuthService } from '../services/auth';
@@ -82,15 +82,15 @@ import { ToastComponent } from '../../shared/ui/toast/toast';
             LOGOUT
           </button>
           <div class="mt-4 text-center">
-            <span class="text-[10px] font-bold tracking-widest text-gray-400 uppercase">Version 1.0.0</span>
+            <span class="text-[10px] font-bold tracking-widest text-gray-400 uppercase">Version 1.0.1</span>
           </div>
         </div>
       </aside>
 
       <!-- Main Content Area -->
-      <main class="flex-1 relative overflow-x-hidden pt-14 pb-24 h-screen" [ngClass]="isSidebarOpen() || expenseService.isBottomSheetOpen() ? 'overflow-hidden' : 'overflow-y-auto'">
-        <div [@routeAnimations]="getAnimationData()" class="h-full">
-          <router-outlet></router-outlet>
+      <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 pt-14 pb-16 relative">
+        <div [@routeAnimations]="getAnimationData()" class="h-full w-full">
+          <router-outlet #outlet="outlet"></router-outlet>
         </div>
       </main>
 
@@ -137,12 +137,12 @@ export class Layout {
   private router = inject(Router);
   private location = inject(Location);
   private sanitizer = inject(DomSanitizer);
-  private contexts = inject(ChildrenOutletContexts);
   expenseService = inject(ExpenseService);
   budgetService = inject(BudgetService);
   friendService = inject(FriendService);
   splitService = inject(SplitService);
   private document = inject(DOCUMENT);
+  private contexts = inject(ChildrenOutletContexts);
 
   constructor() {
     this.updateTitle(this.router.url);
@@ -232,7 +232,6 @@ export class Layout {
       icon: this.sanitizer.bypassSecurityTrustHtml('<svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>')
     }
   ];
-
   getAnimationData() {
     return this.contexts.getContext('primary')?.route?.snapshot?.data?.['animationIndex'];
   }

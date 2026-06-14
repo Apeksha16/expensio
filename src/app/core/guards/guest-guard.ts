@@ -10,10 +10,6 @@ export const guestGuard: CanActivateFn = (route, state) => {
     return true;
   }
 
-  // User is authenticated, check where to send them
-  if (authService.isOnboarded()) {
-    return router.parseUrl('/dashboard');
-  } else {
-    return router.parseUrl('/onboarding');
-  }
+  // User is authenticated, redirect to dashboard
+  return router.parseUrl('/dashboard');
 };

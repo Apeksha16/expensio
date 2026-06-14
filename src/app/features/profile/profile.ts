@@ -2,6 +2,7 @@ import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService, UserProfile } from '../../core/services/auth';
+import { SupabaseService } from '../../core/services/supabase.service';
 import { ConfirmService } from '../../core/services/confirm.service';
 import { ToastService } from '../../core/services/toast.service';
 
@@ -123,6 +124,7 @@ import { ToastService } from '../../core/services/toast.service';
 })
 export class Profile {
   authService = inject(AuthService);
+  private supabaseService = inject(SupabaseService);
   private confirmService = inject(ConfirmService);
   private toastService = inject(ToastService);
 
@@ -205,15 +207,12 @@ export class Profile {
           confirmText: 'Apply Updates',
           cancelText: 'Cancel',
           onConfirm: async () => {
-            this.isUpdating.set(true); // reset because confirm is async
+            this.isUpdating.set(true);
             await this.authService.updateProfile(this.pendingProfile());
             this.toastService.showSuccess('Profile updated successfully!', 2000);
             this.isUpdating.set(false);
           }
         });
-        // If they click cancel, the confirm sheet just closes, but we need to reset updating state
-        // The confirm sheet might need to handle onCancel if we wanted to strictly reset it there. 
-        // For simplicity, we can reset it right after opening since the actual update happens in onConfirm.
         this.isUpdating.set(false); 
       } else {
         await this.authService.updateProfile(this.pendingProfile());

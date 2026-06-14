@@ -1,12 +1,7 @@
-<main [@routeAnimations]="getAnimationData()" class="relative overflow-x-hidden min-h-screen w-full">
+<main [@routeAnimations]="getAnimationData()" class="relative overflow-x-hidden min-h-screen w-full bg-black">
   <router-outlet></router-outlet>
 </main>
 
-<!-- Full-screen overlay to hide layout jumps during route slide animations -->
-<div 
-  *ngIf="isTransitioning()" 
-  class="fixed inset-0 z-[9999] bg-white pointer-events-none transition-opacity duration-300"
-></div>
 
 <!-- Offline Overlay -->
 <div 

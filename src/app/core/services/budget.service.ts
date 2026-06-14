@@ -3,6 +3,7 @@ import { DOCUMENT } from '@angular/common';
 import { AuthService } from './auth';
 import { SupabaseService } from './supabase.service';
 import { ExpenseService } from './expense.service';
+import { ToastService } from './toast.service';
 
 export interface Budget {
   id: string;
@@ -20,6 +21,7 @@ export class BudgetService {
   private authService = inject(AuthService);
   private supabaseService = inject(SupabaseService);
   private expenseService = inject(ExpenseService);
+  private toastService = inject(ToastService);
 
   readonly budgets = signal<Budget[]>([]);
   
@@ -108,6 +110,9 @@ export class BudgetService {
 
     if (!error && data) {
       this.budgets.update(bs => [...bs, data as Budget]);
+      this.toastService.showSuccess('Budget added successfully!');
+    } else {
+      this.toastService.showError('Failed to add budget. Please try again.');
     }
     this.isSaving.set(false);
     return !error;
@@ -142,6 +147,9 @@ export class BudgetService {
       }
 
       this.budgets.update(bs => bs.map(b => b.id === id ? { ...b, ...data } : b));
+      this.toastService.showSuccess('Budget updated successfully!');
+    } else {
+      this.toastService.showError('Failed to update budget. Please try again.');
     }
     this.isSaving.set(false);
     return !error;
@@ -169,6 +177,9 @@ export class BudgetService {
           .lt('date', endDate);
       }
       this.budgets.update(bs => bs.filter(b => b.id !== id));
+      this.toastService.showSuccess('Budget deleted successfully!');
+    } else {
+      this.toastService.showError('Failed to delete budget. Please try again.');
     }
     this.isDeleting.set(false);
     return !error;

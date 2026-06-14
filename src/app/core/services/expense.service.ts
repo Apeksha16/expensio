@@ -2,6 +2,7 @@ import { Injectable, signal, computed, Inject, effect, inject } from '@angular/c
 import { DOCUMENT } from '@angular/common';
 import { SupabaseService } from './supabase.service';
 import { AuthService } from './auth';
+import { ToastService } from './toast.service';
 
 export interface Expense {
   id: string;
@@ -17,6 +18,7 @@ export interface Expense {
 export class ExpenseService {
   private supabaseService = inject(SupabaseService);
   private authService = inject(AuthService);
+  private toastService = inject(ToastService);
 
   readonly isLoading = signal(false);
 
@@ -140,11 +142,13 @@ export class ExpenseService {
         return updated.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       });
       this.applyFilterAndPagination();
+      this.toastService.showSuccess('Expense added successfully!');
       return true;
     }
     
     if (error) {
       console.error('Supabase addExpense error:', error);
+      this.toastService.showError('Failed to add expense. Please try again.');
     }
     return false;
   }
@@ -166,8 +170,10 @@ export class ExpenseService {
         return updated.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       });
       this.applyFilterAndPagination();
+      this.toastService.showSuccess('Expense updated successfully!');
       return true;
     }
+    this.toastService.showError('Failed to update expense. Please try again.');
     return false;
   }
 
@@ -180,8 +186,10 @@ export class ExpenseService {
     if (!error) {
       this.allExpenses.update(exps => exps.filter(exp => exp.id !== id));
       this.applyFilterAndPagination();
+      this.toastService.showSuccess('Expense deleted successfully!');
       return true;
     }
+    this.toastService.showError('Failed to delete expense. Please try again.');
     return false;
   }
 

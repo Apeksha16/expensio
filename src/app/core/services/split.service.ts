@@ -2,6 +2,7 @@ import { Injectable, signal, PLATFORM_ID, inject, computed } from '@angular/core
 import { isPlatformBrowser } from '@angular/common';
 import { AuthService } from './auth';
 import { SupabaseService } from './supabase.service';
+import { ToastService } from './toast.service';
 
 export interface SplitParticipant {
   userId: string;
@@ -35,6 +36,7 @@ export class SplitService {
   private platformId = inject(PLATFORM_ID);
   private authService = inject(AuthService);
   private supabase = inject(SupabaseService);
+  private toastService = inject(ToastService);
 
   // Sheet state
   readonly isSheetOpen = signal<boolean>(false);
@@ -102,8 +104,13 @@ export class SplitService {
       .select()
       .single();
       
-    if (error) console.error('Error adding split:', error);
-    else if (data) this.loadData();
+    if (error) {
+      console.error('Error adding split:', error);
+      this.toastService.showError('Failed to add split. Please try again.');
+    } else if (data) {
+      this.toastService.showSuccess('Split added successfully!');
+      this.loadData();
+    }
   }
 
   async createGroup(group: Omit<SplitGroup, 'id' | 'created_at'>) {
@@ -113,8 +120,13 @@ export class SplitService {
       .select()
       .single();
 
-    if (error) console.error('Error creating group:', error);
-    else if (data) this.loadData();
+    if (error) {
+      console.error('Error creating group:', error);
+      this.toastService.showError('Failed to create group. Please try again.');
+    } else if (data) {
+      this.toastService.showSuccess('Group created successfully!');
+      this.loadData();
+    }
   }
 
   async updateGroup(group: SplitGroup) {
@@ -125,8 +137,13 @@ export class SplitService {
       .select()
       .single();
 
-    if (error) console.error('Error updating group:', error);
-    else if (data) this.loadData();
+    if (error) {
+      console.error('Error updating group:', error);
+      this.toastService.showError('Failed to update group. Please try again.');
+    } else if (data) {
+      this.toastService.showSuccess('Group updated successfully!');
+      this.loadData();
+    }
   }
 
   async deleteGroup(id: string) {
@@ -135,8 +152,13 @@ export class SplitService {
       .delete()
       .eq('id', id);
 
-    if (error) console.error('Error deleting group:', error);
-    else this.loadData();
+    if (error) {
+      console.error('Error deleting group:', error);
+      this.toastService.showError('Failed to delete group. Please try again.');
+    } else {
+      this.toastService.showSuccess('Group deleted successfully!');
+      this.loadData();
+    }
   }
 
   // --- Computations ---
