@@ -1,5 +1,6 @@
-import { Component, forwardRef, ElementRef, HostListener, input, viewChildren, effect } from '@angular/core';
+import { Component, forwardRef, ElementRef, HostListener, input, viewChildren, effect, inject } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor, FormsModule } from '@angular/forms';
+import { HapticService } from '../../../core/services/haptic.service';
 
 @Component({
   selector: 'app-pin-input',
@@ -24,6 +25,8 @@ import { NG_VALUE_ACCESSOR, ControlValueAccessor, FormsModule } from '@angular/f
           #pinInput
           type="text"
           inputmode="numeric"
+          pattern="[0-9]*"
+          autocomplete="one-time-code"
           maxlength="2"
           placeholder="*"
           [value]="digits[$index] ? '*' : ''"
@@ -45,6 +48,7 @@ export class PinInputComponent implements ControlValueAccessor {
 
   digits: string[] = [];
   disabled = false;
+  private haptic = inject(HapticService);
 
   private onChange: (value: string) => void = () => {};
   private onTouched: () => void = () => {};
@@ -96,6 +100,8 @@ export class PinInputComponent implements ControlValueAccessor {
       val = val[val.length - 1];
     }
     
+    if (val) this.haptic.impactLight();
+
     this.digits[index] = val;
     inputElement.value = val ? '*' : '';
 
@@ -117,6 +123,7 @@ export class PinInputComponent implements ControlValueAccessor {
         // Clear current
         this.digits[index] = '';
       }
+      this.haptic.impactLight();
       this.emitChange();
     } else if (event.key === 'ArrowLeft' && index > 0) {
       this.focusInput(index - 1);

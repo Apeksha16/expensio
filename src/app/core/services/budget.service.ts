@@ -1,6 +1,6 @@
 import { Injectable, signal, computed, inject, effect, untracked } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
-import { AuthService } from './auth';
+import { AuthService } from './auth.service';
 import { SupabaseService } from './supabase.service';
 import { ExpenseService } from './expense.service';
 import { ToastService } from './toast.service';

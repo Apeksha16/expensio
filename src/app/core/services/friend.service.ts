@@ -1,5 +1,5 @@
 import { Injectable, signal, inject, effect, untracked } from '@angular/core';
-import { UserProfile, AuthService } from './auth';
+import { UserProfile, AuthService } from './auth.service';
 import { SupabaseService } from './supabase.service';
 
 export interface FriendRelationship {

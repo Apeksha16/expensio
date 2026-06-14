@@ -1,7 +1,7 @@
 import { Injectable, signal, computed, Inject, effect, inject } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { SupabaseService } from './supabase.service';
-import { AuthService } from './auth';
+import { AuthService } from './auth.service';
 import { ToastService } from './toast.service';
 
 export interface Expense {

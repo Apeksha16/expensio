@@ -19,10 +19,10 @@ export const slideInAnimation = trigger('routeAnimations', [
     query(':leave', animateChild(), { optional: true }),
     group([
       query(':leave', [
-        animate('300ms ease-in-out', style({ transform: 'translateX(-100%)' }))
+        animate('400ms cubic-bezier(0.32, 0.72, 0, 1)', style({ transform: 'translateX(-100%)' }))
       ], { optional: true }),
       query(':enter', [
-        animate('300ms ease-in-out', style({ transform: 'translateX(0%)' }))
+        animate('400ms cubic-bezier(0.32, 0.72, 0, 1)', style({ transform: 'translateX(0%)' }))
       ], { optional: true })
     ]),
     query(':enter', animateChild(), { optional: true })
@@ -45,10 +45,10 @@ export const slideInAnimation = trigger('routeAnimations', [
     query(':leave', animateChild(), { optional: true }),
     group([
       query(':leave', [
-        animate('300ms ease-in-out', style({ transform: 'translateX(100%)' }))
+        animate('400ms cubic-bezier(0.32, 0.72, 0, 1)', style({ transform: 'translateX(100%)' }))
       ], { optional: true }),
       query(':enter', [
-        animate('300ms ease-in-out', style({ transform: 'translateX(0%)' }))
+        animate('400ms cubic-bezier(0.32, 0.72, 0, 1)', style({ transform: 'translateX(0%)' }))
       ], { optional: true })
     ]),
     query(':enter', animateChild(), { optional: true })

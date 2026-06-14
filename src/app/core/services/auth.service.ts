@@ -98,9 +98,8 @@ export class AuthService {
     await this.supabaseService.signOut();
   }
 
-  async updateProfile(profile: Partial<UserProfile>) {
-    this.userProfile.update(current => ({ ...current, ...profile }));
-    await this.supabaseService.client.auth.updateUser({
+  async updateProfile(profile: Partial<UserProfile>): Promise<boolean> {
+    const { data, error } = await this.supabaseService.client.auth.updateUser({
       data: {
         full_name: profile.name,
         preferred_username: profile.username,
@@ -108,5 +107,12 @@ export class AuthService {
         avatarId: profile.avatarId
       }
     });
+
+    if (error) {
+      return false;
+    }
+
+    this.userProfile.update(current => ({ ...current, ...profile }));
+    return true;
   }
 }

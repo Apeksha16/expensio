@@ -2,7 +2,7 @@ import { inject } from '@angular/core';
 import { ResolveFn } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { delay } from 'rxjs/operators';
-import { AuthService } from '../services/auth';
+import { AuthService } from '../services/auth.service';
 
 export const userResolver: ResolveFn<boolean> = (route, state) => {
   const authService = inject(AuthService);

@@ -2,8 +2,8 @@ import { Component, inject, OnInit, signal, input, computed, effect } from '@ang
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthLayoutComponent } from './auth-layout.component';
 import { FormsModule } from '@angular/forms';
-import { Button } from '../../../../shared/ui/button/button';
-import { PinInputComponent } from '../../../../shared/ui/pin-input/pin-input';
+import { Button } from '../../../../shared/ui/button/button.component';
+import { PinInputComponent } from '../../../../shared/ui/pin-input/pin-input.component';
 import { SupabaseService } from '../../../../core/services/supabase.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { LoginStateService } from '../login-state.service';

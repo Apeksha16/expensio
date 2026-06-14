@@ -29,11 +29,27 @@
 }
 
 html, body {
-  @apply bg-background text-text antialiased w-full min-h-screen overflow-x-hidden m-0 p-0;
+  @apply bg-background text-text antialiased w-full h-[100dvh] overflow-hidden m-0 p-0;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none; /* Prevent accidental text selection */
+  user-select: none;
+  overscroll-behavior-x: none; /* Prevent horizontal swipe navigation */
 }
 
 app-root {
-  @apply block w-full min-h-screen;
+  @apply block w-full h-full;
+}
+
+/* Allow selection in inputs and prevent iOS zoom on focus */
+input, textarea, select {
+  -webkit-user-select: auto;
+  user-select: auto;
+  font-size: 16px !important; /* Forces 16px to prevent iOS Safari auto-zoom */
+}
+
+/* Enable momentum scrolling for all scrolling containers */
+.overflow-y-auto, .overflow-y-scroll, .overflow-auto, .overflow-scroll {
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Remove number input spin buttons globally */

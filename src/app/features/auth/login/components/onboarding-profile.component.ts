@@ -1,9 +1,9 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthLayoutComponent } from './auth-layout.component';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
-import { Button } from '../../../../shared/ui/button/button';
+import { Button } from '../../../../shared/ui/button/button.component';
 import { SupabaseService } from '../../../../core/services/supabase.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { LoginStateService } from '../login-state.service';
@@ -11,24 +11,29 @@ import { LoginStateService } from '../login-state.service';
 @Component({
   selector: 'app-onboarding-profile',
   standalone: true,
-  imports: [Button, FormsModule, CommonModule, AuthLayoutComponent],
+  imports: [Button, FormsModule, AuthLayoutComponent],
   host: {
-    class: 'block w-full h-full'
+    class: 'block w-full h-full',
   },
   template: `
-    <app-auth-layout [isMpinScreen]="true" [quoteMessage]="'Your money, your rules. Let\\'s make it official.'">
+    <app-auth-layout
+      [isMpinScreen]="true"
+      [quoteMessage]="'Your money, your rules. Let\\'s make it official.'"
+    >
       <div class="w-full">
-
-
         <form (ngSubmit)="onFinalSubmit()" class="flex flex-col w-full gap-2">
-          
           <div class="flex flex-col">
-            <label class="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Display Name</label>
+            <label class="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2"
+              >Display Name</label
+            >
             <div class="relative w-full pb-6">
-              <div class="w-full relative flex items-center bg-gray-50 border-2 border-black transition-colors" [class.border-red-500]="nameError()">
-                <input 
-                  type="text" 
-                  [(ngModel)]="profileName" 
+              <div
+                class="w-full relative flex items-center bg-gray-50 border-2 border-black transition-colors"
+                [class.border-red-500]="nameError()"
+              >
+                <input
+                  type="text"
+                  [(ngModel)]="profileName"
                   (ngModelChange)="nameError.set('')"
                   name="name"
                   placeholder="John Doe"
@@ -36,40 +41,56 @@ import { LoginStateService } from '../login-state.service';
                   autofocus
                   class="w-full px-4 py-3 bg-transparent text-black placeholder-gray-500 font-bold focus:outline-none border-0 focus:ring-0 m-0"
                   required
-                >
+                />
               </div>
-              <p class="text-red-500 text-xs font-bold absolute bottom-1 left-1 transition-opacity duration-200" [class.opacity-0]="!nameError()">
+              <p
+                class="text-red-500 text-xs font-bold absolute bottom-1 left-1 transition-opacity duration-200"
+                [class.opacity-0]="!nameError()"
+              >
                 {{ nameError() || 'Error' }}
               </p>
             </div>
           </div>
 
           <div class="flex flex-col">
-            <label class="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Monthly Salary (₹)</label>
+            <label class="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2"
+              >Monthly Salary (₹)</label
+            >
             <div class="relative w-full pb-6">
-              <div class="w-full relative flex items-center bg-gray-50 border-2 border-black transition-colors" [class.border-red-500]="salaryError()">
-                <input 
-                  type="text" 
+              <div
+                class="w-full relative flex items-center bg-gray-50 border-2 border-black transition-colors"
+                [class.border-red-500]="salaryError()"
+              >
+                <input
+                  type="text"
                   inputmode="numeric"
-                  [(ngModel)]="salaryStr" 
+                  [(ngModel)]="salaryStr"
                   name="salary"
                   placeholder="50,000"
                   autocomplete="off"
                   class="w-full px-4 py-3 bg-transparent text-black placeholder-gray-500 font-bold focus:outline-none border-0 focus:ring-0 m-0"
                   required
-                >
+                />
               </div>
-              <p class="text-red-500 text-xs font-bold absolute bottom-1 left-1 transition-opacity duration-200" [class.opacity-0]="!salaryError()">
+              <p
+                class="text-red-500 text-xs font-bold absolute bottom-1 left-1 transition-opacity duration-200"
+                [class.opacity-0]="!salaryError()"
+              >
                 {{ salaryError() || 'Error' }}
               </p>
             </div>
           </div>
-          
-          <app-button [text]="'Complete Setup'" class="w-full" [isLoading]="isLoading()" (clicked)="onFinalSubmit()"></app-button>
+
+          <app-button
+            [text]="'Complete Setup'"
+            class="w-full"
+            [isLoading]="isLoading()"
+            (clicked)="onFinalSubmit()"
+          ></app-button>
         </form>
       </div>
     </app-auth-layout>
-  `
+  `,
 })
 export class OnboardingProfileComponent implements OnInit {
   private router = inject(Router);
@@ -85,7 +106,9 @@ export class OnboardingProfileComponent implements OnInit {
   profileSalary: number | null = null;
 
   private _salaryStr = '';
-  get salaryStr() { return this._salaryStr; }
+  get salaryStr() {
+    return this._salaryStr;
+  }
   set salaryStr(val: string) {
     let raw = val.replace(/\D/g, '');
     if (!raw) {
@@ -108,12 +131,12 @@ export class OnboardingProfileComponent implements OnInit {
   async onFinalSubmit() {
     let hasError = false;
     if (!this.profileName.trim()) {
-       this.nameError.set('Please enter your display name.');
-       hasError = true;
+      this.nameError.set('Please enter your display name.');
+      hasError = true;
     }
     if (!this.profileSalary || this.profileSalary <= 0) {
-       this.salaryError.set('Please enter a valid monthly salary.');
-       hasError = true;
+      this.salaryError.set('Please enter a valid monthly salary.');
+      hasError = true;
     }
     if (hasError) return;
 
@@ -121,17 +144,21 @@ export class OnboardingProfileComponent implements OnInit {
     try {
       const email = this.state.email();
       const mpin = this.state.mpin();
-      
+
       let baseUsername = this.profileName.toLowerCase().replace(/[^a-z0-9]/g, '');
       if (!baseUsername) baseUsername = 'user';
-      
+
       let username = baseUsername;
       let isAvailable = false;
       let counter = 1;
-      
+
       // Keep checking the profiles table until we find an unused username
       while (!isAvailable) {
-        const { data, error } = await this.supabaseService.client.from('profiles').select('id').eq('username', username).maybeSingle();
+        const { data, error } = await this.supabaseService.client
+          .from('profiles')
+          .select('id')
+          .eq('username', username)
+          .maybeSingle();
         if (!data) {
           isAvailable = true;
         } else {
@@ -139,13 +166,13 @@ export class OnboardingProfileComponent implements OnInit {
           counter++;
         }
       }
-      
+
       const { user } = await this.supabaseService.signUpWithMpin(email, mpin, {
         full_name: this.profileName,
         salary: this.profileSalary,
         username: username,
         newUser: 'N',
-        onboardingStatus: 'N'
+        onboardingStatus: 'N',
       });
 
       if (user) {
@@ -158,7 +185,7 @@ export class OnboardingProfileComponent implements OnInit {
 
         this.toastService.showSuccess('Account created successfully!');
         this.state.clearAll();
-        
+
         // Force navigation
         this.router.navigate(['/dashboard']);
       } else {

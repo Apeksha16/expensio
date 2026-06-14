@@ -1,6 +1,6 @@
 import { Injectable, signal, PLATFORM_ID, inject, computed } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { AuthService } from './auth';
+import { AuthService } from './auth.service';
 import { SupabaseService } from './supabase.service';
 import { ToastService } from './toast.service';
 

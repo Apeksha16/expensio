@@ -1,4 +1,4 @@
-# Build and Deploy to Cloudflare Pages
+# Build and Deploy to Firebase Hosting
 Write-Host "Building Angular production bundle..."
 npx ng build --configuration production
 

@@ -4,6 +4,7 @@ import { SwUpdate } from '@angular/service-worker';
 import { fromEvent, merge, of } from 'rxjs';
 import { map, first, filter } from 'rxjs/operators';
 import { ConfirmService } from './confirm.service';
+import { ToastService } from './toast.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,6 +14,7 @@ export class PwaService {
   private updates = inject(SwUpdate);
   private appRef = inject(ApplicationRef);
   private confirmService = inject(ConfirmService);
+  private toastService = inject(ToastService);
 
   readonly isOffline = signal<boolean>(false);
 
@@ -59,9 +61,41 @@ export class PwaService {
       message: 'A new version of the app is available. Would you like to update now?',
       confirmText: 'Update',
       cancelText: 'Later',
-      onConfirm: () => {
+      onConfirm: async () => {
+        try {
+          await this.updates.activateUpdate();
+        } catch (e) {}
         window.location.reload();
       }
     });
+  }
+
+  async backgroundCheck(): Promise<void> {
+    if (!this.updates.isEnabled) return;
+    try {
+      await this.updates.checkForUpdate();
+    } catch (e) {}
+  }
+
+  async checkForManualUpdate(): Promise<void> {
+    if (!this.updates.isEnabled) {
+      this.toastService.showInfo('Updates are not supported in this environment');
+      return;
+    }
+
+    try {
+      this.toastService.showInfo('Checking for updates...');
+      let updateFound = await this.updates.checkForUpdate();
+      if (!updateFound) {
+        // Retry once
+        updateFound = await this.updates.checkForUpdate();
+      }
+
+      if (!updateFound) {
+        this.toastService.showInfo('No updates found');
+      }
+    } catch (err) {
+      this.toastService.showError('Failed to check for updates');
+    }
   }
 }

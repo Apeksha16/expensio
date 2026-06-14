@@ -1,16 +1,24 @@
 import { Component, inject, signal } from '@angular/core';
-import { RouterOutlet, ChildrenOutletContexts, Router, NavigationStart, NavigationEnd, NavigationCancel, NavigationError } from '@angular/router';
+import {
+  RouterOutlet,
+  ChildrenOutletContexts,
+  Router,
+  NavigationStart,
+  NavigationEnd,
+  NavigationCancel,
+  NavigationError,
+} from '@angular/router';
 import { slideInAnimation } from './core/animations/route-animations';
-import { CommonModule } from '@angular/common';
+
 import { PwaService } from './core/services/pwa.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule],
+  imports: [RouterOutlet],
   templateUrl: './app.html',
   styleUrl: './app.css',
-  animations: [slideInAnimation]
+  animations: [slideInAnimation],
 })
 export class App {
   protected readonly title = signal('expensio');
