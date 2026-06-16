@@ -9,11 +9,12 @@ import { SwipeToCloseDirective } from '../swipe-to-close.directive';
 import { HapticService } from '../../../core/services/haptic.service';
 
 import { AmountInputDirective } from '../amount-input.directive';
+import { AutofocusDirective } from '../autofocus.directive';
 
 @Component({
   selector: 'app-budget-sheet',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, SwipeToCloseDirective, AmountInputDirective],
+  imports: [CommonModule, ReactiveFormsModule, SwipeToCloseDirective, AmountInputDirective, AutofocusDirective],
   animations: [
     trigger('slideUp', [
       transition(':enter', [
@@ -143,6 +144,7 @@ import { AmountInputDirective } from '../amount-input.directive';
               >
               <div class="relative group">
                 <input
+                  appAutofocus
                   type="text"
                   formControlName="name"
                   class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-[#1a2e22] hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans"

@@ -2,6 +2,8 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SplitService } from '../../core/services/split.service';
 import { FriendService } from '../../core/services/friend.service';
+import { AuthService } from '../../core/services/auth.service';
+import { ConfirmService } from '../../core/services/confirm.service';
 
 @Component({
   selector: 'app-splits',
@@ -72,6 +74,14 @@ import { FriendService } from '../../core/services/friend.service';
         <!-- Tabs -->
         <div class="flex border-b-2 border-black mt-2">
           <button
+            (click)="splitService.activeTab.set('expenses')"
+            [class.bg-black]="splitService.activeTab() === 'expenses'"
+            [class.text-white]="splitService.activeTab() === 'expenses'"
+            class="flex-1 py-3 font-extrabold tracking-widest uppercase transition-colors"
+          >
+            Expenses
+          </button>
+          <button
             (click)="splitService.activeTab.set('friends')"
             [class.bg-black]="splitService.activeTab() === 'friends'"
             [class.text-white]="splitService.activeTab() === 'friends'"
@@ -88,12 +98,58 @@ import { FriendService } from '../../core/services/friend.service';
             Groups
           </button>
         </div>
+        <!-- Expenses List -->
+        @if (splitService.activeTab() === 'expenses') {
+          <div class="flex-1 flex flex-col gap-1.5 pb-16 mt-2">
+            @if (splitService.splits().length > 0) {
+              @for (split of splitService.splits(); track split.id) {
+                <button
+                  (click)="splitService.openAddSplitSheet(split)"
+                  class="w-full bg-gray-200 rounded-none p-4 flex flex-col gap-1 text-left hover:bg-gray-300 transition-colors active:bg-gray-400"
+                >
+                  <div class="flex justify-between items-start">
+                    <span class="font-extrabold text-lg text-black">{{ split.title }}</span>
+                    <span class="font-extrabold text-lg text-black">₹{{ split.total_amount | number: '1.0-2' }}</span>
+                  </div>
+                  <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest"
+                    >{{ split.date | date: 'mediumDate' }} • Paid by {{ split.payer_id === currentUser().id ? 'Me' : getFriendName(split.payer_id) }}</span
+                  >
+                </button>
+              }
+            } @else {
+              <div class="flex-1 flex flex-col items-center justify-center p-8 text-center">
+                <div
+                  class="w-32 h-32 bg-gray-200 border-2 border-transparent rounded-full flex items-center justify-center mb-6"
+                >
+                  <svg
+                    class="w-12 h-12 text-gray-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 4v16m8-8H4"
+                    />
+                  </svg>
+                </div>
+                <p class="text-gray-500 font-extrabold text-xl">No splits yet</p>
+                <p class="text-gray-400 font-bold text-sm mt-2 max-w-[250px]">
+                  Tap the + button to add an expense with a friend.
+                </p>
+              </div>
+            }
+          </div>
+        }
         <!-- Friends List -->
         @if (splitService.activeTab() === 'friends') {
           <div class="flex-1 flex flex-col gap-1.5 pb-16 mt-2">
             @if (friendService.acceptedFriends().length > 0) {
-              @for (friend of friendService.acceptedFriends(); track friend) {
+              @for (friend of friendService.acceptedFriends(); track friend.id) {
                 <button
+                  (click)="onFriendClick(friend.profile.id, friend.profile.name)"
                   class="w-full bg-gray-200 rounded-none p-4 flex items-center justify-between text-left hover:bg-gray-300 transition-colors active:bg-gray-400"
                 >
                   <div class="flex flex-col gap-0.5">
@@ -140,9 +196,9 @@ import { FriendService } from '../../core/services/friend.service';
                     />
                   </svg>
                 </div>
-                <p class="text-gray-500 font-extrabold text-xl">No splits yet</p>
+                <p class="text-gray-500 font-extrabold text-xl">No friends</p>
                 <p class="text-gray-400 font-bold text-sm mt-2 max-w-[250px]">
-                  Tap the + button to add an expense with a friend.
+                  Add friends to see balances here.
                 </p>
               </div>
             }
@@ -197,6 +253,9 @@ import { FriendService } from '../../core/services/friend.service';
 export class Splits implements OnInit {
   splitService = inject(SplitService);
   friendService = inject(FriendService);
+  authService = inject(AuthService);
+  confirmService = inject(ConfirmService);
+  currentUser = this.authService.userProfile;
 
   isInitialLoading = signal(true);
   Math = Math; // for template
@@ -209,5 +268,30 @@ export class Splits implements OnInit {
 
   getBalance(id: string): number {
     return this.splitService.balances()[id] || 0;
+  }
+
+  getFriendName(id: string): string {
+    const f = this.friendService.acceptedFriends().find((x: any) => x.profile.id === id);
+    return f ? f.profile.name : id;
+  }
+
+  onFriendClick(friendId: string, friendName: string) {
+    const balance = this.getBalance(friendId);
+    if (balance === 0) return; // already settled
+
+    const amount = Math.abs(balance);
+    const actionText = balance > 0 
+      ? `${friendName} paid you ₹${amount}?` 
+      : `You paid ${friendName} ₹${amount}?`;
+
+    this.confirmService.open({
+      title: 'Mark as Paid',
+      message: `Are you sure you want to mark this balance as paid? (${actionText})`,
+      confirmText: 'Mark as Paid',
+      cancelText: 'Cancel',
+      onConfirm: () => {
+        this.splitService.settleUp(friendId, balance);
+      }
+    });
   }
 }

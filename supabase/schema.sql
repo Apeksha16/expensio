@@ -147,6 +147,15 @@ create policy "Users can delete their own friendships"
   on public.friends for delete
   using (auth.uid() = requester_id or auth.uid() = addressee_id);
 
+-- Enable real-time for friends table
+begin;
+  drop publication if exists supabase_realtime;
+  create publication supabase_realtime;
+commit;
+alter publication supabase_realtime add table public.friends;
+alter publication supabase_realtime add table public.split_groups;
+alter publication supabase_realtime add table public.split_expenses;
+
 -- Search Function
 create or replace function search_users_for_friendship(search_query text, max_friends int default 10)
 returns setof public.profiles as $$

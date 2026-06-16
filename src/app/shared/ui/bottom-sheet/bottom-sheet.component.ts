@@ -10,11 +10,12 @@ import { DatePickerComponent } from '../date-picker/date-picker.component';
 import { SwipeToCloseDirective } from '../swipe-to-close.directive';
 import { AmountInputDirective } from '../amount-input.directive';
 import { HapticService } from '../../../core/services/haptic.service';
+import { AutofocusDirective } from '../autofocus.directive';
 
 @Component({
   selector: 'app-bottom-sheet',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, DatePickerComponent, SwipeToCloseDirective, AmountInputDirective],
+  imports: [CommonModule, ReactiveFormsModule, DatePickerComponent, SwipeToCloseDirective, AmountInputDirective, AutofocusDirective],
   animations: [
     trigger('slideUp', [
       transition(':enter', [
@@ -113,6 +114,7 @@ import { HapticService } from '../../../core/services/haptic.service';
                   <span class="text-gray-500 font-medium">₹</span>
                 </div>
                 <input
+                  appAutofocus
                   type="text"
                   inputmode="numeric"
                   pattern="[0-9]*"

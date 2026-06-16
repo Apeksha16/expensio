@@ -68,7 +68,7 @@ import { UserProfile } from '../../core/services/auth.service';
                   Friend Requests
                 </h3>
                 <div class="flex flex-col gap-1.5">
-                  @for (req of friendService.incomingRequests(); track req) {
+                  @for (req of friendService.incomingRequests(); track req.id) {
                     <div
                       class="w-full bg-white border-2 border-black rounded-none p-3 flex items-center justify-between gap-4"
                     >
@@ -138,7 +138,7 @@ import { UserProfile } from '../../core/services/auth.service';
                   Sent Requests
                 </h3>
                 <div class="flex flex-col gap-1.5">
-                  @for (req of friendService.outgoingRequests(); track req) {
+                  @for (req of friendService.outgoingRequests(); track req.id) {
                     <div
                       class="w-full bg-gray-100 rounded-none p-3 flex items-center justify-between gap-4"
                     >
@@ -176,7 +176,7 @@ import { UserProfile } from '../../core/services/auth.service';
                   Your Friends
                 </h3>
                 <div class="flex flex-col gap-1.5">
-                  @for (friend of friendService.acceptedFriends(); track friend) {
+                  @for (friend of friendService.acceptedFriends(); track friend.id) {
                     <button
                       (click)="friendService.openRemoveSheet(friend)"
                       class="w-full bg-gray-200 rounded-none p-3 flex items-center gap-4 text-left hover:bg-gray-300 transition-colors active:bg-gray-400"

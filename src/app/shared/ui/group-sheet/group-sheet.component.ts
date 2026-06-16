@@ -9,11 +9,12 @@ import { AuthService } from '../../../core/services/auth.service';
 
 import { SwipeToCloseDirective } from '../swipe-to-close.directive';
 import { HapticService } from '../../../core/services/haptic.service';
+import { AutofocusDirective } from '../autofocus.directive';
 
 @Component({
   selector: 'app-group-sheet',
   standalone: true,
-  imports: [ReactiveFormsModule, SwipeToCloseDirective],
+  imports: [ReactiveFormsModule, SwipeToCloseDirective, AutofocusDirective],
   animations: [
     trigger('slideUp', [
       transition(':enter', [
@@ -81,6 +82,7 @@ import { HapticService } from '../../../core/services/haptic.service';
                   >Group Name</label
                 >
                 <input
+                  appAutofocus
                   type="text"
                   formControlName="name"
                   placeholder="Goa Trip, Roommates..."
@@ -103,7 +105,7 @@ import { HapticService } from '../../../core/services/haptic.service';
                     />
                     <span class="font-bold text-sm text-gray-400">Me (Admin)</span>
                   </label>
-                  @for (friend of friendService.acceptedFriends(); track friend) {
+                  @for (friend of friendService.acceptedFriends(); track friend.id) {
                     <label
                       class="flex items-center gap-3 p-3 bg-white border-2 border-gray-200 cursor-pointer hover:border-[#1a2e22] transition-colors"
                     >

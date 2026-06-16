@@ -68,7 +68,16 @@ export class FriendService {
       .subscribe();
   }
 
-  async fetchFriends() {
+  private fetchTimeout: any;
+
+  fetchFriends() {
+    if (this.fetchTimeout) clearTimeout(this.fetchTimeout);
+    this.fetchTimeout = setTimeout(() => {
+      this._fetchFriends();
+    }, 50);
+  }
+
+  private async _fetchFriends() {
     const user = this.authService.currentUser();
     if (!user) return;
 
@@ -111,7 +120,8 @@ export class FriendService {
       .rpc('search_users_for_friendship', { search_query: query });
       
     if (!error && data) {
-      return data as UserProfile[];
+      const currentUserId = this.authService.currentUser()?.id;
+      return (data as UserProfile[]).filter(user => user.id !== currentUserId);
     }
     return [];
   }
@@ -119,6 +129,11 @@ export class FriendService {
   async sendRequest(targetUser: UserProfile) {
     const user = this.authService.currentUser();
     if (!user) return;
+    
+    if (user.id === targetUser.id) {
+      console.warn('Cannot send a friend request to yourself');
+      return;
+    }
 
     const { error } = await this.supabaseService.client
       .from('friends')
@@ -133,13 +148,19 @@ export class FriendService {
   }
 
   async acceptRequest(friendshipId: string) {
-    const { error } = await this.supabaseService.client
+    const { data, error } = await this.supabaseService.client
       .from('friends')
       .update({ status: 'accepted' })
-      .eq('id', friendshipId);
+      .eq('id', friendshipId)
+      .select();
       
-    if (error) console.error('Error accepting friend request:', error);
-    else this.fetchFriends();
+    if (error) {
+      console.error('Error accepting friend request:', error);
+    } else if (!data || data.length === 0) {
+      console.error('No friend request updated. It may not exist or you lack permission.');
+    } else {
+      this.fetchFriends();
+    }
   }
 
   async removeFriend(friendshipId: string) {

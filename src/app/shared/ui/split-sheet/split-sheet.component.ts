@@ -10,16 +10,18 @@ import {
 import { animate, style, transition, trigger } from '@angular/animations';
 import { SplitService, SplitExpense, SplitParticipant } from '../../../core/services/split.service';
 import { FriendService } from '../../../core/services/friend.service';
+import { ConfirmService } from '../../../core/services/confirm.service';
 import { AuthService } from '../../../core/services/auth.service';
 
 import { SwipeToCloseDirective } from '../swipe-to-close.directive';
 import { AmountInputDirective } from '../amount-input.directive';
 import { HapticService } from '../../../core/services/haptic.service';
+import { AutofocusDirective } from '../autofocus.directive';
 
 @Component({
   selector: 'app-split-sheet',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, SwipeToCloseDirective, AmountInputDirective],
+  imports: [CommonModule, ReactiveFormsModule, SwipeToCloseDirective, AmountInputDirective, AutofocusDirective],
   animations: [
     trigger('slideUp', [
       transition(':enter', [
@@ -57,7 +59,14 @@ import { HapticService } from '../../../core/services/haptic.service';
         <div
           class="flex justify-between items-center py-4 px-6 bg-black border-b border-black text-white sticky top-0 z-10"
         >
-          <h2 class="text-xl font-extrabold tracking-tight">Add Split Expense</h2>
+          <h2 class="text-xl font-extrabold tracking-tight">{{ splitService.editingSplit() ? 'Edit Split Expense' : 'Add Split Expense' }}</h2>
+          @if (splitService.editingSplit()) {
+            <button type="button" (click)="onDelete()" class="text-red-400 hover:text-red-300 active:scale-95 transition-all">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          }
         </div>
         <div class="p-6">
           @if (friendService.acceptedFriends().length > 0) {
@@ -67,6 +76,7 @@ import { HapticService } from '../../../core/services/haptic.service';
                   >Description</label
                 >
                 <input
+                  appAutofocus
                   type="text"
                   formControlName="title"
                   placeholder="e.g. Dinner, Taxi"
@@ -146,7 +156,7 @@ import { HapticService } from '../../../core/services/haptic.service';
                           </svg>
                         }
                       </button>
-                      @for (friend of friendService.acceptedFriends(); track friend) {
+                      @for (friend of friendService.acceptedFriends(); track friend.id) {
                         <button
                           type="button"
                           (click)="selectPayer(friend.profile.id)"
@@ -183,18 +193,8 @@ import { HapticService } from '../../../core/services/haptic.service';
                   >Split With (Participants)</label
                 >
                 <div class="flex flex-col gap-2">
-                  <label
-                    class="flex items-center gap-3 p-3 bg-white border-2 border-gray-200 cursor-pointer hover:border-[#1a2e22] transition-colors"
-                  >
-                    <input
-                      type="checkbox"
-                      (change)="toggleParticipant(currentUser().id)"
-                      [checked]="isParticipant(currentUser().id)"
-                      class="w-5 h-5 accent-[#1a2e22] border-2 border-gray-300 rounded-none focus:ring-0"
-                    />
-                    <span class="font-bold text-sm text-gray-900">Me</span>
-                  </label>
-                  @for (friend of friendService.acceptedFriends(); track friend) {
+
+                  @for (friend of friendService.acceptedFriends(); track friend.id) {
                     <label
                       class="flex items-center gap-3 p-3 bg-white border-2 border-gray-200 cursor-pointer hover:border-[#1a2e22] transition-colors"
                     >
@@ -247,7 +247,7 @@ import { HapticService } from '../../../core/services/haptic.service';
                   @for (p of selectedParticipants(); track p) {
                     <div class="flex justify-between items-center gap-2">
                       <span class="font-bold text-sm text-gray-900 truncate max-w-[45%]">{{
-                        p === currentUser().id ? 'Me' : getFriendName(p)
+                        getFriendName(p)
                       }}</span>
                       @if (splitStrategy() === 'EQUAL') {
                         <span class="font-extrabold text-sm text-gray-900"
@@ -281,12 +281,12 @@ import { HapticService } from '../../../core/services/haptic.service';
                     >
                       <span
                         class="text-[10px] font-semibold text-gray-500 tracking-widest uppercase"
-                        >Left to assign</span
+                        >My Share</span
                       >
                       <span
                         class="font-extrabold text-sm"
-                        [class.text-red-600]="getLeftToAssign() !== 0"
-                        [class.text-green-600]="getLeftToAssign() === 0"
+                        [class.text-red-600]="getLeftToAssign() < 0"
+                        [class.text-gray-900]="getLeftToAssign() >= 0"
                         >₹{{ getLeftToAssign() | number: '1.0-2' }}</span
                       >
                     </div>
@@ -352,6 +352,7 @@ export class SplitSheetComponent implements OnInit {
   splitService = inject(SplitService);
   friendService = inject(FriendService);
   authService = inject(AuthService);
+  confirmService = inject(ConfirmService);
   fb = inject(FormBuilder);
 
   currentUser = computed(() => this.authService.userProfile());
@@ -366,6 +367,23 @@ export class SplitSheetComponent implements OnInit {
 
   ngOnInit() {
     this.initForms();
+    const split = this.splitService.editingSplit();
+    if (split) {
+      this.splitForm.patchValue({
+        title: split.title,
+        totalAmount: split.total_amount,
+        payerId: split.payer_id,
+      });
+
+      const friendsInvolved = split.participants.filter(p => p.userId !== this.currentUser().id);
+      this.selectedParticipants.set(friendsInvolved.map(p => p.userId));
+      
+      friendsInvolved.forEach(p => {
+        this.customAmounts[p.userId] = new FormControl(p.amountOwed);
+      });
+      
+      this.splitStrategy.set('CUSTOM');
+    }
   }
 
   initForms() {
@@ -418,7 +436,7 @@ export class SplitSheetComponent implements OnInit {
     const total = this.splitForm.value.totalAmount || 0;
     const count = this.selectedParticipants().length;
     if (count === 0) return 0;
-    return total / count;
+    return total / (count + 1);
   }
 
   getCustomControl(id: string): FormControl {
@@ -445,7 +463,7 @@ export class SplitSheetComponent implements OnInit {
   isFormValid(): boolean {
     if (this.splitForm.invalid) return false;
     if (this.selectedParticipants().length === 0) return false;
-    if (this.splitStrategy() === 'CUSTOM' && this.getLeftToAssign() !== 0) return false;
+    if (this.splitStrategy() === 'CUSTOM' && this.getLeftToAssign() < 0) return false;
     return true;
   }
 
@@ -464,22 +482,60 @@ export class SplitSheetComponent implements OnInit {
       return { userId: p, amountOwed: amount };
     });
 
-    const split: Omit<SplitExpense, 'id' | 'created_at'> = {
-      title: v.title,
-      total_amount: v.totalAmount,
-      payer_id: v.payerId,
-      participants: participants,
-      participant_ids: participants.map((p) => p.userId),
-      date: new Date().toISOString(),
-    };
+    let myAmount = 0;
+    if (this.splitStrategy() === 'EQUAL') {
+      myAmount = this.getEqualAmount();
+    } else {
+      myAmount = this.getLeftToAssign();
+    }
+    participants.push({ userId: this.currentUser().id, amountOwed: myAmount });
 
-    this.splitService.addSplit(split);
+    const isEditing = this.splitService.editingSplit();
+
+    if (isEditing) {
+      const updatedSplit: SplitExpense = {
+        ...isEditing,
+        title: v.title,
+        total_amount: v.totalAmount,
+        payer_id: v.payerId,
+        participants: participants,
+        participant_ids: participants.map((p) => p.userId),
+      };
+      this.splitService.updateSplit(updatedSplit);
+    } else {
+      const split: Omit<SplitExpense, 'id' | 'created_at'> = {
+        title: v.title,
+        total_amount: v.totalAmount,
+        payer_id: v.payerId,
+        participants: participants,
+        participant_ids: participants.map((p) => p.userId),
+        date: new Date().toISOString(),
+      };
+      this.splitService.addSplit(split);
+    }
 
     // Reset
     this.splitForm.reset({ payerId: this.currentUser().id });
     this.selectedParticipants.set([]);
+    this.customAmounts = {};
     this.splitStrategy.set('EQUAL');
     this.close();
+  }
+
+  onDelete() {
+    const split = this.splitService.editingSplit();
+    if (!split) return;
+    
+    this.confirmService.open({
+      title: 'Delete Split',
+      message: 'Are you sure you want to delete this split expense? This action cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      onConfirm: () => {
+        this.splitService.deleteSplit(split.id);
+        this.close();
+      }
+    });
   }
 
   close() {

@@ -42,9 +42,10 @@ export class SplitService {
   readonly isSheetOpen = signal<boolean>(false);
   readonly isGroupSheetOpen = signal<boolean>(false);
   readonly editingGroup = signal<SplitGroup | null>(null);
+  readonly editingSplit = signal<SplitExpense | null>(null);
   
   // Navigation state
-  readonly activeTab = signal<'friends' | 'groups'>('friends');
+  readonly activeTab = signal<'expenses' | 'friends' | 'groups'>('expenses');
 
   // Data state
   readonly splits = signal<SplitExpense[]>([]);
@@ -111,6 +112,74 @@ export class SplitService {
       this.toastService.showSuccess('Split added successfully!');
       this.loadData();
     }
+  }
+
+  async updateSplit(split: SplitExpense) {
+    const { data, error } = await this.supabase.client
+      .from('split_expenses')
+      .update({
+        title: split.title,
+        total_amount: split.total_amount,
+        payer_id: split.payer_id,
+        participants: split.participants,
+        participant_ids: split.participant_ids
+      })
+      .eq('id', split.id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error updating split:', error);
+      this.toastService.showError('Failed to update split. Please try again.');
+    } else if (data) {
+      this.toastService.showSuccess('Split updated successfully!');
+      this.loadData();
+    }
+  }
+
+  async deleteSplit(id: string) {
+    const { error } = await this.supabase.client
+      .from('split_expenses')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error deleting split:', error);
+      this.toastService.showError('Failed to delete split. Please try again.');
+    } else {
+      this.toastService.showSuccess('Split deleted successfully!');
+      this.loadData();
+    }
+  }
+
+  async settleUp(friendId: string, amount: number) {
+    const currentUser = this.authService.userProfile();
+    if (!currentUser) return;
+
+    let payerId = '';
+    let participantId = '';
+    const absAmount = Math.abs(amount);
+
+    if (amount > 0) {
+      // Friend owes me. Settle means Friend pays me.
+      payerId = friendId;
+      participantId = currentUser.id;
+    } else {
+      // I owe Friend. Settle means I pay Friend.
+      payerId = currentUser.id;
+      participantId = friendId;
+    }
+
+    const split: Omit<SplitExpense, 'id' | 'created_at'> = {
+      title: 'Settlement',
+      total_amount: absAmount,
+      payer_id: payerId,
+      participants: [{ userId: participantId, amountOwed: absAmount }, { userId: payerId, amountOwed: 0 }],
+      participant_ids: [participantId, payerId],
+      date: new Date().toISOString(),
+    };
+
+    await this.addSplit(split);
   }
 
   async createGroup(group: Omit<SplitGroup, 'id' | 'created_at'>) {
@@ -204,7 +273,8 @@ export class SplitService {
 
   // --- Sheet Controls ---
 
-  openAddSplitSheet() {
+  openAddSplitSheet(split?: SplitExpense) {
+    this.editingSplit.set(split || null);
     this.isSheetOpen.set(true);
   }
 
@@ -215,6 +285,7 @@ export class SplitService {
 
   closeSheet() {
     this.isSheetOpen.set(false);
+    this.editingSplit.set(null);
   }
 
   closeGroupSheet() {

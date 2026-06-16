@@ -68,17 +68,53 @@ export class ExpenseService {
     const nextMDate = new Date(parseInt(year), parseInt(m), 1);
     const nextMonthStr = `${nextMDate.getFullYear()}-${(nextMDate.getMonth() + 1).toString().padStart(2, '0')}-01T00:00:00.000Z`;
 
-    const { data, error } = await this.supabaseService.client
-      .from('expenses')
-      .select('*')
-      .gte('date', startDate)
-      .lt('date', nextMonthStr)
-      .order('date', { ascending: false });
-      
-    if (!error && data) {
-      this.allExpenses.set(data as Expense[]);
-      this.applyFilterAndPagination();
+    const [
+      { data: expensesData, error: expensesError },
+      { data: splitsData, error: splitsError }
+    ] = await Promise.all([
+      this.supabaseService.client
+        .from('expenses')
+        .select('*')
+        .gte('date', startDate)
+        .lt('date', nextMonthStr),
+      this.supabaseService.client
+        .from('split_expenses')
+        .select('*')
+        .gte('date', startDate)
+        .lt('date', nextMonthStr)
+    ]);
+
+    let all: Expense[] = [];
+
+    if (!expensesError && expensesData) {
+      all = [...(expensesData as Expense[])];
     }
+
+    if (!splitsError && splitsData) {
+      const currentUserId = this.authService.currentUser()?.id;
+      const mappedSplits: Expense[] = splitsData
+        .filter((s: any) => s.title !== 'Settlement')
+        .map((s: any) => {
+          const myParticipant = s.participants?.find((p: any) => p.userId === currentUserId);
+          if (myParticipant && myParticipant.amountOwed > 0) {
+            return {
+              id: `split_${s.id}`,
+              title: s.title,
+              amount: myParticipant.amountOwed,
+              category: 'Split Expense',
+              date: s.date
+            };
+          }
+          return null;
+        })
+        .filter((x: any) => x !== null) as Expense[];
+        
+      all = [...all, ...mappedSplits];
+    }
+
+    all.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    this.allExpenses.set(all);
+    this.applyFilterAndPagination();
     this.isLoading.set(false);
   }
 

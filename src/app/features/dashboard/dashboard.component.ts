@@ -13,7 +13,6 @@ import {
 import { CommonModule } from '@angular/common';
 import { Chart } from 'chart.js/auto';
 import { ExpenseService } from '../../core/services/expense.service';
-import { PwaService } from '../../core/services/pwa.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -205,7 +204,6 @@ import { PwaService } from '../../core/services/pwa.service';
 })
 export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   private expenseService = inject(ExpenseService);
-  private pwaService = inject(PwaService);
 
   chartType: 'weekly' | 'monthly' = 'weekly';
   chartInstance: any;
@@ -234,8 +232,6 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit() {
     // Initial loading is now immediate, no simulation
-    // Silently check for updates in the background
-    this.pwaService.backgroundCheck();
   }
 
   ngAfterViewInit() {
