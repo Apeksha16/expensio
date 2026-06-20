@@ -207,7 +207,7 @@ export class Expenses implements OnInit, AfterViewInit, OnDestroy {
 
   editExpense(expense: Expense) {
     if (expense.id.startsWith('split_')) {
-      this.toastService.showError('This is a split expense. Please edit it from the Splits tab.');
+      this.toastService.showInfo('This is a split expense. Please edit it from the Splits tab.');
       return;
     }
     this.keyboardService.openKeyboardSync();

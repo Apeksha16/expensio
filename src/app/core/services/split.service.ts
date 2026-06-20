@@ -3,6 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { AuthService } from './auth.service';
 import { SupabaseService } from './supabase.service';
 import { ToastService } from './toast.service';
+import { ExpenseService } from './expense.service';
 
 export interface SplitParticipant {
   userId: string;
@@ -17,6 +18,7 @@ export interface SplitExpense {
   participants: SplitParticipant[];
   participant_ids: string[];
   group_id?: string | null;
+  category?: string | null;
   date: string;
   created_at: string;
 }
@@ -37,6 +39,7 @@ export class SplitService {
   private authService = inject(AuthService);
   private supabase = inject(SupabaseService);
   private toastService = inject(ToastService);
+  private expenseService = inject(ExpenseService);
 
   // Sheet state
   readonly isSheetOpen = signal<boolean>(false);
@@ -44,8 +47,7 @@ export class SplitService {
   readonly editingGroup = signal<SplitGroup | null>(null);
   readonly editingSplit = signal<SplitExpense | null>(null);
   
-  // Navigation state
-  readonly activeTab = signal<'expenses' | 'friends' | 'groups'>('expenses');
+  readonly activeTab = signal<'expenses' | 'groups'>('expenses');
 
   // Data state
   readonly splits = signal<SplitExpense[]>([]);
@@ -78,6 +80,9 @@ export class SplitService {
       .select('*')
       .order('date', { ascending: false });
     if (expensesData) this.splits.set(expensesData);
+
+    // Sync expense service so splits show up immediately in expenses list
+    this.expenseService.fetchExpenses();
   }
 
   private setupRealtime() {
@@ -122,7 +127,9 @@ export class SplitService {
         total_amount: split.total_amount,
         payer_id: split.payer_id,
         participants: split.participants,
-        participant_ids: split.participant_ids
+        participant_ids: split.participant_ids,
+        category: split.category,
+        group_id: split.group_id
       })
       .eq('id', split.id)
       .select()

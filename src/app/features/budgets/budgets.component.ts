@@ -5,6 +5,7 @@ import { ExpenseService } from '../../core/services/expense.service';
 import { AuthService } from '../../core/services/auth.service';
 import { MonthPickerService } from '../../core/services/month-picker.service';
 import { KeyboardService } from '../../core/services/keyboard.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-budgets',
@@ -91,7 +92,7 @@ import { KeyboardService } from '../../core/services/keyboard.service';
           @if (budgetService.budgets().length > 0) {
             @for (budget of budgetService.budgets(); track budget) {
               <button
-                (click)="editBudget(budget)"
+                (click)="openBudget(budget)"
                 class="w-full bg-gray-200 rounded-none p-3 flex flex-col gap-2 text-left hover:bg-gray-300 transition-colors active:bg-gray-400"
               >
                 <div class="flex justify-between items-center w-full">
@@ -159,7 +160,8 @@ export class Budgets implements OnInit, AfterViewInit {
   expenseService = inject(ExpenseService);
   private authService = inject(AuthService);
   monthPicker = inject(MonthPickerService);
-  keyboardService = inject(KeyboardService);
+  private keyboardService = inject(KeyboardService);
+  private router = inject(Router);
   private monthSub: any;
   animateBars = signal(false);
 
@@ -224,8 +226,7 @@ export class Budgets implements OnInit, AfterViewInit {
     return 'bg-black';
   }
 
-  editBudget(budget: any) {
-    this.keyboardService.openKeyboardSync();
-    this.budgetService.openBottomSheet(budget);
+  openBudget(budget: any) {
+    this.router.navigate(['/budgets', budget.name]);
   }
 }

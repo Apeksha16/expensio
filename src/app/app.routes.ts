@@ -70,6 +70,11 @@ export const routes: Routes = [
         data: { animationIndex: 3 }
       },
       {
+        path: 'budgets/:name',
+        loadComponent: () => import('./features/budgets/budget-expenses/budget-expenses.component').then(m => m.BudgetExpenses),
+        data: { animationIndex: 3.5 }
+      },
+      {
         path: 'friends',
         loadComponent: () => import('./features/friends/friends.component').then(m => m.Friends),
         data: { animationIndex: 4 }
@@ -78,6 +83,11 @@ export const routes: Routes = [
         path: 'splits',
         loadComponent: () => import('./features/splits/splits.component').then(m => m.Splits),
         data: { animationIndex: 5 }
+      },
+      {
+        path: 'splits/group/:id',
+        loadComponent: () => import('./features/splits/group-expenses/group-expenses.component').then(m => m.GroupExpenses),
+        data: { animationIndex: 5.5 }
       },
       {
         path: 'profile',

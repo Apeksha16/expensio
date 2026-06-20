@@ -12,6 +12,7 @@ import { SplitService, SplitExpense, SplitParticipant } from '../../../core/serv
 import { FriendService } from '../../../core/services/friend.service';
 import { ConfirmService } from '../../../core/services/confirm.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { SupabaseService } from '../../../core/services/supabase.service';
 
 import { SwipeToCloseDirective } from '../swipe-to-close.directive';
 import { AmountInputDirective } from '../amount-input.directive';
@@ -52,15 +53,15 @@ import { AutofocusDirective } from '../autofocus.directive';
       <div
         @slideUp
         appSwipeToClose (swipeClose)="close()"
-        class="fixed bottom-0 left-0 right-0 bg-white z-[70] max-h-[95vh] overflow-y-auto overscroll-contain flex flex-col shadow-2xl"
+        class="fixed bottom-0 left-0 right-0 bg-black z-[70] max-h-[95vh] overflow-y-auto overscroll-contain flex flex-col shadow-2xl"
       >
 
         <!-- Header -->
         <div
           class="flex justify-between items-center py-4 px-6 bg-black border-b border-black text-white sticky top-0 z-10"
         >
-          <h2 class="text-xl font-extrabold tracking-tight">{{ splitService.editingSplit() ? 'Edit Split Expense' : 'Add Split Expense' }}</h2>
-          @if (splitService.editingSplit()) {
+          <h2 class="text-xl font-extrabold tracking-tight">{{ splitService.editingSplit()?.id ? 'Edit Split Expense' : 'Add Split Expense' }}</h2>
+          @if (splitService.editingSplit()?.id) {
             <button type="button" (click)="onDelete()" class="text-red-400 hover:text-red-300 active:scale-95 transition-all">
               <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -68,7 +69,7 @@ import { AutofocusDirective } from '../autofocus.directive';
             </button>
           }
         </div>
-        <div class="p-6">
+        <div class="p-6 bg-white flex-1">
           @if (friendService.acceptedFriends().length > 0) {
             <form [formGroup]="splitForm" (ngSubmit)="onSubmit()" class="space-y-4">
               <div class="flex flex-col gap-1">
@@ -101,6 +102,41 @@ import { AutofocusDirective } from '../autofocus.directive';
                     (keydown)="preventE($event)"
                     class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-[#1a2e22] hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans pl-8"
                   />
+                </div>
+              </div>
+              <div class="flex flex-col gap-1">
+                <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
+                  >Category</label
+                >
+                <div class="grid grid-cols-4 gap-2">
+                  @for (cat of budgetCategories(); track cat.name) {
+                    <button
+                      type="button"
+                      (click)="selectCategory(cat.name)"
+                      class="flex flex-col items-center justify-center gap-1 p-2 border-2 rounded-none transition-all min-h-[60px]"
+                      [ngClass]="
+                        splitForm.get('category')?.value === cat.name
+                          ? 'border-[#1a2e22] bg-[#1a2e22] text-white'
+                          : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
+                      "
+                    >
+                      <svg
+                        class="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        viewBox="0 0 24 24"
+                      >
+                        <path [attr.d]="cat.path"></path>
+                      </svg>
+                      <span
+                        class="text-[9px] font-semibold uppercase tracking-wider text-center line-clamp-1 w-full overflow-hidden text-ellipsis"
+                        >{{ cat.name }}</span
+                      >
+                    </button>
+                  }
                 </div>
               </div>
               <div class="flex flex-col gap-1">
@@ -204,7 +240,7 @@ import { AutofocusDirective } from '../autofocus.directive';
                         [checked]="isParticipant(friend.profile.id)"
                         class="w-5 h-5 accent-[#1a2e22] border-2 border-gray-300 rounded-none focus:ring-0"
                       />
-                      <span class="font-bold text-sm text-gray-900">{{ friend.profile.name }}</span>
+                      <span class="font-bold text-sm text-gray-900 truncate">{{ friend.profile.name.split(' ')[0] }}</span>
                     </label>
                   }
                 </div>
@@ -365,6 +401,26 @@ export class SplitSheetComponent implements OnInit {
 
   isDropdownOpen = signal(false);
 
+  localBudgets = signal<any[]>([]);
+
+  budgetCategories = computed(() => {
+    const defaultCats = [
+      { name: 'Food', path: 'M3 3h18v18H3z' }, // placeholder paths
+      { name: 'Transport', path: 'M3 3h18v18H3z' },
+      { name: 'Utilities', path: 'M3 3h18v18H3z' },
+      { name: 'Entertainment', path: 'M3 3h18v18H3z' }
+    ];
+    if (this.localBudgets().length === 0) return defaultCats;
+    return this.localBudgets().map((b) => ({
+      name: b.name,
+      path:
+        b.icon_path ||
+        'M20 12v10H4V12 M2 7h20v5H2z M12 22V7 M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z',
+    }));
+  });
+
+  supabaseService = inject(SupabaseService);
+
   constructor() {
     this.initForms();
     
@@ -373,11 +429,12 @@ export class SplitSheetComponent implements OnInit {
       const split = this.splitService.editingSplit();
       
       if (isOpen) {
-        if (split) {
+        if (split && split.id) {
           this.splitForm.patchValue({
             title: split.title,
             totalAmount: split.total_amount,
             payerId: split.payer_id,
+            category: split.category || ''
           });
 
           const currentUserProfile = this.currentUser();
@@ -393,8 +450,9 @@ export class SplitSheetComponent implements OnInit {
           const currentUserProfile = this.currentUser();
           this.splitForm.patchValue({
             title: '',
-            totalAmount: '',
-            payerId: currentUserProfile?.id
+            totalAmount: null,
+            payerId: currentUserProfile?.id,
+            category: ''
           });
           this.selectedParticipants.set([]);
           this.customAmounts = {};
@@ -402,6 +460,24 @@ export class SplitSheetComponent implements OnInit {
         }
       }
     });
+
+    this.loadCategories();
+  }
+
+  async loadCategories() {
+    const month = new Date().toISOString().substring(0, 7);
+    try {
+      const { data } = await this.supabaseService.client
+        .from('budgets')
+        .select('*')
+        .eq('month', month)
+        .order('created_at', { ascending: true });
+      if (data) {
+        this.localBudgets.set(data);
+      }
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   ngOnInit() {
@@ -410,9 +486,14 @@ export class SplitSheetComponent implements OnInit {
   initForms() {
     this.splitForm = this.fb.group({
       title: ['', Validators.required],
-      totalAmount: ['', [Validators.required, Validators.min(1)]],
+      totalAmount: [null, [Validators.required, Validators.min(1)]],
       payerId: [this.currentUser()?.id, Validators.required],
+      category: [''],
     });
+  }
+
+  selectCategory(name: string) {
+    this.splitForm.patchValue({ category: name });
   }
 
   preventE(event: KeyboardEvent) {
@@ -424,7 +505,7 @@ export class SplitSheetComponent implements OnInit {
   getPayerName(): string {
     const val = this.splitForm?.get('payerId')?.value;
     if (val === this.currentUser().id) {
-      return `Me (${this.currentUser().name})`;
+      return `Me (${this.currentUser().name.split(' ')[0]})`;
     }
     return this.getFriendName(val);
   }
@@ -441,7 +522,7 @@ export class SplitSheetComponent implements OnInit {
       delete this.customAmounts[id];
     } else {
       this.selectedParticipants.set([...current, id]);
-      this.customAmounts[id] = new FormControl(0);
+      this.customAmounts[id] = new FormControl(null);
     }
   }
 
@@ -462,7 +543,7 @@ export class SplitSheetComponent implements OnInit {
 
   getCustomControl(id: string): FormControl {
     if (!this.customAmounts[id]) {
-      this.customAmounts[id] = new FormControl(0);
+      this.customAmounts[id] = new FormControl(null);
     }
     return this.customAmounts[id];
   }
@@ -478,7 +559,7 @@ export class SplitSheetComponent implements OnInit {
 
   getFriendName(id: string): string {
     const f = this.friendService.acceptedFriends().find((x: any) => x.profile.id === id);
-    return f ? f.profile.name : id;
+    return f ? f.profile.name.split(' ')[0] : id;
   }
 
   isFormValid(): boolean {
@@ -511,25 +592,34 @@ export class SplitSheetComponent implements OnInit {
     }
     participants.push({ userId: this.currentUser().id, amountOwed: myAmount });
 
-    const isEditing = this.splitService.editingSplit();
+    const splitContext = this.splitService.editingSplit();
+    const isEditing = splitContext && !!splitContext.id;
 
     if (isEditing) {
       const updatedSplit: SplitExpense = {
-        ...isEditing,
+        ...splitContext,
         title: v.title,
         total_amount: v.totalAmount,
         payer_id: v.payerId,
         participants: participants,
         participant_ids: participants.map((p) => p.userId),
+        category: v.category || null,
       };
       this.splitService.updateSplit(updatedSplit);
     } else {
+      let groupId = null;
+      if (splitContext && !splitContext.id && splitContext.group_id) {
+         groupId = splitContext.group_id;
+      }
+      
       const split: Omit<SplitExpense, 'id' | 'created_at'> = {
         title: v.title,
         total_amount: v.totalAmount,
         payer_id: v.payerId,
         participants: participants,
         participant_ids: participants.map((p) => p.userId),
+        group_id: groupId,
+        category: v.category || null,
         date: new Date().toISOString(),
       };
       this.splitService.addSplit(split);

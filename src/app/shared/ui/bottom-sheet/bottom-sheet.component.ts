@@ -48,7 +48,7 @@ import { AutofocusDirective } from '../autofocus.directive';
         appSwipeToClose
         (swipeClose)="close()"
         @slideUp
-        class="fixed bottom-0 left-0 right-0 bg-white z-[70] 
+        class="fixed bottom-0 left-0 right-0 bg-black z-[70] 
                max-h-[95vh] overflow-y-auto overscroll-contain flex flex-col shadow-2xl"
       >
 
@@ -103,7 +103,7 @@ import { AutofocusDirective } from '../autofocus.directive';
             }
           </div>
         </div>
-        <div class="p-6">
+        <div class="p-6 bg-white flex-1">
           <form [formGroup]="expenseForm" (ngSubmit)="onSubmit()" class="space-y-4">
             <!-- Amount -->
             <div class="flex flex-col gap-1">

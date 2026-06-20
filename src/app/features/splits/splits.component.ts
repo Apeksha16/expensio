@@ -1,5 +1,6 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { SplitService } from '../../core/services/split.service';
 import { FriendService } from '../../core/services/friend.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -83,14 +84,6 @@ import { KeyboardService } from '../../core/services/keyboard.service';
             Expenses
           </button>
           <button
-            (click)="splitService.activeTab.set('friends')"
-            [class.bg-black]="splitService.activeTab() === 'friends'"
-            [class.text-white]="splitService.activeTab() === 'friends'"
-            class="flex-1 py-3 font-extrabold tracking-widest uppercase transition-colors"
-          >
-            Friends
-          </button>
-          <button
             (click)="splitService.activeTab.set('groups')"
             [class.bg-black]="splitService.activeTab() === 'groups'"
             [class.text-white]="splitService.activeTab() === 'groups'"
@@ -99,18 +92,19 @@ import { KeyboardService } from '../../core/services/keyboard.service';
             Groups
           </button>
         </div>
-        <!-- Expenses List -->
+        
+        <!-- Individual Expenses List -->
         @if (splitService.activeTab() === 'expenses') {
           <div class="flex-1 flex flex-col gap-1.5 pb-36 mt-2">
-            @if (splitService.splits().length > 0) {
-              @for (split of splitService.splits(); track split.id) {
+            @if (individualSplits().length > 0) {
+              @for (split of individualSplits(); track split.id) {
                 <button
                   (click)="editSplit(split)"
                   class="w-full bg-gray-200 rounded-none p-4 flex flex-col gap-1 text-left hover:bg-gray-300 transition-colors active:bg-gray-400"
                 >
-                  <div class="flex justify-between items-start">
-                    <span class="font-extrabold text-lg text-black">{{ split.title }}</span>
-                    <span class="font-extrabold text-lg text-black">₹{{ split.total_amount | number: '1.0-2' }}</span>
+                  <div class="flex justify-between items-start gap-4">
+                    <span class="font-extrabold text-lg text-black truncate flex-1">{{ split.title }}</span>
+                    <span class="font-extrabold text-lg text-black flex-shrink-0">₹{{ split.total_amount | number: '1.0-2' }}</span>
                   </div>
                   <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest"
                     >{{ split.date | date: 'mediumDate' }} • Paid by {{ split.payer_id === currentUser().id ? 'Me' : getFriendName(split.payer_id) }}</span
@@ -144,80 +138,35 @@ import { KeyboardService } from '../../core/services/keyboard.service';
             }
           </div>
         }
-        <!-- Friends List -->
-        @if (splitService.activeTab() === 'friends') {
-          <div class="flex-1 flex flex-col gap-1.5 pb-36 mt-2">
-            @if (friendService.acceptedFriends().length > 0) {
-              @for (friend of friendService.acceptedFriends(); track friend.id) {
-                <button
-                  (click)="onFriendClick(friend.profile.id, friend.profile.name)"
-                  class="w-full bg-gray-200 rounded-none p-4 flex items-center justify-between text-left hover:bg-gray-300 transition-colors active:bg-gray-400"
-                >
-                  <div class="flex flex-col gap-0.5">
-                    <span class="font-extrabold text-lg text-black">{{ friend.profile.name }}</span>
-                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{{
-                      '@' + friend.profile.username
-                    }}</span>
-                  </div>
-                  <div class="flex flex-col items-end">
-                    @if (getBalance(friend.profile.id) === 0) {
-                      <span class="text-gray-500 font-extrabold tracking-tight">Settled up</span>
-                    }
-                    @if (getBalance(friend.profile.id) > 0) {
-                      <span class="text-green-600 font-extrabold tracking-tight text-xl"
-                        >Owes you ₹{{ getBalance(friend.profile.id) | number: '1.0-0' }}</span
-                      >
-                    }
-                    @if (getBalance(friend.profile.id) < 0) {
-                      <span class="text-red-600 font-extrabold tracking-tight text-xl"
-                        >You owe ₹{{
-                          Math.abs(getBalance(friend.profile.id)) | number: '1.0-0'
-                        }}</span
-                      >
-                    }
-                  </div>
-                </button>
-              }
-            } @else {
-              <div class="flex-1 flex flex-col items-center justify-center p-8 text-center">
-                <div
-                  class="w-32 h-32 bg-gray-200 border-2 border-transparent rounded-full flex items-center justify-center mb-6"
-                >
-                  <svg
-                    class="w-12 h-12 text-gray-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 4v16m8-8H4"
-                    />
-                  </svg>
-                </div>
-                <p class="text-gray-500 font-extrabold text-xl">No friends</p>
-                <p class="text-gray-400 font-bold text-sm mt-2 max-w-[250px]">
-                  Add friends to see balances here.
-                </p>
-              </div>
-            }
-          </div>
-        }
+        
         <!-- Groups List -->
         @if (splitService.activeTab() === 'groups') {
           <div class="flex-1 flex flex-col gap-1.5 pb-36 mt-2">
             @if (splitService.groups().length > 0) {
-              @for (group of splitService.groups(); track group) {
+              @for (group of splitService.groups(); track group.id) {
                 <button
-                  (click)="editGroup(group)"
+                  (click)="openGroup(group.id)"
                   class="w-full bg-gray-200 rounded-none p-4 flex flex-col gap-1 text-left hover:bg-gray-300 transition-colors active:bg-gray-400"
                 >
-                  <span class="font-extrabold text-lg text-black">{{ group.name }}</span>
+                  <div class="flex justify-between items-start w-full">
+                    <span class="font-extrabold text-lg text-black truncate">{{ group.name }}</span>
+                  </div>
                   <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest"
                     >{{ group.members.length }} members</span
                   >
+                  @if (getGroupBalance(group.id).net > 0) {
+                    <div class="flex items-center gap-4 mt-2 border-t-2 border-gray-300 pt-2 w-full">
+                       <span class="text-[10px] font-extrabold text-green-600 uppercase tracking-wider">You are owed ₹{{ getGroupBalance(group.id).net | number: '1.0-2' }}</span>
+                    </div>
+                  } @else if (getGroupBalance(group.id).net < 0) {
+                    <div class="flex items-center gap-4 mt-2 border-t-2 border-gray-300 pt-2 w-full">
+                       <span class="text-[10px] font-extrabold text-red-500 uppercase tracking-wider">You owe ₹{{ (0 - getGroupBalance(group.id).net) | number: '1.0-2' }}</span>
+                    </div>
+                  } @else {
+                     <div class="flex items-center mt-2 border-t-2 border-gray-300 pt-2 w-full">
+                        <span class="text-[10px] font-extrabold text-gray-500 uppercase tracking-wider">Settled up</span>
+                     </div>
+                  }
                 </button>
               }
             } @else {
@@ -257,10 +206,15 @@ export class Splits implements OnInit {
   authService = inject(AuthService);
   confirmService = inject(ConfirmService);
   keyboardService = inject(KeyboardService);
+  router = inject(Router);
   currentUser = this.authService.userProfile;
 
   isInitialLoading = signal(true);
   Math = Math; // for template
+
+  individualSplits = computed(() => {
+    return this.splitService.splits().filter(s => !s.group_id);
+  });
 
   ngOnInit() {
     setTimeout(() => {
@@ -268,33 +222,28 @@ export class Splits implements OnInit {
     }, 2000);
   }
 
-  getBalance(id: string): number {
-    return this.splitService.balances()[id] || 0;
-  }
-
   getFriendName(id: string): string {
     const f = this.friendService.acceptedFriends().find((x: any) => x.profile.id === id);
-    return f ? f.profile.name : id;
+    return f ? f.profile.name.split(' ')[0] : id;
   }
 
-  onFriendClick(friendId: string, friendName: string) {
-    const balance = this.getBalance(friendId);
-    if (balance === 0) return; // already settled
+  getGroupBalance(groupId: string) {
+    const groupSplits = this.splitService.splits().filter(s => s.group_id === groupId);
+    let owed = 0;
+    let owe = 0;
+    const currentUserId = this.currentUser()?.id;
 
-    const amount = Math.abs(balance);
-    const actionText = balance > 0 
-      ? `${friendName} paid you ₹${amount}?` 
-      : `You paid ${friendName} ₹${amount}?`;
-
-    this.confirmService.open({
-      title: 'Mark as Paid',
-      message: `Are you sure you want to mark this balance as paid? (${actionText})`,
-      confirmText: 'Mark as Paid',
-      cancelText: 'Cancel',
-      onConfirm: () => {
-        this.splitService.settleUp(friendId, balance);
+    groupSplits.forEach(split => {
+      if (split.payer_id === currentUserId) {
+        owed += split.participants
+          .filter(p => p.userId !== currentUserId)
+          .reduce((sum, p) => sum + p.amountOwed, 0);
+      } else {
+        owe += split.participants.find(p => p.userId === currentUserId)?.amountOwed || 0;
       }
     });
+    
+    return { owed, owe, net: owed - owe };
   }
 
   editSplit(split: any) {
@@ -302,8 +251,7 @@ export class Splits implements OnInit {
     this.splitService.openAddSplitSheet(split);
   }
 
-  editGroup(group: any) {
-    this.keyboardService.openKeyboardSync();
-    this.splitService.openGroupSheet(group);
+  openGroup(groupId: string) {
+    this.router.navigate(['/splits/group', groupId]);
   }
 }

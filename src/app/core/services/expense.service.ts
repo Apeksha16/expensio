@@ -97,11 +97,14 @@ export class ExpenseService {
         .map((s: any) => {
           const myParticipant = s.participants?.find((p: any) => p.userId === currentUserId);
           if (myParticipant && myParticipant.amountOwed > 0) {
+            const notation = s.group_id ? '(Group Split)' : '(Split)';
+            const mappedCategory = s.category ? `${s.category} ${notation}` : `Split Expense ${notation}`;
+
             return {
               id: `split_${s.id}`,
               title: s.title,
               amount: myParticipant.amountOwed,
-              category: 'Split Expense',
+              category: mappedCategory,
               date: s.date
             };
           }
@@ -231,8 +234,13 @@ export class ExpenseService {
 
   getConsumedForCategory(category: string): number {
     const month = this.activeMonth();
+    const catLower = category.toLowerCase();
     return this.allExpenses()
-      .filter(e => e.date.startsWith(month) && e.category.toLowerCase() === category.toLowerCase())
+      .filter(e => {
+        if (!e.date.startsWith(month)) return false;
+        const eCat = e.category.toLowerCase();
+        return eCat === catLower || eCat === `${catLower} (split)` || eCat === `${catLower} (group split)`;
+      })
       .reduce((sum, e) => sum + e.amount, 0);
   }
 }

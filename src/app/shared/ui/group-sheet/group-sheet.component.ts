@@ -45,7 +45,7 @@ import { AutofocusDirective } from '../autofocus.directive';
       <div
         @slideUp
         appSwipeToClose (swipeClose)="close()"
-        class="fixed bottom-0 left-0 right-0 bg-white z-[70] max-h-[95vh] overflow-y-auto overscroll-contain flex flex-col shadow-2xl"
+        class="fixed bottom-0 left-0 right-0 bg-black z-[70] max-h-[95vh] overflow-y-auto overscroll-contain flex flex-col shadow-2xl"
       >
 
         <!-- Header -->
@@ -74,7 +74,7 @@ import { AutofocusDirective } from '../autofocus.directive';
             }
           </div>
         </div>
-        <div class="p-6">
+        <div class="p-6 bg-white flex-1">
           @if (friendService.acceptedFriends().length > 0) {
             <form [formGroup]="groupForm" (ngSubmit)="onSubmit()" class="space-y-4">
               <div class="flex flex-col gap-1">
@@ -115,7 +115,7 @@ import { AutofocusDirective } from '../autofocus.directive';
                         [checked]="isGroupMember(friend.profile.id)"
                         class="w-5 h-5 accent-[#1a2e22] border-2 border-gray-300 rounded-none focus:ring-0"
                       />
-                      <span class="font-bold text-sm text-gray-900">{{ friend.profile.name }}</span>
+                      <span class="font-bold text-sm text-gray-900 truncate">{{ friend.profile.name.split(' ')[0] }}</span>
                     </label>
                   }
                 </div>

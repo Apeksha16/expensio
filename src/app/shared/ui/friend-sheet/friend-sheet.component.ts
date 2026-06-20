@@ -64,7 +64,7 @@ import { AutofocusDirective } from '../autofocus.directive';
       <div
         @slideUp
         appSwipeToClose (swipeClose)="close()"
-        class="fixed bottom-0 left-0 right-0 bg-white z-[70] 
+        class="fixed bottom-0 left-0 right-0 bg-black z-[70] 
              max-h-[95vh] flex flex-col shadow-2xl"
       >
 
@@ -76,7 +76,7 @@ import { AutofocusDirective } from '../autofocus.directive';
             {{ isAddMode ? 'Add Friend' : 'Remove Friend' }}
           </h2>
         </div>
-        <div class="p-6 flex flex-col gap-6 overflow-y-auto overscroll-contain">
+        <div class="p-6 flex flex-col gap-6 overflow-y-auto overscroll-contain bg-white flex-1">
           <!-- ADD MODE -->
           @if (isAddMode) {
             <form (submit)="$event.preventDefault(); sendRequest()" class="space-y-4">

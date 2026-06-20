@@ -1,4 +1,4 @@
-import { Component, inject, signal, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, inject, signal, computed, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { KeyboardService } from '../services/keyboard.service';
 import {
   Router,
@@ -51,7 +51,7 @@ import { MonthPickerComponent } from '../../shared/ui/month-picker/month-picker.
       <header
         class="fixed top-0 w-full bg-black z-30 flex items-center justify-between px-4 border-b-2 border-black h-14"
       >
-        @if (isProfilePage()) {
+        @if (isProfilePage() || isGroupExpensesPage() || isBudgetExpensesPage()) {
           <button
             (click)="goBack()"
             class="p-2 -ml-2 text-gray-400 hover:text-white focus:outline-none transition-colors"
@@ -80,9 +80,29 @@ import { MonthPickerComponent } from '../../shared/ui/month-picker/month-picker.
             </svg>
           </button>
         }
-        <span class="text-lg font-extrabold tracking-tight text-white">{{ pageTitle() }}</span>
-        <div class="w-8"></div>
-        <!-- Spacer for centering -->
+        <span class="text-lg font-extrabold tracking-tight text-white truncate max-w-[200px] text-center">{{ pageTitle() }}</span>
+        
+        @if (isGroupExpensesPage()) {
+          <button
+            (click)="editGroup()"
+            class="p-2 -mr-2 text-gray-400 hover:text-white focus:outline-none transition-colors"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5z" />
+            </svg>
+          </button>
+        } @else if (isBudgetExpensesPage()) {
+          <button
+            (click)="editBudget()"
+            class="p-2 -mr-2 text-gray-400 hover:text-white focus:outline-none transition-colors"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5z" />
+            </svg>
+          </button>
+        } @else {
+          <div class="w-8"></div>
+        }
       </header>
 
       <!-- Sidebar Overlay -->
@@ -151,7 +171,7 @@ import { MonthPickerComponent } from '../../shared/ui/month-picker/month-picker.
           </button>
           <div class="mt-4 text-center">
             <span class="text-[10px] font-bold tracking-widest text-gray-400 uppercase"
-              >Version 1.0.10</span
+              >Version 1.0.11</span
             >
           </div>
         </div>
@@ -224,7 +244,6 @@ import { MonthPickerComponent } from '../../shared/ui/month-picker/month-picker.
 })
 export class Layout implements AfterViewInit {
   isSidebarOpen = signal(false);
-  pageTitle = signal('Dashboard');
   authService = inject(AuthService);
   private confirmService = inject(ConfirmService);
   private router = inject(Router);
@@ -239,6 +258,41 @@ export class Layout implements AfterViewInit {
   private contexts = inject(ChildrenOutletContexts);
   private keyboardService = inject(KeyboardService);
 
+  currentUrl = signal(this.router.url);
+
+  isProfilePage = computed(() => this.currentUrl().includes('/profile'));
+  isDashboardPage = computed(() => this.currentUrl().includes('/dashboard') || this.currentUrl() === '/');
+  isGroupExpensesPage = computed(() => this.currentUrl().includes('/splits/group/'));
+  isBudgetExpensesPage = computed(() => this.currentUrl().match(/\/budgets\/.+/) !== null);
+
+  activeGroup = computed(() => {
+    if (this.isGroupExpensesPage()) {
+      const match = this.currentUrl().match(/\/splits\/group\/(.+)/);
+      const id = match ? match[1] : null;
+      if (id) {
+        return this.splitService.groups().find(g => g.id === id);
+      }
+    }
+    return null;
+  });
+
+  pageTitle = computed(() => {
+    const url = this.currentUrl();
+    if (this.isBudgetExpensesPage()) {
+      const match = url.match(/\/budgets\/(.+)/);
+      return match ? decodeURIComponent(match[1]) : 'Budget Details';
+    }
+    if (url.includes('/expenses')) return 'Expenses';
+    if (url.includes('/budgets')) return 'Budgets';
+    if (url.includes('/friends')) return 'Friends';
+    if (this.isGroupExpensesPage()) {
+       return this.activeGroup()?.name || 'Loading...';
+    }
+    if (url.includes('/splits')) return 'Splits';
+    if (url.includes('/profile')) return 'Profile';
+    return 'Dashboard';
+  });
+
   @ViewChild('globalHiddenInput') globalHiddenInput!: ElementRef<HTMLInputElement>;
 
   ngAfterViewInit() {
@@ -248,10 +302,9 @@ export class Layout implements AfterViewInit {
   }
 
   constructor() {
-    this.updateTitle(this.router.url);
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
-        this.updateTitle(event.urlAfterRedirects);
+        this.currentUrl.set(event.urlAfterRedirects);
       }
     });
   }
@@ -273,11 +326,15 @@ export class Layout implements AfterViewInit {
   handleFabClick() {
     this.keyboardService.openKeyboardSync();
     
-    if (this.router.url.includes('/budgets')) {
+    if (this.currentUrl().includes('/budgets')) {
       this.budgetService.openBottomSheet();
-    } else if (this.router.url.includes('/friends')) {
+    } else if (this.currentUrl().includes('/friends')) {
       this.friendService.openAddSheet();
-    } else if (this.router.url.includes('/splits')) {
+    } else if (this.isGroupExpensesPage()) {
+      const match = this.currentUrl().match(/\/splits\/group\/(.+)/);
+      const groupId = match ? match[1] : null;
+      this.splitService.openAddSplitSheet({ group_id: groupId } as any);
+    } else if (this.currentUrl().includes('/splits')) {
       if (this.splitService.activeTab() === 'groups') {
         this.splitService.openGroupSheet();
       } else {
@@ -292,21 +349,24 @@ export class Layout implements AfterViewInit {
     this.location.back();
   }
 
-  private updateTitle(url: string) {
-    if (url.includes('/expenses')) this.pageTitle.set('Expenses');
-    else if (url.includes('/budgets')) this.pageTitle.set('Budgets');
-    else if (url.includes('/friends')) this.pageTitle.set('Friends');
-    else if (url.includes('/splits')) this.pageTitle.set('Splits');
-    else if (url.includes('/profile')) this.pageTitle.set('Profile');
-    else this.pageTitle.set('Dashboard');
+  editGroup() {
+    const group = this.activeGroup();
+    if (group) {
+      this.keyboardService.openKeyboardSync();
+      this.splitService.openGroupSheet(group);
+    }
   }
 
-  isProfilePage(): boolean {
-    return this.router.url.includes('/profile');
-  }
-
-  isDashboardPage(): boolean {
-    return this.router.url.includes('/dashboard') || this.router.url === '/';
+  editBudget() {
+    const match = this.currentUrl().match(/\/budgets\/(.+)/);
+    const name = match ? decodeURIComponent(match[1]) : null;
+    if (name) {
+      const budget = this.budgetService.budgets().find(b => b.name === name);
+      if (budget) {
+        this.keyboardService.openKeyboardSync();
+        this.budgetService.openBottomSheet(budget);
+      }
+    }
   }
 
   get bottomNavItems() {

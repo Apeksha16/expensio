@@ -46,7 +46,7 @@ import { HapticService } from '../../../core/services/haptic.service';
       <div
         @slideUp
         appSwipeToClose (swipeClose)="close()"
-        class="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-l-2 border-r-2 border-black z-[90] 
+        class="fixed bottom-0 left-0 right-0 bg-black border-t-2 border-l-2 border-r-2 border-black z-[90] 
                overflow-y-auto overscroll-contain flex flex-col shadow-2xl"
       >
         <div class="p-6 pt-4 pb-4 border-b-2 border-black bg-black text-white">
@@ -72,7 +72,7 @@ import { HapticService } from '../../../core/services/haptic.service';
             {{ selectedDate | date: 'EEE, MMM d, yyyy' }}
           </div>
         </div>
-        <div class="p-6">
+        <div class="p-6 bg-white flex-1">
           <div class="flex justify-between items-center mb-4">
             <button
               (click)="prevMonth()"
