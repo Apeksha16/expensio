@@ -79,6 +79,7 @@ create table if not exists public.budgets (
   amount numeric not null,
   icon_path text not null,
   month text not null,
+  auto_rollover boolean default false,
   created_at timestamp with time zone default timezone('utc'::text, now())
 );
 

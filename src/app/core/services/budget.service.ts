@@ -11,6 +11,7 @@ export interface Budget {
   amount: number;
   icon_path: string;
   month: string;
+  auto_rollover: boolean;
 }
 
 @Injectable({
@@ -85,6 +86,48 @@ export class BudgetService {
       .order('created_at', { ascending: true });
 
     if (!error && data) {
+      if (data.length === 0) {
+        // Try to rollover from previous month
+        const [year, m] = monthStr.split('-');
+        let prevM = parseInt(m) - 1;
+        let prevY = parseInt(year);
+        if (prevM === 0) {
+          prevM = 12;
+          prevY -= 1;
+        }
+        const prevMonthStr = `${prevY}-${prevM.toString().padStart(2, '0')}`;
+        
+        const { data: prevData, error: prevError } = await this.supabaseService.client
+          .from('budgets')
+          .select('*')
+          .eq('month', prevMonthStr)
+          .eq('auto_rollover', true);
+          
+        if (!prevError && prevData && prevData.length > 0) {
+          const user = this.authService.currentUser();
+          if (user) {
+            const newBudgets = prevData.map(b => ({
+              user_id: user.id,
+              name: b.name,
+              amount: b.amount,
+              icon_path: b.icon_path,
+              month: monthStr,
+              auto_rollover: true
+            }));
+            
+            const { data: insertedData, error: insertError } = await this.supabaseService.client
+              .from('budgets')
+              .insert(newBudgets)
+              .select();
+              
+            if (!insertError && insertedData) {
+              this.budgets.set(insertedData as Budget[]);
+              this.isLoading.set(false);
+              return;
+            }
+          }
+        }
+      }
       this.budgets.set(data as Budget[]);
     }
     this.isLoading.set(false);
@@ -103,7 +146,8 @@ export class BudgetService {
         name: budget.name,
         amount: budget.amount,
         icon_path: budget.icon_path,
-        month: month
+        month: month,
+        auto_rollover: budget.auto_rollover
       })
       .select()
       .single();
@@ -125,7 +169,8 @@ export class BudgetService {
       .update({
         name: data.name,
         amount: data.amount,
-        icon_path: data.icon_path
+        icon_path: data.icon_path,
+        auto_rollover: data.auto_rollover
       })
       .eq('id', id);
 

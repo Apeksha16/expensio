@@ -42,8 +42,8 @@ app-root {
 
 /* Allow selection in inputs and prevent iOS zoom on focus */
 input, textarea, select {
-  -webkit-user-select: auto;
-  user-select: auto;
+  -webkit-user-select: text;
+  user-select: text;
   font-size: 16px !important; /* Forces 16px to prevent iOS Safari auto-zoom */
 }
 

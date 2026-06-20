@@ -178,6 +178,18 @@ import { AutofocusDirective } from '../autofocus.directive';
                 />
               </div>
             </div>
+            <!-- Auto Rollover -->
+            <div class="flex items-center gap-2 mt-2">
+              <input
+                type="checkbox"
+                id="autoRollover"
+                formControlName="auto_rollover"
+                class="w-4 h-4 text-black bg-white border-2 border-gray-300 rounded-none focus:ring-black focus:ring-2 cursor-pointer"
+              />
+              <label for="autoRollover" class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase cursor-pointer select-none">
+                Auto-add for next month
+              </label>
+            </div>
             <!-- Bottom Buttons -->
             <div class="mt-4 flex gap-4">
               <button
@@ -244,6 +256,7 @@ export class BudgetSheetComponent {
       name: ['', [Validators.required, Validators.minLength(2)]],
       amount: ['', [Validators.required, Validators.min(1)]],
       icon_path: ['', Validators.required],
+      auto_rollover: [false]
     });
 
     effect(() => {
@@ -316,12 +329,14 @@ export class BudgetSheetComponent {
         name: editing.name,
         amount: editing.amount,
         icon_path: editing.icon_path,
+        auto_rollover: editing.auto_rollover || false,
       });
     } else {
       this.budgetForm.reset({
         name: '',
         amount: '',
         icon_path: '',
+        auto_rollover: false,
       });
     }
   }

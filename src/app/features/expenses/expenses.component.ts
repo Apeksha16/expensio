@@ -49,7 +49,7 @@ import { ToastService } from '../../core/services/toast.service';
       </div>
 
       <!-- Expense List -->
-      <div class="flex-1 flex flex-col gap-1.5 pb-16 mt-2">
+      <div class="flex-1 flex flex-col gap-1.5 pb-36 mt-2">
         @if (expenseService.isLoading()) {
           @for (i of [1, 2, 3, 4, 5]; track i) {
             <div
@@ -69,17 +69,17 @@ import { ToastService } from '../../core/services/toast.service';
                 (click)="editExpense(expense)"
                 class="w-full bg-gray-200 rounded-none p-3 flex justify-between items-center text-left hover:bg-gray-300 transition-colors active:bg-gray-400"
               >
-                <div class="flex flex-col gap-0.5">
-                  <span class="font-extrabold text-lg text-black">{{ expense.title }}</span>
+                <div class="flex flex-col gap-0.5 flex-1 min-w-0 pr-4">
+                  <span class="font-extrabold text-lg text-black truncate">{{ expense.title }}</span>
                   <div
-                    class="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-widest"
+                    class="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-widest min-w-0"
                   >
-                    <span>{{ expense.category }}</span>
-                    <span>•</span>
-                    <span>{{ expense.date | date: 'MMM d, h:mm a' }}</span>
+                    <span class="truncate">{{ expense.category }}</span>
+                    <span class="flex-shrink-0">•</span>
+                    <span class="whitespace-nowrap flex-shrink-0">{{ expense.date | date: 'MMM d, h:mm a' }}</span>
                   </div>
                 </div>
-                <div class="flex flex-col items-end gap-2">
+                <div class="flex flex-col items-end gap-2 flex-shrink-0">
                   <span class="font-extrabold text-xl"
                     >₹{{ expense.amount | number: '1.2-2' }}</span
                   >

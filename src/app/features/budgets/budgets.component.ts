@@ -13,7 +13,7 @@ import { MonthPickerService } from '../../core/services/month-picker.service';
     class: 'flex flex-col h-full',
   },
   template: `
-    <div class="flex-1 bg-gray-50 p-4 flex flex-col gap-4 pb-20">
+    <div class="flex-1 bg-gray-50 p-4 flex flex-col gap-4 pb-36">
       <!-- Top Summary Box -->
       <div
         class="bg-black text-white p-5 border border-black rounded-none flex flex-col gap-4 relative overflow-hidden"

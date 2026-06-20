@@ -22,7 +22,7 @@ import { ExpenseService } from '../../core/services/expense.service';
     class: 'flex flex-col h-full',
   },
   template: `
-    <div class="flex-1 bg-gray-50 p-6 flex flex-col gap-6 pb-20">
+    <div class="flex-1 bg-gray-50 p-6 flex flex-col gap-6 pb-36">
       @if (isInitialLoading()) {
         <!-- Total Expenses Shimmer -->
         <div class="bg-black text-white p-6 border-2 border-black rounded-none relative h-[120px]">

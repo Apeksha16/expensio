@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, effect, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, effect, signal, computed, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { animate, style, transition, trigger } from '@angular/animations';
@@ -6,6 +6,7 @@ import { ExpenseService } from '../../../core/services/expense.service';
 import { BudgetService } from '../../../core/services/budget.service';
 import { ConfirmService } from '../../../core/services/confirm.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { SupabaseService } from '../../../core/services/supabase.service';
 import { DatePickerComponent } from '../date-picker/date-picker.component';
 import { SwipeToCloseDirective } from '../swipe-to-close.directive';
 import { AmountInputDirective } from '../amount-input.directive';
@@ -141,7 +142,21 @@ import { AutofocusDirective } from '../autofocus.directive';
               </div>
             </div>
             <!-- Budgets -->
-            @if (budgetService.budgets().length > 0) {
+            @if (isBudgetsLoading()) {
+              <div class="flex flex-col gap-1">
+                <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
+                  >Budget</label
+                >
+                <div class="grid grid-cols-4 gap-2">
+                  @for (i of [1, 2, 3, 4, 5, 6, 7, 8]; track i) {
+                    <div class="flex flex-col items-center justify-center gap-1 p-2 border-2 border-gray-100 bg-gray-50 rounded-none min-h-[60px] animate-pulse">
+                      <div class="w-5 h-5 bg-gray-200 rounded-full"></div>
+                      <div class="h-2 bg-gray-200 w-10 mt-1 rounded"></div>
+                    </div>
+                  }
+                </div>
+              </div>
+            } @else if (localBudgets().length > 0) {
               <div class="flex flex-col gap-1">
                 <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
                   >Budget</label
@@ -265,15 +280,20 @@ export class BottomSheetComponent implements OnInit {
   private toastService = inject(ToastService);
   private haptic = inject(HapticService);
   private fb = inject(FormBuilder);
+  private supabaseService = inject(SupabaseService);
 
   expenseForm!: FormGroup;
   isEditing = false;
   isDatePickerOpen = false;
   isSaving = signal(false);
   isDeleting = signal(false);
+  
+  selectedMonth = signal<string>('');
+  localBudgets = signal<any[]>([]);
+  isBudgetsLoading = signal(false);
 
   budgetCategories = computed(() => {
-    return this.budgetService.budgets().map((b) => ({
+    return this.localBudgets().map((b) => ({
       name: b.name,
       path:
         b.icon_path ||
@@ -283,6 +303,35 @@ export class BottomSheetComponent implements OnInit {
 
   constructor() {
     effect(() => {
+      const month = this.selectedMonth();
+      if (month) {
+        untracked(async () => {
+          try {
+            this.isBudgetsLoading.set(true);
+            const { data, error } = await this.supabaseService.client
+              .from('budgets')
+              .select('*')
+              .eq('month', month)
+              .order('created_at', { ascending: true });
+              
+            if (error) throw error;
+            this.localBudgets.set(data || []);
+          } catch (error) {
+            console.error('Error fetching budgets:', error);
+            this.localBudgets.set([]);
+          } finally {
+            this.isBudgetsLoading.set(false);
+          }
+        });
+      } else {
+        untracked(() => {
+          this.localBudgets.set([]);
+          this.isBudgetsLoading.set(false);
+        });
+      }
+    });
+
+    effect(() => {
       const isOpen = this.expenseService.isBottomSheetOpen();
       const editing = this.expenseService.editingExpense();
 
@@ -291,11 +340,13 @@ export class BottomSheetComponent implements OnInit {
           this.initForm();
         } else {
           this.isEditing = !!editing;
+          const dateStr = editing?.date ? editing.date : new Date().toISOString();
+          this.selectedMonth.set(dateStr.substring(0, 7)); // YYYY-MM
           this.expenseForm.reset({
             title: editing?.title || '',
             amount: editing?.amount || null,
             category: editing?.category || 'Others',
-            date: editing?.date ? editing.date : new Date().toISOString(),
+            date: dateStr,
           });
         }
       }
@@ -312,12 +363,15 @@ export class BottomSheetComponent implements OnInit {
     const editing = this.expenseService.editingExpense();
     this.isEditing = !!editing;
 
+    const dateStr = editing?.date ? editing.date : new Date().toISOString();
+    this.selectedMonth.set(dateStr.substring(0, 7)); // YYYY-MM
+
     this.expenseForm = this.fb.group({
       title: [editing?.title || '', Validators.required],
       amount: [editing?.amount || null, [Validators.required, Validators.min(0.01)]],
       category: [editing?.category || 'Others', Validators.required],
       date: [
-        editing?.date ? editing.date : new Date().toISOString(),
+        dateStr,
         Validators.required,
       ],
     });
@@ -342,6 +396,7 @@ export class BottomSheetComponent implements OnInit {
     const [year, month, day] = dateStr.split('-');
     if (year && month && day) {
       dateObj.setFullYear(parseInt(year, 10), parseInt(month, 10) - 1, parseInt(day, 10));
+      this.selectedMonth.set(`${year}-${month}`);
     }
     
     this.expenseForm.patchValue({ date: dateObj.toISOString() });

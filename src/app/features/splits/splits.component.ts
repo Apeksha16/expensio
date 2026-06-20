@@ -31,7 +31,7 @@ import { ConfirmService } from '../../core/services/confirm.service';
           </div>
         </div>
         <!-- List Shimmer -->
-        <div class="flex flex-col gap-1.5 pb-16 mt-2">
+        <div class="flex flex-col gap-1.5 pb-36 mt-2">
           @for (i of [1, 2, 3]; track i) {
             <div
               class="w-full bg-gray-200 rounded-none p-4 flex items-center gap-4 h-[76px] animate-pulse"
@@ -57,7 +57,7 @@ import { ConfirmService } from '../../core/services/confirm.service';
               <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1"
                 >You Are Owed</span
               >
-              <span class="text-3xl font-extrabold tracking-tight text-green-400 truncate">
+              <span class="text-3xl font-extrabold tracking-tight text-green-400">
                 ₹{{ splitService.totalOwedToYou() | number: '1.0-0' }}
               </span>
             </div>
@@ -65,7 +65,7 @@ import { ConfirmService } from '../../core/services/confirm.service';
               <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1"
                 >You Owe</span
               >
-              <span class="text-3xl font-extrabold tracking-tight text-red-400 truncate">
+              <span class="text-3xl font-extrabold tracking-tight text-red-400">
                 ₹{{ splitService.totalYouOwe() | number: '1.0-0' }}
               </span>
             </div>
@@ -100,7 +100,7 @@ import { ConfirmService } from '../../core/services/confirm.service';
         </div>
         <!-- Expenses List -->
         @if (splitService.activeTab() === 'expenses') {
-          <div class="flex-1 flex flex-col gap-1.5 pb-16 mt-2">
+          <div class="flex-1 flex flex-col gap-1.5 pb-36 mt-2">
             @if (splitService.splits().length > 0) {
               @for (split of splitService.splits(); track split.id) {
                 <button
@@ -145,7 +145,7 @@ import { ConfirmService } from '../../core/services/confirm.service';
         }
         <!-- Friends List -->
         @if (splitService.activeTab() === 'friends') {
-          <div class="flex-1 flex flex-col gap-1.5 pb-16 mt-2">
+          <div class="flex-1 flex flex-col gap-1.5 pb-36 mt-2">
             @if (friendService.acceptedFriends().length > 0) {
               @for (friend of friendService.acceptedFriends(); track friend.id) {
                 <button
@@ -206,7 +206,7 @@ import { ConfirmService } from '../../core/services/confirm.service';
         }
         <!-- Groups List -->
         @if (splitService.activeTab() === 'groups') {
-          <div class="flex-1 flex flex-col gap-1.5 pb-16 mt-2">
+          <div class="flex-1 flex flex-col gap-1.5 pb-36 mt-2">
             @if (splitService.groups().length > 0) {
               @for (group of splitService.groups(); track group) {
                 <button

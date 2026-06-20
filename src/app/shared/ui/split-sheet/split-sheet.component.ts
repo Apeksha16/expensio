@@ -1,4 +1,4 @@
-import { Component, inject, computed, signal, OnInit } from '@angular/core';
+import { Component, inject, computed, signal, OnInit, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
@@ -365,25 +365,46 @@ export class SplitSheetComponent implements OnInit {
 
   isDropdownOpen = signal(false);
 
-  ngOnInit() {
+  constructor() {
     this.initForms();
-    const split = this.splitService.editingSplit();
-    if (split) {
-      this.splitForm.patchValue({
-        title: split.title,
-        totalAmount: split.total_amount,
-        payerId: split.payer_id,
-      });
+    
+    effect(() => {
+      const isOpen = this.splitService.isSheetOpen();
+      const split = this.splitService.editingSplit();
+      
+      if (isOpen) {
+        if (split) {
+          this.splitForm.patchValue({
+            title: split.title,
+            totalAmount: split.total_amount,
+            payerId: split.payer_id,
+          });
 
-      const friendsInvolved = split.participants.filter(p => p.userId !== this.currentUser().id);
-      this.selectedParticipants.set(friendsInvolved.map(p => p.userId));
-      
-      friendsInvolved.forEach(p => {
-        this.customAmounts[p.userId] = new FormControl(p.amountOwed);
-      });
-      
-      this.splitStrategy.set('CUSTOM');
-    }
+          const currentUserProfile = this.currentUser();
+          const friendsInvolved = split.participants.filter(p => p.userId !== currentUserProfile?.id);
+          this.selectedParticipants.set(friendsInvolved.map(p => p.userId));
+          
+          friendsInvolved.forEach(p => {
+            this.customAmounts[p.userId] = new FormControl(p.amountOwed);
+          });
+          
+          this.splitStrategy.set('CUSTOM');
+        } else {
+          const currentUserProfile = this.currentUser();
+          this.splitForm.patchValue({
+            title: '',
+            totalAmount: '',
+            payerId: currentUserProfile?.id
+          });
+          this.selectedParticipants.set([]);
+          this.customAmounts = {};
+          this.splitStrategy.set('EQUAL');
+        }
+      }
+    });
+  }
+
+  ngOnInit() {
   }
 
   initForms() {

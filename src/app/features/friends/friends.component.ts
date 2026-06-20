@@ -23,7 +23,7 @@ import { UserProfile } from '../../core/services/auth.service';
           </div>
         </div>
         <!-- Friends List Shimmer -->
-        <div class="flex flex-col gap-1.5 pb-16 mt-2">
+        <div class="flex flex-col gap-1.5 pb-36 mt-2">
           @for (i of [1, 2, 3]; track i) {
             <div
               class="w-full bg-gray-200 rounded-none p-3 flex items-center gap-4 h-[76px] animate-pulse"
@@ -60,7 +60,7 @@ import { UserProfile } from '../../core/services/auth.service';
             </div>
           </div>
           <!-- Lists Container -->
-          <div class="flex-1 flex flex-col gap-6 pb-16 mt-4">
+          <div class="flex-1 flex flex-col gap-6 pb-36 mt-4">
             <!-- Incoming Requests -->
             @if (friendService.incomingRequests().length > 0) {
               <div class="flex flex-col gap-2">
