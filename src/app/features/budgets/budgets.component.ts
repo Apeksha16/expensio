@@ -4,6 +4,7 @@ import { BudgetService } from '../../core/services/budget.service';
 import { ExpenseService } from '../../core/services/expense.service';
 import { AuthService } from '../../core/services/auth.service';
 import { MonthPickerService } from '../../core/services/month-picker.service';
+import { KeyboardService } from '../../core/services/keyboard.service';
 
 @Component({
   selector: 'app-budgets',
@@ -90,7 +91,7 @@ import { MonthPickerService } from '../../core/services/month-picker.service';
           @if (budgetService.budgets().length > 0) {
             @for (budget of budgetService.budgets(); track budget) {
               <button
-                (click)="budgetService.openBottomSheet(budget)"
+                (click)="editBudget(budget)"
                 class="w-full bg-gray-200 rounded-none p-3 flex flex-col gap-2 text-left hover:bg-gray-300 transition-colors active:bg-gray-400"
               >
                 <div class="flex justify-between items-center w-full">
@@ -158,6 +159,7 @@ export class Budgets implements OnInit, AfterViewInit {
   expenseService = inject(ExpenseService);
   private authService = inject(AuthService);
   monthPicker = inject(MonthPickerService);
+  keyboardService = inject(KeyboardService);
   private monthSub: any;
   animateBars = signal(false);
 
@@ -220,5 +222,10 @@ export class Budgets implements OnInit, AfterViewInit {
     if (p >= 80) return 'bg-red-600';
     if (p >= 60) return 'bg-yellow-500';
     return 'bg-black';
+  }
+
+  editBudget(budget: any) {
+    this.keyboardService.openKeyboardSync();
+    this.budgetService.openBottomSheet(budget);
   }
 }

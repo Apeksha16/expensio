@@ -403,7 +403,7 @@ export class BottomSheetComponent implements OnInit {
   }
 
   selectBudget(cat: { name: string; path: string }) {
-    this.expenseForm.patchValue({ category: cat.name, title: cat.name });
+    this.expenseForm.patchValue({ category: cat.name });
   }
 
   delete() {

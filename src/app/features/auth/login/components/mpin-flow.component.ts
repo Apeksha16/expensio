@@ -8,6 +8,7 @@ import { SupabaseService } from '../../../../core/services/supabase.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { LoginStateService } from '../login-state.service';
 import { trigger, transition, style, animate } from '@angular/animations';
+import { KeyboardService } from '../../../../core/services/keyboard.service';
 
 export type MpinStep = 'login' | 'forgot' | 'reset' | 'set-mpin' | 'confirm-mpin';
 
@@ -56,6 +57,7 @@ export class MpinFlowComponent implements OnInit {
   supabaseService = inject(SupabaseService);
   private toastService = inject(ToastService);
   private state = inject(LoginStateService);
+  private keyboardService = inject(KeyboardService);
 
   step = computed<MpinStep>(() => {
     const url = this.router.url;
@@ -143,16 +145,20 @@ export class MpinFlowComponent implements OnInit {
         this.mpinError.set('Please enter your 4-digit MPIN.');
         return;
       }
+      this.keyboardService.openKeyboardSync();
       await this.handleLogin();
     } else if (s === 'forgot') {
+      this.keyboardService.openKeyboardSync();
       await this.handleForgot();
     } else if (s === 'reset') {
+      this.keyboardService.openKeyboardSync();
       await this.handleReset();
     } else if (s === 'set-mpin') {
       if (!this.pin1() || this.pin1().length < 4) {
         this.mpinError.set('Please enter a 4-digit MPIN.');
         return;
       }
+      this.keyboardService.openKeyboardSync();
       this.state.mpin.set(this.pin1());
       this.router.navigate(['/confirm-mpin']);
     } else if (s === 'confirm-mpin') {
@@ -164,6 +170,7 @@ export class MpinFlowComponent implements OnInit {
         this.mpinError.set('MPINs do not match.');
         return;
       }
+      this.keyboardService.openKeyboardSync();
       this.router.navigate(['/onboarding-profile']);
     }
   }
@@ -176,6 +183,7 @@ export class MpinFlowComponent implements OnInit {
         const date = new Date(status.locked_until!);
         this.mpinError.set(`Account locked. Try again after ${date.toLocaleTimeString()}`);
         this.isLoading.set(false);
+        this.keyboardService.closeKeyboard();
         return;
       }
 
@@ -197,6 +205,7 @@ export class MpinFlowComponent implements OnInit {
       }
     } catch (e) {
       this.mpinError.set('An error occurred during login.');
+      this.keyboardService.closeKeyboard();
     } finally {
       this.isLoading.set(false);
     }
@@ -214,6 +223,7 @@ export class MpinFlowComponent implements OnInit {
       this.router.navigate(['/reset']);
     } catch (e) {
       this.mpinError.set('Invalid or expired code.');
+      this.keyboardService.closeKeyboard();
     } finally {
       this.isLoading.set(false);
     }
@@ -238,12 +248,14 @@ export class MpinFlowComponent implements OnInit {
       this.router.navigate(['/dashboard']);
     } catch (e) {
       this.mpinError.set('Failed to reset MPIN.');
+      this.keyboardService.closeKeyboard();
     } finally {
       this.isLoading.set(false);
     }
   }
 
   async startForgotMpin() {
+    this.keyboardService.openKeyboardSync();
     this.isLoading.set(true);
     try {
       await this.supabaseService.sendMpinResetOtp(this.email());
@@ -251,6 +263,7 @@ export class MpinFlowComponent implements OnInit {
       this.router.navigate(['/forgot']);
     } catch (e) {
       this.mpinError.set('Failed to send recovery code.');
+      this.keyboardService.closeKeyboard();
     } finally {
       this.isLoading.set(false);
     }

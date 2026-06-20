@@ -5,6 +5,9 @@
   <router-outlet></router-outlet>
 </main>
 
+<!-- Global hidden input for iOS keyboard hack -->
+<input #globalHiddenInput type="text" class="fixed opacity-0 pointer-events-none -z-50 -left-[9999px] -top-[9999px]" />
+
 <!-- Offline Overlay -->
 @if (pwaService.isOffline()) {
   <div

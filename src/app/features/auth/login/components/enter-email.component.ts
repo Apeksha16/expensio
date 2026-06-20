@@ -7,6 +7,7 @@ import { Button } from '../../../../shared/ui/button/button.component';
 import { SupabaseService } from '../../../../core/services/supabase.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { LoginStateService } from '../login-state.service';
+import { KeyboardService } from '../../../../core/services/keyboard.service';
 
 @Component({
   selector: 'app-enter-email',
@@ -72,6 +73,7 @@ export class EnterEmailComponent implements OnInit {
   private supabaseService = inject(SupabaseService);
   private toastService = inject(ToastService);
   private state = inject(LoginStateService);
+  private keyboardService = inject(KeyboardService);
 
   isLoading = signal(false);
   emailError = signal('');
@@ -100,6 +102,7 @@ export class EnterEmailComponent implements OnInit {
   }
 
   onCachedLogin() {
+    this.keyboardService.openKeyboardSync();
     this.state.email.set(this.email());
     this.router.navigate(['/mpin']);
   }
@@ -118,6 +121,10 @@ export class EnterEmailComponent implements OnInit {
       return;
     }
 
+    // Call openKeyboardSync right before we start awaiting, to satisfy iOS, 
+    // but only if validation passes
+    this.keyboardService.openKeyboardSync();
+
     if (!finalEmail.includes('@')) {
       // First, attempt to map the username to an email using our new backend RPC
       this.isLoading.set(true);
@@ -133,11 +140,13 @@ export class EnterEmailComponent implements OnInit {
           // We do not allow signing up with a plain username directly.
           this.emailError.set('Username does not exist.');
           this.isLoading.set(false);
+          this.keyboardService.closeKeyboard();
           return;
         }
       } catch (e) {
         this.emailError.set('Username does not exist.');
         this.isLoading.set(false);
+        this.keyboardService.closeKeyboard();
         return;
       }
       this.isLoading.set(false);
@@ -155,6 +164,7 @@ export class EnterEmailComponent implements OnInit {
     } catch (err) {
       console.error(err);
       this.toastService.showError('Something went wrong checking email.');
+      this.keyboardService.closeKeyboard();
     } finally {
       this.isLoading.set(false);
     }

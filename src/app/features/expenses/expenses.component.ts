@@ -12,6 +12,7 @@ import { CommonModule } from '@angular/common';
 import { ExpenseService, Expense } from '../../core/services/expense.service';
 import { MonthPickerService } from '../../core/services/month-picker.service';
 import { ToastService } from '../../core/services/toast.service';
+import { KeyboardService } from '../../core/services/keyboard.service';
 
 @Component({
   selector: 'app-expenses',
@@ -149,6 +150,7 @@ export class Expenses implements OnInit, AfterViewInit, OnDestroy {
   expenseService = inject(ExpenseService);
   monthPicker = inject(MonthPickerService);
   toastService = inject(ToastService);
+  keyboardService = inject(KeyboardService);
   private monthSub: any;
 
   @ViewChild('scrollTrigger') scrollTrigger!: ElementRef;
@@ -208,6 +210,7 @@ export class Expenses implements OnInit, AfterViewInit, OnDestroy {
       this.toastService.showError('This is a split expense. Please edit it from the Splits tab.');
       return;
     }
+    this.keyboardService.openKeyboardSync();
     this.expenseService.openBottomSheet(expense);
   }
 }

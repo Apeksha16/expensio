@@ -207,7 +207,7 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
 
   chartType: 'weekly' | 'monthly' = 'weekly';
   chartInstance: any;
-  isMasked = signal(true);
+  isMasked = signal(false);
   isInitialLoading = signal(false);
 
   @ViewChild('chartCanvas') chartCanvas!: ElementRef;

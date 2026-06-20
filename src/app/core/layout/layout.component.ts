@@ -1,4 +1,5 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { KeyboardService } from '../services/keyboard.service';
 import {
   Router,
   RouterModule,
@@ -43,6 +44,9 @@ import { MonthPickerComponent } from '../../shared/ui/month-picker/month-picker.
   animations: [slideInAnimation],
   template: `
     <div class="h-full bg-gray-50 flex flex-col relative w-full overflow-hidden">
+      <!-- Global hidden input for iOS keyboard hack -->
+      <input #globalHiddenInput type="text" class="fixed opacity-0 pointer-events-none -z-50 -left-[9999px] -top-[9999px]" />
+
       <!-- Top Header -->
       <header
         class="fixed top-0 w-full bg-black z-30 flex items-center justify-between px-4 border-b-2 border-black h-14"
@@ -147,7 +151,7 @@ import { MonthPickerComponent } from '../../shared/ui/month-picker/month-picker.
           </button>
           <div class="mt-4 text-center">
             <span class="text-[10px] font-bold tracking-widest text-gray-400 uppercase"
-              >Version 1.0.8</span
+              >Version 1.0.10</span
             >
           </div>
         </div>
@@ -187,7 +191,7 @@ import { MonthPickerComponent } from '../../shared/ui/month-picker/month-picker.
       }
 
       <!-- Global Floating Action Button -->
-      @if (!isProfilePage()) {
+      @if (!isProfilePage() && !isDashboardPage()) {
         <button
           (click)="handleFabClick()"
           class="fixed right-4 w-14 h-14 bg-black text-white border-2 border-black rounded-none flex items-center justify-center z-40 hover:bg-white hover:text-black transition-colors"
@@ -218,7 +222,7 @@ import { MonthPickerComponent } from '../../shared/ui/month-picker/month-picker.
     </div>
   `,
 })
-export class Layout {
+export class Layout implements AfterViewInit {
   isSidebarOpen = signal(false);
   pageTitle = signal('Dashboard');
   authService = inject(AuthService);
@@ -233,6 +237,15 @@ export class Layout {
   pwaService = inject(PwaService);
   private document = inject(DOCUMENT);
   private contexts = inject(ChildrenOutletContexts);
+  private keyboardService = inject(KeyboardService);
+
+  @ViewChild('globalHiddenInput') globalHiddenInput!: ElementRef<HTMLInputElement>;
+
+  ngAfterViewInit() {
+    if (this.globalHiddenInput) {
+      this.keyboardService.registerInput(this.globalHiddenInput.nativeElement);
+    }
+  }
 
   constructor() {
     this.updateTitle(this.router.url);
@@ -258,6 +271,8 @@ export class Layout {
   }
 
   handleFabClick() {
+    this.keyboardService.openKeyboardSync();
+    
     if (this.router.url.includes('/budgets')) {
       this.budgetService.openBottomSheet();
     } else if (this.router.url.includes('/friends')) {
@@ -288,6 +303,10 @@ export class Layout {
 
   isProfilePage(): boolean {
     return this.router.url.includes('/profile');
+  }
+
+  isDashboardPage(): boolean {
+    return this.router.url.includes('/dashboard') || this.router.url === '/';
   }
 
   get bottomNavItems() {

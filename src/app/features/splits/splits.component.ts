@@ -4,6 +4,7 @@ import { SplitService } from '../../core/services/split.service';
 import { FriendService } from '../../core/services/friend.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ConfirmService } from '../../core/services/confirm.service';
+import { KeyboardService } from '../../core/services/keyboard.service';
 
 @Component({
   selector: 'app-splits',
@@ -104,7 +105,7 @@ import { ConfirmService } from '../../core/services/confirm.service';
             @if (splitService.splits().length > 0) {
               @for (split of splitService.splits(); track split.id) {
                 <button
-                  (click)="splitService.openAddSplitSheet(split)"
+                  (click)="editSplit(split)"
                   class="w-full bg-gray-200 rounded-none p-4 flex flex-col gap-1 text-left hover:bg-gray-300 transition-colors active:bg-gray-400"
                 >
                   <div class="flex justify-between items-start">
@@ -210,7 +211,7 @@ import { ConfirmService } from '../../core/services/confirm.service';
             @if (splitService.groups().length > 0) {
               @for (group of splitService.groups(); track group) {
                 <button
-                  (click)="splitService.openGroupSheet(group)"
+                  (click)="editGroup(group)"
                   class="w-full bg-gray-200 rounded-none p-4 flex flex-col gap-1 text-left hover:bg-gray-300 transition-colors active:bg-gray-400"
                 >
                   <span class="font-extrabold text-lg text-black">{{ group.name }}</span>
@@ -255,6 +256,7 @@ export class Splits implements OnInit {
   friendService = inject(FriendService);
   authService = inject(AuthService);
   confirmService = inject(ConfirmService);
+  keyboardService = inject(KeyboardService);
   currentUser = this.authService.userProfile;
 
   isInitialLoading = signal(true);
@@ -293,5 +295,15 @@ export class Splits implements OnInit {
         this.splitService.settleUp(friendId, balance);
       }
     });
+  }
+
+  editSplit(split: any) {
+    this.keyboardService.openKeyboardSync();
+    this.splitService.openAddSplitSheet(split);
+  }
+
+  editGroup(group: any) {
+    this.keyboardService.openKeyboardSync();
+    this.splitService.openGroupSheet(group);
   }
 }

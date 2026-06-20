@@ -90,40 +90,56 @@ import { UserProfile } from '../../core/services/auth.service';
                       </div>
                       <div class="flex items-center gap-2">
                         <button
-                          (click)="friendService.removeFriend(req.id)"
-                          class="w-8 h-8 flex items-center justify-center border-2 border-gray-200 hover:border-gray-400 active:bg-gray-100 transition-colors"
+                          (click)="removeFriend(req.id)"
+                          [disabled]="processingIds().has('remove_' + req.id) || processingIds().has('accept_' + req.id)"
+                          class="w-8 h-8 flex items-center justify-center border-2 border-gray-200 hover:border-gray-400 active:bg-gray-100 transition-colors disabled:opacity-50"
                         >
-                          <svg
-                            class="w-4 h-4 text-gray-600"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                              stroke-width="2"
-                              d="M6 18L18 6M6 6l12 12"
-                            />
-                          </svg>
+                          @if (processingIds().has('remove_' + req.id)) {
+                            <svg class="animate-spin h-4 w-4 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                          } @else {
+                            <svg
+                              class="w-4 h-4 text-gray-600"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"
+                              />
+                            </svg>
+                          }
                         </button>
                         <button
-                          (click)="friendService.acceptRequest(req.id)"
-                          class="w-8 h-8 flex items-center justify-center bg-black border-2 border-black hover:bg-gray-800 active:bg-gray-700 transition-colors"
+                          (click)="acceptRequest(req.id)"
+                          [disabled]="processingIds().has('accept_' + req.id) || processingIds().has('remove_' + req.id)"
+                          class="w-8 h-8 flex items-center justify-center bg-black border-2 border-black hover:bg-gray-800 active:bg-gray-700 transition-colors disabled:opacity-50"
                         >
-                          <svg
-                            class="w-4 h-4 text-white"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                              stroke-width="2"
-                              d="M5 13l4 4L19 7"
-                            />
-                          </svg>
+                          @if (processingIds().has('accept_' + req.id)) {
+                            <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                          } @else {
+                            <svg
+                              class="w-4 h-4 text-white"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M5 13l4 4L19 7"
+                              />
+                            </svg>
+                          }
                         </button>
                       </div>
                     </div>
@@ -159,9 +175,16 @@ import { UserProfile } from '../../core/services/auth.service';
                         </div>
                       </div>
                       <button
-                        (click)="friendService.removeFriend(req.id)"
-                        class="text-[10px] font-bold text-red-500 uppercase tracking-widest px-2 py-1 border-2 border-transparent hover:border-red-200 active:bg-red-50 transition-colors"
+                        (click)="removeFriend(req.id)"
+                        [disabled]="processingIds().has('remove_' + req.id)"
+                        class="text-[10px] font-bold text-red-500 uppercase tracking-widest px-2 py-1 border-2 border-transparent hover:border-red-200 active:bg-red-50 transition-colors disabled:opacity-50 flex items-center gap-1"
                       >
+                        @if (processingIds().has('remove_' + req.id)) {
+                          <svg class="animate-spin h-3 w-3 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                        }
                         Cancel
                       </button>
                     </div>
@@ -236,6 +259,29 @@ export class Friends implements OnInit {
   friendService = inject(FriendService);
 
   isInitialLoading = signal(true);
+  processingIds = signal<Set<string>>(new Set());
+
+  async acceptRequest(id: string) {
+    const key = 'accept_' + id;
+    const current = new Set(this.processingIds());
+    current.add(key);
+    this.processingIds.set(current);
+    await this.friendService.acceptRequest(id);
+    const after = new Set(this.processingIds());
+    after.delete(key);
+    this.processingIds.set(after);
+  }
+
+  async removeFriend(id: string) {
+    const key = 'remove_' + id;
+    const current = new Set(this.processingIds());
+    current.add(key);
+    this.processingIds.set(current);
+    await this.friendService.removeFriend(id);
+    const after = new Set(this.processingIds());
+    after.delete(key);
+    this.processingIds.set(after);
+  }
 
   ngOnInit() {
     setTimeout(() => {
