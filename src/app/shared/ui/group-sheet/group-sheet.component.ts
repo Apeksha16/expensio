@@ -2,6 +2,7 @@ import { Component, inject, effect, signal, OnInit } from '@angular/core';
 
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { animate, style, transition, trigger } from '@angular/animations';
+import { CommonModule } from '@angular/common';
 import { SplitService, SplitGroup } from '../../../core/services/split.service';
 import { ConfirmService } from '../../../core/services/confirm.service';
 import { FriendService } from '../../../core/services/friend.service';
@@ -10,11 +11,12 @@ import { AuthService } from '../../../core/services/auth.service';
 import { SwipeToCloseDirective } from '../swipe-to-close.directive';
 import { HapticService } from '../../../core/services/haptic.service';
 import { AutofocusDirective } from '../autofocus.directive';
+import { SafeInputDirective } from '../safe-input.directive';
 
 @Component({
   selector: 'app-group-sheet',
   standalone: true,
-  imports: [ReactiveFormsModule, SwipeToCloseDirective, AutofocusDirective],
+  imports: [CommonModule, ReactiveFormsModule, SwipeToCloseDirective, AutofocusDirective, SafeInputDirective],
   animations: [
     trigger('slideUp', [
       transition(':enter', [
@@ -83,9 +85,10 @@ import { AutofocusDirective } from '../autofocus.directive';
                 >
                 <input
                   appAutofocus
+                  appSafeInput
                   type="text"
                   formControlName="name"
-                  placeholder="Goa Trip, Roommates..."
+                  placeholder="e.g. Goa Trip"
                   class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-[#1a2e22] hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans"
                 />
               </div>

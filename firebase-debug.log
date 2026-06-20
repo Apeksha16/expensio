@@ -1,0 +1,41 @@
+[debug] [2026-06-20T16:27:30.334Z] ----------------------------------------------------------------------
+[debug] [2026-06-20T16:27:30.338Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\Pranav\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy
+[debug] [2026-06-20T16:27:30.338Z] CLI Version:   15.19.1
+[debug] [2026-06-20T16:27:30.339Z] Platform:      win32
+[debug] [2026-06-20T16:27:30.339Z] Node Version:  v22.22.1
+[debug] [2026-06-20T16:27:30.339Z] Time:          Sat Jun 20 2026 21:57:30 GMT+0530 (India Standard Time)
+[debug] [2026-06-20T16:27:30.340Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-06-20T16:27:37.071Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-06-20T16:27:37.072Z] > authorizing via signed-in user (root.ap.11@gmail.com)
+[debug] [2026-06-20T16:27:37.072Z] [iam] checking project expensio-b16b0 for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2026-06-20T16:27:37.074Z] Checked if tokens are valid: false, expires at: 1781972316185
+[debug] [2026-06-20T16:27:37.075Z] Checked if tokens are valid: false, expires at: 1781972316185
+[debug] [2026-06-20T16:27:37.075Z] > refreshing access token with scopes: []
+[debug] [2026-06-20T16:27:37.077Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-06-20T16:27:37.078Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-06-20T16:27:37.322Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2026-06-20T16:27:37.323Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-06-20T16:27:37.334Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/expensio-b16b0:testIamPermissions [none]
+[debug] [2026-06-20T16:27:37.335Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/expensio-b16b0:testIamPermissions  x-goog-user-project=expensio-b16b0
+[debug] [2026-06-20T16:27:37.335Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/expensio-b16b0:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2026-06-20T16:27:38.855Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/expensio-b16b0:testIamPermissions 200
+[debug] [2026-06-20T16:27:38.855Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/expensio-b16b0:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2026-06-20T16:27:38.856Z] Checked if tokens are valid: true, expires at: 1781976456323
+[debug] [2026-06-20T16:27:38.857Z] Checked if tokens are valid: true, expires at: 1781976456323
+[debug] [2026-06-20T16:27:38.857Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/expensio-b16b0 [none]
+[debug] [2026-06-20T16:27:39.591Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/expensio-b16b0 200
+[debug] [2026-06-20T16:27:39.591Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/expensio-b16b0 {"projectId":"expensio-b16b0","projectNumber":"67190352128","displayName":"eXpensio","name":"projects/expensio-b16b0","resources":{"hostingSite":"expensio-b16b0"},"state":"ACTIVE","etag":"1_6b313a66-80da-4f0a-8638-ac0ce60399e0"}
+[info] 
+[info] === Deploying to 'expensio-b16b0'...
+[info] 
+[info] i  deploying hosting 
+[debug] [2026-06-20T16:27:39.595Z] Checked if tokens are valid: true, expires at: 1781976456323
+[debug] [2026-06-20T16:27:39.595Z] Checked if tokens are valid: true, expires at: 1781976456323
+[debug] [2026-06-20T16:27:39.595Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/expensio-b16b0/sites/tryexpensio [none]
+[debug] [2026-06-20T16:27:40.973Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/expensio-b16b0/sites/tryexpensio 200
+[debug] [2026-06-20T16:27:40.973Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/expensio-b16b0/sites/tryexpensio {"name":"projects/expensio-b16b0/sites/tryexpensio","defaultUrl":"https://tryexpensio.web.app","type":"USER_SITE"}
+[debug] [2026-06-20T16:27:40.976Z] Checked if tokens are valid: true, expires at: 1781976456323
+[debug] [2026-06-20T16:27:40.977Z] Checked if tokens are valid: true, expires at: 1781976456323
+[debug] [2026-06-20T16:27:40.977Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/tryexpensio/versions [none]
+[debug] [2026-06-20T16:27:40.977Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/tryexpensio/versions {"status":"CREATED","labels":{"deployment-tool":"cli-firebase"}}

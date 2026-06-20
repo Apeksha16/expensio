@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { SplitService } from '../../core/services/split.service';
+import { SplitService, SplitExpense } from '../../core/services/split.service';
 import { FriendService } from '../../core/services/friend.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ConfirmService } from '../../core/services/confirm.service';
@@ -95,6 +95,15 @@ import { KeyboardService } from '../../core/services/keyboard.service';
         
         <!-- Individual Expenses List -->
         @if (splitService.activeTab() === 'expenses') {
+          <div class="flex justify-between items-center mt-4">
+             <h3 class="font-extrabold text-black uppercase tracking-widest text-sm">All Expenses</h3>
+             <button
+                (click)="settleUp()"
+                class="px-4 py-1.5 border-2 border-black text-black font-bold text-[10px] uppercase tracking-widest hover:bg-black hover:text-white transition-colors rounded-none"
+             >
+                Settle Up
+             </button>
+          </div>
           <div class="flex-1 flex flex-col gap-1.5 pb-36 mt-2">
             @if (individualSplits().length > 0) {
               @for (split of individualSplits(); track split.id) {
@@ -103,12 +112,24 @@ import { KeyboardService } from '../../core/services/keyboard.service';
                   class="w-full bg-gray-200 rounded-none p-4 flex flex-col gap-1 text-left hover:bg-gray-300 transition-colors active:bg-gray-400"
                 >
                   <div class="flex justify-between items-start gap-4">
-                    <span class="font-extrabold text-lg text-black truncate flex-1">{{ split.title }}</span>
+                    <div class="flex flex-col gap-0.5 flex-1 min-w-0 pr-4">
+                      <span class="font-extrabold text-lg text-black truncate">{{ split.title }}</span>
+                      <div class="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest min-w-0">
+                        <span class="truncate">{{ split.date | date: 'mediumDate' }}</span>
+                      </div>
+                    </div>
                     <span class="font-extrabold text-lg text-black flex-shrink-0">₹{{ split.total_amount | number: '1.0-2' }}</span>
                   </div>
-                  <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest"
-                    >{{ split.date | date: 'mediumDate' }} • Paid by {{ split.payer_id === currentUser().id ? 'Me' : getFriendName(split.payer_id) }}</span
-                  >
+                  <div class="flex justify-between items-center mt-1 w-full">
+                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                      <span class="whitespace-nowrap flex-shrink-0">Paid by {{ split.payer_id === currentUser().id ? 'Me' : getFriendName(split.payer_id) }}</span>
+                    </span>
+                    @if (getExpenseBalance(split); as bal) {
+                      <span class="text-[10px] font-extrabold uppercase tracking-widest whitespace-nowrap" [ngClass]="bal.type === 'owed' ? 'text-green-500' : 'text-red-500'">
+                        {{ bal.type === 'owed' ? 'You are owed' : 'You owe' }} ₹{{ bal.amount | number: '1.0-0' }}
+                      </span>
+                    }
+                  </div>
                 </button>
               }
             } @else {
@@ -227,6 +248,31 @@ export class Splits implements OnInit {
     return f ? f.profile.name.split(' ')[0] : id;
   }
 
+  getExpenseBalance(split: any): { type: 'owed' | 'owe', amount: number } | null {
+    const me = this.currentUser().id;
+    const myParticipant = split.participants?.find((p: any) => p.userId === me);
+    if (!myParticipant) return null;
+
+    if (split.payer_id === me) {
+      // I paid. Calculate how much others owe me.
+      const iAmOwed = split.total_amount - myParticipant.amountOwed;
+      if (iAmOwed > 0) return { type: 'owed', amount: iAmOwed };
+      return null;
+    } else {
+      // Someone else paid. I owe my share.
+      if (myParticipant.amountOwed > 0) return { type: 'owe', amount: myParticipant.amountOwed };
+      return null;
+    }
+  }
+
+  settleUp() {
+    const settleSplit: Partial<SplitExpense> = {
+      title: 'Settlement',
+      category: 'Settlement'
+    };
+    this.splitService.openAddSplitSheet(settleSplit as any);
+  }
+
   getGroupBalance(groupId: string) {
     const groupSplits = this.splitService.splits().filter(s => s.group_id === groupId);
     let owed = 0;
@@ -247,7 +293,6 @@ export class Splits implements OnInit {
   }
 
   editSplit(split: any) {
-    this.keyboardService.openKeyboardSync();
     this.splitService.openAddSplitSheet(split);
   }
 

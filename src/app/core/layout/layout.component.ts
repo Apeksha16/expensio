@@ -91,7 +91,7 @@ import { MonthPickerComponent } from '../../shared/ui/month-picker/month-picker.
                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5z" />
             </svg>
           </button>
-        } @else if (isBudgetExpensesPage()) {
+        } @else if (isBudgetExpensesPage() && !isVirtualOthersBudget()) {
           <button
             (click)="editBudget()"
             class="p-2 -mr-2 text-gray-400 hover:text-white focus:outline-none transition-colors"
@@ -171,7 +171,7 @@ import { MonthPickerComponent } from '../../shared/ui/month-picker/month-picker.
           </button>
           <div class="mt-4 text-center">
             <span class="text-[10px] font-bold tracking-widest text-gray-400 uppercase"
-              >Version 1.0.11</span
+              >Version 1.0.12</span
             >
           </div>
         </div>
@@ -265,6 +265,17 @@ export class Layout implements AfterViewInit {
   isGroupExpensesPage = computed(() => this.currentUrl().includes('/splits/group/'));
   isBudgetExpensesPage = computed(() => this.currentUrl().match(/\/budgets\/.+/) !== null);
 
+  isVirtualOthersBudget = computed(() => {
+    if (!this.isBudgetExpensesPage()) return false;
+    const match = this.currentUrl().match(/\/budgets\/(.+)/);
+    const name = match ? decodeURIComponent(match[1]) : null;
+    if (name) {
+      const budget = this.budgetService.budgets().find((b) => b.name === name);
+      return budget ? budget.id === 'virtual-others' : false;
+    }
+    return false;
+  });
+
   activeGroup = computed(() => {
     if (this.isGroupExpensesPage()) {
       const match = this.currentUrl().match(/\/splits\/group\/(.+)/);
@@ -352,7 +363,6 @@ export class Layout implements AfterViewInit {
   editGroup() {
     const group = this.activeGroup();
     if (group) {
-      this.keyboardService.openKeyboardSync();
       this.splitService.openGroupSheet(group);
     }
   }
@@ -363,7 +373,6 @@ export class Layout implements AfterViewInit {
     if (name) {
       const budget = this.budgetService.budgets().find(b => b.name === name);
       if (budget) {
-        this.keyboardService.openKeyboardSync();
         this.budgetService.openBottomSheet(budget);
       }
     }

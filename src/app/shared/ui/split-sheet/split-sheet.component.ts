@@ -18,11 +18,12 @@ import { SwipeToCloseDirective } from '../swipe-to-close.directive';
 import { AmountInputDirective } from '../amount-input.directive';
 import { HapticService } from '../../../core/services/haptic.service';
 import { AutofocusDirective } from '../autofocus.directive';
+import { SafeInputDirective } from '../safe-input.directive';
 
 @Component({
   selector: 'app-split-sheet',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, SwipeToCloseDirective, AmountInputDirective, AutofocusDirective],
+  imports: [CommonModule, ReactiveFormsModule, SwipeToCloseDirective, AmountInputDirective, AutofocusDirective, SafeInputDirective],
   animations: [
     trigger('slideUp', [
       transition(':enter', [
@@ -78,6 +79,7 @@ import { AutofocusDirective } from '../autofocus.directive';
                 >
                 <input
                   appAutofocus
+                  appSafeInput
                   type="text"
                   formControlName="title"
                   placeholder="e.g. Dinner, Taxi"

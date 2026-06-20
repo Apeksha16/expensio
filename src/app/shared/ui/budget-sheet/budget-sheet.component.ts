@@ -10,11 +10,12 @@ import { HapticService } from '../../../core/services/haptic.service';
 
 import { AmountInputDirective } from '../amount-input.directive';
 import { AutofocusDirective } from '../autofocus.directive';
+import { SafeInputDirective } from '../safe-input.directive';
 
 @Component({
   selector: 'app-budget-sheet',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, SwipeToCloseDirective, AmountInputDirective, AutofocusDirective],
+  imports: [CommonModule, ReactiveFormsModule, SwipeToCloseDirective, AmountInputDirective, AutofocusDirective, SafeInputDirective],
   animations: [
     trigger('slideUp', [
       transition(':enter', [
@@ -145,6 +146,7 @@ import { AutofocusDirective } from '../autofocus.directive';
               <div class="relative group">
                 <input
                   appAutofocus
+                  appSafeInput
                   type="text"
                   formControlName="name"
                   class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-[#1a2e22] hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans"

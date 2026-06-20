@@ -12,11 +12,12 @@ import { SwipeToCloseDirective } from '../swipe-to-close.directive';
 import { AmountInputDirective } from '../amount-input.directive';
 import { HapticService } from '../../../core/services/haptic.service';
 import { AutofocusDirective } from '../autofocus.directive';
+import { SafeInputDirective } from '../safe-input.directive';
 
 @Component({
   selector: 'app-bottom-sheet',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, DatePickerComponent, SwipeToCloseDirective, AmountInputDirective, AutofocusDirective],
+  imports: [CommonModule, ReactiveFormsModule, DatePickerComponent, SwipeToCloseDirective, AmountInputDirective, AutofocusDirective, SafeInputDirective],
   animations: [
     trigger('slideUp', [
       transition(':enter', [
@@ -136,7 +137,9 @@ import { AutofocusDirective } from '../autofocus.directive';
                 <input
                   type="text"
                   formControlName="title"
-                  placeholder="e.g. Coffee"
+                  appAutofocus
+                  appSafeInput
+                  placeholder="What was this for?"
                   class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-[#1a2e22] hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans"
                 />
               </div>
@@ -315,7 +318,22 @@ export class BottomSheetComponent implements OnInit {
               .order('created_at', { ascending: true });
               
             if (error) throw error;
-            this.localBudgets.set(data || []);
+            
+            const fetchedBudgets = data || [];
+            const hasOthers = fetchedBudgets.some((b: any) => b.name.toLowerCase() === 'others' || b.name.toLowerCase() === 'other');
+            
+            if (!hasOthers) {
+              fetchedBudgets.push({
+                id: 'virtual-others',
+                name: 'Others',
+                amount: 0,
+                icon_path: '<svg class="w-6 h-6 text-current" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" /></svg>',
+                month: month,
+                auto_rollover: false
+              });
+            }
+            
+            this.localBudgets.set(fetchedBudgets);
           } catch (error) {
             console.error('Error fetching budgets:', error);
             this.localBudgets.set([]);

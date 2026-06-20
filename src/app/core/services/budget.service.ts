@@ -24,7 +24,24 @@ export class BudgetService {
   private expenseService = inject(ExpenseService);
   private toastService = inject(ToastService);
 
-  readonly budgets = signal<Budget[]>([]);
+  private _budgets = signal<Budget[]>([]);
+  
+  readonly budgets = computed(() => {
+    const list = this._budgets();
+    const hasOthers = list.some(b => b.name.toLowerCase() === 'others' || b.name.toLowerCase() === 'other');
+    if (hasOthers) return list;
+    
+    const virtualOthers: Budget = {
+      id: 'virtual-others',
+      name: 'Others',
+      amount: 0,
+      icon_path: '<svg class="w-6 h-6 text-current" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" /></svg>',
+      month: this.expenseService.activeMonth(),
+      auto_rollover: false
+    };
+    
+    return [...list, virtualOthers];
+  });
   
   readonly isLoading = signal(false);
   readonly isSaving = signal(false);
@@ -37,7 +54,7 @@ export class BudgetService {
       if (user && month) {
         this.fetchBudgets(month);
       } else {
-        this.budgets.set([]);
+        this._budgets.set([]);
       }
     });
   }
@@ -121,14 +138,14 @@ export class BudgetService {
               .select();
               
             if (!insertError && insertedData) {
-              this.budgets.set(insertedData as Budget[]);
+              this._budgets.set(insertedData as Budget[]);
               this.isLoading.set(false);
               return;
             }
           }
         }
       }
-      this.budgets.set(data as Budget[]);
+      this._budgets.set(data as Budget[]);
     }
     this.isLoading.set(false);
   }
@@ -153,7 +170,7 @@ export class BudgetService {
       .single();
 
     if (!error && data) {
-      this.budgets.update(bs => [...bs, data as Budget]);
+      this._budgets.update(bs => [...bs, data as Budget]);
       this.toastService.showSuccess('Budget added successfully!');
     } else {
       this.toastService.showError('Failed to add budget. Please try again.');
@@ -191,7 +208,7 @@ export class BudgetService {
         }
       }
 
-      this.budgets.update(bs => bs.map(b => b.id === id ? { ...b, ...data } : b));
+      this._budgets.update(bs => bs.map(b => b.id === id ? { ...b, ...data } : b));
       this.toastService.showSuccess('Budget updated successfully!');
     } else {
       this.toastService.showError('Failed to update budget. Please try again.');
@@ -221,7 +238,7 @@ export class BudgetService {
           .gte('date', startDate)
           .lt('date', endDate);
       }
-      this.budgets.update(bs => bs.filter(b => b.id !== id));
+      this._budgets.update(bs => bs.filter(b => b.id !== id));
       this.toastService.showSuccess('Budget deleted successfully!');
     } else {
       this.toastService.showError('Failed to delete budget. Please try again.');

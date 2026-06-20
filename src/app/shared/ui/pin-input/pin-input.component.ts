@@ -1,4 +1,4 @@
-import { Component, forwardRef, ElementRef, HostListener, input, viewChildren, effect, inject } from '@angular/core';
+import { Component, forwardRef, ElementRef, HostListener, input, viewChildren, effect, inject, AfterViewInit } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor, FormsModule } from '@angular/forms';
 import { HapticService } from '../../../core/services/haptic.service';
 
@@ -41,7 +41,7 @@ import { HapticService } from '../../../core/services/haptic.service';
     </div>
   `
 })
-export class PinInputComponent implements ControlValueAccessor {
+export class PinInputComponent implements ControlValueAccessor, AfterViewInit {
   length = input<number>(4);
   autofocus = input<boolean>(false);
   inputs = viewChildren<ElementRef<HTMLInputElement>>('pinInput');
@@ -62,6 +62,13 @@ export class PinInputComponent implements ControlValueAccessor {
         this.digits = Array(len).fill('');
       }
     });
+  }
+
+  ngAfterViewInit() {
+    if (this.autofocus()) {
+      setTimeout(() => this.focusInput(0), 50);
+      setTimeout(() => this.focusInput(0), 350);
+    }
   }
 
   // ControlValueAccessor methods

@@ -26,11 +26,12 @@ import {
 import { SwipeToCloseDirective } from '../swipe-to-close.directive';
 import { HapticService } from '../../../core/services/haptic.service';
 import { AutofocusDirective } from '../autofocus.directive';
+import { SafeInputDirective } from '../safe-input.directive';
 
 @Component({
   selector: 'app-friend-sheet',
   standalone: true,
-  imports: [CommonModule, FormsModule, SwipeToCloseDirective, AutofocusDirective],
+  imports: [CommonModule, FormsModule, SwipeToCloseDirective, AutofocusDirective, SafeInputDirective],
   animations: [
     trigger('slideUp', [
       transition(':enter', [
@@ -102,6 +103,7 @@ import { AutofocusDirective } from '../autofocus.directive';
                   </div>
                   <input
                     appAutofocus
+                    appSafeInput
                     type="text"
                     name="query"
                     [(ngModel)]="searchQuery"

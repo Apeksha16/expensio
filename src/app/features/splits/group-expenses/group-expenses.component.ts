@@ -19,22 +19,33 @@ import { ToastService } from '../../../core/services/toast.service';
       <!-- Content Area -->
       <main class="flex-1 overflow-y-auto bg-gray-50 relative pb-20 p-4">
         <!-- Black Box for Group Balance -->
-        <div class="bg-black p-6 mb-4 flex justify-between items-center rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]">
-          <div class="flex flex-col">
-            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1"
-              >YOU ARE OWED</span
-            >
-            <span class="text-3xl font-black tracking-tight text-green-500"
-              >₹{{ groupBalance().owed | number: '1.0-2' }}</span
-            >
+        <div class="bg-black p-6 mb-4 flex flex-col gap-4 rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]">
+          <div class="flex justify-between items-center w-full">
+            <div class="flex flex-col">
+              <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1"
+                >YOU ARE OWED</span
+              >
+              <span class="text-3xl font-black tracking-tight text-green-500"
+                >₹{{ groupBalance().owed | number: '1.0-2' }}</span
+              >
+            </div>
+            <div class="flex flex-col items-end">
+              <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1"
+                >YOU OWE</span
+              >
+              <span class="text-2xl font-black tracking-tight text-red-400"
+                >₹{{ groupBalance().owe | number: '1.0-2' }}</span
+              >
+            </div>
           </div>
-          <div class="flex flex-col items-end">
-            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1"
-              >YOU OWE</span
+          
+          <div class="flex justify-center w-full">
+            <button
+              (click)="settleUp()"
+              class="px-8 py-2 border-2 border-white text-white font-bold text-xs uppercase tracking-widest hover:bg-white hover:text-black transition-colors rounded-none"
             >
-            <span class="text-2xl font-black tracking-tight text-red-400"
-              >₹{{ groupBalance().owe | number: '1.0-2' }}</span
-            >
+              Settle Up
+            </button>
           </div>
         </div>
 
@@ -49,13 +60,21 @@ import { ToastService } from '../../../core/services/toast.service';
                   <span class="font-extrabold text-lg text-black truncate flex-1">{{ split.title }}</span>
                   <span class="font-extrabold text-lg text-black flex-shrink-0">₹{{ split.total_amount | number: '1.0-2' }}</span>
                 </div>
-                <div class="flex items-center gap-2 text-[10px] font-bold text-gray-500 uppercase tracking-widest min-w-0 mt-1">
+                  <div class="flex items-center gap-2 text-[10px] font-bold text-gray-500 uppercase tracking-widest min-w-0 mt-1">
                     <span class="truncate">{{ split.category || 'Group Split' }}</span>
                     <span class="flex-shrink-0">•</span>
                     <span class="whitespace-nowrap flex-shrink-0">{{ split.date | date: 'mediumDate' }}</span>
-                    <span class="flex-shrink-0">•</span>
-                    <span class="whitespace-nowrap flex-shrink-0">Paid by {{ split.payer_id === currentUser().id ? 'Me' : getFriendName(split.payer_id) }}</span>
-                </div>
+                  </div>
+                  <div class="flex justify-between items-center mt-1 w-full">
+                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                      <span class="whitespace-nowrap flex-shrink-0">Paid by {{ split.payer_id === currentUser()?.id ? 'Me' : getFriendName(split.payer_id) }}</span>
+                    </span>
+                    @if (getExpenseBalance(split); as bal) {
+                      <span class="text-[10px] font-extrabold uppercase tracking-widest whitespace-nowrap" [ngClass]="bal.type === 'owed' ? 'text-green-500' : 'text-red-500'">
+                        {{ bal.type === 'owed' ? 'You are owed' : 'You owe' }} ₹{{ bal.amount | number: '1.0-0' }}
+                      </span>
+                    }
+                  </div>
               </button>
             }
           } @else {
@@ -131,8 +150,35 @@ export class GroupExpenses implements OnInit {
   }
 
   getFriendName(id: string): string {
-    const f = this.friendService.acceptedFriends().find((x: any) => x.profile.id === id);
-    return f ? f.profile.name.split(' ')[0] : id;
+    const friend = this.friendService.acceptedFriends().find((f) => f.profile.id === id);
+    return friend ? friend.profile.username || friend.profile.email : 'Unknown';
+  }
+
+  getExpenseBalance(split: any): { type: 'owed' | 'owe', amount: number } | null {
+    const user = this.currentUser();
+    if (!user) return null;
+    const me = user.id;
+    const myParticipant = split.participants?.find((p: any) => p.userId === me);
+    if (!myParticipant) return null;
+
+    if (split.payer_id === me) {
+      const iAmOwed = split.total_amount - myParticipant.amountOwed;
+      if (iAmOwed > 0) return { type: 'owed', amount: iAmOwed };
+      return null;
+    } else {
+      if (myParticipant.amountOwed > 0) return { type: 'owe', amount: myParticipant.amountOwed };
+      return null;
+    }
+  }
+
+  settleUp() {
+    // Open split sheet with settlement info
+    const settleSplit: Partial<SplitExpense> = {
+      title: 'Settlement',
+      group_id: this.groupId(),
+      category: 'Settlement'
+    };
+    this.splitService.openAddSplitSheet(settleSplit as any);
   }
 
   addExpenseToGroup() {
@@ -146,7 +192,6 @@ export class GroupExpenses implements OnInit {
        this.toastService.showError("You can only edit expenses that you added.");
        return;
     }
-    this.keyboardService.openKeyboardSync();
     this.splitService.openAddSplitSheet(split);
   }
 }

@@ -4,6 +4,9 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { BudgetService } from '../../../core/services/budget.service';
 import { ExpenseService, Expense } from '../../../core/services/expense.service';
 import { KeyboardService } from '../../../core/services/keyboard.service';
+import { SplitService } from '../../../core/services/split.service';
+import { SupabaseService } from '../../../core/services/supabase.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-budget-expenses',
@@ -27,19 +30,25 @@ import { KeyboardService } from '../../../core/services/keyboard.service';
               <span class="text-4xl font-extrabold tracking-tight">₹{{ consumed() | number: '1.0-0' }}</span>
             </div>
             <div class="text-right flex flex-col">
-              <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Limit</span>
-              <span class="text-sm font-extrabold text-gray-300">₹{{ budgetAmount() | number: '1.0-0' }}</span>
+              @if (isVirtualOthers()) {
+                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Unbudgeted</span>
+              } @else {
+                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Limit</span>
+                <span class="text-sm font-extrabold text-gray-300">₹{{ budgetAmount() | number: '1.0-0' }}</span>
+              }
             </div>
           </div>
 
           <!-- Progress Bar -->
-          <div class="h-2 w-full bg-gray-800 rounded-none overflow-hidden flex relative z-10">
-            <div
-              class="h-full transition-all duration-1000 ease-out"
-              [style.width.%]="!budgetService.isLoading() && animateBars() ? getPercent() : 0"
-              [ngClass]="getColorClass()"
-            ></div>
-          </div>
+          @if (!isVirtualOthers()) {
+            <div class="h-2 w-full bg-gray-800 rounded-none overflow-hidden flex relative z-10">
+              <div
+                class="h-full transition-all duration-1000 ease-out"
+                [style.width.%]="!budgetService.isLoading() && animateBars() ? getPercent() : 0"
+                [ngClass]="getColorClass()"
+              ></div>
+            </div>
+          }
         </div>
 
         @if (expenseService.isLoading() || budgetService.isLoading()) {
@@ -57,7 +66,8 @@ import { KeyboardService } from '../../../core/services/keyboard.service';
             @for (expense of budgetExpenses(); track expense.id) {
               <button
                 (click)="editExpense(expense)"
-                class="w-full bg-gray-200 rounded-none p-3 flex justify-between items-center text-left hover:bg-gray-300 transition-colors active:bg-gray-400"
+                class="w-full bg-gray-200 rounded-none p-3 flex justify-between items-center text-left hover:bg-gray-300 transition-colors active:bg-gray-400 border-l-4"
+                [ngClass]="getCategoryColor(expense.category)"
               >
                 <div class="flex flex-col gap-0.5 flex-1 min-w-0 pr-4">
                   <span class="font-extrabold text-lg text-black truncate">{{ expense.title }}</span>
@@ -97,6 +107,9 @@ export class BudgetExpenses implements OnInit {
   budgetService = inject(BudgetService);
   expenseService = inject(ExpenseService);
   keyboardService = inject(KeyboardService);
+  splitService = inject(SplitService);
+  supabaseService = inject(SupabaseService);
+  toastService = inject(ToastService);
 
   budgetName = signal<string>('');
   animateBars = signal(false);
@@ -108,6 +121,10 @@ export class BudgetExpenses implements OnInit {
 
   consumed = computed(() => {
     return this.getConsumed();
+  });
+
+  isVirtualOthers = computed(() => {
+    return this.budgetName() === 'Others' && this.budgetAmount() === 0;
   });
 
   budgetExpenses = computed(() => {
@@ -152,8 +169,42 @@ export class BudgetExpenses implements OnInit {
     return 'bg-white'; // the background is black, so white bar looks better, or matching main page
   }
 
-  editExpense(expense: Expense) {
-    this.keyboardService.openKeyboardSync();
+  async editExpense(expense: Expense) {
+    if (expense.id.startsWith('split_')) {
+      const splitId = expense.id.replace('split_', '');
+      const { data, error } = await this.supabaseService.client
+        .from('split_expenses')
+        .select('*, participants:split_participants(*)')
+        .eq('id', splitId)
+        .single();
+        
+      if (!error && data) {
+        this.splitService.openAddSplitSheet(data as any);
+      } else {
+        this.toastService.showError('Could not load split expense.');
+      }
+      return;
+    }
     this.expenseService.openBottomSheet(expense);
+  }
+
+  getCategoryColor(category: string): string {
+    if (!category) return 'border-gray-400';
+    const colors = [
+      'border-red-500',
+      'border-blue-500',
+      'border-green-500',
+      'border-yellow-500',
+      'border-purple-500',
+      'border-pink-500',
+      'border-indigo-500',
+      'border-teal-500',
+      'border-orange-500',
+    ];
+    let hash = 0;
+    for (let i = 0; i < category.length; i++) {
+      hash = category.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return colors[Math.abs(hash) % colors.length];
   }
 }

@@ -7,12 +7,15 @@ import {
   ViewChild,
   AfterViewInit,
   signal,
+  computed,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ExpenseService, Expense } from '../../core/services/expense.service';
 import { MonthPickerService } from '../../core/services/month-picker.service';
 import { ToastService } from '../../core/services/toast.service';
 import { KeyboardService } from '../../core/services/keyboard.service';
+import { SplitService } from '../../core/services/split.service';
+import { SupabaseService } from '../../core/services/supabase.service';
 
 @Component({
   selector: 'app-expenses',
@@ -68,7 +71,8 @@ import { KeyboardService } from '../../core/services/keyboard.service';
             @for (expense of expenseService.expenses(); track trackById($index, expense)) {
               <button
                 (click)="editExpense(expense)"
-                class="w-full bg-gray-200 rounded-none p-3 flex justify-between items-center text-left hover:bg-gray-300 transition-colors active:bg-gray-400"
+                class="w-full bg-gray-200 rounded-none p-3 flex justify-between items-center text-left hover:bg-gray-300 transition-colors active:bg-gray-400 border-l-4"
+                [ngClass]="getCategoryColor(expense.category)"
               >
                 <div class="flex flex-col gap-0.5 flex-1 min-w-0 pr-4">
                   <span class="font-extrabold text-lg text-black truncate">{{ expense.title }}</span>
@@ -151,6 +155,8 @@ export class Expenses implements OnInit, AfterViewInit, OnDestroy {
   monthPicker = inject(MonthPickerService);
   toastService = inject(ToastService);
   keyboardService = inject(KeyboardService);
+  splitService = inject(SplitService);
+  supabaseService = inject(SupabaseService);
   private monthSub: any;
 
   @ViewChild('scrollTrigger') scrollTrigger!: ElementRef;
@@ -205,12 +211,42 @@ export class Expenses implements OnInit, AfterViewInit, OnDestroy {
     this.monthPicker.open(this.expenseService.activeMonth());
   }
 
-  editExpense(expense: Expense) {
+  getCategoryColor(category: string): string {
+    if (!category) return 'border-gray-400';
+    const colors = [
+      'border-red-500',
+      'border-blue-500',
+      'border-green-500',
+      'border-yellow-500',
+      'border-purple-500',
+      'border-pink-500',
+      'border-indigo-500',
+      'border-teal-500',
+      'border-orange-500',
+    ];
+    let hash = 0;
+    for (let i = 0; i < category.length; i++) {
+      hash = category.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return colors[Math.abs(hash) % colors.length];
+  }
+
+  async editExpense(expense: Expense) {
     if (expense.id.startsWith('split_')) {
-      this.toastService.showInfo('This is a split expense. Please edit it from the Splits tab.');
+      const splitId = expense.id.replace('split_', '');
+      const { data, error } = await this.supabaseService.client
+        .from('split_expenses')
+        .select('*, participants:split_participants(*)')
+        .eq('id', splitId)
+        .single();
+        
+      if (!error && data) {
+        this.splitService.openAddSplitSheet(data as any);
+      } else {
+        this.toastService.showError('Could not load split expense.');
+      }
       return;
     }
-    this.keyboardService.openKeyboardSync();
     this.expenseService.openBottomSheet(expense);
   }
 }
