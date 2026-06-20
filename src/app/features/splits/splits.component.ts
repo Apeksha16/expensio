@@ -48,7 +48,7 @@ import { KeyboardService } from '../../core/services/keyboard.service';
       } @else {
         <!-- Top Summary Box -->
         <div
-          class="bg-black text-white p-5 border border-black rounded-none flex flex-col gap-4 relative overflow-hidden"
+          class="shrink-0 bg-black text-white p-5 border border-black rounded-none flex flex-col gap-4 relative overflow-hidden"
         >
           <div
             class="absolute -right-10 -top-10 w-32 h-32 bg-gray-800 rounded-full opacity-50 blur-2xl pointer-events-none"
@@ -73,7 +73,7 @@ import { KeyboardService } from '../../core/services/keyboard.service';
           </div>
         </div>
         <!-- Tabs -->
-        <div class="flex border-b-2 border-black mt-2">
+        <div class="shrink-0 flex border-b-2 border-black mt-2">
           <button
             (click)="splitService.activeTab.set('expenses')"
             [class.bg-black]="splitService.activeTab() === 'expenses'"

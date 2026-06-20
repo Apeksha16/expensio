@@ -23,6 +23,9 @@ export class AuthService {
 
   readonly isAuthenticated = signal<boolean>(false);
   readonly isOnboarded = signal<boolean>(false);
+  readonly isInitialized = signal<boolean>(false);
+  
+  private appStartTime = Date.now();
   readonly currentUser = signal<User | null>(null, {
     equal: (a, b) => a?.id === b?.id && a?.updated_at === b?.updated_at
   });
@@ -47,6 +50,16 @@ export class AuthService {
   private initAuthListener() {
     this.supabaseService.client.auth.onAuthStateChange(async (event, session) => {
       if (event === 'TOKEN_REFRESHED') return; // Ignore token refreshes to prevent redundant UI/Network updates
+
+      const handleInitialization = () => {
+        if (!this.isInitialized()) {
+          const elapsed = Date.now() - this.appStartTime;
+          const delay = Math.max(0, 1500 - elapsed);
+          setTimeout(() => {
+            this.isInitialized.set(true);
+          }, delay);
+        }
+      };
 
       if (session?.user) {
         this.isAuthenticated.set(true);
@@ -81,6 +94,7 @@ export class AuthService {
         if (isAuthRoute || this.router.url === '/') {
           this.router.navigate(['/dashboard']);
         }
+        handleInitialization();
       } else {
         this.isAuthenticated.set(false);
         this.currentUser.set(null);
@@ -90,6 +104,7 @@ export class AuthService {
         if (!isAuthRoute) {
           this.router.navigate(['/login']);
         }
+        handleInitialization();
       }
     });
   }
