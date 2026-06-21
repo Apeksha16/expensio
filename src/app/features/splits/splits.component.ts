@@ -6,6 +6,7 @@ import { FriendService } from '../../core/services/friend.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ConfirmService } from '../../core/services/confirm.service';
 import { KeyboardService } from '../../core/services/keyboard.service';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-splits',
@@ -125,9 +126,17 @@ import { KeyboardService } from '../../core/services/keyboard.service';
                       <span class="whitespace-nowrap flex-shrink-0">Paid by {{ split.payer_id === currentUser().id ? 'Me' : getFriendName(split.payer_id) }}</span>
                     </span>
                     @if (getExpenseBalance(split); as bal) {
-                      <span class="text-[10px] font-extrabold uppercase tracking-widest whitespace-nowrap" [ngClass]="bal.type === 'owed' ? 'text-green-500' : 'text-red-500'">
-                        {{ bal.type === 'owed' ? 'You are owed' : 'You owe' }} ₹{{ bal.amount | number: '1.0-0' }}
-                      </span>
+                      <div class="flex items-center gap-3">
+                        <span class="text-[10px] font-extrabold uppercase tracking-widest whitespace-nowrap" [ngClass]="bal.type === 'owed' ? 'text-green-500' : 'text-red-500'">
+                          {{ bal.type === 'owed' ? 'You are owed' : 'You owe' }} ₹{{ bal.amount | number: '1.0-0' }}
+                        </span>
+                        <button
+                          (click)="settleIndividualSplit($event, split)"
+                          class="bg-black text-white px-2 py-1 rounded-none text-[9px] font-extrabold uppercase tracking-widest hover:bg-gray-800 transition-colors"
+                        >
+                          Settle
+                        </button>
+                      </div>
                     }
                   </div>
                 </button>
@@ -226,6 +235,7 @@ export class Splits implements OnInit {
   friendService = inject(FriendService);
   authService = inject(AuthService);
   confirmService = inject(ConfirmService);
+  toastService = inject(ToastService);
   keyboardService = inject(KeyboardService);
   router = inject(Router);
   currentUser = this.authService.userProfile;
@@ -273,6 +283,42 @@ export class Splits implements OnInit {
     this.splitService.openAddSplitSheet(settleSplit as any);
   }
 
+  settleIndividualSplit(event: Event, split: SplitExpense) {
+    event.stopPropagation();
+    const bal = this.getExpenseBalance(split);
+    if (!bal) return;
+
+    const settleSplit: Partial<SplitExpense> = {
+      title: 'Settle: ' + split.title,
+      category: 'Settlement',
+      total_amount: bal.amount,
+      group_id: split.group_id
+    };
+
+    if (bal.type === 'owe') {
+      settleSplit.payer_id = this.currentUser().id;
+      settleSplit.participant_ids = [split.payer_id];
+      settleSplit.participants = [{ userId: split.payer_id, amountOwed: bal.amount }];
+    } else {
+      const myParticipant = split.participants.find(p => p.userId === this.currentUser().id);
+      if (myParticipant) {
+         // I am owed money, meaning the payer should be someone else. We leave it empty for the user to select.
+         settleSplit.participant_ids = [this.currentUser().id];
+         settleSplit.participants = [{ userId: this.currentUser().id, amountOwed: bal.amount }];
+      }
+    }
+
+    this.splitService.openAddSplitSheet(settleSplit as any);
+  }
+
+  editSplit(split: SplitExpense) {
+    if (split.payer_id !== this.currentUser().id) {
+       this.toastService.showError("You can only edit expenses that you added.");
+       return;
+    }
+    this.splitService.openAddSplitSheet(split);
+  }
+
   getGroupBalance(groupId: string) {
     const groupSplits = this.splitService.splits().filter(s => s.group_id === groupId);
     let owed = 0;
@@ -290,10 +336,6 @@ export class Splits implements OnInit {
     });
     
     return { owed, owe, net: owed - owe };
-  }
-
-  editSplit(split: any) {
-    this.splitService.openAddSplitSheet(split);
   }
 
   openGroup(groupId: string) {

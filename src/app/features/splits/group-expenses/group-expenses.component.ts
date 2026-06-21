@@ -67,12 +67,20 @@ import { ToastService } from '../../../core/services/toast.service';
                   </div>
                   <div class="flex justify-between items-center mt-1 w-full">
                     <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
-                      <span class="whitespace-nowrap flex-shrink-0">Paid by {{ split.payer_id === currentUser()?.id ? 'Me' : getFriendName(split.payer_id) }}</span>
+                      <span class="whitespace-nowrap flex-shrink-0">Paid by {{ split.payer_id === currentUser().id ? 'Me' : getFriendName(split.payer_id) }}</span>
                     </span>
                     @if (getExpenseBalance(split); as bal) {
-                      <span class="text-[10px] font-extrabold uppercase tracking-widest whitespace-nowrap" [ngClass]="bal.type === 'owed' ? 'text-green-500' : 'text-red-500'">
-                        {{ bal.type === 'owed' ? 'You are owed' : 'You owe' }} ₹{{ bal.amount | number: '1.0-0' }}
-                      </span>
+                      <div class="flex items-center gap-3">
+                        <span class="text-[10px] font-extrabold uppercase tracking-widest whitespace-nowrap" [ngClass]="bal.type === 'owed' ? 'text-green-500' : 'text-red-500'">
+                          {{ bal.type === 'owed' ? 'You are owed' : 'You owe' }} ₹{{ bal.amount | number: '1.0-0' }}
+                        </span>
+                        <button
+                          (click)="settleIndividualSplit($event, split)"
+                          class="bg-black text-white px-2 py-1 rounded-none text-[9px] font-extrabold uppercase tracking-widest hover:bg-gray-800 transition-colors"
+                        >
+                          Settle
+                        </button>
+                      </div>
                     }
                   </div>
               </button>
@@ -178,6 +186,33 @@ export class GroupExpenses implements OnInit {
       group_id: this.groupId(),
       category: 'Settlement'
     };
+    this.splitService.openAddSplitSheet(settleSplit as any);
+  }
+
+  settleIndividualSplit(event: Event, split: SplitExpense) {
+    event.stopPropagation();
+    const bal = this.getExpenseBalance(split);
+    if (!bal) return;
+
+    const settleSplit: Partial<SplitExpense> = {
+      title: 'Settle: ' + split.title,
+      group_id: this.groupId(),
+      category: 'Settlement',
+      total_amount: bal.amount
+    };
+
+    if (bal.type === 'owe') {
+      settleSplit.payer_id = this.currentUser().id;
+      settleSplit.participant_ids = [split.payer_id];
+      settleSplit.participants = [{ userId: split.payer_id, amountOwed: bal.amount }];
+    } else {
+      const myParticipant = split.participants.find(p => p.userId === this.currentUser().id);
+      if (myParticipant) {
+         settleSplit.participant_ids = [this.currentUser().id];
+         settleSplit.participants = [{ userId: this.currentUser().id, amountOwed: bal.amount }];
+      }
+    }
+
     this.splitService.openAddSplitSheet(settleSplit as any);
   }
 

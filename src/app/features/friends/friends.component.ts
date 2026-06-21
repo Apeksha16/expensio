@@ -1,5 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { AuthService } from '../../core/services/auth.service';
 import { FriendService } from '../../core/services/friend.service';
 import { UserProfile } from '../../core/services/auth.service';
 
@@ -73,11 +75,11 @@ import { UserProfile } from '../../core/services/auth.service';
                       class="w-full bg-white border-2 border-black rounded-none p-3 flex items-center justify-between gap-4"
                     >
                       <div class="flex items-center gap-3">
-                        <div
-                          class="w-10 h-10 rounded-full border-2 border-black bg-gray-200 flex items-center justify-center font-extrabold text-lg text-black shrink-0"
-                        >
-                          {{ req.profile.name.charAt(0) }}
-                        </div>
+                        <img
+                          [src]="authService.getAvatarUrl(req.profile.avatarId)"
+                          alt="Avatar"
+                          class="w-10 h-10 rounded-full border-2 border-black object-cover shrink-0"
+                        />
                         <div class="flex flex-col gap-0.5">
                           <span class="font-extrabold text-sm text-black">{{
                             req.profile.name
@@ -159,11 +161,11 @@ import { UserProfile } from '../../core/services/auth.service';
                       class="w-full bg-gray-100 rounded-none p-3 flex items-center justify-between gap-4"
                     >
                       <div class="flex items-center gap-3 opacity-60">
-                        <div
-                          class="w-10 h-10 rounded-full border-2 border-gray-400 bg-gray-200 flex items-center justify-center font-extrabold text-lg text-gray-500 shrink-0"
-                        >
-                          {{ req.profile.name.charAt(0) }}
-                        </div>
+                        <img
+                          [src]="authService.getAvatarUrl(req.profile.avatarId)"
+                          alt="Avatar"
+                          class="w-10 h-10 rounded-full border-2 border-black object-cover shrink-0"
+                        />
                         <div class="flex flex-col gap-0.5">
                           <span class="font-extrabold text-sm text-gray-600">{{
                             req.profile.name
@@ -257,6 +259,7 @@ import { UserProfile } from '../../core/services/auth.service';
 })
 export class Friends implements OnInit {
   friendService = inject(FriendService);
+  authService = inject(AuthService);
 
   isInitialLoading = signal(true);
   processingIds = signal<Set<string>>(new Set());

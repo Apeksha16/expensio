@@ -25,7 +25,7 @@ import { ToastService } from '../../core/services/toast.service';
         <div class="w-full flex flex-col gap-3">
           <h3 class="text-sm font-extrabold tracking-widest uppercase text-black">Choose Avatar</h3>
           <div class="flex overflow-x-auto gap-4 py-2 px-1 no-scrollbar">
-            @for (avatar of avatars; track avatar) {
+            @for (avatar of authService.avatars; track avatar) {
               <button
                 (click)="selectAvatar(avatar.id)"
                 class="flex-shrink-0 w-20 h-20 border-2 rounded-none flex items-center justify-center transition-transform duration-300 overflow-hidden"
@@ -171,72 +171,8 @@ export class Profile {
     );
   });
 
-  avatars = [
-    {
-      id: 1,
-      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix&backgroundColor=b6e3f4&mouth=smile,default',
-    },
-    {
-      id: 2,
-      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka&backgroundColor=c0aede&mouth=smile,default',
-    },
-    {
-      id: 3,
-      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Jocelyn&backgroundColor=d1d4f9&mouth=smile,default',
-    },
-    {
-      id: 4,
-      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Robert&backgroundColor=ffdfbf&mouth=smile,default',
-    },
-    {
-      id: 5,
-      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Max&backgroundColor=ffdfbf&mouth=smile,default',
-    },
-    {
-      id: 6,
-      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Oliver&backgroundColor=b6e3f4&mouth=smile,default',
-    },
-    {
-      id: 7,
-      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sophie&backgroundColor=c0aede&mouth=smile,default',
-    },
-    {
-      id: 8,
-      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Jack&backgroundColor=d1d4f9&mouth=smile,default',
-    },
-    {
-      id: 9,
-      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Amelia&backgroundColor=ffdfbf&mouth=smile,default',
-    },
-    {
-      id: 10,
-      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=George&backgroundColor=b6e3f4&mouth=smile,default',
-    },
-    {
-      id: 11,
-      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mia&backgroundColor=c0aede&mouth=smile,default',
-    },
-    {
-      id: 12,
-      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Harry&backgroundColor=d1d4f9&mouth=smile,default',
-    },
-    {
-      id: 13,
-      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Emily&backgroundColor=ffdfbf&mouth=smile,default',
-    },
-    {
-      id: 14,
-      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Leo&backgroundColor=b6e3f4&mouth=smile,default',
-    },
-    {
-      id: 15,
-      url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Grace&backgroundColor=c0aede&mouth=smile,default',
-    },
-  ];
-
   getSelectedAvatarUrl(): string {
-    const avatar = this.avatars.find((a) => a.id === this.pendingProfile().avatarId);
-    return avatar ? avatar.url : this.avatars[0].url;
+    return this.authService.getAvatarUrl(this.pendingProfile().avatarId);
   }
 
   selectAvatar(id: number) {
