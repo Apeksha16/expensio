@@ -1,0 +1,84 @@
+[debug] [2026-06-21T06:56:39.818Z] ----------------------------------------------------------------------
+[debug] [2026-06-21T06:56:39.822Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\Pranav\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy
+[debug] [2026-06-21T06:56:39.822Z] CLI Version:   15.19.1
+[debug] [2026-06-21T06:56:39.822Z] Platform:      win32
+[debug] [2026-06-21T06:56:39.822Z] Node Version:  v22.22.1
+[debug] [2026-06-21T06:56:39.823Z] Time:          Sun Jun 21 2026 12:26:39 GMT+0530 (India Standard Time)
+[debug] [2026-06-21T06:56:39.823Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-06-21T06:56:45.164Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-06-21T06:56:45.165Z] > authorizing via signed-in user (root.ap.11@gmail.com)
+[debug] [2026-06-21T06:56:45.165Z] [iam] checking project expensio-b16b0 for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2026-06-21T06:56:45.167Z] Checked if tokens are valid: false, expires at: 1781976456323
+[debug] [2026-06-21T06:56:45.167Z] Checked if tokens are valid: false, expires at: 1781976456323
+[debug] [2026-06-21T06:56:45.167Z] > refreshing access token with scopes: []
+[debug] [2026-06-21T06:56:45.169Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2026-06-21T06:56:45.169Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-06-21T06:56:45.367Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2026-06-21T06:56:45.367Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2026-06-21T06:56:45.382Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/expensio-b16b0:testIamPermissions [none]
+[debug] [2026-06-21T06:56:45.382Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/expensio-b16b0:testIamPermissions  x-goog-user-project=expensio-b16b0
+[debug] [2026-06-21T06:56:45.382Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/expensio-b16b0:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2026-06-21T06:56:46.910Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/expensio-b16b0:testIamPermissions 200
+[debug] [2026-06-21T06:56:46.911Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/expensio-b16b0:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2026-06-21T06:56:46.912Z] Checked if tokens are valid: true, expires at: 1782028604368
+[debug] [2026-06-21T06:56:46.912Z] Checked if tokens are valid: true, expires at: 1782028604368
+[debug] [2026-06-21T06:56:46.913Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/expensio-b16b0 [none]
+[debug] [2026-06-21T06:56:47.444Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/expensio-b16b0 200
+[debug] [2026-06-21T06:56:47.444Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/expensio-b16b0 {"projectId":"expensio-b16b0","projectNumber":"67190352128","displayName":"eXpensio","name":"projects/expensio-b16b0","resources":{"hostingSite":"expensio-b16b0"},"state":"ACTIVE","etag":"1_6b313a66-80da-4f0a-8638-ac0ce60399e0"}
+[info] 
+[info] === Deploying to 'expensio-b16b0'...
+[info] 
+[info] i  deploying hosting 
+[debug] [2026-06-21T06:56:47.451Z] Checked if tokens are valid: true, expires at: 1782028604368
+[debug] [2026-06-21T06:56:47.451Z] Checked if tokens are valid: true, expires at: 1782028604368
+[debug] [2026-06-21T06:56:47.451Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/expensio-b16b0/sites/tryexpensio [none]
+[debug] [2026-06-21T06:56:48.750Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/expensio-b16b0/sites/tryexpensio 200
+[debug] [2026-06-21T06:56:48.750Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/expensio-b16b0/sites/tryexpensio {"name":"projects/expensio-b16b0/sites/tryexpensio","defaultUrl":"https://tryexpensio.web.app","type":"USER_SITE"}
+[debug] [2026-06-21T06:56:48.757Z] Checked if tokens are valid: true, expires at: 1782028604368
+[debug] [2026-06-21T06:56:48.757Z] Checked if tokens are valid: true, expires at: 1782028604368
+[debug] [2026-06-21T06:56:48.758Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/tryexpensio/versions [none]
+[debug] [2026-06-21T06:56:48.758Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/tryexpensio/versions {"status":"CREATED","labels":{"deployment-tool":"cli-firebase"}}
+[debug] [2026-06-21T06:56:49.800Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/tryexpensio/versions 200
+[debug] [2026-06-21T06:56:49.800Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/tryexpensio/versions {"name":"projects/67190352128/sites/tryexpensio/versions/02dba31ddc96f2f5","status":"CREATED","config":{},"labels":{"deployment-tool":"cli-firebase"}}
+[info] i  hosting[tryexpensio]: beginning deploy... 
+[info] i  hosting[tryexpensio]: found 48 files in dist/expensio/browser 
+[debug] [2026-06-21T06:56:49.926Z] [hosting] uploading with 200 concurrency
+[debug] [2026-06-21T06:56:50.418Z] Checked if tokens are valid: true, expires at: 1782028604368
+[debug] [2026-06-21T06:56:50.419Z] Checked if tokens are valid: true, expires at: 1782028604368
+[debug] [2026-06-21T06:56:50.421Z] [hosting] hash cache [ZGlzdFxleHBlbnNpb1xicm93c2Vy] stored for 48 files
+[debug] [2026-06-21T06:56:50.421Z] [hosting][hash queue][FINAL] {"max":435,"min":1,"avg":218,"active":0,"complete":48,"success":48,"errored":0,"retried":0,"total":48,"elapsed":470}
+[debug] [2026-06-21T06:56:50.422Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/67190352128/sites/tryexpensio/versions/02dba31ddc96f2f5:populateFiles [none]
+[debug] [2026-06-21T06:56:50.422Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/67190352128/sites/tryexpensio/versions/02dba31ddc96f2f5:populateFiles {"files":{"/worker-basic.min.js":"d298b86f5ff5230bc748a704dd0e6b3e6997ac43d68906f18881e0b2ec8a143f","/safety-worker.js":"d298b86f5ff5230bc748a704dd0e6b3e6997ac43d68906f18881e0b2ec8a143f","/ngsw-worker.js":"ead3e42d566d7dd8374547f73b4bd0996c8c8147436c7973ac655c0fd28a3af3","/manifest.webmanifest":"1ccb8ba5a625aa64588efbba4bd57c678ebec6da43ae3920baeaf66ee2ff44fd","/logo.png":"71edfd908a29339ab5aaf91dbed2201bdf68e9ed6fbd87a70d6dec586eca904d","/favicon.ico":"4c744a6aa147f56e033f186eab9fb0cc6f9b0e1d59291e7a5d1a6cf6e4650920","/icons/icon-96x96.png":"b72e7933f478c0148f4f3c9ae9915889954a8fd52a2e426f80bbe4852a85caff","/icons/icon-72x72.png":"d199bf8e76efb0b80229b2ca4574d776816b256109c32cb9b7b55bf89d529b96","/icons/icon-512x512.png":"0910eea7f4637b9212fe7eb9c165db969f8cfe0c190ec7379a3146af9bbaf526","/icons/icon-384x384.png":"a036df0b71e181a1ecc0f56ea8cd43970695683911ab6e11a925544543ac520d","/icons/icon-192x192.png":"60f7be96d9563db8d52acb600fa950240c3331cb41a9f26f45613c49a0246c86","/icons/icon-152x152.png":"7fcc74900f058c16ec2d6cb2c5dc1325e39e92cc01ddf33f13358b7768960fc0","/icons/icon-144x144.png":"56306ea46f452b4009285e0a40d8cf6c6fe024f7b572d95bad1b98b5a8701e39","/icons/icon-128x128.png":"2fc793092e5cab91bbeb7e4d2a5c777420680a1dc280a6f11991830a7d2c170d","/styles-DQTA7KU3.css":"23b0039e1291ea19e048f76c931e6c4e4676d47a18c40394bc57f4203785c7ef","/ngsw.json":"f43ea059ba7d987bc00071eafa40c773e2c80e5f1249873fcc1af4a9cacb636d","/index.html":"0b760936b4616cdbabc8c929a48c2b54860c92ebebbf8c8b1ae8c475f0cc4eff","/main-BNQXWLCK.js":"0a9fa209354e30528b7e292e963782e0e11b2a41b95fe9e4523be0231b93117f","/chunk-ZSYN2PG5.js":"f9b4fe31234e60b74076c27c43badb0d8e5492fe852559da385c5761851bbf73","/chunk-ZGM4DFZY.js":"023e964e122c7c60fbba9f687e0f166dc79b787e6aa68da66fdb7110389fc221","/chunk-Z4ZK2XOV.js":"90d32b545c98c0751db9a3240efa0efc2468297ef695d3398c29fdda1dce58dd","/chunk-XEFU5SJ4.js":"ea80f2e4adbe5efcf30912b0ff0049dc43cf9ef0d2cafa6755054243ce70f869","/chunk-WIB2Z5PU.js":"228083e26ceba8bbeb18128bff2e3e12b5ef4bb05b1d0983e9299eb8c668f47f","/chunk-VQKYAVOX.js":"19b6746178efd3c2365a07ef589d2d0e83761f96fdb4ff2538f3bcf18675687d","/chunk-TGHCBY2P.js":"30e17c0fea5ac54d60879f6b13c4aec8ac75631f263b9ed0d023a373fb4c287b","/chunk-VQ3KEV5J.js":"43886d15cf25dce3929152d6d94905a5b66ee5f7ed39bd1a2f2040b60bbcd218","/chunk-LSDZXD2U.js":"bc86601fc86803154fe54513d50314e9c6fd612654a69115fb4f6dd143cd978a","/chunk-NEXH3FPD.js":"e242fbd6af3724efc6767ca94022a8a169701be147a2960b44d9ffff87b45228","/chunk-KORRDOUO.js":"a4364e575ba3866e2221af219b230e42655c0a8c8a46fc362d35e86f310ac0c6","/chunk-KPD3O3MP.js":"b536c69a1abc10b918a9bfee17a5b8552323ae49fcc5b63334fb02d5c45f9463","/chunk-JODRFNYL.js":"7b96db4fa8c8699d23fd5f5340ba2697e9b87ec7eeb58d96432bcced8aecb228","/chunk-I3VOGOEX.js":"8f16ec15f8d5979e2f1e4cd272c186aa6de65d08df63c1cc45afd95a4f8d7a05","/chunk-GGENAMM2.js":"e17a3d971f786359012b0f413fe87afec75012ce2c1720dfdb196c440b04cf83","/chunk-FWBJYBIR.js":"65cf39b6fd3f3f6e826b08df21bfb047d79fbc9f42592c06598f5c2f64e2daae","/chunk-EJMHPCO7.js":"a70bc5e71b752bee0fa82694759da79a713b7c7ec974c6efc7e97b6235677c1c","/chunk-CMNRZPGO.js":"a5c0724ee9b3a3823ae6f68abeec2b43b2bcf153e00bc3fab859582043e71bef","/chunk-BD22EROG.js":"750973bb04187834bc8303c935cf1ad78d33e608df3a31fc37c45b7b80668bcc","/chunk-7PVTHOGT.js":"173ae0e147aa67d31de256784e414be664042a7cef25fc668403cfc4188b84a4","/chunk-6ZQ6S5U3.js":"07d6da7d18360216ccdac350f8545ce240a6859d746e610f2441a3b46c6d0363","/chunk-5FORDKW7.js":"6da687bcbaf7b9a03d455a2bf0b86e2e38c45e4978a01897c10ace4543943bec","/chunk-57YISZFF.js":"11019a43745477ffac36a89bb6139f33188c6dd68a0c0197e01438b842c6cd8f","/chunk-3ARRKR44.js":"d4484092b798b4450ccf6ded776686e6c7ee97fcd83a285c24ae92cfa5517183","/chunk-3IY6F67H.js":"d6badcc73845624457e76e09210dfe59fe34c358d0f535ac47e9ded36285de14","/chunk-ZFWZN3UM.js":"57141b69884fa0021af67d9eefaa1a0b744880b1defaa7c04206d9f2e10e5d65","/chunk-F5AQ6IXT.js":"553c8e6921472528643c10207f2ba73c5daba98b01c0fd2e9cf5503502c8ec64","/chunk-VRQY3NVO.js":"20d86808efb566b0ab4aef20e7a431cd3527ed29463168f37993f8eacd1e0908","/chunk-4RESO2ST.js":"44cb9d9335dc80c0bf3842a9cf2d2a204868baeb8a96871fcf23d721aea5ceed","/chunk-K626MWUA.js":"cb9ebacbe1165f41696c35315f4e7bc669ab8c75791d27539beac3f7a08d76ed"}}
+[debug] [2026-06-21T06:56:51.225Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/67190352128/sites/tryexpensio/versions/02dba31ddc96f2f5:populateFiles 200
+[debug] [2026-06-21T06:56:51.225Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/67190352128/sites/tryexpensio/versions/02dba31ddc96f2f5:populateFiles {"uploadRequiredHashes":["0b760936b4616cdbabc8c929a48c2b54860c92ebebbf8c8b1ae8c475f0cc4eff","553c8e6921472528643c10207f2ba73c5daba98b01c0fd2e9cf5503502c8ec64","0a9fa209354e30528b7e292e963782e0e11b2a41b95fe9e4523be0231b93117f","750973bb04187834bc8303c935cf1ad78d33e608df3a31fc37c45b7b80668bcc","a70bc5e71b752bee0fa82694759da79a713b7c7ec974c6efc7e97b6235677c1c","23b0039e1291ea19e048f76c931e6c4e4676d47a18c40394bc57f4203785c7ef","f43ea059ba7d987bc00071eafa40c773e2c80e5f1249873fcc1af4a9cacb636d"],"uploadUrl":"https://upload-firebasehosting.googleapis.com/upload/sites/tryexpensio/versions/02dba31ddc96f2f5/files"}
+[debug] [2026-06-21T06:56:51.227Z] Checked if tokens are valid: true, expires at: 1782028604368
+[debug] [2026-06-21T06:56:51.227Z] Checked if tokens are valid: true, expires at: 1782028604368
+[debug] [2026-06-21T06:56:51.227Z] Checked if tokens are valid: true, expires at: 1782028604368
+[debug] [2026-06-21T06:56:51.227Z] Checked if tokens are valid: true, expires at: 1782028604368
+[debug] [2026-06-21T06:56:51.228Z] Checked if tokens are valid: true, expires at: 1782028604368
+[debug] [2026-06-21T06:56:51.228Z] Checked if tokens are valid: true, expires at: 1782028604368
+[debug] [2026-06-21T06:56:51.228Z] Checked if tokens are valid: true, expires at: 1782028604368
+[debug] [2026-06-21T06:56:51.229Z] Checked if tokens are valid: true, expires at: 1782028604368
+[debug] [2026-06-21T06:56:51.229Z] Checked if tokens are valid: true, expires at: 1782028604368
+[debug] [2026-06-21T06:56:51.229Z] Checked if tokens are valid: true, expires at: 1782028604368
+[debug] [2026-06-21T06:56:51.230Z] Checked if tokens are valid: true, expires at: 1782028604368
+[debug] [2026-06-21T06:56:51.230Z] Checked if tokens are valid: true, expires at: 1782028604368
+[debug] [2026-06-21T06:56:51.230Z] Checked if tokens are valid: true, expires at: 1782028604368
+[debug] [2026-06-21T06:56:51.230Z] Checked if tokens are valid: true, expires at: 1782028604368
+[debug] [2026-06-21T06:56:51.230Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/tryexpensio/versions/02dba31ddc96f2f5/files/0b760936b4616cdbabc8c929a48c2b54860c92ebebbf8c8b1ae8c475f0cc4eff [none]
+[debug] [2026-06-21T06:56:51.231Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/tryexpensio/versions/02dba31ddc96f2f5/files/0b760936b4616cdbabc8c929a48c2b54860c92ebebbf8c8b1ae8c475f0cc4eff [stream]
+[debug] [2026-06-21T06:56:51.233Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/tryexpensio/versions/02dba31ddc96f2f5/files/553c8e6921472528643c10207f2ba73c5daba98b01c0fd2e9cf5503502c8ec64 [none]
+[debug] [2026-06-21T06:56:51.234Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/tryexpensio/versions/02dba31ddc96f2f5/files/553c8e6921472528643c10207f2ba73c5daba98b01c0fd2e9cf5503502c8ec64 [stream]
+[debug] [2026-06-21T06:56:51.237Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/tryexpensio/versions/02dba31ddc96f2f5/files/0a9fa209354e30528b7e292e963782e0e11b2a41b95fe9e4523be0231b93117f [none]
+[debug] [2026-06-21T06:56:51.237Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/tryexpensio/versions/02dba31ddc96f2f5/files/0a9fa209354e30528b7e292e963782e0e11b2a41b95fe9e4523be0231b93117f [stream]
+[debug] [2026-06-21T06:56:51.241Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/tryexpensio/versions/02dba31ddc96f2f5/files/750973bb04187834bc8303c935cf1ad78d33e608df3a31fc37c45b7b80668bcc [none]
+[debug] [2026-06-21T06:56:51.241Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/tryexpensio/versions/02dba31ddc96f2f5/files/750973bb04187834bc8303c935cf1ad78d33e608df3a31fc37c45b7b80668bcc [stream]
+[debug] [2026-06-21T06:56:51.245Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/tryexpensio/versions/02dba31ddc96f2f5/files/a70bc5e71b752bee0fa82694759da79a713b7c7ec974c6efc7e97b6235677c1c [none]
+[debug] [2026-06-21T06:56:51.245Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/tryexpensio/versions/02dba31ddc96f2f5/files/a70bc5e71b752bee0fa82694759da79a713b7c7ec974c6efc7e97b6235677c1c [stream]
+[debug] [2026-06-21T06:56:51.247Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/tryexpensio/versions/02dba31ddc96f2f5/files/23b0039e1291ea19e048f76c931e6c4e4676d47a18c40394bc57f4203785c7ef [none]
+[debug] [2026-06-21T06:56:51.248Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/tryexpensio/versions/02dba31ddc96f2f5/files/23b0039e1291ea19e048f76c931e6c4e4676d47a18c40394bc57f4203785c7ef [stream]
+[debug] [2026-06-21T06:56:51.250Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/tryexpensio/versions/02dba31ddc96f2f5/files/f43ea059ba7d987bc00071eafa40c773e2c80e5f1249873fcc1af4a9cacb636d [none]
+[debug] [2026-06-21T06:56:51.250Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/tryexpensio/versions/02dba31ddc96f2f5/files/f43ea059ba7d987bc00071eafa40c773e2c80e5f1249873fcc1af4a9cacb636d [stream]
+[debug] [2026-06-21T06:56:51.252Z] [hosting][populate queue][FINAL] {"max":812,"min":812,"avg":812,"active":0,"complete":1,"success":1,"errored":0,"retried":0,"total":1,"elapsed":834}
+[debug] [2026-06-21T06:56:51.252Z] [hosting] uploads queued: 7

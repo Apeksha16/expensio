@@ -171,7 +171,7 @@ import { MonthPickerComponent } from '../../shared/ui/month-picker/month-picker.
           </button>
           <div class="mt-4 text-center">
             <span class="text-[10px] font-bold tracking-widest text-gray-400 uppercase"
-              >Version 1.0.13</span
+              >Version 1.0.14</span
             >
           </div>
         </div>

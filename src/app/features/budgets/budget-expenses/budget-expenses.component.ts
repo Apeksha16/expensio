@@ -172,16 +172,22 @@ export class BudgetExpenses implements OnInit {
   async editExpense(expense: Expense) {
     if (expense.id.startsWith('split_')) {
       const splitId = expense.id.replace('split_', '');
-      const { data, error } = await this.supabaseService.client
-        .from('split_expenses')
-        .select('*, participants:split_participants(*)')
-        .eq('id', splitId)
-        .single();
-        
-      if (!error && data) {
-        this.splitService.openAddSplitSheet(data as any);
+      const existingSplit = this.splitService.splits().find(s => s.id === splitId);
+      if (existingSplit) {
+        this.splitService.openAddSplitSheet(existingSplit);
       } else {
-        this.toastService.showError('Could not load split expense.');
+        // Fallback if not loaded
+        const { data, error } = await this.supabaseService.client
+          .from('split_expenses')
+          .select('*')
+          .eq('id', splitId)
+          .single();
+          
+        if (!error && data) {
+          this.splitService.openAddSplitSheet(data as any);
+        } else {
+          this.toastService.showError('Could not load split expense.');
+        }
       }
       return;
     }
@@ -199,7 +205,7 @@ export class BudgetExpenses implements OnInit {
       'border-pink-500',
       'border-indigo-500',
       'border-teal-500',
-      'border-orange-500',
+      'border-cyan-500',
     ];
     let hash = 0;
     for (let i = 0; i < category.length; i++) {

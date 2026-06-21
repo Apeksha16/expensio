@@ -78,7 +78,6 @@ import { SafeInputDirective } from '../safe-input.directive';
                   >Description</label
                 >
                 <input
-                  appAutofocus
                   appSafeInput
                   type="text"
                   formControlName="title"
@@ -99,6 +98,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                     inputmode="numeric"
                     pattern="[0-9]*"
                     appAmountInput
+                    appAutofocus
                     formControlName="totalAmount"
                     placeholder="0"
                     (keydown)="preventE($event)"
