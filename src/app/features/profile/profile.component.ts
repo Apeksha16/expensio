@@ -117,6 +117,28 @@ import { ToastService } from '../../core/services/toast.service';
             </div>
           </div>
         </div>
+
+        <!-- Mask Values Preference -->
+        <div class="flex items-center justify-between mt-4">
+          <div class="flex flex-col">
+            <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase">Mask Values</label>
+            <span class="text-[10px] font-semibold text-gray-500 mt-0.5">Hide dashboard numbers on every visit</span>
+          </div>
+          <button
+            type="button"
+            (click)="toggleMaskValues()"
+            class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-none border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
+            [ngClass]="pendingProfile().maskValues ? 'bg-black' : 'bg-gray-200'"
+            role="switch"
+            [attr.aria-checked]="pendingProfile().maskValues"
+          >
+            <span
+              aria-hidden="true"
+              class="pointer-events-none inline-block h-5 w-5 transform rounded-none bg-white shadow ring-0 transition duration-200 ease-in-out"
+              [ngClass]="pendingProfile().maskValues ? 'translate-x-5' : 'translate-x-0'"
+            ></span>
+          </button>
+        </div>
       </div>
 
       <!-- Update Button -->
@@ -169,7 +191,8 @@ export class Profile {
     return (
       current.name !== pending.name ||
       current.salary !== pending.salary ||
-      current.avatarId !== pending.avatarId
+      current.avatarId !== pending.avatarId ||
+      current.maskValues !== pending.maskValues
     );
   });
 
@@ -183,6 +206,10 @@ export class Profile {
 
   updateField(field: keyof UserProfile, value: any) {
     this.pendingProfile.update((p) => ({ ...p, [field]: value }));
+  }
+
+  toggleMaskValues() {
+    this.pendingProfile.update(p => ({ ...p, maskValues: !p.maskValues }));
   }
 
   get formattedSalary(): string {

@@ -116,6 +116,8 @@ export class SplitService {
     } else if (data) {
       if (split.category === 'Pending Settlement') {
         this.toastService.showSuccess('Settlement requested! Waiting for confirmation.');
+      } else if (split.category === 'Settlement') {
+        this.toastService.showSuccess('Expense settled successfully!');
       } else {
         this.toastService.showSuccess('Split added successfully!');
       }
@@ -140,7 +142,7 @@ export class SplitService {
     }
   }
 
-  async updateSplit(split: SplitExpense) {
+  async updateSplit(split: SplitExpense, silent: boolean = false) {
     const { data, error } = await this.supabase.client
       .from('split_expenses')
       .update({
@@ -150,7 +152,8 @@ export class SplitService {
         participants: split.participants,
         participant_ids: split.participant_ids,
         category: split.category,
-        group_id: split.group_id
+        group_id: split.group_id,
+        date: split.date
       })
       .eq('id', split.id)
       .select()
@@ -159,8 +162,10 @@ export class SplitService {
     if (error) {
       console.error('Error updating split:', error);
       this.toastService.showError('Failed to update split. Please try again.');
-    } else if (data) {
+    } else if (data && !silent) {
       this.toastService.showSuccess('Split updated successfully!');
+      this.loadData();
+    } else if (data) {
       this.loadData();
     }
   }

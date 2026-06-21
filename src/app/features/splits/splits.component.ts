@@ -121,36 +121,38 @@ import { ToastService } from '../../core/services/toast.service';
                     </div>
                     <span class="font-extrabold text-lg text-black flex-shrink-0">₹{{ split.total_amount | number: '1.0-2' }}</span>
                   </div>
-                  <div class="flex justify-between items-center mt-1 w-full">
-                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
-                      <span class="whitespace-nowrap flex-shrink-0">Paid by {{ split.payer_id === currentUser().id ? 'Me' : getFriendName(split.payer_id) }}</span>
+                  <div class="flex justify-between items-center mt-1 w-full gap-2">
+                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest truncate min-w-0">
+                      <span class="truncate">Paid by {{ split.payer_id === currentUser().id ? 'Me' : getFriendName(split.payer_id) }}</span>
                     </span>
-                    @if (split.category === 'Pending Settlement') {
-                      <div class="flex items-center gap-2">
-                        <span class="text-[9px] font-extrabold text-orange-500 uppercase tracking-widest">Pending</span>
-                        @if (split.participants && split.participants[0]?.userId === currentUser().id) {
+                    @if (getExpenseBalance(split); as bal) {
+                      <div class="flex items-center gap-3">
+                        <span class="text-[10px] font-extrabold uppercase tracking-widest whitespace-nowrap" [ngClass]="bal.type === 'owed' ? 'text-green-500' : 'text-red-500'">
+                          ₹{{ bal.amount | number: '1.0-0' }}
+                        </span>
+                        
+                        @if (bal.pending) {
+                          @if (bal.type === 'owed') {
+                            <button
+                              (click)="confirmSettlement($event, split.id)"
+                              class="bg-green-500 text-white px-2 py-1 rounded-none text-[9px] font-extrabold uppercase tracking-widest hover:bg-green-600 transition-colors"
+                            >
+                              Confirm
+                            </button>
+                          } @else {
+                            <span class="text-[9px] font-extrabold text-orange-500 uppercase tracking-widest">Pending</span>
+                          }
+                        } @else {
                           <button
-                            (click)="confirmSettlement($event, split.id)"
-                            class="bg-green-500 text-white px-2 py-1 rounded-none text-[9px] font-extrabold uppercase tracking-widest hover:bg-green-600 transition-colors"
+                            (click)="settleIndividualSplit($event, split)"
+                            class="bg-black text-white px-2 py-1 rounded-none text-[9px] font-extrabold uppercase tracking-widest hover:bg-gray-800 transition-colors"
                           >
-                            Confirm
+                            Settle
                           </button>
                         }
                       </div>
-                    } @else if (split.category === 'Settlement') {
+                    } @else {
                        <span class="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest">Settled</span>
-                    } @else if (getExpenseBalance(split); as bal) {
-                      <div class="flex items-center gap-3">
-                        <span class="text-[10px] font-extrabold uppercase tracking-widest whitespace-nowrap" [ngClass]="bal.type === 'owed' ? 'text-green-500' : 'text-red-500'">
-                          {{ bal.type === 'owed' ? 'You are owed' : 'You owe' }} ₹{{ bal.amount | number: '1.0-0' }}
-                        </span>
-                        <button
-                          (click)="settleIndividualSplit($event, split)"
-                          class="bg-black text-white px-2 py-1 rounded-none text-[9px] font-extrabold uppercase tracking-widest hover:bg-gray-800 transition-colors"
-                        >
-                          Settle
-                        </button>
-                      </div>
                     }
                   </div>
                 </button>
@@ -272,19 +274,26 @@ export class Splits implements OnInit {
     return f ? f.profile.name.split(' ')[0] : id;
   }
 
-  getExpenseBalance(split: any): { type: 'owed' | 'owe', amount: number } | null {
+  getExpenseBalance(split: any): { type: 'owed' | 'owe', amount: number, pending?: boolean } | null {
     const me = this.currentUser().id;
     const myParticipant = split.participants?.find((p: any) => p.userId === me);
     if (!myParticipant) return null;
 
     if (split.payer_id === me) {
-      // I paid. Calculate how much others owe me.
-      const iAmOwed = split.total_amount - myParticipant.amountOwed;
-      if (iAmOwed > 0) return { type: 'owed', amount: iAmOwed };
+      let iAmOwed = 0;
+      let hasPending = false;
+      split.participants.forEach((p: any) => {
+        if (p.userId !== me && p.status !== 'settled') {
+          iAmOwed += p.amountOwed;
+          if (p.status === 'pending') hasPending = true;
+        }
+      });
+      if (iAmOwed > 0) return { type: 'owed', amount: iAmOwed, pending: hasPending };
       return null;
     } else {
-      // Someone else paid. I owe my share.
-      if (myParticipant.amountOwed > 0) return { type: 'owe', amount: myParticipant.amountOwed };
+      if (myParticipant.amountOwed > 0 && myParticipant.status !== 'settled') {
+        return { type: 'owe', amount: myParticipant.amountOwed, pending: myParticipant.status === 'pending' };
+      }
       return null;
     }
   }
@@ -317,30 +326,30 @@ export class Splits implements OnInit {
          });
 
          const promises: Promise<void>[] = [];
-         balances.forEach((amount, friendId) => {
-            if (Math.abs(amount) < 0.01) return;
-            
-            if (amount < 0) {
-              const settleSplit: Partial<SplitExpense> = {
-                title: 'Global Settlement',
-                category: 'Pending Settlement',
-                total_amount: Math.abs(amount),
-                payer_id: currentUserId,
-                participant_ids: [friendId],
-                participants: [{ userId: friendId, amountOwed: Math.abs(amount) }]
-              };
-              promises.push(this.splitService.addSplit(settleSplit as any));
-            } else {
-              const settleSplit: Partial<SplitExpense> = {
-                title: 'Global Settlement',
-                category: 'Settlement',
-                total_amount: amount,
-                payer_id: friendId,
-                participant_ids: [currentUserId],
-                participants: [{ userId: currentUserId, amountOwed: amount }]
-              };
-              promises.push(this.splitService.addSplit(settleSplit as any));
-            }
+         this.individualSplits().forEach(split => {
+           const updatedSplit = { ...split };
+           let changed = false;
+           
+           if (split.payer_id === currentUserId) {
+             updatedSplit.participants = updatedSplit.participants.map((p: any) => {
+               if (p.userId !== currentUserId && p.status !== 'settled') {
+                 changed = true;
+                 return { ...p, status: 'settled' };
+               }
+               return p;
+             });
+           } else {
+             updatedSplit.participants = updatedSplit.participants.map((p: any) => {
+               if (p.userId === currentUserId && p.status !== 'settled' && p.status !== 'pending') {
+                 changed = true;
+                 return { ...p, status: 'pending' };
+               }
+               return p;
+             });
+           }
+           if (changed) {
+             promises.push(this.splitService.updateSplit(updatedSplit as any, true));
+           }
          });
 
          await Promise.all(promises);
@@ -355,9 +364,20 @@ export class Splits implements OnInit {
     if (!bal) return;
 
     const isOwed = bal.type === 'owed';
+    
+    let targetName = 'everyone';
+    if (!isOwed) {
+      targetName = this.getFriendName(split.payer_id);
+    } else {
+      const otherPart = split.participants?.find((p: any) => p.userId !== this.currentUser()!.id && p.amountOwed > 0);
+      if (otherPart) {
+        targetName = this.getFriendName(otherPart.userId);
+      }
+    }
+
     const message = isOwed
-      ? 'Are you confirm that you have received the money for this expense?'
-      : 'Are you sure you have paid this amount to someone?';
+      ? `Are you confirm that you have received the money from ${targetName}?`
+      : `Are you sure you have paid this amount to ${targetName}?`;
 
     this.confirmService.open({
       title: 'Settle Expense',
@@ -365,33 +385,20 @@ export class Splits implements OnInit {
       confirmText: 'Confirm',
       cancelText: 'Cancel',
       onConfirm: async () => {
+        const updatedSplit = { ...split };
+        const myId = this.currentUser()!.id;
         if (!isOwed) {
-          const settleSplit: Partial<SplitExpense> = {
-            title: 'Settle: ' + split.title,
-            category: 'Pending Settlement',
-            total_amount: bal.amount,
-            group_id: split.group_id,
-            payer_id: this.currentUser()!.id,
-            participant_ids: [split.payer_id],
-            participants: [{ userId: split.payer_id, amountOwed: bal.amount }]
-          };
-          await this.splitService.addSplit(settleSplit as any);
+          updatedSplit.participants = updatedSplit.participants.map((p: any) => 
+            p.userId === myId ? { ...p, status: 'pending' } : p
+          );
+          await this.splitService.updateSplit(updatedSplit as any, true);
+          this.toastService.showSuccess('Settlement requested! Waiting for confirmation.');
         } else {
-          const promises = split.participants
-            .filter(p => p.userId !== this.currentUser()!.id && p.amountOwed > 0)
-            .map(p => {
-              const settleSplit: Partial<SplitExpense> = {
-                title: 'Settle: ' + split.title,
-                category: 'Settlement',
-                total_amount: p.amountOwed,
-                group_id: split.group_id,
-                payer_id: p.userId,
-                participant_ids: [this.currentUser()!.id],
-                participants: [{ userId: this.currentUser()!.id, amountOwed: p.amountOwed }]
-              };
-              return this.splitService.addSplit(settleSplit as any);
-            });
-          await Promise.all(promises);
+          updatedSplit.participants = updatedSplit.participants.map((p: any) => 
+            (p.userId !== myId && p.amountOwed > 0) ? { ...p, status: 'settled' } : p
+          );
+          await this.splitService.updateSplit(updatedSplit as any, true);
+          this.toastService.showSuccess('Expense settled successfully!');
         }
       }
     });
@@ -399,10 +406,19 @@ export class Splits implements OnInit {
 
   confirmSettlement(event: Event, splitId: string) {
     event.stopPropagation();
-    this.splitService.approveSettlement(splitId);
+    const split = this.splitService.splits().find((s: any) => s.id === splitId);
+    if (!split) return;
+    
+    const updatedSplit = { ...split };
+    updatedSplit.participants = updatedSplit.participants.map((p: any) => 
+      p.status === 'pending' ? { ...p, status: 'settled' } : p
+    );
+    this.splitService.updateSplit(updatedSplit as any, true);
+    this.toastService.showSuccess('Settlement confirmed!');
   }
 
   editSplit(split: SplitExpense) {
+    if (split.category === 'Settlement' || split.category === 'Pending Settlement') return;
     if (split.payer_id !== this.currentUser().id) {
        this.toastService.showError("You can only edit expenses that you added.");
        return;

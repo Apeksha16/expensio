@@ -11,6 +11,7 @@ export interface UserProfile {
   email: string;
   salary: number;
   avatarId: number;
+  maskValues: boolean;
 }
 
 @Injectable({
@@ -59,9 +60,10 @@ export class AuthService {
     username: 'user',
     email: '',
     salary: 0,
-    avatarId: 1
+    avatarId: 1,
+    maskValues: false
   }, {
-    equal: (a, b) => a.name === b.name && a.username === b.username && a.salary === b.salary && a.avatarId === b.avatarId && a.email === b.email
+    equal: (a, b) => a.name === b.name && a.username === b.username && a.salary === b.salary && a.avatarId === b.avatarId && a.email === b.email && a.maskValues === b.maskValues
   });
 
   constructor() {
@@ -97,7 +99,8 @@ export class AuthService {
           username: metadata['preferred_username'] || metadata['username'] || session.user.email?.split('@')[0] || 'user',
           email: session.user.email || '',
           salary: metadata['salary'] || 0,
-          avatarId: metadata['avatarId'] || 1
+          avatarId: metadata['avatarId'] || 1,
+          maskValues: metadata['maskValues'] === true
         });
 
         // Always onboarded since onboarding happens pre-signup now
@@ -142,7 +145,8 @@ export class AuthService {
         full_name: profile.name,
         preferred_username: profile.username,
         salary: profile.salary,
-        avatarId: profile.avatarId
+        avatarId: profile.avatarId,
+        maskValues: profile.maskValues
       }
     });
 

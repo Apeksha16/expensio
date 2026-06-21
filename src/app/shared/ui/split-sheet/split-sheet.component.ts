@@ -59,7 +59,7 @@ import { SafeInputDirective } from '../safe-input.directive';
 
         <!-- Header -->
         <div
-          class="flex justify-between items-center py-4 px-6 bg-black border-b border-black text-white sticky top-0 z-10"
+          class="flex justify-between items-center py-4 px-6 bg-black border-b border-black text-white sticky top-[-2px] z-10"
         >
           <h2 class="text-xl font-extrabold tracking-tight">{{ splitService.editingSplit()?.id ? 'Edit Split Expense' : 'Add Split Expense' }}</h2>
           @if (splitService.editingSplit()?.id) {
@@ -71,6 +71,17 @@ import { SafeInputDirective } from '../safe-input.directive';
           }
         </div>
         <div class="p-6 bg-white flex-1">
+          @if (splitService.editingSplit()?.id) {
+            <div class="flex justify-center mb-5">
+              <span class="text-[9px] font-extrabold tracking-widest uppercase text-gray-400 bg-gray-100 px-3 py-1 rounded-full">
+                @if (isUpdated()) {
+                  Updated {{ splitService.editingSplit()?.date | date: 'medium' }}
+                } @else {
+                  Added {{ splitService.editingSplit()?.created_at | date: 'medium' }}
+                }
+              </span>
+            </div>
+          }
           @if (friendService.acceptedFriends().length > 0) {
             <form [formGroup]="splitForm" (ngSubmit)="onSubmit()" class="space-y-4">
               <div class="flex flex-col gap-1">
@@ -78,6 +89,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                   >Description</label
                 >
                 <input
+                  appAutofocus
                   appSafeInput
                   type="text"
                   formControlName="title"
@@ -98,7 +110,6 @@ import { SafeInputDirective } from '../safe-input.directive';
                     inputmode="numeric"
                     pattern="[0-9]*"
                     appAmountInput
-                    appAutofocus
                     formControlName="totalAmount"
                     placeholder="0"
                     (keydown)="preventE($event)"
@@ -571,6 +582,13 @@ export class SplitSheetComponent implements OnInit {
     return true;
   }
 
+  isUpdated(): boolean {
+    const split = this.splitService.editingSplit();
+    if (!split || !split.created_at || !split.date) return false;
+    const diff = Math.abs(new Date(split.date).getTime() - new Date(split.created_at).getTime());
+    return diff > 5000;
+  }
+
   onSubmit() {
     if (!this.isFormValid()) return;
 
@@ -606,6 +624,7 @@ export class SplitSheetComponent implements OnInit {
         participants: participants,
         participant_ids: participants.map((p) => p.userId),
         category: v.category || null,
+        date: new Date().toISOString(),
       };
       this.splitService.updateSplit(updatedSplit);
     } else {

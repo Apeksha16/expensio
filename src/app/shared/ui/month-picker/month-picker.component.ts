@@ -45,7 +45,7 @@ import { MonthPickerService } from '../../../core/services/month-picker.service'
       <div
         @slideUp
         appSwipeToClose (swipeClose)="close()"
-        class="fixed bottom-0 left-0 right-0 bg-black border-t-2 border-l-2 border-r-2 border-black z-[90] 
+        class="fixed bottom-0 left-0 right-0 bg-black z-[90] 
                max-h-[80vh] overflow-y-auto overscroll-none flex flex-col shadow-2xl"
       >
 

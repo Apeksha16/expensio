@@ -71,7 +71,7 @@ import { SafeInputDirective } from '../safe-input.directive';
 
         <!-- Header -->
         <div
-          class="flex justify-between items-center py-4 px-6 bg-black text-white sticky top-0 z-10 shrink-0"
+          class="flex justify-between items-center py-4 px-6 bg-black text-white sticky top-[-2px] z-10 shrink-0"
         >
           <h2 class="text-xl font-extrabold tracking-tight">
             {{ isAddMode ? 'Add Friend' : 'Remove Friend' }}

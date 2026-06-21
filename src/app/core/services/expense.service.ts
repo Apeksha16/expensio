@@ -10,6 +10,7 @@ export interface Expense {
   amount: number;
   category: string;
   date: string;
+  created_at?: string;
 }
 
 @Injectable({

@@ -46,10 +46,10 @@ import { HapticService } from '../../../core/services/haptic.service';
       <div
         @slideUp
         appSwipeToClose (swipeClose)="close()"
-        class="fixed bottom-0 left-0 right-0 bg-black border-t-2 border-l-2 border-r-2 border-black z-[90] 
-               overflow-y-auto overscroll-none flex flex-col shadow-2xl"
+        class="fixed bottom-0 left-0 right-0 bg-black z-[90] 
+               max-h-[80vh] overflow-y-auto overscroll-none flex flex-col shadow-2xl"
       >
-        <div class="p-6 pt-4 pb-4 border-b-2 border-black bg-black text-white">
+        <div class="p-6 pt-4 pb-4 border-b-2 border-black bg-black text-white sticky top-[-2px] z-10">
           <div class="flex justify-between items-center mb-6">
             <h2 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">
               Select Date

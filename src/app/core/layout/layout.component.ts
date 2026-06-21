@@ -171,7 +171,7 @@ import { MonthPickerComponent } from '../../shared/ui/month-picker/month-picker.
           </button>
           <div class="mt-4 text-center">
             <span class="text-[10px] font-bold tracking-widest text-gray-400 uppercase"
-              >Version 1.0.17</span
+              >Version 1.0.18</span
             >
           </div>
         </div>
@@ -196,14 +196,13 @@ import { MonthPickerComponent } from '../../shared/ui/month-picker/month-picker.
                 [routerLink]="item.path"
                 routerLinkActive="bg-black text-white"
                 [routerLinkActiveOptions]="{ exact: false }"
-                class="flex flex-col items-center justify-center w-full h-full text-gray-500 hover:text-black hover:bg-gray-100 transition-colors rounded-none"
+                class="flex items-center justify-center w-full h-full text-gray-500 hover:text-black hover:bg-gray-100 transition-colors rounded-none"
               >
                 <span
                   [innerHTML]="item.icon"
-                  class="w-6 h-6 mb-1"
+                  class="w-7 h-7"
                   [ngClass]="{ 'text-current': true }"
                 ></span>
-                <span class="text-[10px] font-bold">{{ item.name }}</span>
               </a>
             }
           </div>

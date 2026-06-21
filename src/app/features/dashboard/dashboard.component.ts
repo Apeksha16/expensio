@@ -13,6 +13,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { Chart } from 'chart.js/auto';
 import { ExpenseService } from '../../core/services/expense.service';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -39,54 +40,45 @@ import { ExpenseService } from '../../core/services/expense.service';
           </div>
           <div class="flex-1 bg-gray-100 animate-pulse w-full"></div>
         </div>
-        <!-- Shortcuts Shimmer -->
-        <div class="grid grid-cols-4 gap-2">
-          @for (i of [1, 2, 3, 4]; track i) {
-            <div class="bg-gray-200 border-2 border-gray-300 rounded-none h-20 animate-pulse"></div>
-          }
+        <!-- Recent Transactions Shimmer -->
+        <div class="flex flex-col gap-3 mt-2">
+          <div class="h-6 bg-gray-200 w-40 animate-pulse"></div>
+          <div class="flex flex-col gap-2">
+            @for (i of [1, 2, 3]; track i) {
+              <div class="bg-white border-2 border-gray-300 rounded-none h-[68px] animate-pulse"></div>
+            }
+          </div>
         </div>
       } @else {
         <!-- Total Expenses Box -->
-        <div class="bg-black text-white p-6 border-2 border-black rounded-none relative">
-          <div class="flex justify-between items-center mb-1">
-            <h2 class="text-xs font-bold text-gray-400 uppercase tracking-widest">This Month</h2>
-            <button (click)="toggleMask()" class="text-gray-400 hover:text-white transition-colors">
-              @if (isMasked()) {
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.29 3.29m0 0a10.05 10.05 0 015.71-1.29c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
-                  />
-                </svg>
-              }
-              @if (!isMasked()) {
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                  />
-                </svg>
-              }
-            </button>
+        <div class="bg-black text-white p-6 border-2 border-black rounded-none relative overflow-hidden">
+          <div class="flex flex-col items-center justify-center relative mt-2">
+            <svg viewBox="0 0 100 55" class="w-full max-w-[220px] drop-shadow-xl">
+              <!-- Background track -->
+              <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#333" stroke-width="8" stroke-linecap="butt" />
+              <!-- Progress -->
+              <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" [attr.stroke]="gaugeColor()" stroke-width="8" stroke-linecap="butt"
+                    stroke-dasharray="125.66" [attr.stroke-dashoffset]="gaugeOffset()"
+                    class="transition-all duration-1000 ease-out" />
+            </svg>
+            <div class="absolute bottom-0 flex flex-col items-center translate-y-1 cursor-pointer" (click)="toggleMask()">
+              <h2 class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Remaining</h2>
+              <p class="text-3xl font-black tracking-tighter transition-colors duration-500" [style.color]="gaugeColor()">
+                {{ remainingAmount() | currency: 'INR' : 'symbol' : '1.0-0' }}
+              </p>
+            </div>
           </div>
-          <p
-            (click)="toggleMask()"
-            class="text-4xl font-extrabold tracking-tight cursor-pointer select-none"
-          >
-            {{
-              isMasked() ? '••••••••' : (thisMonthTotal() | currency: 'INR' : 'symbol' : '1.2-2')
-            }}
-          </p>
+          
+          <div class="flex justify-between items-end mt-6 pt-4 border-t-2 border-gray-800 cursor-pointer" (click)="toggleMask()">
+            <div>
+              <p class="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Spent</p>
+              <p class="text-sm font-bold text-white transition-all">{{ isMasked() ? '••••' : (thisMonthTotal() | currency: 'INR' : 'symbol' : '1.0-0') }}</p>
+            </div>
+            <div class="text-right">
+              <p class="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Limit</p>
+              <p class="text-sm font-bold text-white transition-all">{{ isMasked() ? '••••' : (salary() | currency: 'INR' : 'symbol' : '1.0-0') }}</p>
+            </div>
+          </div>
         </div>
         <!-- Chart Section -->
         <div class="bg-white border-2 border-black rounded-none p-5">
@@ -120,82 +112,36 @@ import { ExpenseService } from '../../core/services/expense.service';
             <canvas #chartCanvas></canvas>
           </div>
         </div>
-        <!-- Shortcuts Section -->
-        <div class="grid grid-cols-4 gap-2">
-          <button
-            (click)="openAddExpense()"
-            class="bg-white border-2 border-black rounded-none p-2 flex flex-col items-center justify-center gap-2 hover:bg-black hover:text-white transition-colors group"
-          >
-            <svg
-              class="w-5 h-5 group-hover:text-white"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="2"
-              stroke="currentColor"
-            >
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
-            <span class="font-bold text-[9px] text-center leading-tight">Add<br />Expense</span>
-          </button>
-          <button
-            class="bg-white border-2 border-black rounded-none p-2 flex flex-col items-center justify-center gap-2 hover:bg-black hover:text-white transition-colors group"
-          >
-            <svg
-              class="w-5 h-5 group-hover:text-white"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="2"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z"
-              />
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z"
-              />
-            </svg>
-            <span class="font-bold text-[9px] text-center leading-tight">Budget</span>
-          </button>
-          <button
-            class="bg-white border-2 border-black rounded-none p-2 flex flex-col items-center justify-center gap-2 hover:bg-black hover:text-white transition-colors group"
-          >
-            <svg
-              class="w-5 h-5 group-hover:text-white"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="2"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"
-              />
-            </svg>
-            <span class="font-bold text-[9px] text-center leading-tight">Group</span>
-          </button>
-          <button
-            class="bg-white border-2 border-black rounded-none p-2 flex flex-col items-center justify-center gap-2 hover:bg-black hover:text-white transition-colors group"
-          >
-            <svg
-              class="w-5 h-5 group-hover:text-white"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="2"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"
-              />
-            </svg>
-            <span class="font-bold text-[9px] text-center leading-tight">Friend</span>
-          </button>
+        <!-- Recent Transactions -->
+        <div class="flex flex-col gap-3 mt-2">
+          <div class="flex justify-between items-end mb-1">
+            <h3 class="text-lg font-bold">Recent Transactions</h3>
+          </div>
+          <div class="flex flex-col gap-2">
+            @for (expense of recentExpenses(); track expense.id) {
+              <div
+                class="w-full bg-gray-200 rounded-none p-3 flex justify-between items-center text-left border-l-4"
+                [ngClass]="getCategoryColor(expense.category)"
+              >
+                <div class="flex flex-col gap-0.5 flex-1 min-w-0 pr-4">
+                  <span class="font-extrabold text-lg text-black truncate">{{ expense.title }}</span>
+                  <div class="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-widest min-w-0">
+                    <span class="truncate">{{ expense.category }}</span>
+                    <span class="flex-shrink-0">•</span>
+                    <span class="whitespace-nowrap flex-shrink-0">{{ expense.date | date: 'MMM d, h:mm a' }}</span>
+                  </div>
+                </div>
+                <div class="flex flex-col items-end gap-2 flex-shrink-0">
+                  <span class="font-extrabold text-xl">₹{{ expense.amount | number: '1.2-2' }}</span>
+                </div>
+              </div>
+            }
+            @if (recentExpenses().length === 0) {
+              <div class="w-full bg-white border-2 border-dashed border-gray-300 rounded-none p-6 flex flex-col items-center justify-center text-gray-400">
+                <span class="text-sm font-bold uppercase tracking-widest">No Transactions</span>
+              </div>
+            }
+          </div>
         </div>
       }
     </div>
@@ -204,13 +150,30 @@ import { ExpenseService } from '../../core/services/expense.service';
 })
 export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   private expenseService = inject(ExpenseService);
+  private authService = inject(AuthService);
 
   chartType: 'weekly' | 'monthly' = 'weekly';
   chartInstance: any;
+  isInitialLoading = computed(() => this.expenseService.isLoading());
   isMasked = signal(false);
-  isInitialLoading = signal(false);
 
-  @ViewChild('chartCanvas') chartCanvas!: ElementRef;
+  private chartCanvasRef!: ElementRef;
+
+  @ViewChild('chartCanvas') set chartCanvas(el: ElementRef | undefined) {
+    if (el) {
+      this.chartCanvasRef = el;
+      if (!this.chartInstance) {
+        setTimeout(() => {
+          this.initChart();
+        });
+      }
+    } else {
+      if (this.chartInstance) {
+        this.chartInstance.destroy();
+        this.chartInstance = null;
+      }
+    }
+  }
 
   thisMonthTotal = computed(() => {
     const month = this.expenseService.activeMonth();
@@ -219,6 +182,50 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
       .filter((e) => e.date.startsWith(month))
       .reduce((sum, e) => sum + e.amount, 0);
   });
+
+  salary = computed(() => this.authService.userProfile().salary || 0);
+
+  remainingAmount = computed(() => {
+    const s = this.salary();
+    const spent = this.thisMonthTotal();
+    return Math.max(0, s - spent);
+  });
+
+  percentage = computed(() => {
+    const total = this.thisMonthTotal();
+    const max = this.salary();
+    if (max <= 0) return 0;
+    return Math.min(total / max, 1);
+  });
+
+  gaugeColor = computed(() => {
+    const p = this.percentage();
+    if (p < 0.25) return '#3b82f6'; // blue
+    if (p < 0.50) return '#22c55e'; // green
+    if (p < 0.80) return '#eab308'; // yellow
+    return '#ef4444'; // red
+  });
+
+  gaugeOffset = computed(() => {
+    const p = this.percentage();
+    return 125.66 * (1 - p);
+  });
+
+  recentExpenses = computed(() => {
+    return this.expenseService.expenses()
+      .sort((a, b) => new Date(b.created_at || b.date).getTime() - new Date(a.created_at || a.date).getTime())
+      .slice(0, 5);
+  });
+
+  getCategoryColor(category: string): string {
+    if (!category) return 'border-black';
+    if (category.includes('(Group Split)')) {
+      return 'border-purple-600';
+    } else if (category.includes('(Split)')) {
+      return 'border-blue-600';
+    }
+    return 'border-black';
+  }
 
   constructor() {
     effect(() => {
@@ -231,13 +238,10 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit() {
-    // Initial loading is now immediate, no simulation
+    this.isMasked.set(this.authService.userProfile().maskValues);
   }
 
   ngAfterViewInit() {
-    if (!this.isInitialLoading()) {
-      this.initChart();
-    }
   }
 
   ngOnDestroy() {
@@ -246,8 +250,12 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+
+
   toggleMask() {
-    this.isMasked.update((v) => !v);
+    if (this.authService.userProfile().maskValues) {
+      this.isMasked.update((v) => !v);
+    }
   }
 
   openAddExpense() {
@@ -260,9 +268,13 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private initChart() {
-    if (!this.chartCanvas) return;
+    if (!this.chartCanvasRef) return;
 
-    const ctx = this.chartCanvas.nativeElement.getContext('2d');
+    if (this.chartInstance) {
+      this.chartInstance.destroy();
+    }
+
+    const ctx = this.chartCanvasRef.nativeElement.getContext('2d');
 
     this.chartInstance = new Chart(ctx, {
       type: 'bar',

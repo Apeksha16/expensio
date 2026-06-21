@@ -55,7 +55,7 @@ import { SafeInputDirective } from '../safe-input.directive';
 
         <!-- Header -->
         <div
-          class="flex justify-between items-center py-4 px-6 bg-black border-b border-black text-white sticky top-0 z-10"
+          class="flex justify-between items-center py-4 px-6 bg-black border-b border-black text-white sticky top-[-2px] z-10"
         >
           <h2 class="text-xl font-extrabold tracking-tight">
             {{ isEditing ? 'Edit expense' : 'Add expense' }}
@@ -105,6 +105,13 @@ import { SafeInputDirective } from '../safe-input.directive';
           </div>
         </div>
         <div class="p-6 bg-white flex-1">
+          @if (isEditing) {
+            <div class="flex justify-center mb-5">
+              <span class="text-[9px] font-extrabold tracking-widest uppercase text-gray-400 bg-gray-100 px-3 py-1 rounded-full">
+                Added {{ expenseService.editingExpense()?.created_at | date: 'medium' }}
+              </span>
+            </div>
+          }
           <form [formGroup]="expenseForm" (ngSubmit)="onSubmit()" class="space-y-4">
             <!-- Amount -->
             <div class="flex flex-col gap-1">

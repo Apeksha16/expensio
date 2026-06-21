@@ -12,6 +12,7 @@ export interface Budget {
   icon_path: string;
   month: string;
   auto_rollover: boolean;
+  created_at?: string;
 }
 
 @Injectable({
