@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { AuthLayoutComponent } from './auth-layout.component';
 import { FormsModule } from '@angular/forms';
 import { AutofocusDirective } from '../../../../shared/ui/autofocus.directive';
+import { SafeInputDirective } from '../../../../shared/ui/safe-input.directive';
 
 import { Button } from '../../../../shared/ui/button/button.component';
 import { SupabaseService } from '../../../../core/services/supabase.service';
@@ -13,7 +14,7 @@ import { KeyboardService } from '../../../../core/services/keyboard.service';
 @Component({
   selector: 'app-enter-email',
   standalone: true,
-  imports: [Button, FormsModule, AuthLayoutComponent, AutofocusDirective],
+  imports: [Button, FormsModule, AuthLayoutComponent, AutofocusDirective, SafeInputDirective],
   host: {
     class: 'block w-full h-full',
   },
@@ -49,6 +50,7 @@ import { KeyboardService } from '../../../../core/services/keyboard.service';
                   placeholder="Username or Email"
                   class="w-full px-4 py-3 bg-transparent text-black placeholder-gray-500 font-bold focus:outline-none border-0 focus:ring-0 m-0"
                   appAutofocus
+                  appSafeInput
                 />
               </div>
               <p

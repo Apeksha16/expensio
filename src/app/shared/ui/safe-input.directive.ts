@@ -6,8 +6,8 @@ import { NgControl } from '@angular/forms';
   standalone: true
 })
 export class SafeInputDirective {
-  // Allow letters, numbers, space, underscore, slash, dot, comma, hyphen
-  private allowedRegex = /^[a-zA-Z0-9_\ \/\.,\-]*$/;
+  // Allow letters, numbers, space, underscore, slash, dot, comma, hyphen, @
+  private allowedRegex = /^[a-zA-Z0-9_\ \/\.,\-@]*$/;
 
   constructor(private el: ElementRef, private control: NgControl) {}
 

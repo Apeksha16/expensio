@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { AuthLayoutComponent } from './auth-layout.component';
 
 import { FormsModule } from '@angular/forms';
+import { SafeInputDirective } from '../../../../shared/ui/safe-input.directive';
 import { Button } from '../../../../shared/ui/button/button.component';
 import { SupabaseService } from '../../../../core/services/supabase.service';
 import { ToastService } from '../../../../core/services/toast.service';
@@ -11,7 +12,7 @@ import { LoginStateService } from '../login-state.service';
 @Component({
   selector: 'app-onboarding-profile',
   standalone: true,
-  imports: [Button, FormsModule, AuthLayoutComponent],
+  imports: [Button, FormsModule, AuthLayoutComponent, SafeInputDirective],
   host: {
     class: 'block w-full h-full',
   },
@@ -41,6 +42,7 @@ import { LoginStateService } from '../login-state.service';
                   autofocus
                   class="w-full px-4 py-3 bg-transparent text-black placeholder-gray-500 font-bold focus:outline-none border-0 focus:ring-0 m-0"
                   required
+                  appSafeInput
                 />
               </div>
               <p

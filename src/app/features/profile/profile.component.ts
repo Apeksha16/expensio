@@ -3,13 +3,14 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService, UserProfile } from '../../core/services/auth.service';
 import { SupabaseService } from '../../core/services/supabase.service';
+import { SafeInputDirective } from '../../shared/ui/safe-input.directive';
 import { ConfirmService } from '../../core/services/confirm.service';
 import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, SafeInputDirective],
   template: `
     <div class="bg-gray-50 p-6 flex flex-col gap-8">
       <!-- Top Selected Avatar & Selection List -->
@@ -56,6 +57,7 @@ import { ToastService } from '../../core/services/toast.service';
               (ngModelChange)="updateField('name', $event)"
               class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-[#1a2e22] hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans"
               placeholder="e.g. Jane Doe"
+              appSafeInput
             />
           </div>
         </div>
