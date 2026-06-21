@@ -47,7 +47,7 @@ import { HapticService } from '../../../core/services/haptic.service';
         @slideUp
         appSwipeToClose (swipeClose)="close()"
         class="fixed bottom-0 left-0 right-0 bg-black border-t-2 border-l-2 border-r-2 border-black z-[90] 
-               overflow-y-auto overscroll-contain flex flex-col shadow-2xl"
+               overflow-y-auto overscroll-none flex flex-col shadow-2xl"
       >
         <div class="p-6 pt-4 pb-4 border-b-2 border-black bg-black text-white">
           <div class="flex justify-between items-center mb-6">

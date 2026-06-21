@@ -33,7 +33,7 @@ html, body {
   -webkit-tap-highlight-color: transparent;
   -webkit-user-select: none; /* Prevent accidental text selection */
   user-select: none;
-  overscroll-behavior-x: none; /* Prevent horizontal swipe navigation */
+  overscroll-behavior: none; /* Prevent scroll chaining and bounce on iOS */
 }
 
 app-root {

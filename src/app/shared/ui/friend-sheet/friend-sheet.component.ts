@@ -77,7 +77,7 @@ import { SafeInputDirective } from '../safe-input.directive';
             {{ isAddMode ? 'Add Friend' : 'Remove Friend' }}
           </h2>
         </div>
-        <div class="p-6 flex flex-col gap-6 overflow-y-auto overscroll-contain bg-white flex-1">
+        <div class="p-6 flex flex-col gap-6 overflow-y-auto overscroll-none bg-white flex-1">
           <!-- ADD MODE -->
           @if (isAddMode) {
             <form (submit)="$event.preventDefault(); sendRequest()" class="space-y-4">

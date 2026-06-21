@@ -114,7 +114,28 @@ export class SplitService {
       console.error('Error adding split:', error);
       this.toastService.showError('Failed to add split. Please try again.');
     } else if (data) {
-      this.toastService.showSuccess('Split added successfully!');
+      if (split.category === 'Pending Settlement') {
+        this.toastService.showSuccess('Settlement requested! Waiting for confirmation.');
+      } else {
+        this.toastService.showSuccess('Split added successfully!');
+      }
+      this.loadData();
+    }
+  }
+
+  async approveSettlement(splitId: string) {
+    const { data, error } = await this.supabase.client
+      .from('split_expenses')
+      .update({ category: 'Settlement' })
+      .eq('id', splitId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error approving settlement:', error);
+      this.toastService.showError('Failed to confirm settlement.');
+    } else if (data) {
+      this.toastService.showSuccess('Settlement confirmed!');
       this.loadData();
     }
   }

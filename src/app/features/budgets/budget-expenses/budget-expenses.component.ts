@@ -195,22 +195,12 @@ export class BudgetExpenses implements OnInit {
   }
 
   getCategoryColor(category: string): string {
-    if (!category) return 'border-gray-400';
-    const colors = [
-      'border-red-500',
-      'border-blue-500',
-      'border-green-500',
-      'border-yellow-500',
-      'border-purple-500',
-      'border-pink-500',
-      'border-indigo-500',
-      'border-teal-500',
-      'border-cyan-500',
-    ];
-    let hash = 0;
-    for (let i = 0; i < category.length; i++) {
-      hash = category.charCodeAt(i) + ((hash << 5) - hash);
+    if (!category) return 'border-black';
+    if (category.includes('(Group Split)')) {
+      return 'border-purple-600';
+    } else if (category.includes('(Split)')) {
+      return 'border-blue-600';
     }
-    return colors[Math.abs(hash) % colors.length];
+    return 'border-black';
   }
 }

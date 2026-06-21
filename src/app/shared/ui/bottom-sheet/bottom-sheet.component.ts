@@ -50,7 +50,7 @@ import { SafeInputDirective } from '../safe-input.directive';
         (swipeClose)="close()"
         @slideUp
         class="fixed bottom-0 left-0 right-0 bg-black z-[70] 
-               max-h-[95vh] overflow-y-auto overscroll-contain flex flex-col shadow-2xl"
+               max-h-[95vh] overflow-y-auto overscroll-none flex flex-col shadow-2xl"
       >
 
         <!-- Header -->

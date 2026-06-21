@@ -206,11 +206,11 @@ import { UserProfile } from '../../core/services/auth.service';
                       (click)="friendService.openRemoveSheet(friend)"
                       class="w-full bg-gray-200 rounded-none p-3 flex items-center gap-4 text-left hover:bg-gray-300 transition-colors active:bg-gray-400"
                     >
-                      <div
-                        class="w-12 h-12 rounded-full border-2 border-black bg-white flex items-center justify-center font-extrabold text-xl text-black shrink-0"
-                      >
-                        {{ friend.profile.name.charAt(0) }}
-                      </div>
+                      <img
+                        [src]="authService.getAvatarUrl(friend.profile.avatarId)"
+                        alt="Avatar"
+                        class="w-12 h-12 rounded-full border-2 border-black object-cover shrink-0"
+                      />
                       <div class="flex flex-col gap-0.5 flex-1">
                         <span class="font-extrabold text-lg text-black">{{
                           friend.profile.name

@@ -125,7 +125,7 @@ import { MonthPickerComponent } from '../../shared/ui/month-picker/month-picker.
           }}</span>
         </div>
 
-        <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto overscroll-contain">
+        <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto overscroll-none">
           @for (item of navItems; track item) {
             <a
               [routerLink]="item.path"
@@ -171,7 +171,7 @@ import { MonthPickerComponent } from '../../shared/ui/month-picker/month-picker.
           </button>
           <div class="mt-4 text-center">
             <span class="text-[10px] font-bold tracking-widest text-gray-400 uppercase"
-              >Version 1.0.15</span
+              >Version 1.0.17</span
             >
           </div>
         </div>
