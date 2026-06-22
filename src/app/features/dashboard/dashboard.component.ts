@@ -19,6 +19,7 @@ import { ToastService } from '../../core/services/toast.service';
 import { SplitService } from '../../core/services/split.service';
 import { SupabaseService } from '../../core/services/supabase.service';
 import { SubscriptionService } from '../../core/services/subscription.service';
+import { ConfirmService } from '../../core/services/confirm.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -31,22 +32,46 @@ import { SubscriptionService } from '../../core/services/subscription.service';
     <div class="flex-1 bg-gray-50 p-6 flex flex-col gap-6 pb-36">
       @if (isInitialLoading()) {
         <!-- Total Expenses Shimmer -->
-        <div class="bg-black text-white p-6 border-2 border-black rounded-none relative h-[120px]">
-          <div class="flex flex-col gap-3 relative z-10 mt-1">
-            <div class="h-3 bg-gray-800 w-24 animate-pulse"></div>
-            <div class="h-10 bg-gray-800 w-32 animate-pulse mt-1"></div>
+        <div class="bg-black text-white p-6 border-2 border-black rounded-none relative overflow-hidden">
+          <div class="flex flex-col items-center justify-center relative mt-2">
+            <div class="w-full max-w-[220px] aspect-[100/55] bg-gray-900 rounded-t-full animate-pulse"></div>
+            <div class="absolute bottom-0 flex flex-col items-center translate-y-1">
+              <div class="h-2 bg-gray-800 w-16 mb-2 animate-pulse"></div>
+              <div class="h-8 bg-gray-800 w-32 animate-pulse"></div>
+            </div>
+          </div>
+          
+          <div class="flex justify-between items-end mt-6 pt-4 border-t-2 border-gray-800">
+            <div>
+              <div class="h-2 bg-gray-800 w-10 mb-2 animate-pulse"></div>
+              <div class="h-4 bg-gray-800 w-16 animate-pulse"></div>
+            </div>
+            <div class="flex flex-col items-end">
+              <div class="h-2 bg-gray-800 w-10 mb-2 animate-pulse"></div>
+              <div class="h-4 bg-gray-800 w-16 animate-pulse"></div>
+            </div>
           </div>
         </div>
-        <!-- Chart Section Shimmer -->
-        <div class="bg-white border-2 border-black rounded-none p-5 flex flex-col gap-6 h-[340px]">
-          <div class="flex justify-between items-center">
-            <div class="h-6 bg-gray-200 w-24 animate-pulse"></div>
-            <div class="h-8 bg-gray-200 w-32 animate-pulse"></div>
+        <!-- Upcoming Payments Shimmer -->
+        <div class="flex flex-col gap-3">
+          <div class="h-6 bg-gray-200 w-48 animate-pulse mb-1"></div>
+          <div class="flex gap-4 overflow-x-hidden pb-1 pt-1 px-1">
+            @for (i of [1, 2]; track i) {
+              <div class="shrink-0 w-[240px] rounded-none border-2 border-gray-200 p-3 flex items-center gap-3 animate-pulse bg-white">
+                <div class="bg-gray-200 w-10 h-10 shrink-0 rounded-none"></div>
+                <div class="flex flex-col flex-1 gap-2">
+                  <div class="flex justify-between items-center w-full">
+                    <div class="h-4 bg-gray-200 w-20"></div>
+                    <div class="h-4 bg-gray-200 w-12"></div>
+                  </div>
+                  <div class="h-2.5 bg-gray-200 w-24 mt-0.5"></div>
+                </div>
+              </div>
+            }
           </div>
-          <div class="flex-1 bg-gray-100 animate-pulse w-full"></div>
         </div>
         <!-- Recent Transactions Shimmer -->
-        <div class="flex flex-col gap-3 mt-2">
+        <div class="flex flex-col gap-3">
           <div class="h-6 bg-gray-200 w-40 animate-pulse"></div>
           <div class="flex flex-col gap-2">
             @for (i of [1, 2, 3]; track i) {
@@ -85,11 +110,11 @@ import { SubscriptionService } from '../../core/services/subscription.service';
             </div>
           </div>
         </div>
-        <!-- Chart Section -->
+        <!-- Chart Section Hidden for now -->
+        <!--
         <div class="bg-white border-2 border-black rounded-none p-5">
           <div class="flex justify-between items-center mb-6">
             <h3 class="text-lg font-bold">Analytics</h3>
-            <!-- Toggle -->
             <div class="flex border-2 border-black rounded-none overflow-hidden text-xs font-bold">
               <button
                 (click)="setChartType('weekly')"
@@ -117,33 +142,54 @@ import { SubscriptionService } from '../../core/services/subscription.service';
             <canvas #chartCanvas></canvas>
           </div>
         </div>
+        -->
 
-        <!-- Upcoming Goals -->
-        @if (upcomingGoals().length > 0) {
-          <div class="flex flex-col gap-3 mt-2">
+        <!-- Upcoming Payments (Horizontal Ticket Style) -->
+        @if (combinedUpcomingPayments().length > 0) {
+          <div class="flex flex-col gap-3">
             <div class="flex justify-between items-end mb-1">
-              <h3 class="text-lg font-bold">Upcoming Goals</h3>
+              <h3 class="text-lg font-bold">Upcoming Payments</h3>
             </div>
-            <div class="flex flex-col gap-2">
-              @for (goal of upcomingGoals(); track goal.id) {
-                <div class="w-full bg-white border-2 border-black rounded-none p-3 flex justify-between items-center text-left">
-                  <div class="flex flex-col gap-0.5 flex-1 min-w-0 pr-4">
-                    <span class="font-extrabold text-lg text-black truncate">{{ goal.name }}</span>
-                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
-                      Due on {{ goal.installment_date }}{{ getOrdinalSuffix(goal.installment_date) }}
+            
+            <!-- Horizontal Scroll Container -->
+            <div class="flex gap-4 overflow-x-auto pb-1 pt-1 px-1 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+              
+              @for (payment of combinedUpcomingPayments(); track payment.id; let i = $index) {
+                <div class="snap-start shrink-0 w-[240px] rounded-none border-2 border-black p-3 flex items-center gap-3 transition-transform active:scale-95 cursor-pointer"
+                     [ngClass]="getCardColor(i, payment.type)"
+                     (click)="payUpcoming(payment)">
+                  
+                  <!-- Icon -->
+                  <div class="border-2 border-black bg-white flex items-center justify-center w-10 h-10 shrink-0">
+                    @if (payment.type === 'sub') {
+                      <svg class="w-5 h-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    } @else {
+                      <svg class="w-5 h-5 text-black" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                        <path [attr.d]="getGoalIconPath(payment.original.icon)"></path>
+                      </svg>
+                    }
+                  </div>
+
+                  <!-- Details -->
+                  <div class="flex flex-col flex-1 min-w-0">
+                    <div class="flex justify-between items-start gap-2">
+                      <span class="font-extrabold text-sm text-black truncate">{{ payment.title }}</span>
+                      <span class="font-black text-sm text-black shrink-0">₹{{ payment.amount | number: '1.0-0' }}</span>
+                    </div>
+                    <span class="text-[9px] font-bold text-black/60 uppercase tracking-widest mt-0.5">
+                      {{ payment.type === 'sub' ? 'Sub' : 'Goal' }} • Due {{ payment.dueDay }}{{ getOrdinalSuffix(payment.dueDay) }}
                     </span>
                   </div>
-                  <div class="flex flex-col items-end gap-1 flex-shrink-0">
-                    <span class="font-extrabold text-xl">₹{{ goal.calculated_installment | number: '1.0-0' }}</span>
-                  </div>
+
                 </div>
               }
+              
             </div>
           </div>
         }
 
         <!-- Recent Transactions -->
-        <div class="flex flex-col gap-3 mt-2">
+        <div class="flex flex-col gap-3">
           <div class="flex justify-between items-end mb-1">
             <h3 class="text-lg font-bold">Recent Transactions</h3>
           </div>
@@ -187,6 +233,7 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   private splitService = inject(SplitService);
   private supabaseService = inject(SupabaseService);
   private subscriptionService = inject(SubscriptionService);
+  private confirmService = inject(ConfirmService);
 
   chartType: 'weekly' | 'monthly' = 'weekly';
   chartInstance: any;
@@ -198,11 +245,12 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('chartCanvas') set chartCanvas(el: ElementRef | undefined) {
     if (el) {
       this.chartCanvasRef = el;
-      if (!this.chartInstance) {
-        setTimeout(() => {
-          this.initChart();
-        });
-      }
+      // Analytics hidden for now
+      // if (!this.chartInstance) {
+      //   setTimeout(() => {
+      //     this.initChart();
+      //   });
+      // }
     } else {
       if (this.chartInstance) {
         this.chartInstance.destroy();
@@ -253,17 +301,63 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
       .slice(0, 5);
   });
 
-  upcomingGoals = computed(() => {
+  combinedUpcomingPayments = computed(() => {
     const today = new Date().getDate();
-    return this.goalService.goals().filter(g => {
+    
+    const subs = this.subscriptionService.upcomingSubscriptions().map(s => {
+      let diff = s.billing_day - today;
+      if (diff < -15) {
+         const d = new Date();
+         const daysInMonth = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+         diff = (daysInMonth - today) + s.billing_day;
+      }
+      return {
+        id: 'sub_' + s.id,
+        type: 'sub' as const,
+        title: s.title,
+        amount: s.amount,
+        dueDay: s.billing_day,
+        diff: diff,
+        original: s
+      };
+    });
+
+    const activeMonth = this.expenseService.activeMonth();
+    const thisMonthGoalExpenses = this.expenseService.expenses().filter(e => 
+      e.category === 'virtual-invest' && e.date.startsWith(activeMonth)
+    );
+
+    const goals = this.goalService.goals()
+      .filter(g => g.calculated_installment > 0)
+      .filter(g => {
+        const hasPaid = thisMonthGoalExpenses.some(e => {
+          const goalName = e.title.startsWith('Goal: ') ? e.title.replace('Goal: ', '') : e.title;
+          return goalName === g.name;
+        });
+        return !hasPaid;
+      })
+      .map(g => {
       let diff = g.installment_date - today;
       if (diff < 0) {
          const d = new Date();
          const daysInMonth = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
          diff = (daysInMonth - today) + g.installment_date;
       }
-      return diff >= 0 && diff <= 7 && g.calculated_installment > 0;
-    }).slice(0, 3);
+      return {
+        id: 'goal_' + g.id,
+        type: 'goal' as const,
+        title: g.name,
+        amount: g.calculated_installment,
+        dueDay: g.installment_date,
+        diff: diff,
+        original: g
+      };
+    });
+
+    return [...subs, ...goals]
+      .filter(p => p.diff >= -15 && p.diff <= 31) // Keep reasonable range of upcoming/overdue
+      .sort((a, b) => a.diff - b.diff)
+      .slice(0, 5);
   });
 
   getOrdinalSuffix(i: number): string {
@@ -273,6 +367,28 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
     if (j == 2 && k != 12) { return "nd"; }
     if (j == 3 && k != 13) { return "rd"; }
     return "th";
+  }
+
+  getCardColor(index: number, type: 'sub' | 'goal'): string {
+    const colors = [
+      'bg-[#B2F5EA]', // Teal-100/Cyan-100ish
+      'bg-[#FEEBC8]', // Orange-100ish
+      'bg-[#FED7E2]', // Pink-100ish
+      'bg-[#E9D8FD]', // Purple-100ish
+      'bg-[#FEFCBF]', // Yellow-100ish
+      'bg-[#C6F6D5]'  // Green-100ish
+    ];
+    // Use an offset so goals and subs have varied colors
+    const offset = type === 'goal' ? 3 : 0;
+    return colors[(index + offset) % colors.length];
+  }
+
+  getGoalIconPath(iconPath: string): string {
+    const defaultPremiumPath = 'M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zm-7.518-.267A8.25 8.25 0 1120.25 10.5M8.288 14.212A5.25 5.25 0 1117.25 10.5';
+    if (!iconPath || iconPath.startsWith('M20 12v10H4V12') || iconPath.startsWith('M2.25 18L9 11.25')) {
+      return defaultPremiumPath;
+    }
+    return iconPath;
   }
 
   getCategoryColor(category: string): string {
@@ -517,5 +633,22 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
     this.expenseService.openBottomSheet(expense);
+  }
+
+  payUpcoming(payment: any) {
+    if (payment.type === 'sub') {
+      const sub = payment.original;
+      this.confirmService.open({
+        title: 'Mark as Paid',
+        message: `Are you sure you want to mark ${sub.title} as paid? This will log an expense for ₹${sub.amount}.`,
+        confirmText: 'Mark Paid',
+        cancelText: 'Cancel',
+        onConfirm: async () => {
+          await this.subscriptionService.markAsPaid(sub);
+        }
+      });
+    } else if (payment.type === 'goal') {
+      this.goalService.openAddFundsSheet(payment.original);
+    }
   }
 }
