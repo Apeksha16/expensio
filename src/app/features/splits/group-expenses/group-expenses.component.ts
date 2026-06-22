@@ -78,8 +78,15 @@ import { ConfirmService } from '../../../core/services/confirm.service';
                           @if (bal.type === 'owed') {
                             <button
                               (click)="confirmSettlement($event, split.id)"
-                              class="bg-green-500 text-white px-2 py-1 rounded-none text-[9px] font-extrabold uppercase tracking-widest hover:bg-green-600 transition-colors"
+                              [disabled]="processingIds().has('confirm_' + split.id)"
+                              class="bg-green-500 text-white px-2 py-1 rounded-none text-[9px] font-extrabold uppercase tracking-widest hover:bg-green-600 transition-colors disabled:opacity-50 flex items-center gap-1"
                             >
+                              @if (processingIds().has('confirm_' + split.id)) {
+                                <svg class="animate-spin h-3 w-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                              }
                               Confirm
                             </button>
                           } @else {
@@ -142,6 +149,7 @@ export class GroupExpenses implements OnInit {
   
   currentUser = this.authService.userProfile;
   groupId = signal<string>('');
+  processingIds = signal<Set<string>>(new Set());
   
   group = computed(() => this.splitService.groups().find(g => g.id === this.groupId()));
   groupExpenses = computed(() => this.splitService.splits().filter(s => s.group_id === this.groupId()));
@@ -302,12 +310,31 @@ export class GroupExpenses implements OnInit {
     const split = this.splitService.splits().find((s: any) => s.id === splitId);
     if (!split) return;
     
-    const updatedSplit = { ...split };
-    updatedSplit.participants = updatedSplit.participants.map((p: any) => 
-      p.status === 'pending' ? { ...p, status: 'settled' } : p
-    );
-    this.splitService.updateSplit(updatedSplit as any, true);
-    this.toastService.showSuccess('Settlement confirmed!');
+    this.confirmService.open({
+      title: 'Confirm Settlement',
+      message: 'Are you sure you have received the money?',
+      confirmText: 'Confirm',
+      cancelText: 'Cancel',
+      onConfirm: async () => {
+        const key = 'confirm_' + splitId;
+        const current = new Set(this.processingIds());
+        current.add(key);
+        this.processingIds.set(current);
+        
+        try {
+          const updatedSplit = { ...split };
+          updatedSplit.participants = updatedSplit.participants.map((p: any) => 
+            p.status === 'pending' ? { ...p, status: 'settled' } : p
+          );
+          await this.splitService.updateSplit(updatedSplit as any, true);
+          this.toastService.showSuccess('Settlement confirmed successfully!');
+        } finally {
+          const after = new Set(this.processingIds());
+          after.delete(key);
+          this.processingIds.set(after);
+        }
+      }
+    });
   }
 
   editSplit(split: SplitExpense) {

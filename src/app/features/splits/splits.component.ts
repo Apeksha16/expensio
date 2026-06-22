@@ -135,8 +135,15 @@ import { ToastService } from '../../core/services/toast.service';
                           @if (bal.type === 'owed') {
                             <button
                               (click)="confirmSettlement($event, split.id)"
-                              class="bg-green-500 text-white px-2 py-1 rounded-none text-[9px] font-extrabold uppercase tracking-widest hover:bg-green-600 transition-colors"
+                              [disabled]="processingIds().has('confirm_' + split.id)"
+                              class="bg-green-500 text-white px-2 py-1 rounded-none text-[9px] font-extrabold uppercase tracking-widest hover:bg-green-600 transition-colors disabled:opacity-50 flex items-center gap-1"
                             >
+                              @if (processingIds().has('confirm_' + split.id)) {
+                                <svg class="animate-spin h-3 w-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                              }
                               Confirm
                             </button>
                           } @else {
@@ -257,6 +264,7 @@ export class Splits implements OnInit {
   currentUser = this.authService.userProfile;
 
   isInitialLoading = signal(true);
+  processingIds = signal<Set<string>>(new Set());
   Math = Math; // for template
 
   individualSplits = computed(() => {
@@ -275,7 +283,8 @@ export class Splits implements OnInit {
   }
 
   getExpenseBalance(split: any): { type: 'owed' | 'owe', amount: number, pending?: boolean } | null {
-    const me = this.currentUser().id;
+    const me = this.currentUser()?.id;
+    if (!me) return null;
     const myParticipant = split.participants?.find((p: any) => p.userId === me);
     if (!myParticipant) return null;
 
@@ -305,25 +314,7 @@ export class Splits implements OnInit {
       confirmText: 'Settle All',
       cancelText: 'Cancel',
       onConfirm: async () => {
-         const balances = new Map<string, number>();
          const currentUserId = this.currentUser()?.id;
-
-         this.splitService.splits().forEach(split => {
-            if (split.category === 'Pending Settlement') return;
-            
-            if (split.payer_id === currentUserId) {
-              split.participants.forEach(p => {
-                if (p.userId !== currentUserId) {
-                  balances.set(p.userId, (balances.get(p.userId) || 0) + p.amountOwed);
-                }
-              });
-            } else {
-              const myParticipant = split.participants.find(p => p.userId === currentUserId);
-              if (myParticipant && myParticipant.amountOwed > 0) {
-                 balances.set(split.payer_id, (balances.get(split.payer_id) || 0) - myParticipant.amountOwed);
-              }
-            }
-         });
 
          const promises: Promise<void>[] = [];
          this.individualSplits().forEach(split => {
@@ -376,7 +367,7 @@ export class Splits implements OnInit {
     }
 
     const message = isOwed
-      ? `Are you confirm that you have received the money from ${targetName}?`
+      ? `Are you sure you have received the money from ${targetName}?`
       : `Are you sure you have paid this amount to ${targetName}?`;
 
     this.confirmService.open({
@@ -409,17 +400,36 @@ export class Splits implements OnInit {
     const split = this.splitService.splits().find((s: any) => s.id === splitId);
     if (!split) return;
     
-    const updatedSplit = { ...split };
-    updatedSplit.participants = updatedSplit.participants.map((p: any) => 
-      p.status === 'pending' ? { ...p, status: 'settled' } : p
-    );
-    this.splitService.updateSplit(updatedSplit as any, true);
-    this.toastService.showSuccess('Settlement confirmed!');
+    this.confirmService.open({
+      title: 'Confirm Settlement',
+      message: 'Are you sure you have received the money?',
+      confirmText: 'Confirm',
+      cancelText: 'Cancel',
+      onConfirm: async () => {
+        const key = 'confirm_' + splitId;
+        const current = new Set(this.processingIds());
+        current.add(key);
+        this.processingIds.set(current);
+        
+        try {
+          const updatedSplit = { ...split };
+          updatedSplit.participants = updatedSplit.participants.map((p: any) => 
+            p.status === 'pending' ? { ...p, status: 'settled' } : p
+          );
+          await this.splitService.updateSplit(updatedSplit as any, true);
+          this.toastService.showSuccess('Settlement confirmed successfully!');
+        } finally {
+          const after = new Set(this.processingIds());
+          after.delete(key);
+          this.processingIds.set(after);
+        }
+      }
+    });
   }
 
   editSplit(split: SplitExpense) {
     if (split.category === 'Settlement' || split.category === 'Pending Settlement') return;
-    if (split.payer_id !== this.currentUser().id) {
+    if (split.payer_id !== this.currentUser()?.id) {
        this.toastService.showError("You can only edit expenses that you added.");
        return;
     }

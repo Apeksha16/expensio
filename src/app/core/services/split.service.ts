@@ -8,6 +8,7 @@ import { ExpenseService } from './expense.service';
 export interface SplitParticipant {
   userId: string;
   amountOwed: number;
+  status?: 'pending' | 'settled';
 }
 
 export interface SplitExpense {

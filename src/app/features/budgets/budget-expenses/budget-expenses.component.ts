@@ -139,7 +139,7 @@ export class BudgetExpenses implements OnInit {
     // Use allExpenses to bypass the 15-item master list pagination limit
     return this.expenseService['allExpenses']().filter(e => {
       const eCat = e.category.toLowerCase();
-      return eCat === catLower || eCat === `${catLower} (split)` || eCat === `${catLower} (group split)`;
+      return eCat === catLower || eCat === `${catLower} (split)` || eCat === `${catLower} (group split)` || eCat === `${catLower} (subscription)`;
     });
   });
 
