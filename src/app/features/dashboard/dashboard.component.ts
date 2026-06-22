@@ -12,8 +12,13 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Chart } from 'chart.js/auto';
-import { ExpenseService } from '../../core/services/expense.service';
+import { ExpenseService, Expense } from '../../core/services/expense.service';
 import { AuthService } from '../../core/services/auth.service';
+import { GoalService } from '../../core/services/goal.service';
+import { ToastService } from '../../core/services/toast.service';
+import { SplitService } from '../../core/services/split.service';
+import { SupabaseService } from '../../core/services/supabase.service';
+import { SubscriptionService } from '../../core/services/subscription.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -112,6 +117,31 @@ import { AuthService } from '../../core/services/auth.service';
             <canvas #chartCanvas></canvas>
           </div>
         </div>
+
+        <!-- Upcoming Goals -->
+        @if (upcomingGoals().length > 0) {
+          <div class="flex flex-col gap-3 mt-2">
+            <div class="flex justify-between items-end mb-1">
+              <h3 class="text-lg font-bold">Upcoming Goals</h3>
+            </div>
+            <div class="flex flex-col gap-2">
+              @for (goal of upcomingGoals(); track goal.id) {
+                <div class="w-full bg-white border-2 border-black rounded-none p-3 flex justify-between items-center text-left">
+                  <div class="flex flex-col gap-0.5 flex-1 min-w-0 pr-4">
+                    <span class="font-extrabold text-lg text-black truncate">{{ goal.name }}</span>
+                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                      Due on {{ goal.installment_date }}{{ getOrdinalSuffix(goal.installment_date) }}
+                    </span>
+                  </div>
+                  <div class="flex flex-col items-end gap-1 flex-shrink-0">
+                    <span class="font-extrabold text-xl">₹{{ goal.calculated_installment | number: '1.0-0' }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
         <!-- Recent Transactions -->
         <div class="flex flex-col gap-3 mt-2">
           <div class="flex justify-between items-end mb-1">
@@ -119,8 +149,9 @@ import { AuthService } from '../../core/services/auth.service';
           </div>
           <div class="flex flex-col gap-2">
             @for (expense of recentExpenses(); track expense.id) {
-              <div
-                class="w-full bg-gray-200 rounded-none p-3 flex justify-between items-center text-left border-l-4"
+              <button
+                (click)="editExpense(expense)"
+                class="w-full bg-gray-200 rounded-none p-3 flex justify-between items-center text-left border-l-4 hover:bg-gray-300 transition-colors active:bg-gray-400"
                 [ngClass]="getCategoryColor(expense.category)"
               >
                 <div class="flex flex-col gap-0.5 flex-1 min-w-0 pr-4">
@@ -134,7 +165,7 @@ import { AuthService } from '../../core/services/auth.service';
                 <div class="flex flex-col items-end gap-2 flex-shrink-0">
                   <span class="font-extrabold text-xl">₹{{ expense.amount | number: '1.2-2' }}</span>
                 </div>
-              </div>
+              </button>
             }
             @if (recentExpenses().length === 0) {
               <div class="w-full bg-white border-2 border-dashed border-gray-300 rounded-none p-6 flex flex-col items-center justify-center text-gray-400">
@@ -151,6 +182,11 @@ import { AuthService } from '../../core/services/auth.service';
 export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   private expenseService = inject(ExpenseService);
   private authService = inject(AuthService);
+  private goalService = inject(GoalService);
+  private toastService = inject(ToastService);
+  private splitService = inject(SplitService);
+  private supabaseService = inject(SupabaseService);
+  private subscriptionService = inject(SubscriptionService);
 
   chartType: 'weekly' | 'monthly' = 'weekly';
   chartInstance: any;
@@ -217,12 +253,38 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
       .slice(0, 5);
   });
 
+  upcomingGoals = computed(() => {
+    const today = new Date().getDate();
+    return this.goalService.goals().filter(g => {
+      let diff = g.installment_date - today;
+      if (diff < 0) {
+         const d = new Date();
+         const daysInMonth = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+         diff = (daysInMonth - today) + g.installment_date;
+      }
+      return diff >= 0 && diff <= 7 && g.calculated_installment > 0;
+    }).slice(0, 3);
+  });
+
+  getOrdinalSuffix(i: number): string {
+    const j = i % 10,
+          k = i % 100;
+    if (j == 1 && k != 11) { return "st"; }
+    if (j == 2 && k != 12) { return "nd"; }
+    if (j == 3 && k != 13) { return "rd"; }
+    return "th";
+  }
+
   getCategoryColor(category: string): string {
     if (!category) return 'border-black';
-    if (category.includes('(Group Split)')) {
-      return 'border-purple-600';
+    if (category === 'virtual-invest') {
+      return 'border-amber-500';
+    } else if (category.includes('(Group Split)')) {
+      return 'border-teal-500';
     } else if (category.includes('(Split)')) {
       return 'border-blue-600';
+    } else if (category.includes('(Subscription)')) {
+      return 'border-pink-500';
     }
     return 'border-black';
   }
@@ -410,5 +472,50 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
         ],
       };
     }
+  }
+
+  async editExpense(expense: Expense) {
+    if (expense.category === 'virtual-invest') {
+      const goalName = expense.title.startsWith('Goal: ') ? expense.title.replace('Goal: ', '') : expense.title;
+      const goal = this.goalService.goals().find(g => g.name === goalName);
+      if (goal) {
+        this.goalService.openAddFundsSheet(goal, expense);
+      } else {
+        this.toastService.showError('Goal not found.');
+      }
+      return;
+    }
+
+    if (expense.category.includes('(Subscription)')) {
+      const sub = this.subscriptionService.subscriptions().find(s => s.title === expense.title);
+      if (sub) {
+        this.subscriptionService.openBottomSheet(sub);
+      } else {
+        this.toastService.showError('Subscription not found.');
+      }
+      return;
+    }
+
+    if (expense.id.startsWith('split_')) {
+      const splitId = expense.id.replace('split_', '');
+      const existingSplit = this.splitService.splits().find(s => s.id === splitId);
+      if (existingSplit) {
+        this.splitService.openAddSplitSheet(existingSplit);
+      } else {
+        const { data, error } = await this.supabaseService.client
+          .from('split_expenses')
+          .select('*')
+          .eq('id', splitId)
+          .single();
+          
+        if (!error && data) {
+          this.splitService.openAddSplitSheet(data as any);
+        } else {
+          this.toastService.showError('Could not load split expense.');
+        }
+      }
+      return;
+    }
+    this.expenseService.openBottomSheet(expense);
   }
 }

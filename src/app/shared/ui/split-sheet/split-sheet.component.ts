@@ -63,11 +63,28 @@ import { SafeInputDirective } from '../safe-input.directive';
         >
           <h2 class="text-xl font-extrabold tracking-tight">{{ splitService.editingSplit()?.id ? 'Edit Split Expense' : 'Add Split Expense' }}</h2>
           @if (splitService.editingSplit()?.id) {
-            <button type="button" (click)="onDelete()" class="text-red-400 hover:text-red-300 active:scale-95 transition-all">
-              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
-            </button>
+              <button
+                type="button"
+                (click)="onDelete()"
+                [disabled]="isDeleting()"
+                class="w-8 h-8 bg-red-500 flex items-center justify-center border-2 border-transparent hover:border-white transition-colors rounded-none text-white disabled:opacity-70"
+              >
+                @if (isDeleting()) {
+                  <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                } @else {
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
+                  </svg>
+                }
+              </button>
           }
         </div>
         <div class="p-6 bg-white flex-1">
@@ -352,10 +369,16 @@ import { SafeInputDirective } from '../safe-input.directive';
                 </button>
                 <button
                   type="submit"
-                  [disabled]="!isFormValid()"
+                  [disabled]="!isFormValid() || isSaving()"
                   class="flex-1 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-[#1a2e22] hover:bg-[#2f4d3b] text-white disabled:opacity-70 disabled:cursor-not-allowed disabled:active:scale-100"
                 >
-                  Save
+                  @if (isSaving()) {
+                    <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  }
+                  {{ isUpdated() ? 'Update' : 'Save' }}
                 </button>
               </div>
             </form>
@@ -408,6 +431,9 @@ export class SplitSheetComponent implements OnInit {
 
   splitForm!: FormGroup;
 
+  isSaving = signal(false);
+  isDeleting = signal(false);
+
   splitStrategy = signal<'EQUAL' | 'CUSTOM'>('EQUAL');
   selectedParticipants = signal<string[]>([]);
   customAmounts: Record<string, FormControl> = {};
@@ -424,12 +450,14 @@ export class SplitSheetComponent implements OnInit {
       { name: 'Entertainment', path: 'M3 3h18v18H3z' }
     ];
     if (this.localBudgets().length === 0) return defaultCats;
-    return this.localBudgets().map((b) => ({
-      name: b.name,
-      path:
-        b.icon_path ||
-        'M20 12v10H4V12 M2 7h20v5H2z M12 22V7 M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z',
-    }));
+    return this.localBudgets()
+      .filter(b => b.id !== 'virtual-others')
+      .map((b) => ({
+        name: b.name,
+        path:
+          b.icon_path ||
+          'M20 12v10H4V12 M2 7h20v5H2z M12 22V7 M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z',
+      }));
   });
 
   supabaseService = inject(SupabaseService);
@@ -589,8 +617,9 @@ export class SplitSheetComponent implements OnInit {
     return diff > 5000;
   }
 
-  onSubmit() {
+  async onSubmit() {
     if (!this.isFormValid()) return;
+    this.isSaving.set(true);
 
     const v = this.splitForm.value;
 
@@ -626,7 +655,7 @@ export class SplitSheetComponent implements OnInit {
         category: v.category || null,
         date: new Date().toISOString(),
       };
-      this.splitService.updateSplit(updatedSplit);
+      await this.splitService.updateSplit(updatedSplit);
     } else {
       let groupId = null;
       if (splitContext && !splitContext.id && splitContext.group_id) {
@@ -643,7 +672,7 @@ export class SplitSheetComponent implements OnInit {
         category: v.category || null,
         date: new Date().toISOString(),
       };
-      this.splitService.addSplit(split);
+      await this.splitService.addSplit(split);
     }
 
     // Reset
@@ -651,6 +680,7 @@ export class SplitSheetComponent implements OnInit {
     this.selectedParticipants.set([]);
     this.customAmounts = {};
     this.splitStrategy.set('EQUAL');
+    this.isSaving.set(false);
     this.close();
   }
 
@@ -663,8 +693,10 @@ export class SplitSheetComponent implements OnInit {
       message: 'Are you sure you want to delete this split expense? This action cannot be undone.',
       confirmText: 'Delete',
       cancelText: 'Cancel',
-      onConfirm: () => {
-        this.splitService.deleteSplit(split.id);
+      onConfirm: async () => {
+        this.isDeleting.set(true);
+        await this.splitService.deleteSplit(split.id);
+        this.isDeleting.set(false);
         this.close();
       }
     });

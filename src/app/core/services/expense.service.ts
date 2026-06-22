@@ -163,7 +163,7 @@ export class ExpenseService {
     setTimeout(() => this.editingExpense.set(null), 300); // Clear after animation
   }
 
-  async addExpense(expense: Omit<Expense, 'id'>): Promise<boolean> {
+  async addExpense(expense: Omit<Expense, 'id'>, silent = false): Promise<boolean> {
     const user = this.authService.currentUser();
     if (!user) return false;
 
@@ -185,7 +185,9 @@ export class ExpenseService {
         return updated.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       });
       this.applyFilterAndPagination();
-      this.toastService.showSuccess('Expense added successfully!');
+      if (!silent) {
+        this.toastService.showSuccess('Expense added successfully!');
+      }
       return true;
     }
     
@@ -196,7 +198,7 @@ export class ExpenseService {
     return false;
   }
 
-  async updateExpense(id: string, data: Omit<Expense, 'id'>): Promise<boolean> {
+  async updateExpense(id: string, data: Omit<Expense, 'id'>, silent = false): Promise<boolean> {
     const { error } = await this.supabaseService.client
       .from('expenses')
       .update({
@@ -213,10 +215,46 @@ export class ExpenseService {
         return updated.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       });
       this.applyFilterAndPagination();
-      this.toastService.showSuccess('Expense updated successfully!');
+      if (!silent) {
+        this.toastService.showSuccess('Expense updated successfully!');
+      }
       return true;
     }
     this.toastService.showError('Failed to update expense. Please try again.');
+    return false;
+  }
+
+  async updateExpensesForGoalRename(oldName: string, newName: string): Promise<boolean> {
+    const oldTitleWithPrefix = `Goal: ${oldName}`;
+    const oldTitleWithoutPrefix = oldName;
+    const newTitle = newName;
+    
+    // First update expenses with the 'Goal: ' prefix
+    await this.supabaseService.client
+      .from('expenses')
+      .update({ title: newTitle })
+      .eq('title', oldTitleWithPrefix)
+      .eq('category', 'virtual-invest');
+
+    // Then update expenses without the prefix
+    const { error } = await this.supabaseService.client
+      .from('expenses')
+      .update({ title: newTitle })
+      .eq('title', oldTitleWithoutPrefix)
+      .eq('category', 'virtual-invest');
+
+    if (!error) {
+      this.allExpenses.update(exps => {
+        return exps.map(exp => {
+          if ((exp.title === oldTitleWithPrefix || exp.title === oldTitleWithoutPrefix) && exp.category === 'virtual-invest') {
+            return { ...exp, title: newTitle };
+          }
+          return exp;
+        });
+      });
+      this.applyFilterAndPagination();
+      return true;
+    }
     return false;
   }
 
@@ -243,7 +281,7 @@ export class ExpenseService {
       .filter(e => {
         if (!e.date.startsWith(month)) return false;
         const eCat = e.category.toLowerCase();
-        return eCat === catLower || eCat === `${catLower} (split)` || eCat === `${catLower} (group split)`;
+        return eCat === catLower || eCat === `${catLower} (split)` || eCat === `${catLower} (group split)` || eCat === `${catLower} (subscription)`;
       })
       .reduce((sum, e) => sum + e.amount, 0);
   }

@@ -7,6 +7,8 @@ import { KeyboardService } from '../../../core/services/keyboard.service';
 import { SplitService } from '../../../core/services/split.service';
 import { SupabaseService } from '../../../core/services/supabase.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { GoalService } from '../../../core/services/goal.service';
+import { SubscriptionService } from '../../../core/services/subscription.service';
 
 @Component({
   selector: 'app-budget-expenses',
@@ -110,6 +112,8 @@ export class BudgetExpenses implements OnInit {
   splitService = inject(SplitService);
   supabaseService = inject(SupabaseService);
   toastService = inject(ToastService);
+  goalService = inject(GoalService);
+  subscriptionService = inject(SubscriptionService);
 
   budgetName = signal<string>('');
   animateBars = signal(false);
@@ -132,7 +136,8 @@ export class BudgetExpenses implements OnInit {
     if (!name) return [];
     
     const catLower = name.toLowerCase();
-    return this.expenseService.expenses().filter(e => {
+    // Use allExpenses to bypass the 15-item master list pagination limit
+    return this.expenseService['allExpenses']().filter(e => {
       const eCat = e.category.toLowerCase();
       return eCat === catLower || eCat === `${catLower} (split)` || eCat === `${catLower} (group split)`;
     });
@@ -170,6 +175,27 @@ export class BudgetExpenses implements OnInit {
   }
 
   async editExpense(expense: Expense) {
+    if (expense.category === 'virtual-invest') {
+      const goalName = expense.title.startsWith('Goal: ') ? expense.title.replace('Goal: ', '') : expense.title;
+      const goal = this.goalService.goals().find(g => g.name === goalName);
+      if (goal) {
+        this.goalService.openAddFundsSheet(goal, expense);
+      } else {
+        this.toastService.showError('Goal not found.');
+      }
+      return;
+    }
+
+    if (expense.category.includes('(Subscription)')) {
+      const sub = this.subscriptionService.subscriptions().find(s => s.title === expense.title);
+      if (sub) {
+        this.subscriptionService.openBottomSheet(sub);
+      } else {
+        this.toastService.showError('Subscription not found.');
+      }
+      return;
+    }
+
     if (expense.id.startsWith('split_')) {
       const splitId = expense.id.replace('split_', '');
       const existingSplit = this.splitService.splits().find(s => s.id === splitId);
@@ -196,10 +222,14 @@ export class BudgetExpenses implements OnInit {
 
   getCategoryColor(category: string): string {
     if (!category) return 'border-black';
-    if (category.includes('(Group Split)')) {
-      return 'border-purple-600';
+    if (category === 'virtual-invest') {
+      return 'border-amber-500';
+    } else if (category.includes('(Group Split)')) {
+      return 'border-teal-500';
     } else if (category.includes('(Split)')) {
       return 'border-blue-600';
+    } else if (category.includes('(Subscription)')) {
+      return 'border-pink-500';
     }
     return 'border-black';
   }

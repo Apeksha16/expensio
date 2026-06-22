@@ -5,7 +5,7 @@ export interface ConfirmConfig {
   message: string;
   confirmText?: string;
   cancelText?: string;
-  onConfirm: () => void;
+  onConfirm: () => void | Promise<void>;
 }
 
 @Injectable({ providedIn: 'root' })

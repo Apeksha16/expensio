@@ -62,16 +62,24 @@ import { SafeInputDirective } from '../safe-input.directive';
               <button
                 type="button"
                 (click)="onDelete()"
-                class="w-8 h-8 bg-red-500 flex items-center justify-center border-2 border-transparent hover:border-white transition-colors rounded-none text-white"
+                [disabled]="isDeleting()"
+                class="w-8 h-8 bg-red-500 flex items-center justify-center border-2 border-transparent hover:border-white transition-colors rounded-none text-white disabled:opacity-70"
               >
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                  />
-                </svg>
+                @if (isDeleting()) {
+                  <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                } @else {
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
+                  </svg>
+                }
               </button>
             }
           </div>
@@ -140,9 +148,15 @@ import { SafeInputDirective } from '../safe-input.directive';
                 </button>
                 <button
                   type="submit"
-                  [disabled]="groupForm.invalid || selectedGroupMembers().length === 0"
+                  [disabled]="groupForm.invalid || selectedGroupMembers().length === 0 || isSaving()"
                   class="flex-1 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-[#1a2e22] hover:bg-[#2f4d3b] text-white disabled:opacity-70 disabled:cursor-not-allowed disabled:active:scale-100"
                 >
+                  @if (isSaving()) {
+                    <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  }
                   {{ isEditing ? 'Update' : 'Save' }}
                 </button>
               </div>
@@ -194,6 +208,8 @@ export class GroupSheetComponent implements OnInit {
 
   groupForm!: FormGroup;
   isEditing = false;
+  isSaving = signal(false);
+  isDeleting = signal(false);
   selectedGroupMembers = signal<string[]>([]);
 
   constructor() {
@@ -247,18 +263,21 @@ export class GroupSheetComponent implements OnInit {
         'Are you sure you want to delete this group? The split expenses will remain, but the group will be removed.',
       confirmText: 'Delete',
       cancelText: 'Cancel',
-      onConfirm: () => {
+      onConfirm: async () => {
         const group = this.splitService.editingGroup();
         if (group) {
-          this.splitService.deleteGroup(group.id);
+          this.isDeleting.set(true);
+          await this.splitService.deleteGroup(group.id);
+          this.isDeleting.set(false);
         }
         this.close();
       },
     });
   }
 
-  onSubmit() {
+  async onSubmit() {
     if (this.groupForm.invalid || this.selectedGroupMembers().length === 0) return;
+    this.isSaving.set(true);
 
     const v = this.groupForm.value;
     const currentUserId = this.authService.userProfile().id;
@@ -269,16 +288,17 @@ export class GroupSheetComponent implements OnInit {
         name: v.name,
         members: [currentUserId, ...this.selectedGroupMembers()],
       };
-      this.splitService.updateGroup(group);
+      await this.splitService.updateGroup(group);
     } else {
       const group: Omit<SplitGroup, 'id' | 'created_at'> = {
         name: v.name,
         creator_id: currentUserId,
         members: [currentUserId, ...this.selectedGroupMembers()],
       };
-      this.splitService.createGroup(group);
+      await this.splitService.createGroup(group);
     }
 
+    this.isSaving.set(false);
     this.close();
   }
 }

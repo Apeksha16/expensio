@@ -16,6 +16,8 @@ import { ToastService } from '../../core/services/toast.service';
 import { KeyboardService } from '../../core/services/keyboard.service';
 import { SplitService } from '../../core/services/split.service';
 import { SupabaseService } from '../../core/services/supabase.service';
+import { GoalService } from '../../core/services/goal.service';
+import { SubscriptionService } from '../../core/services/subscription.service';
 
 @Component({
   selector: 'app-expenses',
@@ -157,28 +159,40 @@ export class Expenses implements OnInit, AfterViewInit, OnDestroy {
   keyboardService = inject(KeyboardService);
   splitService = inject(SplitService);
   supabaseService = inject(SupabaseService);
+  goalService = inject(GoalService);
+  subscriptionService = inject(SubscriptionService);
   private monthSub: any;
 
-  @ViewChild('scrollTrigger') scrollTrigger!: ElementRef;
   private observer: IntersectionObserver | null = null;
+  private isObserving = false;
+  private scrollTriggerEl: ElementRef | undefined;
+
+  @ViewChild('scrollTrigger') set scrollTrigger(el: ElementRef | undefined) {
+    this.scrollTriggerEl = el;
+    this.tryObserve();
+  }
 
   ngOnInit() {
+    const options = { root: null, rootMargin: '0px', threshold: 0.1 };
+    this.observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && this.expenseService.hasMore()) {
+        setTimeout(() => this.expenseService.loadMore(), 500);
+      }
+    }, options);
+
     this.monthSub = this.monthPicker.monthSelected$.subscribe(month => {
       this.onMonthSelected(month);
     });
   }
 
   ngAfterViewInit() {
-    const options = { root: null, rootMargin: '0px', threshold: 0.1 };
-    this.observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting && this.expenseService.hasMore()) {
-        // Simulate network delay for effect
-        setTimeout(() => this.expenseService.loadMore(), 500);
-      }
-    }, options);
+    this.tryObserve();
+  }
 
-    if (this.scrollTrigger) {
-      this.observer.observe(this.scrollTrigger.nativeElement);
+  private tryObserve() {
+    if (this.scrollTriggerEl && this.observer && !this.isObserving) {
+      this.observer.observe(this.scrollTriggerEl.nativeElement);
+      this.isObserving = true;
     }
   }
 
@@ -213,15 +227,40 @@ export class Expenses implements OnInit, AfterViewInit, OnDestroy {
 
   getCategoryColor(category: string): string {
     if (!category) return 'border-black';
-    if (category.includes('(Group Split)')) {
-      return 'border-purple-600';
+    if (category === 'virtual-invest') {
+      return 'border-amber-500';
+    } else if (category.includes('(Group Split)')) {
+      return 'border-teal-500';
     } else if (category.includes('(Split)')) {
       return 'border-blue-600';
+    } else if (category.includes('(Subscription)')) {
+      return 'border-pink-500';
     }
     return 'border-black';
   }
 
   async editExpense(expense: Expense) {
+    if (expense.category === 'virtual-invest') {
+      const goalName = expense.title.startsWith('Goal: ') ? expense.title.replace('Goal: ', '') : expense.title;
+      const goal = this.goalService.goals().find(g => g.name === goalName);
+      if (goal) {
+        this.goalService.openAddFundsSheet(goal, expense);
+      } else {
+        this.toastService.showError('Goal not found.');
+      }
+      return;
+    }
+
+    if (expense.category.includes('(Subscription)')) {
+      const sub = this.subscriptionService.subscriptions().find(s => s.title === expense.title);
+      if (sub) {
+        this.subscriptionService.openBottomSheet(sub);
+      } else {
+        this.toastService.showError('Subscription not found.');
+      }
+      return;
+    }
+
     if (expense.id.startsWith('split_')) {
       const splitId = expense.id.replace('split_', '');
       const existingSplit = this.splitService.splits().find(s => s.id === splitId);

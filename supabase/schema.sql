@@ -459,5 +459,44 @@ $$;
 
 
 
+-- Subscriptions Table
+create table if not exists public.subscriptions (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users on delete cascade not null,
+  title text not null,
+  amount numeric not null,
+  category text not null,
+  billing_day integer not null check (billing_day >= 1 and billing_day <= 31),
+  last_paid_month text,
+  created_at timestamp with time zone default timezone('utc'::text, now())
+);
+
+-- Enable RLS
+alter table public.subscriptions enable row level security;
+
+-- Policy: Users can insert their own subscriptions.
+drop policy if exists "Users can insert own subscriptions." on public.subscriptions;
+create policy "Users can insert own subscriptions."
+  on public.subscriptions for insert
+  with check ( auth.uid() = user_id );
+
+-- Policy: Users can update their own subscriptions.
+drop policy if exists "Users can update own subscriptions." on public.subscriptions;
+create policy "Users can update own subscriptions."
+  on public.subscriptions for update
+  using ( auth.uid() = user_id );
+
+-- Policy: Users can delete their own subscriptions.
+drop policy if exists "Users can delete own subscriptions." on public.subscriptions;
+create policy "Users can delete own subscriptions."
+  on public.subscriptions for delete
+  using ( auth.uid() = user_id );
+
+-- Policy: Users can select their own subscriptions.
+drop policy if exists "Users can view own subscriptions." on public.subscriptions;
+create policy "Users can view own subscriptions."
+  on public.subscriptions for select
+  using ( auth.uid() = user_id );
+
 -- Reload schema cache to ensure API access to new RPCs
 NOTIFY pgrst, 'reload schema';

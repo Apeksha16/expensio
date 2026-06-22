@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { animate, style, transition, trigger } from '@angular/animations';
 import { ExpenseService } from '../../../core/services/expense.service';
 import { BudgetService } from '../../../core/services/budget.service';
+import { GoalService } from '../../../core/services/goal.service';
 import { ConfirmService } from '../../../core/services/confirm.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { SupabaseService } from '../../../core/services/supabase.service';
@@ -285,6 +286,7 @@ import { SafeInputDirective } from '../safe-input.directive';
 export class BottomSheetComponent implements OnInit {
   expenseService = inject(ExpenseService);
   budgetService = inject(BudgetService);
+  goalService = inject(GoalService);
   private confirmService = inject(ConfirmService);
   private toastService = inject(ToastService);
   private haptic = inject(HapticService);
@@ -302,12 +304,14 @@ export class BottomSheetComponent implements OnInit {
   isBudgetsLoading = signal(false);
 
   budgetCategories = computed(() => {
-    return this.localBudgets().map((b) => ({
-      name: b.name,
-      path:
-        b.icon_path ||
-        'M20 12v10H4V12 M2 7h20v5H2z M12 22V7 M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z', // Fallback icon
-    }));
+    return this.localBudgets()
+      .filter((b) => b.id !== 'virtual-others')
+      .map((b) => ({
+        name: b.name,
+        path:
+          b.icon_path ||
+          'M20 12v10H4V12 M2 7h20v5H2z M12 22V7 M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z', // Fallback icon
+      }));
   });
 
   constructor() {
@@ -391,9 +395,9 @@ export class BottomSheetComponent implements OnInit {
     this.selectedMonth.set(dateStr.substring(0, 7)); // YYYY-MM
 
     this.expenseForm = this.fb.group({
-      title: [editing?.title || '', Validators.required],
+      title: [{ value: editing?.title || '', disabled: editing?.category === 'virtual-invest' }, Validators.required],
       amount: [editing?.amount || null, [Validators.required, Validators.min(0.01)]],
-      category: [editing?.category || 'Others', Validators.required],
+      category: [{ value: editing?.category || 'Others', disabled: editing?.category === 'virtual-invest' }, Validators.required],
       date: [
         dateStr,
         Validators.required,
@@ -439,11 +443,19 @@ export class BottomSheetComponent implements OnInit {
         onConfirm: async () => {
           this.haptic.impactMedium();
           this.isDeleting.set(true);
-          const id = this.expenseService.editingExpense()!.id;
+          const original = this.expenseService.editingExpense()!;
+          const id = original.id;
           const success = await this.expenseService.deleteExpense(id);
           this.isDeleting.set(false);
 
           if (success) {
+            if (original.category === 'virtual-invest') {
+              const goalName = original.title.replace('Goal: ', '');
+              const goal = this.goalService.goals().find(g => g.name === goalName);
+              if (goal) {
+                await this.goalService.updateGoal(goal.id, { saved_amount: goal.saved_amount - original.amount }, true);
+              }
+            }
             this.haptic.success();
             this.close();
           } else {
@@ -457,7 +469,7 @@ export class BottomSheetComponent implements OnInit {
   async onSubmit() {
     if (this.expenseForm.valid && !this.isSaving()) {
       this.isSaving.set(true);
-      const formValue = this.expenseForm.value;
+      const formValue = this.expenseForm.getRawValue();
       const expenseData = {
         title: formValue.title,
         amount: Number(formValue.amount),
@@ -467,8 +479,19 @@ export class BottomSheetComponent implements OnInit {
 
       let success = false;
       if (this.isEditing) {
-        const id = this.expenseService.editingExpense()!.id;
+        const original = this.expenseService.editingExpense()!;
+        const id = original.id;
         success = await this.expenseService.updateExpense(id, expenseData);
+        if (success && original.category === 'virtual-invest') {
+          const goalName = original.title.replace('Goal: ', '');
+          const goal = this.goalService.goals().find(g => g.name === goalName);
+          if (goal) {
+            const diff = expenseData.amount - original.amount;
+            if (diff !== 0) {
+               await this.goalService.updateGoal(goal.id, { saved_amount: goal.saved_amount + diff }, true);
+            }
+          }
+        }
       } else {
         success = await this.expenseService.addExpense(expenseData);
       }

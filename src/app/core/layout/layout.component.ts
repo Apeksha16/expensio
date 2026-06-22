@@ -27,6 +27,11 @@ import { ToastComponent } from '../../shared/ui/toast/toast.component';
 import { MonthPickerComponent } from '../../shared/ui/month-picker/month-picker.component';
 import { QuickActionsService } from '../services/quick-actions.service';
 import { QuickActionsSheetComponent } from '../../shared/ui/quick-actions-sheet/quick-actions-sheet.component';
+import { SubscriptionService } from '../services/subscription.service';
+import { SubscriptionSheetComponent } from '../../shared/ui/subscription-sheet/subscription-sheet.component';
+import { GoalService } from '../services/goal.service';
+import { GoalSheetComponent } from '../../shared/ui/goal-sheet/goal-sheet.component';
+import { AddFundsSheetComponent } from '../../shared/ui/add-funds-sheet/add-funds-sheet.component';
 
 @Component({
   selector: 'app-layout',
@@ -43,6 +48,9 @@ import { QuickActionsSheetComponent } from '../../shared/ui/quick-actions-sheet/
     ToastComponent,
     MonthPickerComponent,
     QuickActionsSheetComponent,
+    SubscriptionSheetComponent,
+    GoalSheetComponent,
+    AddFundsSheetComponent
   ],
   animations: [slideInAnimation],
   template: `
@@ -54,7 +62,7 @@ import { QuickActionsSheetComponent } from '../../shared/ui/quick-actions-sheet/
       <header
         class="fixed top-0 w-full bg-black z-30 flex items-center justify-between px-4 border-b-2 border-black h-14"
       >
-        @if (isProfilePage() || isGroupExpensesPage() || isBudgetExpensesPage()) {
+        @if (isProfilePage() || isGroupExpensesPage() || isBudgetExpensesPage() || isGoalTransactionsPage()) {
           <button
             (click)="goBack()"
             class="p-2 -ml-2 text-gray-400 hover:text-white focus:outline-none transition-colors"
@@ -97,6 +105,15 @@ import { QuickActionsSheetComponent } from '../../shared/ui/quick-actions-sheet/
         } @else if (isBudgetExpensesPage() && !isVirtualOthersBudget()) {
           <button
             (click)="editBudget()"
+            class="p-2 -mr-2 text-gray-400 hover:text-white focus:outline-none transition-colors"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5z" />
+            </svg>
+          </button>
+        } @else if (isGoalTransactionsPage()) {
+          <button
+            (click)="editGoal()"
             class="p-2 -mr-2 text-gray-400 hover:text-white focus:outline-none transition-colors"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -173,8 +190,8 @@ import { QuickActionsSheetComponent } from '../../shared/ui/quick-actions-sheet/
             LOGOUT
           </button>
           <div class="mt-4 text-center">
-            <span class="text-[10px] font-bold tracking-widest text-gray-400 uppercase"
-              >Version 1.0.19</span
+            <span class="text-[10px] font-extrabold tracking-widest text-gray-500 uppercase mt-auto opacity-70"
+              >Version 1.0.20</span
             >
           </div>
         </div>
@@ -239,6 +256,9 @@ import { QuickActionsSheetComponent } from '../../shared/ui/quick-actions-sheet/
       <app-group-sheet></app-group-sheet>
       <app-month-picker></app-month-picker>
       <app-quick-actions-sheet></app-quick-actions-sheet>
+      <app-subscription-sheet></app-subscription-sheet>
+      <app-goal-sheet></app-goal-sheet>
+      <app-add-funds-sheet></app-add-funds-sheet>
 
       <!-- Global Toasts -->
       <app-toast></app-toast>
@@ -261,6 +281,8 @@ export class Layout implements AfterViewInit {
   private contexts = inject(ChildrenOutletContexts);
   private keyboardService = inject(KeyboardService);
   quickActionsService = inject(QuickActionsService);
+  subscriptionService = inject(SubscriptionService);
+  goalService = inject(GoalService);
 
   currentUrl = signal(this.router.url);
 
@@ -268,6 +290,7 @@ export class Layout implements AfterViewInit {
   isDashboardPage = computed(() => this.currentUrl().includes('/dashboard') || this.currentUrl() === '/');
   isGroupExpensesPage = computed(() => this.currentUrl().includes('/splits/group/'));
   isBudgetExpensesPage = computed(() => this.currentUrl().match(/\/budgets\/.+/) !== null);
+  isGoalTransactionsPage = computed(() => this.currentUrl().match(/\/goals\/.+/) !== null);
 
   isVirtualOthersBudget = computed(() => {
     if (!this.isBudgetExpensesPage()) return false;
@@ -291,6 +314,17 @@ export class Layout implements AfterViewInit {
     return null;
   });
 
+  activeGoal = computed(() => {
+    if (this.isGoalTransactionsPage()) {
+      const match = this.currentUrl().match(/\/goals\/(.+)/);
+      const id = match ? match[1] : null;
+      if (id) {
+        return this.goalService.goals().find(g => g.id === id);
+      }
+    }
+    return null;
+  });
+
   pageTitle = computed(() => {
     const url = this.currentUrl();
     if (this.isBudgetExpensesPage()) {
@@ -303,7 +337,12 @@ export class Layout implements AfterViewInit {
     if (this.isGroupExpensesPage()) {
        return this.activeGroup()?.name || 'Loading...';
     }
+    if (this.isGoalTransactionsPage()) {
+       return this.activeGoal()?.name || 'Loading...';
+    }
     if (url.includes('/splits')) return 'Splits';
+    if (url.includes('/subscriptions')) return 'Subscriptions';
+    if (url.includes('/goals')) return 'Goals';
     if (url.includes('/profile')) return 'Profile';
     return 'Dashboard';
   });
@@ -355,6 +394,15 @@ export class Layout implements AfterViewInit {
       } else {
         this.splitService.openAddSplitSheet();
       }
+    } else if (this.currentUrl().includes('/subscriptions')) {
+      this.subscriptionService.openBottomSheet();
+    } else if (this.isGoalTransactionsPage()) {
+      const goal = this.activeGoal();
+      if (goal) {
+        this.goalService.openAddFundsSheet(goal);
+      }
+    } else if (this.currentUrl().includes('/goals')) {
+      this.goalService.openBottomSheet();
     } else {
       this.expenseService.openBottomSheet();
     }
@@ -379,6 +427,13 @@ export class Layout implements AfterViewInit {
       if (budget) {
         this.budgetService.openBottomSheet(budget);
       }
+    }
+  }
+
+  editGoal() {
+    const goal = this.activeGoal();
+    if (goal) {
+      this.goalService.openBottomSheet(goal);
     }
   }
 

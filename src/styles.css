@@ -91,3 +91,8 @@ input[type="checkbox"]:checked {
   50% { transform: translateX(300%); }
   100% { transform: translateX(-100%); }
 }
+
+@keyframes fillProgress {
+  0% { transform: scaleX(0); }
+  100% { transform: scaleX(1); }
+}

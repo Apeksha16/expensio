@@ -90,6 +90,21 @@ export const routes: Routes = [
         data: { animationIndex: 5.5 }
       },
       {
+        path: 'subscriptions',
+        loadComponent: () => import('./features/subscriptions/subscriptions.component').then(m => m.SubscriptionsComponent),
+        data: { animationIndex: 5.8 }
+      },
+      {
+        path: 'goals',
+        loadComponent: () => import('./features/goals/goals.component').then(m => m.GoalsComponent),
+        data: { animationIndex: 5.9 }
+      },
+      {
+        path: 'goals/:id',
+        loadComponent: () => import('./features/goals/goal-transactions/goal-transactions.component').then(m => m.GoalTransactionsComponent),
+        data: { animationIndex: 5.95 }
+      },
+      {
         path: 'profile',
         loadComponent: () => import('./features/profile/profile.component').then(m => m.Profile),
         data: { animationIndex: 6 }

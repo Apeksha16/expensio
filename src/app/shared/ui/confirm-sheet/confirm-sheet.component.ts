@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 
 import { animate, style, transition, trigger } from '@angular/animations';
 import { ConfirmService } from '../../../core/services/confirm.service';
@@ -59,8 +59,15 @@ import { HapticService } from '../../../core/services/haptic.service';
           </button>
           <button
             (click)="confirm()"
-            class="flex-1 bg-red-600 text-white p-3.5 font-bold text-sm tracking-wide transition-all border-2 border-transparent active:scale-[0.98] rounded-none flex items-center justify-center gap-2"
+            [disabled]="isProcessing()"
+            class="flex-1 bg-red-600 text-white p-3.5 font-bold text-sm tracking-wide transition-all border-2 border-transparent active:scale-[0.98] rounded-none flex items-center justify-center gap-2 disabled:opacity-70"
           >
+            @if (isProcessing()) {
+              <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            }
             {{ confirmService.config()?.confirmText }}
           </button>
         </div>
@@ -71,16 +78,19 @@ import { HapticService } from '../../../core/services/haptic.service';
 export class ConfirmSheetComponent { 
   haptic = inject(HapticService);
   confirmService = inject(ConfirmService);
+  isProcessing = signal(false);
 
   close() {
     this.haptic.impactLight();
     this.confirmService.close();
   }
 
-  confirm() {
+  async confirm() {
     const config = this.confirmService.config();
     if (config && config.onConfirm) {
-      config.onConfirm();
+      this.isProcessing.set(true);
+      await config.onConfirm();
+      this.isProcessing.set(false);
     }
     this.close();
   }
