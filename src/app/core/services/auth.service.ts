@@ -12,6 +12,7 @@ export interface UserProfile {
   salary: number;
   avatarId: number;
   maskValues: boolean;
+  quickActions?: string[];
 }
 
 @Injectable({
@@ -61,9 +62,10 @@ export class AuthService {
     email: '',
     salary: 0,
     avatarId: 1,
-    maskValues: false
+    maskValues: false,
+    quickActions: ['expenses', 'splits', 'friends', 'budgets']
   }, {
-    equal: (a, b) => a.name === b.name && a.username === b.username && a.salary === b.salary && a.avatarId === b.avatarId && a.email === b.email && a.maskValues === b.maskValues
+    equal: (a, b) => a.name === b.name && a.username === b.username && a.salary === b.salary && a.avatarId === b.avatarId && a.email === b.email && a.maskValues === b.maskValues && JSON.stringify(a.quickActions) === JSON.stringify(b.quickActions)
   });
 
   constructor() {
@@ -100,7 +102,8 @@ export class AuthService {
           email: session.user.email || '',
           salary: metadata['salary'] || 0,
           avatarId: metadata['avatarId'] || 1,
-          maskValues: metadata['maskValues'] === true
+          maskValues: metadata['maskValues'] === true,
+          quickActions: metadata['quickActions'] || ['expenses', 'splits', 'friends', 'budgets']
         });
 
         // Always onboarded since onboarding happens pre-signup now
@@ -146,7 +149,8 @@ export class AuthService {
         preferred_username: profile.username,
         salary: profile.salary,
         avatarId: profile.avatarId,
-        maskValues: profile.maskValues
+        maskValues: profile.maskValues,
+        quickActions: profile.quickActions
       }
     });
 
