@@ -63,7 +63,7 @@ export class SplitService {
     }
   }
 
-  private async loadData() {
+  private async loadData(syncExpenses: boolean = false) {
     const user = this.authService.userProfile();
     if (!user) return;
 
@@ -82,21 +82,23 @@ export class SplitService {
     if (expensesData) this.splits.set(expensesData);
 
     // Sync expense service so splits show up immediately in expenses list
-    this.expenseService.fetchExpenses();
+    if (syncExpenses) {
+      this.expenseService.fetchExpenses();
+    }
   }
 
   private setupRealtime() {
     this.supabase.client
       .channel('public:split_groups')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'split_groups' }, () => {
-        this.loadData();
+        this.loadData(true);
       })
       .subscribe();
 
     this.supabase.client
       .channel('public:split_expenses')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'split_expenses' }, () => {
-        this.loadData();
+        this.loadData(true);
       })
       .subscribe();
   }
@@ -121,7 +123,7 @@ export class SplitService {
       } else {
         this.toastService.showSuccess('Split added successfully!');
       }
-      this.loadData();
+      this.loadData(true);
     }
   }
 
@@ -138,7 +140,7 @@ export class SplitService {
       this.toastService.showError('Failed to confirm settlement.');
     } else if (data) {
       this.toastService.showSuccess('Settlement confirmed!');
-      this.loadData();
+      this.loadData(true);
     }
   }
 
@@ -164,9 +166,9 @@ export class SplitService {
       this.toastService.showError('Failed to update split. Please try again.');
     } else if (data && !silent) {
       this.toastService.showSuccess('Split updated successfully!');
-      this.loadData();
+      this.loadData(true);
     } else if (data) {
-      this.loadData();
+      this.loadData(true);
     }
   }
 
@@ -181,7 +183,7 @@ export class SplitService {
       this.toastService.showError('Failed to delete split. Please try again.');
     } else {
       this.toastService.showSuccess('Split deleted successfully!');
-      this.loadData();
+      this.loadData(true);
     }
   }
 
@@ -227,7 +229,7 @@ export class SplitService {
       this.toastService.showError('Failed to create group. Please try again.');
     } else if (data) {
       this.toastService.showSuccess('Group created successfully!');
-      this.loadData();
+      this.loadData(true);
     }
   }
 
@@ -244,7 +246,7 @@ export class SplitService {
       this.toastService.showError('Failed to update group. Please try again.');
     } else if (data) {
       this.toastService.showSuccess('Group updated successfully!');
-      this.loadData();
+      this.loadData(true);
     }
   }
 
@@ -259,7 +261,7 @@ export class SplitService {
       this.toastService.showError('Failed to delete group. Please try again.');
     } else {
       this.toastService.showSuccess('Group deleted successfully!');
-      this.loadData();
+      this.loadData(true);
     }
   }
 

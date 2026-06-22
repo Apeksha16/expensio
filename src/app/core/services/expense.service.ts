@@ -1,4 +1,4 @@
-import { Injectable, signal, computed, Inject, effect, inject } from '@angular/core';
+import { Injectable, signal, computed, Inject, effect, inject, untracked } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { SupabaseService } from './supabase.service';
 import { AuthService } from './auth.service';
@@ -22,6 +22,7 @@ export class ExpenseService {
   private toastService = inject(ToastService);
 
   readonly isLoading = signal(false);
+  readonly hasInitiallyLoaded = signal(false);
 
   constructor(@Inject(DOCUMENT) private document: Document) {
     effect(() => {
@@ -29,13 +30,14 @@ export class ExpenseService {
       const month = this.activeMonth(); // Track month changes
       if (user) {
         this.fetchExpenses(month);
-      } else {
+      } else if (untracked(() => this.authService.isInitialized())) {
         this.allExpenses.set([]);
         this.applyFilterAndPagination();
+        this.hasInitiallyLoaded.set(true);
       }
     });
   }
-  
+
   // All expenses in memory
   private allExpenses = signal<Expense[]>([]);
 
@@ -119,6 +121,7 @@ export class ExpenseService {
     all.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     this.allExpenses.set(all);
     this.applyFilterAndPagination();
+    this.hasInitiallyLoaded.set(true);
     this.isLoading.set(false);
   }
 

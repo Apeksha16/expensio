@@ -79,7 +79,7 @@ import { SafeInputDirective } from '../safe-input.directive';
         <div class="p-6 bg-white flex-1">
           @if (isEditing) {
             <div class="flex justify-center mb-5">
-              <span class="text-[9px] font-extrabold tracking-widest uppercase text-gray-400 bg-gray-100 px-3 py-1 rounded-full">
+              <span class="text-[9px] font-extrabold tracking-widest uppercase text-gray-400 bg-gray-100 px-3 py-1 rounded-none">
                 Added {{ splitService.editingGroup()?.created_at | date: 'medium' }}
               </span>
             </div>
@@ -149,7 +149,7 @@ import { SafeInputDirective } from '../safe-input.directive';
             </form>
           } @else {
             <div class="flex flex-col items-center justify-center py-8 text-center gap-4">
-              <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
+              <div class="w-16 h-16 rounded-none bg-gray-100 flex items-center justify-center">
                 <svg
                   class="w-8 h-8 text-gray-400"
                   fill="none"

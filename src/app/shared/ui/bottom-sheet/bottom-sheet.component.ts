@@ -107,7 +107,7 @@ import { SafeInputDirective } from '../safe-input.directive';
         <div class="p-6 bg-white flex-1">
           @if (isEditing) {
             <div class="flex justify-center mb-5">
-              <span class="text-[9px] font-extrabold tracking-widest uppercase text-gray-400 bg-gray-100 px-3 py-1 rounded-full">
+              <span class="text-[9px] font-extrabold tracking-widest uppercase text-gray-400 bg-gray-100 px-3 py-1 rounded-none">
                 Added {{ expenseService.editingExpense()?.created_at | date: 'medium' }}
               </span>
             </div>
@@ -159,7 +159,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                 <div class="grid grid-cols-4 gap-2">
                   @for (i of [1, 2, 3, 4, 5, 6, 7, 8]; track i) {
                     <div class="flex flex-col items-center justify-center gap-1 p-2 border-2 border-gray-100 bg-gray-50 rounded-none min-h-[60px] animate-pulse">
-                      <div class="w-5 h-5 bg-gray-200 rounded-full"></div>
+                      <div class="w-5 h-5 bg-gray-200 rounded-none"></div>
                       <div class="h-2 bg-gray-200 w-10 mt-1 rounded"></div>
                     </div>
                   }

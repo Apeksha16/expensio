@@ -154,21 +154,29 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
 
   chartType: 'weekly' | 'monthly' = 'weekly';
   chartInstance: any;
-  isInitialLoading = computed(() => this.expenseService.isLoading());
+  isInitialLoading = computed(() => !this.expenseService.hasInitiallyLoaded() || this.expenseService.isLoading());
   isMasked = signal(false);
+
+  private _remoteLog(msg: string) {
+    fetch('http://localhost:9999/log', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ level: 'INFO', message: msg }) }).catch(() => {});
+  }
 
   private chartCanvasRef!: ElementRef;
 
   @ViewChild('chartCanvas') set chartCanvas(el: ElementRef | undefined) {
+    this._remoteLog(`chartCanvas setter called. el present: ${!!el}`);
     if (el) {
       this.chartCanvasRef = el;
       if (!this.chartInstance) {
+        this._remoteLog(`chartCanvas scheduling initChart`);
         setTimeout(() => {
+          this._remoteLog(`chartCanvas running initChart in setTimeout`);
           this.initChart();
         });
       }
     } else {
       if (this.chartInstance) {
+        this._remoteLog(`chartCanvas destroying chartInstance`);
         this.chartInstance.destroy();
         this.chartInstance = null;
       }
