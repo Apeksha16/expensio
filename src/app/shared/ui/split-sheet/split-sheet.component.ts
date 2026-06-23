@@ -607,6 +607,12 @@ export class SplitSheetComponent implements OnInit {
     if (this.splitForm.invalid) return false;
     if (this.selectedParticipants().length === 0) return false;
     if (this.splitStrategy() === 'CUSTOM' && this.getLeftToAssign() < 0) return false;
+    // CUSTOM: participant amounts must exactly sum to total (allow ≤1 rounding tolerance)
+    if (this.splitStrategy() === 'CUSTOM') {
+      const total = this.splitForm.value.totalAmount || 0;
+      const assigned = this.selectedParticipants().reduce((s, p) => s + Number(this.customAmounts[p]?.value || 0), 0);
+      if (Math.abs(total - assigned) > 1) return false;
+    }
     return true;
   }
 

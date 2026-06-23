@@ -120,7 +120,7 @@ export class BudgetExpenses implements OnInit {
 
   budgetAmount = computed(() => {
     const budget = this.budgetService.budgets().find(b => b.name === this.budgetName());
-    return budget ? budget.amount : 0;
+    return budget ? budget.amount + (budget.rollover_amount || 0) : 0;
   });
 
   consumed = computed(() => {

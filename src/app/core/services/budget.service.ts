@@ -12,6 +12,7 @@ export interface Budget {
   icon_path: string;
   month: string;
   auto_rollover: boolean;
+  rollover_amount?: number;
   created_at?: string;
 }
 
@@ -124,14 +125,34 @@ export class BudgetService {
         if (!prevError && prevData && prevData.length > 0) {
           const user = this.authService.currentUser();
           if (user) {
-            const newBudgets = prevData.map(b => ({
-              user_id: user.id,
-              name: b.name,
-              amount: b.amount,
-              icon_path: b.icon_path,
-              month: monthStr,
-              auto_rollover: true
-            }));
+            const { startDate, endDate } = this.getMonthDateRange(prevMonthStr);
+            const { data: prevExpenses, error: prevExpError } = await this.supabaseService.client
+              .from('expenses')
+              .select('category, amount')
+              .eq('user_id', user.id)
+              .gte('date', startDate)
+              .lt('date', endDate);
+
+            const spentByCategory: Record<string, number> = {};
+            if (!prevExpError && prevExpenses) {
+              prevExpenses.forEach(exp => {
+                spentByCategory[exp.category] = (spentByCategory[exp.category] || 0) + exp.amount;
+              });
+            }
+
+            const newBudgets = prevData.map(b => {
+              const consumed = spentByCategory[b.name] || 0;
+              const rollover = Math.max(0, b.amount - consumed);
+              return {
+                user_id: user.id,
+                name: b.name,
+                amount: b.amount,
+                icon_path: b.icon_path,
+                month: monthStr,
+                auto_rollover: true,
+                rollover_amount: rollover
+              };
+            });
             
             const { data: insertedData, error: insertError } = await this.supabaseService.client
               .from('budgets')
@@ -140,6 +161,12 @@ export class BudgetService {
               
             if (!insertError && insertedData) {
               this._budgets.set(insertedData as Budget[]);
+              this.isLoading.set(false);
+              return;
+            } else {
+              // Rollover failed — show error and fall back to displaying last month's budgets
+              this.toastService.showError("Couldn't create this month's budgets. Please check your connection.");
+              this._budgets.set(prevData as Budget[]);
               this.isLoading.set(false);
               return;
             }
@@ -151,10 +178,74 @@ export class BudgetService {
     this.isLoading.set(false);
   }
 
+  async syncRolloverForMonth(expenseDateStr: string, category: string) {
+    // Expense date e.g. "2026-06-15"
+    const [year, m] = expenseDateStr.split('T')[0].split('-');
+    let nextM = parseInt(m) + 1;
+    let nextY = parseInt(year);
+    if (nextM > 12) {
+      nextM = 1;
+      nextY += 1;
+    }
+    const nextMonthStr = `${nextY}-${nextM.toString().padStart(2, '0')}`;
+    const currentMonthStr = `${year}-${m}`;
+
+    // 1. Check if next month has a budget for this category
+    const { data: nextBudget } = await this.supabaseService.client
+      .from('budgets')
+      .select('*')
+      .eq('month', nextMonthStr)
+      .eq('name', category)
+      .single();
+
+    if (nextBudget && nextBudget.auto_rollover) {
+      // 2. Recalculate spent in currentMonthStr
+      const user = this.authService.currentUser();
+      if (!user) return;
+      
+      const { startDate, endDate } = this.getMonthDateRange(currentMonthStr);
+      const { data: prevExpenses } = await this.supabaseService.client
+        .from('expenses')
+        .select('amount')
+        .eq('user_id', user.id)
+        .eq('category', category)
+        .gte('date', startDate)
+        .lt('date', endDate);
+        
+      const spent = prevExpenses?.reduce((s, e) => s + e.amount, 0) || 0;
+      
+      // 3. Update the rollover_amount in the next month's budget
+      // The previous month's budget limit is needed. We query the previous month's budget.
+      const { data: prevBudget } = await this.supabaseService.client
+        .from('budgets')
+        .select('amount')
+        .eq('month', currentMonthStr)
+        .eq('name', category)
+        .single();
+        
+      const prevLimit = prevBudget ? prevBudget.amount : nextBudget.amount; // fallback
+      const newRollover = Math.max(0, prevLimit - spent);
+      
+      await this.supabaseService.client
+        .from('budgets')
+        .update({ rollover_amount: newRollover })
+        .eq('id', nextBudget.id);
+    }
+  }
+
   async addBudget(budget: Omit<Budget, 'id' | 'month'>): Promise<boolean> {
     const user = this.authService.currentUser();
     const month = this.expenseService.activeMonth();
     if (!user || !month) return false;
+
+    // Prevent duplicate budget names for the same month
+    const duplicate = this._budgets().find(
+      b => b.name.toLowerCase() === budget.name.toLowerCase()
+    );
+    if (duplicate) {
+      this.toastService.showError(`A budget for '${budget.name}' already exists this month.`);
+      return false;
+    }
 
     this.isSaving.set(true);
     const { data, error } = await this.supabaseService.client
@@ -193,19 +284,16 @@ export class BudgetService {
       .eq('id', id);
 
     if (!error) {
-      // If the name changed, cascade the update to the expenses table for this month only
+      // If the name changed, cascade the update to ALL expenses (all-time, not just this month)
       if (oldName && oldName !== data.name) {
         const user = this.authService.currentUser();
-        const month = this.expenseService.activeMonth();
-        if (user && month) {
-          const { startDate, endDate } = this.getMonthDateRange(month);
+        if (user) {
           await this.supabaseService.client
             .from('expenses')
             .update({ category: data.name })
             .eq('user_id', user.id)
-            .eq('category', oldName)
-            .gte('date', startDate)
-            .lt('date', endDate);
+            .eq('category', oldName);
+          // No date filters — intentionally updates all historical expenses
         }
       }
 

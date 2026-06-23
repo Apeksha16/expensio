@@ -14,6 +14,7 @@ import { slideInAnimation } from './core/animations/route-animations';
 import { PwaService } from './core/services/pwa.service';
 import { KeyboardService } from './core/services/keyboard.service';
 import { AuthService } from './core/services/auth.service';
+import { AppInitService } from './core/services/app-init.service';
 
 @Component({
   selector: 'app-root',
@@ -34,6 +35,7 @@ export class App implements AfterViewInit {
   protected readonly title = signal('expensio');
   pwaService = inject(PwaService);
   authService = inject(AuthService);
+  appInitService = inject(AppInitService);
   private contexts = inject(ChildrenOutletContexts);
   private keyboardService = inject(KeyboardService);
 

@@ -1,7 +1,8 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { GoalService, Goal } from '../../core/services/goal.service';
+import { ExpenseService } from '../../core/services/expense.service';
 import { ConfirmService } from '../../core/services/confirm.service';
 import { AddFundsSheetComponent } from '../../shared/ui/add-funds-sheet/add-funds-sheet.component';
 
@@ -30,8 +31,8 @@ import { AddFundsSheetComponent } from '../../shared/ui/add-funds-sheet/add-fund
         </div>
       } @else {
         <div class="flex-1 flex flex-col gap-3 pb-36 mt-2">
-          @if (goalService.goals().length > 0) {
-            @for (goal of goalService.goals(); track goal.id) {
+          @if (activeGoals().length > 0) {
+            @for (goal of activeGoals(); track goal.id) {
               <button
                 (click)="openTransactions(goal.id)"
                 class="w-full bg-white border-2 border-black rounded-none p-4 flex flex-col gap-3 text-left hover:bg-gray-50 transition-colors active:bg-gray-100"
@@ -64,11 +65,18 @@ import { AddFundsSheetComponent } from '../../shared/ui/add-funds-sheet/add-fund
                 </div>
 
                 <div class="flex justify-between items-center w-full gap-2 mt-2 pt-3 border-t border-gray-100">
-                  <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest min-w-0">
-                    <span [ngClass]="getDueMessageClass(goal.installment_date)">
-                      {{ getDueMessage(goal.installment_date) }}
+                  @if (paidGoalsThisMonth().has(goal.id)) {
+                    <span class="text-[10px] font-extrabold text-green-600 uppercase tracking-widest flex items-center gap-1">
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                      </svg>
+                      Paid this month
                     </span>
-                  </span>
+                  } @else {
+                    <span class="text-[10px] font-bold text-orange-500 uppercase tracking-widest">
+                      Due · ₹{{ goal.calculated_installment | number: '1.0-0' }}
+                    </span>
+                  }
                   <button
                     (click)="addFunds($event, goal)"
                     class="bg-black text-white px-4 py-1.5 rounded-none text-[9px] font-extrabold uppercase tracking-widest hover:bg-gray-800 transition-colors flex items-center gap-2"
@@ -91,6 +99,39 @@ import { AddFundsSheetComponent } from '../../shared/ui/add-funds-sheet/add-fund
               </p>
             </div>
           }
+          
+          @if (archivedGoals().length > 0) {
+            <div class="mt-8 mb-4">
+               <h3 class="font-extrabold text-black uppercase tracking-widest text-sm">Archived Goals</h3>
+            </div>
+            @for (goal of archivedGoals(); track goal.id) {
+              <div class="w-full bg-white border-2 border-black rounded-none p-4 flex flex-col gap-3 text-left opacity-75">
+                <div class="flex justify-between items-center w-full pb-3 border-b border-gray-100">
+                  <span class="font-black text-green-600 uppercase tracking-widest text-xs flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Goal Achieved 🎉
+                  </span>
+                </div>
+                <div class="flex items-start gap-4">
+                  <div class="w-12 h-12 bg-black text-white flex items-center justify-center shrink-0 rounded-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                      <path [attr.d]="getGoalIconPath(goal.icon)"></path>
+                    </svg>
+                  </div>
+                  <div class="flex flex-col gap-0.5 flex-1 min-w-0 pr-2">
+                    <span class="font-extrabold text-lg text-black truncate">{{ goal.name }}</span>
+                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Achieved</span>
+                  </div>
+                  <div class="flex flex-col items-end shrink-0">
+                    <span class="font-extrabold text-lg text-black">₹{{ goal.total_amount | number: '1.0-0' }}</span>
+                    <span class="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Total</span>
+                  </div>
+                </div>
+              </div>
+            }
+          }
         </div>
       }
     </div>
@@ -98,8 +139,27 @@ import { AddFundsSheetComponent } from '../../shared/ui/add-funds-sheet/add-fund
 })
 export class GoalsComponent {
   goalService = inject(GoalService);
+  expenseService = inject(ExpenseService);
   confirmService = inject(ConfirmService);
   router = inject(Router);
+
+  activeGoals = computed(() => this.goalService.goals().filter(g => g.saved_amount < g.total_amount || g.total_amount === 0));
+  archivedGoals = computed(() => this.goalService.goals().filter(g => g.saved_amount >= g.total_amount && g.total_amount > 0));
+
+  paidGoalsThisMonth = computed(() => {
+    const month = this.expenseService.activeMonth();
+    const ids = this.expenseService.allExpenses()
+      .filter(e => e.category === 'virtual-invest' && e.date.startsWith(month))
+      .map(e => {
+         if (e.goal_id) return e.goal_id;
+         // Fallback for older expenses
+         const title = e.title.startsWith('Goal: ') ? e.title.replace('Goal: ', '') : e.title;
+         const matchingGoal = this.goalService.goals().find(g => g.name === title);
+         return matchingGoal ? matchingGoal.id : null;
+      })
+      .filter(id => id !== null);
+    return new Set(ids);
+  });
 
   getProgress(goal: Goal): number {
     if (!goal.total_amount) return 0;

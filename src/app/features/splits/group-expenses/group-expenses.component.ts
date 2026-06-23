@@ -89,8 +89,19 @@ import { ConfirmService } from '../../../core/services/confirm.service';
                               }
                               Confirm
                             </button>
+                            <button
+                              (click)="disputeSettlement($event, split.id)"
+                              class="bg-red-500 text-white px-2 py-1 rounded-none text-[9px] font-extrabold uppercase tracking-widest hover:bg-red-600 transition-colors"
+                            >
+                              Dispute
+                            </button>
                           } @else {
-                            <span class="text-[9px] font-extrabold text-orange-500 uppercase tracking-widest">Pending</span>
+                            <button
+                              (click)="cancelSettlement($event, split.id)"
+                              class="bg-orange-500 text-white px-2 py-1 rounded-none text-[9px] font-extrabold uppercase tracking-widest hover:bg-orange-600 transition-colors"
+                            >
+                              Cancel
+                            </button>
                           }
                         } @else {
                           <button
@@ -152,24 +163,20 @@ export class GroupExpenses implements OnInit {
   processingIds = signal<Set<string>>(new Set());
   
   group = computed(() => this.splitService.groups().find(g => g.id === this.groupId()));
-  groupExpenses = computed(() => this.splitService.splits().filter(s => s.group_id === this.groupId()));
+  groupExpenses = computed(() => this.splitService.splits().filter(s => s.group_id === this.groupId() && !s.parent_expense_id));
 
   groupBalance = computed(() => {
     let owed = 0;
     let owe = 0;
     const currentUserId = this.currentUser()?.id;
+    if (!currentUserId) return { owed: 0, owe: 0, net: 0 };
 
-    this.groupExpenses().forEach(split => {
-      if (split.category === 'Pending Settlement') return;
-      
-      if (split.payer_id === currentUserId) {
-        owed += split.participants
-          .filter(p => p.userId !== currentUserId)
-          .reduce((sum, p) => sum + p.amountOwed, 0);
-      } else {
-        owe += split.participants.find(p => p.userId === currentUserId)?.amountOwed || 0;
-      }
+    const simplified = this.splitService.simplifyDebts(this.groupExpenses(), currentUserId);
+    Object.values(simplified).forEach(amount => {
+      if (amount > 0) owed += amount;
+      else if (amount < 0) owe += Math.abs(amount);
     });
+
     return { owed, owe, net: owed - owe };
   });
 
@@ -194,6 +201,15 @@ export class GroupExpenses implements OnInit {
     const myParticipant = split.participants?.find((p: any) => p.userId === me);
     if (!myParticipant) return null;
 
+    const partialSettlements = this.splitService.splits().filter((s: any) => s.parent_expense_id === split.id);
+    const partialSettledSum = partialSettlements
+        .filter((s: any) => s.category === 'Settlement' || s.participants.some((p: any) => p.status === 'settled'))
+        .reduce((sum: number, s: any) => sum + s.total_amount, 0);
+        
+    const partialPendingSum = partialSettlements
+        .filter((s: any) => s.category === 'Pending Settlement' && !s.participants.some((p: any) => p.status === 'settled'))
+        .reduce((sum: number, s: any) => sum + s.total_amount, 0);
+
     if (split.payer_id === me) {
       let iAmOwed = 0;
       let hasPending = false;
@@ -203,11 +219,17 @@ export class GroupExpenses implements OnInit {
           if (p.status === 'pending') hasPending = true;
         }
       });
+      
+      iAmOwed -= (partialSettledSum + partialPendingSum);
+      if (partialPendingSum > 0) hasPending = true;
+
       if (iAmOwed > 0) return { type: 'owed', amount: iAmOwed, pending: hasPending };
       return null;
     } else {
       if (myParticipant.amountOwed > 0 && myParticipant.status !== 'settled') {
-        return { type: 'owe', amount: myParticipant.amountOwed, pending: myParticipant.status === 'pending' };
+        const iOwe = myParticipant.amountOwed - partialSettledSum - partialPendingSum;
+        const isPending = myParticipant.status === 'pending' || partialPendingSum > 0;
+        if (iOwe > 0) return { type: 'owe', amount: iOwe, pending: isPending };
       }
       return null;
     }
@@ -261,12 +283,15 @@ export class GroupExpenses implements OnInit {
 
     const isOwed = bal.type === 'owed';
     
+    let targetId = '';
     let targetName = 'everyone';
     if (!isOwed) {
+      targetId = split.payer_id;
       targetName = this.getFriendName(split.payer_id);
     } else {
       const otherPart = split.participants?.find((p: any) => p.userId !== this.currentUser()!.id && p.amountOwed > 0);
       if (otherPart) {
+        targetId = otherPart.userId;
         targetName = this.getFriendName(otherPart.userId);
       }
     }
@@ -280,21 +305,58 @@ export class GroupExpenses implements OnInit {
       message: message,
       confirmText: 'Confirm',
       cancelText: 'Cancel',
-      onConfirm: async () => {
-        const updatedSplit = { ...split };
+      showInput: true,
+      inputValue: bal.amount,
+      inputMax: bal.amount,
+      onConfirm: async (amount?: number) => {
+        const settleAmount = amount ?? bal.amount;
+        const isFullSettlement = settleAmount >= bal.amount;
         const myId = this.currentUser()!.id;
-        if (!isOwed) {
-          updatedSplit.participants = updatedSplit.participants.map((p: any) => 
-            p.userId === myId ? { ...p, status: 'pending' } : p
-          );
-          await this.splitService.updateSplit(updatedSplit as any, true);
-          this.toastService.showSuccess('Settlement requested! Waiting for confirmation.');
+        
+        if (isFullSettlement) {
+          const updatedSplit = { ...split };
+          if (!isOwed) {
+            updatedSplit.participants = updatedSplit.participants.map((p: any) => 
+              p.userId === myId ? { ...p, status: 'pending' } : p
+            );
+            await this.splitService.updateSplit(updatedSplit as any, true);
+            this.toastService.showSuccess('Settlement requested! Waiting for confirmation.');
+          } else {
+            updatedSplit.participants = updatedSplit.participants.map((p: any) => 
+              (p.userId !== myId && p.amountOwed > 0) ? { ...p, status: 'settled' } : p
+            );
+            await this.splitService.updateSplit(updatedSplit as any, true);
+            this.toastService.showSuccess('Expense settled successfully!');
+          }
         } else {
-          updatedSplit.participants = updatedSplit.participants.map((p: any) => 
-            (p.userId !== myId && p.amountOwed > 0) ? { ...p, status: 'settled' } : p
-          );
-          await this.splitService.updateSplit(updatedSplit as any, true);
-          this.toastService.showSuccess('Expense settled successfully!');
+          // Partial Settlement
+          let payerId = '';
+          let participantId = '';
+          
+          if (isOwed) {
+             payerId = targetId;
+             participantId = myId;
+          } else {
+             payerId = myId;
+             participantId = targetId;
+          }
+
+          const newSplit: Omit<SplitExpense, 'id' | 'created_at'> = {
+             title: 'Partial Settlement',
+             total_amount: settleAmount,
+             payer_id: payerId,
+             participants: [
+               { userId: participantId, amountOwed: settleAmount }, 
+               { userId: payerId, amountOwed: 0 }
+             ],
+             participant_ids: [participantId, payerId],
+             date: new Date().toISOString(),
+             category: isOwed ? 'Settlement' : 'Pending Settlement',
+             group_id: split.group_id || null,
+             parent_expense_id: split.id
+          };
+
+          await this.splitService.addSplit(newSplit);
         }
       }
     });
@@ -333,6 +395,34 @@ export class GroupExpenses implements OnInit {
           after.delete(key);
           this.processingIds.set(after);
         }
+      }
+    });
+  }
+
+  cancelSettlement(event: Event, splitId: string) {
+    event.stopPropagation();
+    const myId = this.currentUser()?.id;
+    if (!myId) return;
+    this.confirmService.open({
+      title: 'Cancel Settlement Request',
+      message: 'Are you sure you want to cancel your settlement request?',
+      confirmText: 'Yes, Cancel',
+      cancelText: 'Keep',
+      onConfirm: async () => {
+        await this.splitService.cancelSettlement(splitId, myId);
+      }
+    });
+  }
+
+  disputeSettlement(event: Event, splitId: string) {
+    event.stopPropagation();
+    this.confirmService.open({
+      title: 'Dispute Settlement',
+      message: 'This will cancel the settlement request and revert this expense to pending.',
+      confirmText: 'Dispute',
+      cancelText: 'Cancel',
+      onConfirm: async () => {
+        await this.splitService.disputeSettlement(splitId);
       }
     });
   }

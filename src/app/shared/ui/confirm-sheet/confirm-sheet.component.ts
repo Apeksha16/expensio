@@ -1,4 +1,5 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, effect } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
 import { animate, style, transition, trigger } from '@angular/animations';
 import { ConfirmService } from '../../../core/services/confirm.service';
@@ -9,7 +10,7 @@ import { HapticService } from '../../../core/services/haptic.service';
 @Component({
   selector: 'app-confirm-sheet',
   standalone: true,
-  imports: [SwipeToCloseDirective],
+  imports: [SwipeToCloseDirective, FormsModule],
   animations: [
     trigger('slideUp', [
       transition(':enter', [
@@ -49,6 +50,14 @@ import { HapticService } from '../../../core/services/haptic.service';
           <p class="text-gray-500 font-bold leading-relaxed">
             {{ confirmService.config()?.message }}
           </p>
+          @if (confirmService.config()?.showInput) {
+            <div class="mt-2 flex flex-col gap-1">
+               <label class="text-xs font-bold text-gray-500 uppercase tracking-widest">Amount</label>
+               <input [(ngModel)]="currentAmount" type="number" 
+                 [max]="confirmService.config()?.inputMax ?? null"
+                 class="w-full bg-gray-50 border-2 border-gray-200 p-3 font-extrabold text-black outline-none focus:border-black transition-colors rounded-none" />
+            </div>
+          }
         </div>
         <div class="flex gap-3 mt-2">
           <button
@@ -79,6 +88,18 @@ export class ConfirmSheetComponent {
   haptic = inject(HapticService);
   confirmService = inject(ConfirmService);
   isProcessing = signal(false);
+  currentAmount?: number;
+
+  constructor() {
+    effect(() => {
+      const config = this.confirmService.config();
+      if (config?.showInput) {
+        this.currentAmount = config.inputValue;
+      } else {
+        this.currentAmount = undefined;
+      }
+    });
+  }
 
   close() {
     this.haptic.impactLight();
@@ -89,7 +110,7 @@ export class ConfirmSheetComponent {
     const config = this.confirmService.config();
     if (config && config.onConfirm) {
       this.isProcessing.set(true);
-      await config.onConfirm();
+      await config.onConfirm(this.currentAmount);
       this.isProcessing.set(false);
     }
     this.close();

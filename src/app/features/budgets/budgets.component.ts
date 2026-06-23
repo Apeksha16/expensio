@@ -83,7 +83,10 @@ import { Router } from '@angular/router';
                   <div class="h-5 bg-gray-300 w-2/3 animate-pulse"></div>
                   <div class="h-3 bg-gray-300 w-1/2 animate-pulse"></div>
                 </div>
-                <div class="h-6 bg-gray-300 w-16 animate-pulse"></div>
+                <div class="flex flex-col items-end gap-1">
+                  <div class="h-6 bg-gray-300 w-16 animate-pulse"></div>
+                  <div class="h-2 bg-gray-300 w-20 animate-pulse"></div>
+                </div>
               </div>
               <div class="h-1.5 w-full bg-gray-300 mt-2"></div>
             </div>
@@ -108,7 +111,12 @@ import { Router } from '@angular/router';
                     @if (budget.id === 'virtual-others') {
                       <span class="font-extrabold text-xl text-gray-500">₹{{ getConsumed(budget.name) | number: '1.0-0' }}</span>
                     } @else {
-                      <span class="font-extrabold text-xl">₹{{ budget.amount | number: '1.0-0' }}</span>
+                      <div class="flex flex-col items-end">
+                        <span class="font-extrabold text-xl">₹{{ (budget.amount + (budget.rollover_amount || 0)) | number: '1.0-0' }}</span>
+                        @if (budget.rollover_amount) {
+                          <span class="text-[9px] font-bold text-green-600 tracking-widest uppercase">+ ₹{{ budget.rollover_amount | number: '1.0-0' }} Rolled Over</span>
+                        }
+                      </div>
                     }
                   </div>
                 </div>
@@ -119,10 +127,10 @@ import { Router } from '@angular/router';
                       class="h-full transition-all duration-1000 ease-out"
                       [style.width.%]="
                         !budgetService.isLoading() && animateBars()
-                          ? getPercent(budget.name, budget.amount)
+                          ? getPercent(budget.name, budget.amount + (budget.rollover_amount || 0))
                           : 0
                       "
-                      [ngClass]="getColorClass(budget.name, budget.amount)"
+                      [ngClass]="getColorClass(budget.name, budget.amount + (budget.rollover_amount || 0))"
                     ></div>
                   </div>
                 }
@@ -204,7 +212,7 @@ export class Budgets implements OnInit, AfterViewInit {
   monthlySalary = computed(() => this.authService.userProfile().salary);
 
   totalAllocated = computed(() => {
-    return this.budgetService.budgets().reduce((sum, b) => sum + b.amount, 0);
+    return this.budgetService.budgets().reduce((sum, b) => sum + b.amount + (b.rollover_amount || 0), 0);
   });
 
   globalProgressPercent = computed(() => {

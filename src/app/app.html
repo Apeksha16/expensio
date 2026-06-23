@@ -5,7 +5,7 @@
   <router-outlet></router-outlet>
 </main>
 
-@if (!authService.isInitialized()) {
+@if (!appInitService.isReady()) {
   <div @fadeOut class="fixed inset-0 z-[10000] bg-black flex flex-col items-center justify-center pointer-events-none">
     <div class="relative w-full max-w-xs px-8 flex flex-col items-center">
       <h1 class="text-[2.75rem] leading-none font-black tracking-tighter uppercase text-white mb-1 animate-pulse">

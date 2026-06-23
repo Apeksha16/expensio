@@ -33,8 +33,24 @@ export class SubscriptionService {
 
   readonly upcomingSubscriptions = computed(() => {
     const monthStr = this.currentMonthStr();
+    const today = new Date();
+    const todayDay = today.getDate();
+    const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+
     return [...this.subscriptions()]
-      .filter(sub => sub.last_paid_month !== monthStr)
+      .filter(sub => {
+        if (sub.last_paid_month === monthStr) return false;
+        
+        // Clamp billing_day to actual days in this month (handles day 29/30/31 in Feb etc.)
+        const effectiveBillingDay = Math.min(sub.billing_day, daysInMonth);
+        let diff = effectiveBillingDay - todayDay;
+        // Handle end of month wrap-around
+        if (diff < -15) {
+          diff += daysInMonth;
+        }
+        
+        return diff <= 5;
+      })
       .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
   });
 
@@ -204,7 +220,8 @@ export class SubscriptionService {
       title: subscription.title,
       amount: subscription.amount,
       category: `${subscription.category} (Subscription)`,
-      date: expenseDate
+      date: expenseDate,
+      subscription_id: subscription.id
     }, true);
 
     if (!expenseAdded) {

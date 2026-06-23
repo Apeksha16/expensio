@@ -34,6 +34,9 @@ html, body {
   -webkit-user-select: none; /* Prevent accidental text selection */
   user-select: none;
   overscroll-behavior: none; /* Prevent scroll chaining and bounce on iOS */
+  overscroll-behavior-x: none;
+  overscroll-behavior-y: none;
+  touch-action: pan-y; /* Disable browser native horizontal swipe to go back/forward */
 }
 
 app-root {

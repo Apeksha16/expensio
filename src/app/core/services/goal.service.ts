@@ -3,6 +3,7 @@ import { DOCUMENT } from '@angular/common';
 import { SupabaseService } from './supabase.service';
 import { AuthService } from './auth.service';
 import { ToastService } from './toast.service';
+import { ExpenseService } from './expense.service';
 
 export interface Goal {
   id: string;
@@ -26,6 +27,7 @@ export class GoalService {
   private supabaseService = inject(SupabaseService);
   private authService = inject(AuthService);
   private toastService = inject(ToastService);
+  private expenseService = inject(ExpenseService);
 
   readonly isLoading = signal(false);
   readonly goals = signal<Goal[]>([]);
@@ -228,5 +230,45 @@ export class GoalService {
 
     this.toastService.showError('Failed to delete goal');
     return false;
+  }
+
+  /**
+   * Recalculates saved_amount for a goal by summing all matching virtual-invest expenses.
+   * Call this as a safety net after any external modification to virtual-invest expenses.
+   */
+  async recalculateSavedAmount(goalName: string): Promise<void> {
+    const goal = this.goals().find(g => g.name === goalName);
+    if (!goal) return;
+
+    const user = this.authService.currentUser();
+    if (!user) return;
+
+    // Fetch all virtual-invest expenses for this user to ensure we don't wipe historical progress
+    // that might not be loaded in the local active-month cache.
+    const { data: allExpenses, error } = await this.supabaseService.client
+      .from('expenses')
+      .select('amount, category, goal_id, title')
+      .eq('user_id', user.id)
+      .eq('category', 'virtual-invest');
+
+    if (error || !allExpenses) return;
+
+    const sum = allExpenses
+      .filter(e => {
+        if (e.goal_id) return e.goal_id === goal.id;
+        // Fallback for older expenses
+        const title = e.title.startsWith('Goal: ') ? e.title.replace('Goal: ', '') : e.title;
+        return title === goalName;
+      })
+      .reduce((total, e) => total + e.amount, 0);
+
+    if (Math.abs(sum - goal.saved_amount) < 0.01) return; // Already in sync
+
+    await this.supabaseService.client
+      .from('goals')
+      .update({ saved_amount: sum })
+      .eq('id', goal.id);
+
+    this.goals.update(gs => gs.map(g => g.id === goal.id ? { ...g, saved_amount: sum } : g));
   }
 }

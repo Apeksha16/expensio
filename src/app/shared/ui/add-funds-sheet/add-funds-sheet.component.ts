@@ -277,7 +277,8 @@ export class AddFundsSheetComponent {
           amount: amountToAdd,
           category: 'virtual-invest',
           title: goal.name,
-          date: new Date().toISOString()
+          date: new Date().toISOString(),
+          goal_id: goal.id
         }, true);
 
         if (!expenseSuccess) {

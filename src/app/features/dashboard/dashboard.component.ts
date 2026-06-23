@@ -103,11 +103,11 @@ import { FriendService } from '../../core/services/friend.service';
           
           <div class="flex justify-between items-end mt-6 pt-4 border-t-2 border-gray-800 cursor-pointer" (click)="toggleMask()">
             <div>
-              <p class="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Spent</p>
+              <p class="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Spent This Month</p>
               <p class="text-sm font-bold text-white transition-all">{{ isMasked() ? '••••' : (thisMonthTotal() | currency: 'INR' : 'symbol' : '1.0-0') }}</p>
             </div>
             <div class="text-right">
-              <p class="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Limit</p>
+              <p class="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Limit This Month</p>
               <p class="text-sm font-bold text-white transition-all">{{ isMasked() ? '••••' : (salary() | currency: 'INR' : 'symbol' : '1.0-0') }}</p>
             </div>
           </div>
@@ -230,6 +230,7 @@ import { FriendService } from '../../core/services/friend.service';
         <div class="flex flex-col gap-3">
           <div class="flex justify-between items-end mb-1">
             <h3 class="text-lg font-bold">Split Summary</h3>
+            <span class="text-[9px] font-extrabold text-gray-500 uppercase tracking-widest bg-gray-200 px-2 py-0.5 rounded-sm">All outstanding • All time</span>
           </div>
 
           <div class="bg-white border-2 border-black p-5 flex flex-col gap-6">
@@ -392,7 +393,7 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   totalYouOwe = this.splitService.totalYouOwe;
 
   topSplitFriends = computed(() => {
-    const balances = this.splitService.balances();
+    const balances = this.splitService.simplifiedBalances();
     const friends = this.friendService.acceptedFriends();
     
     const friendBalances = friends.map(f => {
@@ -465,7 +466,7 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
     });
 
     return [...subs, ...goals]
-      .filter(p => p.diff >= -15 && p.diff <= 31) // Keep reasonable range of upcoming/overdue
+      .filter(p => p.diff >= -15 && p.diff <= 5) // Keep reasonable range of upcoming/overdue
       .sort((a, b) => a.diff - b.diff)
       .slice(0, 5);
   });

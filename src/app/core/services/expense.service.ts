@@ -1,8 +1,10 @@
-import { Injectable, signal, computed, Inject, effect, inject, untracked } from '@angular/core';
+import { Injectable, signal, computed, Inject, effect, inject, untracked, Injector } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { SupabaseService } from './supabase.service';
 import { AuthService } from './auth.service';
 import { ToastService } from './toast.service';
+import { GoalService } from './goal.service';
+import { BudgetService } from './budget.service';
 
 export interface Expense {
   id: string;
@@ -10,6 +12,8 @@ export interface Expense {
   amount: number;
   category: string;
   date: string;
+  goal_id?: string;
+  subscription_id?: string;
   created_at?: string;
 }
 
@@ -20,6 +24,7 @@ export class ExpenseService {
   private supabaseService = inject(SupabaseService);
   private authService = inject(AuthService);
   private toastService = inject(ToastService);
+  private injector = inject(Injector);
 
   readonly isLoading = signal(false);
   readonly hasInitiallyLoaded = signal(false);
@@ -36,10 +41,20 @@ export class ExpenseService {
         this.hasInitiallyLoaded.set(true);
       }
     });
+
+    // Auto-refresh activeMonth when app comes back to foreground (handles midnight rollover)
+    this.document.addEventListener('visibilitychange', () => {
+      if ((this.document as any).visibilityState === 'visible') {
+        const current = this.getCurrentMonthString();
+        if (current !== this.activeMonth()) {
+          this.setMonthFilter(current);
+        }
+      }
+    });
   }
 
-  // All expenses in memory
-  private allExpenses = signal<Expense[]>([]);
+  // All expenses in memory — public for GoalService and Goals page access
+  readonly allExpenses = signal<Expense[]>([]);
 
   // Filtering & Pagination State
   readonly activeMonth = signal<string>(this.getCurrentMonthString()); // Format: 'YYYY-MM'
@@ -60,6 +75,8 @@ export class ExpenseService {
     return `${d.getFullYear()}-${m}`;
   }
 
+  private monthlyCache = new Map<string, Expense[]>();
+
   async fetchExpenses(monthStr?: string) {
     this.isLoading.set(true);
     const month = monthStr || this.activeMonth();
@@ -70,6 +87,14 @@ export class ExpenseService {
     // Calculate the start of the next month
     const nextMDate = new Date(parseInt(year), parseInt(m), 1);
     const nextMonthStr = `${nextMDate.getFullYear()}-${(nextMDate.getMonth() + 1).toString().padStart(2, '0')}-01T00:00:00.000Z`;
+
+    if (this.monthlyCache.has(month)) {
+      this.allExpenses.set(this.monthlyCache.get(month)!);
+      this.applyFilterAndPagination();
+      this.hasInitiallyLoaded.set(true);
+      this.isLoading.set(false);
+      return;
+    }
 
     const [
       { data: expensesData, error: expensesError },
@@ -119,6 +144,14 @@ export class ExpenseService {
     }
 
     all.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    
+    // Limit cache to 12 months to prevent unbounded memory growth
+    if (this.monthlyCache.size >= 12) {
+      const firstKey = this.monthlyCache.keys().next().value;
+      if (firstKey) this.monthlyCache.delete(firstKey);
+    }
+    this.monthlyCache.set(month, all);
+
     this.allExpenses.set(all);
     this.applyFilterAndPagination();
     this.hasInitiallyLoaded.set(true);
@@ -174,12 +207,15 @@ export class ExpenseService {
         title: expense.title,
         amount: expense.amount,
         category: expense.category,
-        date: expense.date
+        date: expense.date,
+        goal_id: expense.goal_id || null,
+        subscription_id: expense.subscription_id || null
       })
       .select()
       .single();
 
     if (!error && data) {
+      this.monthlyCache.clear(); // Invalidate cache on mutation
       this.allExpenses.update(exps => {
         const updated = [data as Expense, ...exps];
         return updated.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -199,6 +235,14 @@ export class ExpenseService {
   }
 
   async updateExpense(id: string, data: Omit<Expense, 'id'>, silent = false): Promise<boolean> {
+    // Guard: split expenses must be edited from the Splits page
+    if (id.startsWith('split_')) {
+      this.toastService.showError('Edit this expense from the Splits page.');
+      return false;
+    }
+    
+    const oldExpense = this.allExpenses().find(e => e.id === id);
+
     const { error } = await this.supabaseService.client
       .from('expenses')
       .update({
@@ -210,11 +254,26 @@ export class ExpenseService {
       .eq('id', id);
 
     if (!error) {
+      this.monthlyCache.clear(); // Invalidate cache on mutation
       this.allExpenses.update(exps => {
         const updated = exps.map(exp => exp.id === id ? { ...exp, ...data } : exp);
         return updated.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       });
       this.applyFilterAndPagination();
+      
+      // Trigger Budget Rollover Sync
+      const budgetService = this.injector.get(BudgetService);
+      budgetService.syncRolloverForMonth(data.date, data.category);
+
+      // Trigger Goal Progress Sync
+      if (data.category === 'virtual-invest' || oldExpense?.category === 'virtual-invest') {
+        const goalService = this.injector.get(GoalService);
+        const titleToSync = data.category === 'virtual-invest' ? data.title : oldExpense?.title;
+        if (titleToSync) {
+          goalService.recalculateSavedAmount(titleToSync);
+        }
+      }
+
       if (!silent) {
         this.toastService.showSuccess('Expense updated successfully!');
       }
@@ -244,6 +303,7 @@ export class ExpenseService {
       .eq('category', 'virtual-invest');
 
     if (!error) {
+      this.monthlyCache.clear(); // Invalidate cache
       this.allExpenses.update(exps => {
         return exps.map(exp => {
           if ((exp.title === oldTitleWithPrefix || exp.title === oldTitleWithoutPrefix) && exp.category === 'virtual-invest') {
@@ -259,14 +319,44 @@ export class ExpenseService {
   }
 
   async deleteExpense(id: string): Promise<boolean> {
+    // Guard: split expenses must be deleted from the Splits page
+    if (id.startsWith('split_')) {
+      this.toastService.showError('Delete this expense from the Splits page.');
+      return false;
+    }
+    
+    const expense = this.allExpenses().find(e => e.id === id);
+    
     const { error } = await this.supabaseService.client
       .from('expenses')
       .delete()
       .eq('id', id);
 
     if (!error) {
+      this.monthlyCache.clear(); // Invalidate cache
       this.allExpenses.update(exps => exps.filter(exp => exp.id !== id));
       this.applyFilterAndPagination();
+      
+      if (expense) {
+        // Trigger Budget Rollover Sync
+        const budgetService = this.injector.get(BudgetService);
+        budgetService.syncRolloverForMonth(expense.date, expense.category);
+        
+        // Trigger Goal Progress Sync
+        if (expense.category === 'virtual-invest') {
+          const goalService = this.injector.get(GoalService);
+          goalService.recalculateSavedAmount(expense.title);
+        }
+        
+        // Trigger Subscription Sync
+        if (expense.subscription_id) {
+          await this.supabaseService.client
+            .from('subscriptions')
+            .update({ last_paid_month: null })
+            .eq('id', expense.subscription_id);
+        }
+      }
+
       this.toastService.showSuccess('Expense deleted successfully!');
       return true;
     }
