@@ -22,6 +22,7 @@ import { SupabaseService } from '../../core/services/supabase.service';
 import { SubscriptionService } from '../../core/services/subscription.service';
 import { ConfirmService } from '../../core/services/confirm.service';
 import { FriendService } from '../../core/services/friend.service';
+import { BudgetService } from '../../core/services/budget.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -201,25 +202,25 @@ import { FriendService } from '../../core/services/friend.service';
           </div>
           <div class="grid grid-cols-4 gap-3 mb-2">
             <!-- Add Expense -->
-            <button routerLink="/expenses" class="flex flex-col items-center justify-center gap-2 bg-gray-200 border-l-4 border-blue-500 py-3 rounded-none cursor-pointer hover:bg-gray-300 transition-colors">
+            <button routerLink="/expenses" (click)="expenseService.openBottomSheet()" class="flex flex-col items-center justify-center gap-2 bg-gray-200 border-l-4 border-blue-500 py-3 rounded-none cursor-pointer hover:bg-gray-300 transition-colors">
               <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
               <span class="text-[9px] font-extrabold text-gray-700 uppercase tracking-widest text-center">Add<br>Expense</span>
             </button>
 
             <!-- Add Budget -->
-            <button routerLink="/budgets" class="flex flex-col items-center justify-center gap-2 bg-gray-200 border-l-4 border-purple-500 py-3 rounded-none cursor-pointer hover:bg-gray-300 transition-colors">
+            <button routerLink="/budgets" (click)="budgetService.openBottomSheet()" class="flex flex-col items-center justify-center gap-2 bg-gray-200 border-l-4 border-purple-500 py-3 rounded-none cursor-pointer hover:bg-gray-300 transition-colors">
               <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
               <span class="text-[9px] font-extrabold text-gray-700 uppercase tracking-widest text-center">Add<br>Budget</span>
             </button>
 
             <!-- Add Goal -->
-            <button routerLink="/goals" class="flex flex-col items-center justify-center gap-2 bg-gray-200 border-l-4 border-pink-500 py-3 rounded-none cursor-pointer hover:bg-gray-300 transition-colors">
+            <button routerLink="/goals" (click)="goalService.openBottomSheet()" class="flex flex-col items-center justify-center gap-2 bg-gray-200 border-l-4 border-pink-500 py-3 rounded-none cursor-pointer hover:bg-gray-300 transition-colors">
               <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
               <span class="text-[9px] font-extrabold text-gray-700 uppercase tracking-widest text-center">Add<br>Goal</span>
             </button>
 
             <!-- Split Expense -->
-            <button routerLink="/splits" (click)="splitService.activeTab.set('expenses')" class="flex flex-col items-center justify-center gap-2 bg-gray-200 border-l-4 border-emerald-500 py-3 rounded-none cursor-pointer hover:bg-gray-300 transition-colors">
+            <button routerLink="/splits" (click)="splitService.activeTab.set('expenses'); splitService.openAddSplitSheet()" class="flex flex-col items-center justify-center gap-2 bg-gray-200 border-l-4 border-emerald-500 py-3 rounded-none cursor-pointer hover:bg-gray-300 transition-colors">
               <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
               <span class="text-[9px] font-extrabold text-gray-700 uppercase tracking-widest text-center">Split<br>Expense</span>
             </button>
@@ -313,15 +314,16 @@ import { FriendService } from '../../core/services/friend.service';
   styles: ``,
 })
 export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
-  private expenseService = inject(ExpenseService);
+  expenseService = inject(ExpenseService);
   private authService = inject(AuthService);
-  private goalService = inject(GoalService);
+  goalService = inject(GoalService);
   private toastService = inject(ToastService);
   splitService = inject(SplitService);
   private supabaseService = inject(SupabaseService);
   private subscriptionService = inject(SubscriptionService);
   private confirmService = inject(ConfirmService);
   private friendService = inject(FriendService);
+  budgetService = inject(BudgetService);
 
   chartType: 'weekly' | 'monthly' = 'weekly';
   chartInstance: any;
