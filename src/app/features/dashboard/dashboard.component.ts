@@ -11,6 +11,7 @@ import {
   effect,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { Chart } from 'chart.js/auto';
 import { ExpenseService, Expense } from '../../core/services/expense.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -20,11 +21,12 @@ import { SplitService } from '../../core/services/split.service';
 import { SupabaseService } from '../../core/services/supabase.service';
 import { SubscriptionService } from '../../core/services/subscription.service';
 import { ConfirmService } from '../../core/services/confirm.service';
+import { FriendService } from '../../core/services/friend.service';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   host: {
     class: 'flex flex-col h-full',
   },
@@ -145,12 +147,12 @@ import { ConfirmService } from '../../core/services/confirm.service';
         -->
 
         <!-- Upcoming Payments (Horizontal Ticket Style) -->
-        @if (combinedUpcomingPayments().length > 0) {
-          <div class="flex flex-col gap-3">
-            <div class="flex justify-between items-end mb-1">
-              <h3 class="text-lg font-bold">Upcoming Payments</h3>
-            </div>
-            
+        <div class="flex flex-col gap-3">
+          <div class="flex justify-between items-end mb-1">
+            <h3 class="text-lg font-bold">Upcoming Payments</h3>
+          </div>
+          
+          @if (combinedUpcomingPayments().length > 0) {
             <!-- Horizontal Scroll Container -->
             <div class="flex gap-4 overflow-x-auto pb-1 pt-1 px-1 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
               
@@ -185,8 +187,92 @@ import { ConfirmService } from '../../core/services/confirm.service';
               }
               
             </div>
+          } @else {
+            <div class="w-full bg-white border-2 border-dashed border-gray-300 rounded-none p-6 flex flex-col items-center justify-center text-gray-400 text-center">
+              <span class="text-sm font-bold uppercase tracking-widest">No Upcoming payments this month</span>
+            </div>
+          }
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="flex flex-col gap-3">
+          <div class="flex justify-between items-end mb-1">
+            <h3 class="text-lg font-bold">Quick Actions</h3>
           </div>
-        }
+          <div class="grid grid-cols-4 gap-3 mb-2">
+            <!-- Add Expense -->
+            <button routerLink="/expenses" class="flex flex-col items-center justify-center gap-2 bg-gray-200 border-l-4 border-blue-500 py-3 rounded-none cursor-pointer hover:bg-gray-300 transition-colors">
+              <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
+              <span class="text-[9px] font-extrabold text-gray-700 uppercase tracking-widest text-center">Add<br>Expense</span>
+            </button>
+
+            <!-- Add Budget -->
+            <button routerLink="/budgets" class="flex flex-col items-center justify-center gap-2 bg-gray-200 border-l-4 border-purple-500 py-3 rounded-none cursor-pointer hover:bg-gray-300 transition-colors">
+              <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
+              <span class="text-[9px] font-extrabold text-gray-700 uppercase tracking-widest text-center">Add<br>Budget</span>
+            </button>
+
+            <!-- Add Goal -->
+            <button routerLink="/goals" class="flex flex-col items-center justify-center gap-2 bg-gray-200 border-l-4 border-pink-500 py-3 rounded-none cursor-pointer hover:bg-gray-300 transition-colors">
+              <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+              <span class="text-[9px] font-extrabold text-gray-700 uppercase tracking-widest text-center">Add<br>Goal</span>
+            </button>
+
+            <!-- Split Expense -->
+            <button routerLink="/splits" (click)="splitService.activeTab.set('expenses')" class="flex flex-col items-center justify-center gap-2 bg-gray-200 border-l-4 border-emerald-500 py-3 rounded-none cursor-pointer hover:bg-gray-300 transition-colors">
+              <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+              <span class="text-[9px] font-extrabold text-gray-700 uppercase tracking-widest text-center">Split<br>Expense</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Split Summary -->
+        <div class="flex flex-col gap-3">
+          <div class="flex justify-between items-end mb-1">
+            <h3 class="text-lg font-bold">Split Summary</h3>
+          </div>
+
+          <div class="bg-white border-2 border-black p-5 flex flex-col gap-6">
+
+          <!-- Totals Header -->
+          <div class="flex">
+            <div class="flex-1 flex flex-col items-start">
+              <span class="text-[10px] font-bold text-black uppercase tracking-widest">You are owed</span>
+              <span class="text-2xl font-black text-green-600 my-1">{{ isMasked() ? '••••' : (totalOwedToYou() | currency: 'INR' : 'symbol' : '1.0-0') }}</span>
+              <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">from {{ friendsWhoOweYou().length }} people</span>
+            </div>
+            
+            <div class="w-0.5 bg-gray-200 mx-4"></div>
+            
+            <div class="flex-1 flex flex-col items-start pl-2">
+              <span class="text-[10px] font-bold text-black uppercase tracking-widest">You owe</span>
+              <span class="text-2xl font-black text-red-600 my-1">{{ isMasked() ? '••••' : (totalYouOwe() | currency: 'INR' : 'symbol' : '1.0-0') }}</span>
+              <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">to {{ friendsYouOwe().length }} people</span>
+            </div>
+          </div>
+
+          <!-- Top Balances List -->
+          <div class="flex flex-col gap-4">
+            @if (topSplitFriends().length === 0) {
+               <div class="text-center text-gray-400 text-[10px] uppercase tracking-widest font-bold py-4">All Settled Up</div>
+            } @else {
+               @for (fb of topSplitFriends(); track fb.friend.id) {
+                 <div class="grid grid-cols-[auto_1fr_auto_auto] gap-3 items-center">
+                   <div class="w-8 h-8 rounded-full border-2 border-black bg-gray-200 flex items-center justify-center overflow-hidden">
+                     <img [src]="getAvatarUrl(fb.friend.profile.avatarId)" class="w-full h-full object-cover">
+                   </div>
+                   <span class="font-extrabold text-sm text-black truncate">{{ fb.friend.profile.name }}</span>
+                   <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{{ fb.balance > 0 ? 'owes you' : 'you owe' }}</span>
+                   <span class="font-black text-sm text-right min-w-[50px]" [ngClass]="fb.balance > 0 ? 'text-green-600' : 'text-red-600'">
+                     {{ isMasked() ? '••••' : '₹' + (fb.absBalance | number: '1.0-0') }}
+                   </span>
+                 </div>
+               }
+            }
+          </div>
+
+        </div>
+        </div>
 
         <!-- Recent Transactions -->
         <div class="flex flex-col gap-3">
@@ -230,10 +316,11 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   private authService = inject(AuthService);
   private goalService = inject(GoalService);
   private toastService = inject(ToastService);
-  private splitService = inject(SplitService);
+  splitService = inject(SplitService);
   private supabaseService = inject(SupabaseService);
   private subscriptionService = inject(SubscriptionService);
   private confirmService = inject(ConfirmService);
+  private friendService = inject(FriendService);
 
   chartType: 'weekly' | 'monthly' = 'weekly';
   chartInstance: any;
@@ -300,6 +387,29 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
       .sort((a, b) => new Date(b.created_at || b.date).getTime() - new Date(a.created_at || a.date).getTime())
       .slice(0, 5);
   });
+
+  totalOwedToYou = this.splitService.totalOwedToYou;
+  totalYouOwe = this.splitService.totalYouOwe;
+
+  topSplitFriends = computed(() => {
+    const balances = this.splitService.balances();
+    const friends = this.friendService.acceptedFriends();
+    
+    const friendBalances = friends.map(f => {
+      const balance = balances[f.profile.id] || 0;
+      return {
+        friend: f,
+        balance,
+        absBalance: Math.abs(balance)
+      };
+    }).filter(fb => fb.absBalance > 0);
+
+    friendBalances.sort((a, b) => b.absBalance - a.absBalance);
+    return friendBalances.slice(0, 5);
+  });
+
+  friendsWhoOweYou = computed(() => this.topSplitFriends().filter(fb => fb.balance > 0));
+  friendsYouOwe = computed(() => this.topSplitFriends().filter(fb => fb.balance < 0));
 
   combinedUpcomingPayments = computed(() => {
     const today = new Date().getDate();
@@ -428,7 +538,9 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-
+  getAvatarUrl(id?: number): string {
+    return this.authService.getAvatarUrl(id);
+  }
 
   toggleMask() {
     if (this.authService.userProfile().maskValues) {
