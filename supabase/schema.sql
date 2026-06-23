@@ -193,7 +193,7 @@ begin
          or (f3.requester_id = p.id and f3.addressee_id = current_user_uuid)
     );
 end;
-$$ language plpgsql security definer;
+$$ language plpgsql security definer set search_path = '';
 
 
 -- Split Groups Table
@@ -277,7 +277,7 @@ create policy "Users can delete split expenses they created"
 create or replace function check_email_exists(p_email text)
 returns boolean
 language plpgsql
-security definer
+security definer set search_path = ''
 as $$
 begin
   return exists (select 1 from auth.users where email = p_email);
@@ -288,7 +288,7 @@ $$;
 create or replace function pre_login_check(p_email text)
 returns json
 language plpgsql
-security definer
+security definer set search_path = ''
 as $$
 declare
   v_uid uuid;
@@ -312,7 +312,7 @@ $$;
 create or replace function record_failed_login(p_email text)
 returns json
 language plpgsql
-security definer
+security definer set search_path = ''
 as $$
 declare
   v_uid uuid;
@@ -337,7 +337,7 @@ $$;
 create or replace function reset_failed_login(p_email text)
 returns void
 language plpgsql
-security definer
+security definer set search_path = ''
 as $$
 declare
   v_uid uuid;
@@ -381,11 +381,20 @@ create table if not exists public.mpin_reset_otps (
   created_at timestamp with time zone default timezone('utc'::text, now())
 );
 
+-- Enable RLS for mpin_reset_otps
+alter table public.mpin_reset_otps enable row level security;
+
+-- Policy: Reject all (table is only accessed via security definer RPCs)
+drop policy if exists "Reject all API access" on public.mpin_reset_otps;
+create policy "Reject all API access"
+  on public.mpin_reset_otps for all
+  using ( false );
+
 -- RPC: generate_mpin_reset_otp
 create or replace function generate_mpin_reset_otp(p_email text)
 returns json
 language plpgsql
-security definer
+security definer set search_path = ''
 as $$
 declare
   v_code text;
@@ -408,7 +417,7 @@ $$;
 create or replace function verify_mpin_reset_otp(p_email text, p_code text)
 returns boolean
 language plpgsql
-security definer
+security definer set search_path = ''
 as $$
 declare
   v_valid boolean;
@@ -427,7 +436,7 @@ $$;
 create or replace function reset_custom_mpin(p_email text, p_code text, p_new_mpin text)
 returns boolean
 language plpgsql
-security definer
+security definer set search_path = ''
 as $$
 declare
   v_valid boolean;
@@ -500,3 +509,7 @@ create policy "Users can view own subscriptions."
 
 -- Reload schema cache to ensure API access to new RPCs
 NOTIFY pgrst, 'reload schema';
+
+-- Revoke execute from public/anon/authenticated on internal triggers
+REVOKE EXECUTE ON FUNCTION public.handle_new_user FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.handle_new_user FROM anon, authenticated;

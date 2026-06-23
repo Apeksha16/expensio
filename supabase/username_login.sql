@@ -3,7 +3,7 @@
 create or replace function get_email_by_username(p_username text)
 returns text
 language plpgsql
-security definer
+security definer set search_path = ''
 as $$
 declare
   v_email text;

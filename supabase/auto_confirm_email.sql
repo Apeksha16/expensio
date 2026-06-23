@@ -9,7 +9,7 @@ BEGIN
   NEW.email_confirmed_at = NOW();
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = '';
 
 -- 2. Drop the trigger if it already exists (to prevent duplicates)
 DROP TRIGGER IF EXISTS auto_confirm_email_trigger ON auth.users;
@@ -22,3 +22,7 @@ EXECUTE FUNCTION public.auto_confirm_email();
 
 -- 4. Just to be safe, auto-confirm any existing users that are currently stuck
 UPDATE auth.users SET email_confirmed_at = NOW() WHERE email_confirmed_at IS NULL;
+
+-- 5. Revoke execute from public/anon/authenticated to fix security warnings
+REVOKE EXECUTE ON FUNCTION public.auto_confirm_email FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.auto_confirm_email FROM anon, authenticated;
