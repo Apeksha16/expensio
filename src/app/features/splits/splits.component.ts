@@ -121,56 +121,66 @@ import { ToastService } from '../../core/services/toast.service';
                     </div>
                     <span class="font-extrabold text-lg text-black flex-shrink-0">₹{{ split.total_amount | number: '1.0-2' }}</span>
                   </div>
-                  <div class="flex justify-between items-center mt-1 w-full gap-2">
-                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest truncate min-w-0">
-                      <span class="truncate">Paid by {{ split.payer_id === currentUser().id ? 'Me' : getFriendName(split.payer_id) }}</span>
-                    </span>
-                    @if (getExpenseBalance(split); as bal) {
-                      <div class="flex items-center gap-3">
-                        <span class="text-[10px] font-extrabold uppercase tracking-widest whitespace-nowrap" [ngClass]="bal.type === 'owed' ? 'text-green-500' : 'text-red-500'">
-                          ₹{{ bal.amount | number: '1.0-0' }}
+                  <div class="flex flex-col mt-1 w-full gap-2">
+                    @for (bal of getExpenseBalances(split); track bal.participantId) {
+                      <div class="flex justify-between items-center w-full gap-2">
+                        <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest truncate min-w-0">
+                          <span class="truncate">
+                            {{ bal.type === 'owed' ? 'Owed by ' + bal.name : 'You owe ' + bal.name }}
+                          </span>
                         </span>
-                        
-                        @if (bal.pending) {
-                          @if (bal.type === 'owed') {
-                            <button
-                              (click)="confirmSettlement($event, split.id)"
-                              [disabled]="processingIds().has('confirm_' + split.id)"
-                              class="bg-green-500 text-white px-2 py-1 rounded-none text-[9px] font-extrabold uppercase tracking-widest hover:bg-green-600 transition-colors disabled:opacity-50 flex items-center gap-1"
-                            >
-                              @if (processingIds().has('confirm_' + split.id)) {
-                                <svg class="animate-spin h-3 w-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                              }
-                              Confirm
-                            </button>
-                            <button
-                              (click)="disputeSettlement($event, split.id)"
-                              class="bg-red-500 text-white px-2 py-1 rounded-none text-[9px] font-extrabold uppercase tracking-widest hover:bg-red-600 transition-colors"
-                            >
-                              Dispute
-                            </button>
+                        <div class="flex items-center gap-3">
+                          <span class="text-[10px] font-extrabold uppercase tracking-widest whitespace-nowrap" [ngClass]="bal.type === 'owed' ? 'text-green-500' : 'text-red-500'">
+                            ₹{{ bal.amount | number: '1.0-2' }}
+                          </span>
+                          
+                          @if (bal.pending) {
+                            @if (bal.type === 'owed') {
+                              <button
+                                (click)="confirmSettlement($event, split.id, bal.participantId)"
+                                [disabled]="processingIds().has('confirm_' + split.id + '_' + bal.participantId)"
+                                class="bg-green-500 text-white px-2 py-1 rounded-none text-[9px] font-extrabold uppercase tracking-widest hover:bg-green-600 transition-colors disabled:opacity-50 flex items-center gap-1"
+                              >
+                                @if (processingIds().has('confirm_' + split.id + '_' + bal.participantId)) {
+                                  <svg class="animate-spin h-3 w-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                  </svg>
+                                }
+                                Confirm
+                              </button>
+                              <button
+                                (click)="disputeSettlement($event, split.id, bal.participantId)"
+                                class="bg-red-500 text-white px-2 py-1 rounded-none text-[9px] font-extrabold uppercase tracking-widest hover:bg-red-600 transition-colors"
+                              >
+                                Dispute
+                              </button>
+                            } @else {
+                              <button
+                                (click)="cancelSettlement($event, split.id)"
+                                class="bg-orange-500 text-white px-2 py-1 rounded-none text-[9px] font-extrabold uppercase tracking-widest hover:bg-orange-600 transition-colors"
+                              >
+                                Cancel
+                              </button>
+                            }
                           } @else {
                             <button
-                              (click)="cancelSettlement($event, split.id)"
-                              class="bg-orange-500 text-white px-2 py-1 rounded-none text-[9px] font-extrabold uppercase tracking-widest hover:bg-orange-600 transition-colors"
+                              (click)="settleIndividualSplit($event, split, bal)"
+                              class="bg-black text-white px-2 py-1 rounded-none text-[9px] font-extrabold uppercase tracking-widest hover:bg-gray-800 transition-colors"
                             >
-                              Cancel
+                              Settle
                             </button>
                           }
-                        } @else {
-                          <button
-                            (click)="settleIndividualSplit($event, split)"
-                            class="bg-black text-white px-2 py-1 rounded-none text-[9px] font-extrabold uppercase tracking-widest hover:bg-gray-800 transition-colors"
-                          >
-                            Settle
-                          </button>
-                        }
+                        </div>
                       </div>
-                    } @else {
-                       <span class="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest">Settled</span>
+                    }
+                    @if (getExpenseBalances(split).length === 0) {
+                       <div class="flex justify-between items-center w-full gap-2">
+                         <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest truncate min-w-0">
+                           <span class="truncate">Paid by {{ split.payer_id === currentUser().id ? 'Me' : getFriendName(split.payer_id) }}</span>
+                         </span>
+                         <span class="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest">Settled</span>
+                       </div>
                     }
                   </div>
                 </button>
@@ -321,44 +331,72 @@ export class Splits implements OnInit {
     return f ? f.profile.name.split(' ')[0] : id;
   }
 
-  getExpenseBalance(split: any): { type: 'owed' | 'owe', amount: number, pending?: boolean } | null {
+  getExpenseBalances(split: any): { participantId: string, name: string, type: 'owed' | 'owe', amount: number, pending: boolean, status?: string }[] {
     const me = this.currentUser()?.id;
-    if (!me) return null;
+    if (!me) return [];
     const myParticipant = split.participants?.find((p: any) => p.userId === me);
-    if (!myParticipant) return null;
+    if (!myParticipant) return [];
+
+    const balances: any[] = [];
 
     const partialSettlements = this.splitService.splits().filter((s: any) => s.parent_expense_id === split.id);
-    const partialSettledSum = partialSettlements
-        .filter((s: any) => s.category === 'Settlement' || s.participants.some((p: any) => p.status === 'settled'))
-        .reduce((sum: number, s: any) => sum + s.total_amount, 0);
-        
-    const partialPendingSum = partialSettlements
-        .filter((s: any) => s.category === 'Pending Settlement' && !s.participants.some((p: any) => p.status === 'settled'))
-        .reduce((sum: number, s: any) => sum + s.total_amount, 0);
-
+    
     if (split.payer_id === me) {
-      let iAmOwed = 0;
-      let hasPending = false;
       split.participants.forEach((p: any) => {
-        if (p.userId !== me && p.status !== 'settled') {
-          iAmOwed += p.amountOwed;
-          if (p.status === 'pending') hasPending = true;
+        if (p.userId !== me && p.status !== 'settled' && p.amountOwed > 0) {
+          const pSettled = partialSettlements.filter(s => s.payer_id === p.userId && s.category === 'Settlement').reduce((sum, s) => sum + s.total_amount, 0);
+          const pPending = partialSettlements.filter(s => s.payer_id === p.userId && s.category === 'Pending Settlement').reduce((sum, s) => sum + s.total_amount, 0);
+          
+          const iAmOwed = p.amountOwed - pSettled - pPending;
+          const hasPending = p.status === 'pending' || pPending > 0;
+          
+          if (iAmOwed > 0 || hasPending) {
+             balances.push({
+                participantId: p.userId,
+                name: this.getFriendName(p.userId),
+                type: 'owed',
+                amount: iAmOwed > 0 ? iAmOwed : p.amountOwed,
+                pending: hasPending,
+                status: p.status
+             });
+          }
         }
       });
-      
-      iAmOwed -= (partialSettledSum + partialPendingSum);
-      if (partialPendingSum > 0) hasPending = true;
-
-      if (iAmOwed > 0) return { type: 'owed', amount: iAmOwed, pending: hasPending };
-      return null;
     } else {
       if (myParticipant.amountOwed > 0 && myParticipant.status !== 'settled') {
-        const iOwe = myParticipant.amountOwed - partialSettledSum - partialPendingSum;
-        const isPending = myParticipant.status === 'pending' || partialPendingSum > 0;
-        if (iOwe > 0) return { type: 'owe', amount: iOwe, pending: isPending };
+         const mySettled = partialSettlements.filter(s => s.payer_id === me && s.category === 'Settlement').reduce((sum, s) => sum + s.total_amount, 0);
+         const myPending = partialSettlements.filter(s => s.payer_id === me && s.category === 'Pending Settlement').reduce((sum, s) => sum + s.total_amount, 0);
+         
+         const iOwe = myParticipant.amountOwed - mySettled - myPending;
+         const isPending = myParticipant.status === 'pending' || myPending > 0;
+         
+         if (iOwe > 0 || isPending) {
+            balances.push({
+               participantId: split.payer_id,
+               name: this.getFriendName(split.payer_id),
+               type: 'owe',
+               amount: iOwe > 0 ? iOwe : myParticipant.amountOwed,
+               pending: isPending,
+               status: myParticipant.status
+            });
+         }
       }
-      return null;
     }
+    
+    if (split.payer_id === me && balances.length > 1) {
+      if (balances.every(b => !b.pending)) {
+         const totalOwed = balances.reduce((sum, b) => sum + b.amount, 0);
+         return [{
+            participantId: 'all',
+            name: 'everyone',
+            type: 'owed',
+            amount: totalOwed,
+            pending: false
+         }];
+      }
+    }
+    
+    return balances;
   }
 
   settleUp() {
@@ -405,25 +443,12 @@ export class Splits implements OnInit {
     });
   }
 
-  settleIndividualSplit(event: Event, split: SplitExpense) {
+  settleIndividualSplit(event: Event, split: SplitExpense, bal: any) {
     event.stopPropagation();
-    const bal = this.getExpenseBalance(split);
-    if (!bal) return;
-
     const isOwed = bal.type === 'owed';
     
-    let targetId = '';
-    let targetName = 'everyone';
-    if (!isOwed) {
-      targetId = split.payer_id;
-      targetName = this.getFriendName(split.payer_id);
-    } else {
-      const otherPart = split.participants?.find((p: any) => p.userId !== this.currentUser()!.id && p.amountOwed > 0);
-      if (otherPart) {
-        targetId = otherPart.userId;
-        targetName = this.getFriendName(otherPart.userId);
-      }
-    }
+    let targetId = bal.participantId;
+    let targetName = bal.name;
 
     const message = isOwed
       ? `Are you sure you have received the money from ${targetName}?`
@@ -434,7 +459,7 @@ export class Splits implements OnInit {
       message: message,
       confirmText: 'Confirm',
       cancelText: 'Cancel',
-      showInput: true,
+      showInput: targetId !== 'all',
       inputValue: bal.amount,
       inputMax: bal.amount,
       onConfirm: async (amount?: number) => {
@@ -448,17 +473,23 @@ export class Splits implements OnInit {
             updatedSplit.participants = updatedSplit.participants.map((p: any) => 
               p.userId === myId ? { ...p, status: 'pending' } : p
             );
-            const success = await this.splitService.updateSplit(updatedSplit as any, true);
+            const success = await this.splitService.updateSplit(updatedSplit as any, true, true);
             if (success) this.toastService.showSuccess('Settlement request sent. Waiting for confirmation.');
           } else {
             updatedSplit.participants = updatedSplit.participants.map((p: any) => 
-              (p.userId !== myId && p.amountOwed > 0) ? { ...p, status: 'settled' } : p
+              (targetId === 'all' ? (p.userId !== myId && p.amountOwed > 0) : (p.userId === targetId)) 
+                 ? { ...p, status: 'settled' } 
+                 : p
             );
-            const success = await this.splitService.updateSplit(updatedSplit as any, true);
+            const success = await this.splitService.updateSplit(updatedSplit as any, true, true);
             if (success) this.toastService.showSuccess('Expense settled successfully.');
           }
         } else {
           // Partial Settlement
+          if (targetId === 'all') {
+             this.toastService.showError("Partial settlement is not allowed when settling multiple participants at once.");
+             return;
+          }
           let payerId = '';
           let participantId = '';
           
@@ -491,7 +522,7 @@ export class Splits implements OnInit {
     });
   }
 
-  confirmSettlement(event: Event, splitId: string) {
+  confirmSettlement(event: Event, splitId: string, participantId: string) {
     event.stopPropagation();
     const split = this.splitService.splits().find((s: any) => s.id === splitId);
     if (!split) return;
@@ -502,7 +533,7 @@ export class Splits implements OnInit {
       confirmText: 'Confirm',
       cancelText: 'Cancel',
       onConfirm: async () => {
-        const key = 'confirm_' + splitId;
+        const key = 'confirm_' + splitId + '_' + participantId;
         const current = new Set(this.processingIds());
         current.add(key);
         this.processingIds.set(current);
@@ -510,7 +541,7 @@ export class Splits implements OnInit {
         try {
           const updatedSplit = { ...split };
           updatedSplit.participants = updatedSplit.participants.map((p: any) => 
-            p.status === 'pending' ? { ...p, status: 'settled' } : p
+            p.userId === participantId && p.status === 'pending' ? { ...p, status: 'settled' } : p
           );
           const success = await this.splitService.updateSplit(updatedSplit as any, true);
           if (success) this.toastService.showSuccess('Settlement confirmed successfully.');
@@ -538,15 +569,23 @@ export class Splits implements OnInit {
     });
   }
 
-  disputeSettlement(event: Event, splitId: string) {
+  disputeSettlement(event: Event, splitId: string, participantId: string) {
     event.stopPropagation();
+    const split = this.splitService.splits().find((s: any) => s.id === splitId);
+    if (!split) return;
+
     this.confirmService.open({
       title: 'Dispute Settlement',
       message: 'This will cancel the settlement request and revert this expense to pending. The other person will need to re-initiate the settle.',
       confirmText: 'Dispute',
       cancelText: 'Cancel',
       onConfirm: async () => {
-        await this.splitService.disputeSettlement(splitId);
+        const updatedSplit = { ...split };
+        updatedSplit.participants = updatedSplit.participants.map((p: any) => 
+          p.userId === participantId && p.status === 'pending' ? { ...p, status: undefined } : p
+        );
+        const success = await this.splitService.updateSplit(updatedSplit as any, true);
+        if (success) this.toastService.showSuccess('Settlement disputed successfully.');
       }
     });
   }

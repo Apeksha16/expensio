@@ -191,7 +191,7 @@ import { AddFundsSheetComponent } from '../../shared/ui/add-funds-sheet/add-fund
           </button>
           <div class="mt-4 text-center">
             <span class="text-[10px] font-extrabold tracking-widest text-gray-500 uppercase mt-auto opacity-70"
-              >Version 1.0.20</span
+              >Version 1.0.22</span
             >
           </div>
         </div>

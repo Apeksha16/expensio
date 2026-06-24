@@ -443,14 +443,17 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
 
     const goals = this.goalService.goals()
       .filter(g => g.calculated_installment > 0)
-      .filter(g => {
-        const hasPaid = thisMonthGoalExpenses.some(e => {
+      .map(g => {
+        const goalExpenses = thisMonthGoalExpenses.filter(e => {
           const goalName = e.title.startsWith('Goal: ') ? e.title.replace('Goal: ', '') : e.title;
           return goalName === g.name;
         });
-        return !hasPaid;
+        const paidThisMonth = goalExpenses.reduce((sum, e) => sum + e.amount, 0);
+        return { goal: g, remaining: g.calculated_installment - paidThisMonth };
       })
-      .map(g => {
+      .filter(x => x.remaining > 0)
+      .map(x => {
+        const g = x.goal;
       let diff = g.installment_date - today;
       if (diff < 0) {
          const d = new Date();
@@ -461,7 +464,7 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
         id: 'goal_' + g.id,
         type: 'goal' as const,
         title: g.name,
-        amount: g.calculated_installment,
+        amount: x.remaining,
         dueDay: g.installment_date,
         diff: diff,
         original: g
@@ -469,7 +472,6 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
     });
 
     return [...subs, ...goals]
-      .filter(p => p.diff >= -15 && p.diff <= 5) // Keep reasonable range of upcoming/overdue
       .sort((a, b) => a.diff - b.diff)
       .slice(0, 5);
   });

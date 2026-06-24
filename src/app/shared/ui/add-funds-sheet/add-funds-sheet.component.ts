@@ -106,7 +106,7 @@ import { AutofocusDirective } from '../autofocus.directive';
               @if (fundMode() === 'installment') {
                 <div class="text-center py-6 border-2 border-dashed border-gray-200 bg-gray-50 w-full">
                   <p class="text-4xl font-extrabold tracking-tight text-[#1a2e22]">
-                    ₹{{ goalService.activeGoalForFunds()?.calculated_installment | number:'1.0-0' }}
+                    ₹{{ getRemainingInstallment() | number:'1.0-0' }}
                   </p>
                   <p class="text-[10px] font-bold text-gray-400 tracking-widest uppercase mt-2">Recommended Installment</p>
                 </div>
@@ -192,6 +192,20 @@ export class AddFundsSheetComponent {
     this.fundMode.set(mode);
   }
 
+  getRemainingInstallment(): number {
+    const goal = this.goalService.activeGoalForFunds();
+    if (!goal) return 0;
+    
+    const activeMonth = this.expenseService.activeMonth();
+    const paidThisMonth = this.expenseService.expenses().filter(e => {
+      const isGoal = e.category === 'virtual-invest' && e.date.startsWith(activeMonth);
+      const isMatch = e.title === goal.name || e.title === `Goal: ${goal.name}`;
+      return isGoal && isMatch;
+    }).reduce((sum, e) => sum + e.amount, 0);
+
+    return Math.max(0, goal.calculated_installment - paidThisMonth);
+  }
+
   preventE(event: KeyboardEvent) {
     if (['e', 'E', '+', '-'].includes(event.key)) {
       event.preventDefault();
@@ -238,7 +252,7 @@ export class AddFundsSheetComponent {
 
     let amountToAdd = 0;
     if (this.fundMode() === 'installment') {
-      amountToAdd = Math.round(goal.calculated_installment);
+      amountToAdd = Math.round(this.getRemainingInstallment());
     } else {
       amountToAdd = Math.round(Number(this.customAmount.value));
     }
@@ -272,29 +286,59 @@ export class AddFundsSheetComponent {
         this.toastService.showSuccess(`Goal balance updated to ₹${amountToAdd}.`);
         this.close();
       } else {
-        // Add new
-        const expenseSuccess = await this.expenseService.addExpense({
-          amount: amountToAdd,
-          category: 'virtual-invest',
-          title: goal.name,
-          date: new Date().toISOString(),
-          goal_id: goal.id
-        }, true);
+        // Add new or update existing for this month
+        const activeMonth = this.expenseService.activeMonth();
+        const existingExpense = this.expenseService.expenses().find(e => {
+          const isGoal = e.category === 'virtual-invest' && e.date.startsWith(activeMonth);
+          const isMatch = e.title === goal.name || e.title === `Goal: ${goal.name}`;
+          return isGoal && isMatch;
+        });
 
-        if (!expenseSuccess) {
-          throw new Error('Failed to create expense');
-        }
+        if (existingExpense) {
+          // Append to existing expense
+          const updateSuccess = await this.expenseService.updateExpense(existingExpense.id, {
+            ...existingExpense,
+            amount: existingExpense.amount + amountToAdd
+          }, true);
 
-        const updatedSavedAmount = goal.saved_amount + amountToAdd;
-        const goalSuccess = await this.goalService.updateGoal(goal.id, {
-          saved_amount: updatedSavedAmount
-        }, true);
+          if (!updateSuccess) throw new Error('Failed to update existing expense');
+          
+          const updatedSavedAmount = goal.saved_amount + amountToAdd;
+          const goalSuccess = await this.goalService.updateGoal(goal.id, {
+            saved_amount: updatedSavedAmount
+          }, true);
 
-        if (goalSuccess) {
-          this.toastService.showSuccess(`₹${amountToAdd} added to ${goal.name}.`);
-          this.close();
+          if (goalSuccess) {
+            this.toastService.showSuccess(`₹${amountToAdd} added to ${goal.name}.`);
+            this.close();
+          } else {
+            throw new Error("Couldn't update goal.");
+          }
         } else {
-          throw new Error("Couldn't update goal.");
+          // Create new
+          const expenseSuccess = await this.expenseService.addExpense({
+            amount: amountToAdd,
+            category: 'virtual-invest',
+            title: goal.name,
+            date: new Date().toISOString(),
+            goal_id: goal.id
+          }, true);
+
+          if (!expenseSuccess) {
+            throw new Error('Failed to create expense');
+          }
+
+          const updatedSavedAmount = goal.saved_amount + amountToAdd;
+          const goalSuccess = await this.goalService.updateGoal(goal.id, {
+            saved_amount: updatedSavedAmount
+          }, true);
+
+          if (goalSuccess) {
+            this.toastService.showSuccess(`₹${amountToAdd} added to ${goal.name}.`);
+            this.close();
+          } else {
+            throw new Error("Couldn't update goal.");
+          }
         }
       }
     } catch (e) {

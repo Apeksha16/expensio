@@ -33,25 +33,14 @@ export class SubscriptionService {
 
   readonly upcomingSubscriptions = computed(() => {
     const monthStr = this.currentMonthStr();
-    const today = new Date();
-    const todayDay = today.getDate();
-    const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
-
     return [...this.subscriptions()]
-      .filter(sub => {
-        if (sub.last_paid_month === monthStr) return false;
-        
-        // Clamp billing_day to actual days in this month (handles day 29/30/31 in Feb etc.)
-        const effectiveBillingDay = Math.min(sub.billing_day, daysInMonth);
-        let diff = effectiveBillingDay - todayDay;
-        // Handle end of month wrap-around
-        if (diff < -15) {
-          diff += daysInMonth;
-        }
-        
-        return diff <= 5;
-      })
-      .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
+      .filter(sub => sub.last_paid_month !== monthStr)
+      .sort((a, b) => a.billing_day - b.billing_day);
+  });
+
+  readonly nextMonthSubscriptions = computed(() => {
+    return [...this.subscriptions()]
+      .sort((a, b) => a.billing_day - b.billing_day);
   });
 
   readonly paidSubscriptions = computed(() => {
@@ -150,6 +139,11 @@ export class SubscriptionService {
   }
 
   async updateSubscription(id: string, updates: Partial<Omit<Subscription, 'id' | 'last_paid_month'>>): Promise<boolean> {
+    // Remove updated_at since it doesn't exist on the table
+    if ('updated_at' in updates) {
+      delete updates.updated_at;
+    }
+
     const { data, error } = await this.supabaseService.client
       .from('subscriptions')
       .update(updates)
@@ -163,26 +157,6 @@ export class SubscriptionService {
       );
       this.toastService.showSuccess('Subscription updated successfully.');
       return true;
-    }
-
-    // Fallback if updated_at column doesn't exist in Supabase yet
-    if (error && updates.updated_at) {
-      console.warn('Fallback update without updated_at due to error:', error);
-      delete updates.updated_at;
-      const fallback = await this.supabaseService.client
-        .from('subscriptions')
-        .update(updates)
-        .eq('id', id)
-        .select()
-        .single();
-        
-      if (!fallback.error && fallback.data) {
-        this.subscriptions.update(subs => 
-          subs.map(s => s.id === id ? { ...s, ...updates } : s)
-        );
-        this.toastService.showSuccess('Subscription updated successfully.');
-        return true;
-      }
     }
 
     this.toastService.showError("Couldn't update subscription.");
@@ -230,8 +204,7 @@ export class SubscriptionService {
     }
 
     // 2. Update subscription last_paid_month
-    const updatedTime = new Date().toISOString();
-    const updatePayload: any = { last_paid_month: currentMonth, updated_at: updatedTime };
+    const updatePayload: any = { last_paid_month: currentMonth };
     const { error } = await this.supabaseService.client
       .from('subscriptions')
       .update(updatePayload)
@@ -239,27 +212,10 @@ export class SubscriptionService {
 
     if (!error) {
       this.subscriptions.update(subs => 
-        subs.map(s => s.id === subscription.id ? { ...s, last_paid_month: currentMonth, updated_at: updatedTime } : s)
+        subs.map(s => s.id === subscription.id ? { ...s, last_paid_month: currentMonth } : s)
       );
       this.toastService.showSuccess(`Payment recorded for ${subscription.title}.`);
       return true;
-    }
-
-    // Fallback if updated_at is not supported by DB
-    if (error && updatePayload.updated_at) {
-      delete updatePayload.updated_at;
-      const fallback = await this.supabaseService.client
-        .from('subscriptions')
-        .update(updatePayload)
-        .eq('id', subscription.id);
-        
-      if (!fallback.error) {
-        this.subscriptions.update(subs => 
-          subs.map(s => s.id === subscription.id ? { ...s, last_paid_month: currentMonth } : s)
-        );
-        this.toastService.showSuccess(`Payment recorded for ${subscription.title}.`);
-        return true;
-      }
     }
 
     this.toastService.showError("Payment recorded, but subscription status couldn't be updated.");

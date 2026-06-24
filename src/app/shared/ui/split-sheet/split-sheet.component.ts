@@ -444,10 +444,14 @@ export class SplitSheetComponent implements OnInit {
 
   budgetCategories = computed(() => {
     const defaultCats = [
-      { name: 'Food', path: 'M3 3h18v18H3z' }, // placeholder paths
-      { name: 'Transport', path: 'M3 3h18v18H3z' },
-      { name: 'Utilities', path: 'M3 3h18v18H3z' },
-      { name: 'Entertainment', path: 'M3 3h18v18H3z' }
+      { name: 'Food', path: 'M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2 M7 2v20 M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7' },
+      { name: 'Transport', path: 'M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2 M7 17a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm10 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z' },
+      { name: 'Shopping', path: 'M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z M3 6h18 M16 10a4 4 0 0 1-8 0' },
+      { name: 'Utilities', path: 'M13 2L3 14h9l-1 8 10-12h-9l1-8z' },
+      { name: 'Entertain', path: 'M2 10h20 M8 2v4 M16 2v4 M2 14h20 M2 18h20 M2 6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6z' },
+      { name: 'Health', path: 'M22 12h-4l-3 9L9 3l-3 9H2' },
+      { name: 'Travel', path: 'M22 2 11 13 M22 2l-7 20-4-9-9-4Z' },
+      { name: 'Other', path: 'M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0-2 0 M19 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0-2 0 M5 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0-2 0' },
     ];
     if (this.localBudgets().length === 0) return defaultCats;
     return this.localBudgets()
@@ -482,11 +486,18 @@ export class SplitSheetComponent implements OnInit {
           const friendsInvolved = split.participants.filter(p => p.userId !== currentUserProfile?.id);
           this.selectedParticipants.set(friendsInvolved.map(p => p.userId));
           
+          const equalAmt = split.total_amount / split.participants.length;
+          const isEqual = split.participants.every(p => Math.abs(p.amountOwed - equalAmt) <= 1);
+          
           friendsInvolved.forEach(p => {
-            this.customAmounts[p.userId] = new FormControl(p.amountOwed);
+            this.customAmounts[p.userId] = new FormControl(Math.round(p.amountOwed));
           });
           
-          this.splitStrategy.set('CUSTOM');
+          if (isEqual) {
+            this.splitStrategy.set('EQUAL');
+          } else {
+            this.splitStrategy.set('CUSTOM');
+          }
         } else {
           const currentUserProfile = this.currentUser();
           this.splitForm.patchValue({
@@ -579,7 +590,7 @@ export class SplitSheetComponent implements OnInit {
     const total = this.splitForm.value.totalAmount || 0;
     const count = this.selectedParticipants().length;
     if (count === 0) return 0;
-    return total / (count + 1);
+    return Math.round((total / (count + 1)) * 100) / 100;
   }
 
   getCustomControl(id: string): FormControl {
@@ -595,7 +606,12 @@ export class SplitSheetComponent implements OnInit {
     this.selectedParticipants().forEach((p) => {
       assigned += Number(this.customAmounts[p]?.value || 0);
     });
-    return total - assigned;
+    // For EQUAL strategy, calculate exact remainder
+    if (this.splitStrategy() === 'EQUAL') {
+      const equalAmount = this.getEqualAmount();
+      assigned = equalAmount * this.selectedParticipants().length;
+    }
+    return Math.round((total - assigned) * 100) / 100;
   }
 
   getFriendName(id: string): string {
@@ -607,12 +623,6 @@ export class SplitSheetComponent implements OnInit {
     if (this.splitForm.invalid) return false;
     if (this.selectedParticipants().length === 0) return false;
     if (this.splitStrategy() === 'CUSTOM' && this.getLeftToAssign() < 0) return false;
-    // CUSTOM: participant amounts must exactly sum to total (allow ≤1 rounding tolerance)
-    if (this.splitStrategy() === 'CUSTOM') {
-      const total = this.splitForm.value.totalAmount || 0;
-      const assigned = this.selectedParticipants().reduce((s, p) => s + Number(this.customAmounts[p]?.value || 0), 0);
-      if (Math.abs(total - assigned) > 1) return false;
-    }
     return true;
   }
 
@@ -639,12 +649,7 @@ export class SplitSheetComponent implements OnInit {
       return { userId: p, amountOwed: amount };
     });
 
-    let myAmount = 0;
-    if (this.splitStrategy() === 'EQUAL') {
-      myAmount = this.getEqualAmount();
-    } else {
-      myAmount = this.getLeftToAssign();
-    }
+    let myAmount = this.getLeftToAssign();
     participants.push({ userId: this.currentUser().id, amountOwed: myAmount });
 
     const splitContext = this.splitService.editingSplit();
@@ -658,7 +663,7 @@ export class SplitSheetComponent implements OnInit {
         payer_id: v.payerId,
         participants: participants,
         participant_ids: participants.map((p) => p.userId),
-        category: v.category || null,
+        category: v.category || 'Others',
         date: new Date().toISOString(),
       };
       await this.splitService.updateSplit(updatedSplit);
@@ -675,7 +680,7 @@ export class SplitSheetComponent implements OnInit {
         participants: participants,
         participant_ids: participants.map((p) => p.userId),
         group_id: groupId,
-        category: v.category || null,
+        category: v.category || 'Others',
         date: new Date().toISOString(),
       };
       await this.splitService.addSplit(split);

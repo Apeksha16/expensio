@@ -96,7 +96,11 @@ export class BudgetService {
     return { startDate, endDate: nextMonthStr };
   }
 
+  private activeFetchMonth = '';
+
   async fetchBudgets(monthStr: string) {
+    if (untracked(() => this.isLoading()) && this.activeFetchMonth === monthStr) return;
+    this.activeFetchMonth = monthStr;
     this.isLoading.set(true);
     const { data, error } = await this.supabaseService.client
       .from('budgets')

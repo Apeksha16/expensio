@@ -1,4 +1,4 @@
-import { Injectable, inject, computed } from '@angular/core';
+import { Injectable, inject, signal, effect, untracked } from '@angular/core';
 import { AuthService } from './auth.service';
 import { BudgetService } from './budget.service';
 import { ExpenseService } from './expense.service';
@@ -15,28 +15,33 @@ export class AppInitService {
   private goalService = inject(GoalService);
   private subscriptionService = inject(SubscriptionService);
 
-  readonly isReady = computed(() => {
-    // Wait for auth to be checked
-    if (!this.authService.isInitialized()) {
-      return false;
-    }
+  readonly isReady = signal(false);
 
-    // If logged out, we are ready (shows login screen)
-    if (!this.authService.currentUser()) {
-      return true;
-    }
+  constructor() {
+    effect(() => {
+      // If already ready, only reset if user logs out
+      if (this.isReady()) {
+        if (!this.authService.currentUser() && this.authService.isInitialized()) {
+          // Keep it ready for the login screen
+        }
+        return;
+      }
 
-    // If logged in, wait for all core data to finish loading
-    const budgetsLoading = this.budgetService.isLoading();
-    const expensesLoading = this.expenseService.isLoading();
-    const goalsLoading = this.goalService.isLoading();
-    const subscriptionsLoading = this.subscriptionService.isLoading();
+      if (!this.authService.isInitialized()) return;
 
-    // If any service is still loading, the app is not ready
-    if (budgetsLoading || expensesLoading || goalsLoading || subscriptionsLoading) {
-      return false;
-    }
+      if (!this.authService.currentUser()) {
+        untracked(() => this.isReady.set(true));
+        return;
+      }
 
-    return true;
-  });
+      const budgetsLoading = this.budgetService.isLoading();
+      const expensesLoading = this.expenseService.isLoading();
+      const goalsLoading = this.goalService.isLoading();
+      const subscriptionsLoading = this.subscriptionService.isLoading();
+
+      if (!budgetsLoading && !expensesLoading && !goalsLoading && !subscriptionsLoading) {
+        untracked(() => this.isReady.set(true));
+      }
+    });
+  }
 }

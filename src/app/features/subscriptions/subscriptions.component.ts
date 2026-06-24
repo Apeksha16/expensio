@@ -48,48 +48,78 @@ import { ConfirmService } from '../../core/services/confirm.service';
         
         <!-- Upcoming Tab -->
         @if (activeTab() === 'upcoming') {
-          <div class="flex-1 flex flex-col gap-1.5 pb-36 mt-2">
-            @if (subscriptionService.upcomingSubscriptions().length > 0) {
-              @for (sub of subscriptionService.upcomingSubscriptions(); track sub.id) {
-                <button
-                  (click)="subscriptionService.openBottomSheet(sub)"
-                  class="w-full bg-white border-2 border-black rounded-none p-4 flex flex-col gap-2 text-left hover:bg-gray-50 transition-colors active:bg-gray-100"
-                >
-                  <div class="flex justify-between items-start gap-4">
-                    <div class="flex flex-col gap-0.5 flex-1 min-w-0 pr-4">
-                      <span class="font-extrabold text-lg text-black truncate">{{ sub.title }}</span>
-                      <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{{ sub.category }}</span>
+          <div class="flex-1 flex flex-col gap-6 pb-36 mt-2">
+            
+            <!-- This Month Section -->
+            <div class="flex flex-col gap-1.5">
+              <h3 class="font-extrabold text-xs text-gray-500 uppercase tracking-widest px-1">This Month</h3>
+              @if (subscriptionService.upcomingSubscriptions().length > 0) {
+                @for (sub of subscriptionService.upcomingSubscriptions(); track sub.id) {
+                  <button
+                    (click)="subscriptionService.openBottomSheet(sub)"
+                    class="w-full bg-white border-2 border-black rounded-none p-4 flex flex-col gap-2 text-left hover:bg-gray-50 transition-colors active:bg-gray-100"
+                  >
+                    <div class="flex justify-between items-start gap-4">
+                      <div class="flex flex-col gap-0.5 flex-1 min-w-0 pr-4">
+                        <span class="font-extrabold text-lg text-black truncate">{{ sub.title }}</span>
+                        <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{{ sub.category }}</span>
+                      </div>
+                      <span class="font-extrabold text-lg text-black flex-shrink-0">₹{{ sub.amount | number: '1.0-2' }}</span>
                     </div>
-                    <span class="font-extrabold text-lg text-black flex-shrink-0">₹{{ sub.amount | number: '1.0-2' }}</span>
-                  </div>
-                  <div class="flex justify-between items-center mt-1 w-full gap-2">
-                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest min-w-0">
-                      <span [ngClass]="getDueMessageClass(sub.billing_day)">
-                        {{ getDueMessage(sub.billing_day) }}
+                    <div class="flex justify-between items-center mt-1 w-full gap-2">
+                      <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest min-w-0">
+                        <span [ngClass]="getDueMessageClass(sub.billing_day)">
+                          {{ getDueMessage(sub.billing_day) }}
+                        </span>
                       </span>
-                    </span>
-                    <button
-                      (click)="markAsPaid($event, sub)"
-                      class="bg-black text-white px-3 py-1.5 rounded-none text-[9px] font-extrabold uppercase tracking-widest hover:bg-gray-800 transition-colors flex items-center gap-2"
-                    >
-                      Mark Paid
-                    </button>
-                  </div>
-                </button>
-              }
-            } @else {
-              <div class="flex-1 flex flex-col items-center justify-center p-8 text-center">
-                <div class="w-32 h-32 bg-gray-200 border-2 border-transparent rounded-full flex items-center justify-center mb-6">
-                  <svg class="w-12 h-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-                  </svg>
+                      <button
+                        (click)="markAsPaid($event, sub)"
+                        class="bg-black text-white px-3 py-1.5 rounded-none text-[9px] font-extrabold uppercase tracking-widest hover:bg-gray-800 transition-colors flex items-center gap-2"
+                      >
+                        Mark Paid
+                      </button>
+                    </div>
+                  </button>
+                }
+              } @else {
+                <div class="bg-gray-50 border-2 border-dashed border-gray-300 p-4 text-center">
+                  <p class="text-gray-500 font-bold text-xs uppercase tracking-widest">No pending for this month</p>
                 </div>
-                <p class="text-gray-500 font-extrabold text-xl">No upcoming subscriptions</p>
-                <p class="text-gray-400 font-bold text-sm mt-2 max-w-[250px]">
-                  Tap the + button to add a new monthly subscription.
-                </p>
-              </div>
-            }
+              }
+            </div>
+
+            <!-- Next Month Section -->
+            <div class="flex flex-col gap-1.5">
+              <h3 class="font-extrabold text-xs text-gray-500 uppercase tracking-widest px-1">Next Month</h3>
+              @if (subscriptionService.nextMonthSubscriptions().length > 0) {
+                @for (sub of subscriptionService.nextMonthSubscriptions(); track sub.id) {
+                  <button
+                    (click)="subscriptionService.openBottomSheet(sub)"
+                    class="w-full bg-white border-2 border-gray-200 rounded-none p-4 flex flex-col gap-2 text-left hover:bg-gray-50 transition-colors active:bg-gray-100 opacity-80"
+                  >
+                    <div class="flex justify-between items-start gap-4">
+                      <div class="flex flex-col gap-0.5 flex-1 min-w-0 pr-4">
+                        <span class="font-extrabold text-lg text-black truncate">{{ sub.title }}</span>
+                        <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{{ sub.category }}</span>
+                      </div>
+                      <span class="font-extrabold text-lg text-black flex-shrink-0">₹{{ sub.amount | number: '1.0-2' }}</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-1 w-full gap-2">
+                      <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest min-w-0">
+                        <span class="text-blue-600 font-bold">
+                          {{ getNextMonthDueMessage(sub.billing_day) }}
+                        </span>
+                      </span>
+                    </div>
+                  </button>
+                }
+              } @else {
+                <div class="bg-gray-50 border-2 border-dashed border-gray-300 p-4 text-center">
+                  <p class="text-gray-500 font-bold text-xs uppercase tracking-widest">No subscriptions added yet</p>
+                </div>
+              }
+            </div>
+
           </div>
         }
 
@@ -173,5 +203,12 @@ export class SubscriptionsComponent {
     } else {
       return 'text-red-600 font-extrabold';
     }
+  }
+
+  getNextMonthDueMessage(billingDay: number): string {
+    const today = new Date();
+    const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, billingDay);
+    const monthName = nextMonth.toLocaleString('default', { month: 'short' });
+    return `Due on ${billingDay} ${monthName}`;
   }
 }

@@ -211,15 +211,17 @@ export class SplitService {
     }
   }
 
-  async updateSplit(split: SplitExpense, silent: boolean = false) {
+  async updateSplit(split: SplitExpense, silent: boolean = false, skipValidation: boolean = false) {
     // Validate: participant amounts must sum to total_amount
-    const totalParticipantAmount = split.participants
-      .reduce((s, p) => s + p.amountOwed, 0);
-    if (Math.abs(totalParticipantAmount - split.total_amount) > 1) {
-      this.toastService.showError(
-        `Split amounts must match the total expense amount.`
-      );
-      return false;
+    if (!skipValidation) {
+      const totalParticipantAmount = split.participants
+        .reduce((s, p) => s + Number(p.amountOwed || 0), 0);
+      if (Math.abs(totalParticipantAmount - Number(split.total_amount || 0)) > 1) {
+        this.toastService.showError(
+          `Split amounts must match the total expense amount.`
+        );
+        return false;
+      }
     }
     const { data, error } = await this.supabase.client
       .from('split_expenses')
@@ -399,7 +401,7 @@ export class SplitService {
       
       const payerId = split.payer_id;
       split.participants.forEach(p => {
-        if (p.userId !== payerId) {
+        if (p.userId !== payerId && p.status !== 'settled') {
           netBalances[payerId] = (netBalances[payerId] || 0) + p.amountOwed;
           netBalances[p.userId] = (netBalances[p.userId] || 0) - p.amountOwed;
         }
@@ -455,7 +457,7 @@ export class SplitService {
       
       const payerId = split.payer_id;
       split.participants.forEach(p => {
-        if (p.userId !== payerId) {
+        if (p.userId !== payerId && p.status !== 'settled') {
           if (payerId === currentUser) {
             rawBalances[p.userId] = (rawBalances[p.userId] || 0) + p.amountOwed;
           } else if (p.userId === currentUser) {
@@ -489,8 +491,8 @@ export class SplitService {
   // --- Sheet Controls ---
 
   openAddSplitSheet(split?: SplitExpense) {
-    if (split) {
-      const hasSettlements = split.participants.some(p => p.status === 'settled' || p.status === 'pending');
+    if (split && split.id) {
+      const hasSettlements = split.participants?.some(p => p.status === 'settled' || p.status === 'pending');
       const hasPartialSettlements = this.splits().some(s => s.parent_expense_id === split.id);
       
       if (hasSettlements || hasPartialSettlements) {

@@ -199,6 +199,7 @@ export class Expenses implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy() {
     if (this.observer) this.observer.disconnect();
     if (this.monthSub) this.monthSub.unsubscribe();
+    this.expenseService.setMonthFilter(this.expenseService.getCurrentMonthString());
   }
 
   trackById(index: number, expense: Expense): string {

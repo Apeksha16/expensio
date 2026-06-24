@@ -69,7 +69,7 @@ export class ExpenseService {
   readonly isBottomSheetOpen = signal(false);
   readonly editingExpense = signal<Expense | null>(null);
 
-  private getCurrentMonthString() {
+  getCurrentMonthString() {
     const d = new Date();
     const m = (d.getMonth() + 1).toString().padStart(2, '0');
     return `${d.getFullYear()}-${m}`;

@@ -178,6 +178,7 @@ export class Budgets implements OnInit, AfterViewInit {
   animateBars = signal(false);
 
   ngOnInit() {
+    this.expenseService.setMonthFilter(this.expenseService.getCurrentMonthString());
     this.monthSub = this.monthPicker.monthSelected$.subscribe(month => {
       this.onMonthSelected(month);
     });
@@ -191,6 +192,7 @@ export class Budgets implements OnInit, AfterViewInit {
 
   ngOnDestroy() {
     if (this.monthSub) this.monthSub.unsubscribe();
+    this.expenseService.setMonthFilter(this.expenseService.getCurrentMonthString());
   }
 
   getActiveMonthLabel() {

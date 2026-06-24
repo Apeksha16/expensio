@@ -6,11 +6,14 @@ import { ConfirmService } from '../../../core/services/confirm.service';
 
 import { SwipeToCloseDirective } from '../swipe-to-close.directive';
 import { HapticService } from '../../../core/services/haptic.service';
+import { AmountInputDirective } from '../amount-input.directive';
+import { AutofocusDirective } from '../autofocus.directive';
+import { SafeInputDirective } from '../safe-input.directive';
 
 @Component({
   selector: 'app-confirm-sheet',
   standalone: true,
-  imports: [SwipeToCloseDirective, FormsModule],
+  imports: [SwipeToCloseDirective, FormsModule, AmountInputDirective, AutofocusDirective, SafeInputDirective],
   animations: [
     trigger('slideUp', [
       transition(':enter', [
@@ -53,7 +56,8 @@ import { HapticService } from '../../../core/services/haptic.service';
           @if (confirmService.config()?.showInput) {
             <div class="mt-2 flex flex-col gap-1">
                <label class="text-xs font-bold text-gray-500 uppercase tracking-widest">Amount</label>
-               <input [(ngModel)]="currentAmount" type="number" 
+               <input [(ngModel)]="currentAmount" type="text" inputmode="numeric" pattern="[0-9]*"
+                 appAmountInput appAutofocus appSafeInput
                  [max]="confirmService.config()?.inputMax ?? null"
                  class="w-full bg-gray-50 border-2 border-gray-200 p-3 font-extrabold text-black outline-none focus:border-black transition-colors rounded-none" />
             </div>
@@ -93,10 +97,16 @@ export class ConfirmSheetComponent {
   constructor() {
     effect(() => {
       const config = this.confirmService.config();
-      if (config?.showInput) {
-        this.currentAmount = config.inputValue;
-      } else {
-        this.currentAmount = undefined;
+      // Only set currentAmount when config changes to a new config (opening the modal)
+      if (config) {
+        if (config.showInput) {
+          // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
+          setTimeout(() => {
+             this.currentAmount = config.inputValue;
+          });
+        } else {
+          this.currentAmount = undefined;
+        }
       }
     });
   }
