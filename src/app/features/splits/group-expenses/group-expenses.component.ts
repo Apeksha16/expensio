@@ -242,7 +242,7 @@ export class GroupExpenses implements OnInit {
       confirmText: 'Settle All',
       cancelText: 'Cancel',
       onConfirm: async () => {
-         const promises: Promise<void>[] = [];
+         const promises: Promise<boolean>[] = [];
          const currentUserId = this.currentUser()?.id;
          this.groupExpenses().forEach(split => {
            const updatedSplit = { ...split };
@@ -270,8 +270,10 @@ export class GroupExpenses implements OnInit {
            }
          });
 
-         await Promise.all(promises);
-         this.toastService.showSuccess('All group expenses settled up!');
+         const results = await Promise.all(promises);
+         if (results.every(r => r !== false)) {
+           this.toastService.showSuccess('All group expenses are settled.');
+         }
       }
     });
   }
@@ -320,13 +322,13 @@ export class GroupExpenses implements OnInit {
               p.userId === myId ? { ...p, status: 'pending' } : p
             );
             await this.splitService.updateSplit(updatedSplit as any, true);
-            this.toastService.showSuccess('Settlement requested! Waiting for confirmation.');
+            this.toastService.showSuccess('Settlement request sent. Waiting for confirmation.');
           } else {
             updatedSplit.participants = updatedSplit.participants.map((p: any) => 
               (p.userId !== myId && p.amountOwed > 0) ? { ...p, status: 'settled' } : p
             );
             await this.splitService.updateSplit(updatedSplit as any, true);
-            this.toastService.showSuccess('Expense settled successfully!');
+            this.toastService.showSuccess('Expense settled successfully.');
           }
         } else {
           // Partial Settlement
@@ -389,7 +391,7 @@ export class GroupExpenses implements OnInit {
             p.status === 'pending' ? { ...p, status: 'settled' } : p
           );
           await this.splitService.updateSplit(updatedSplit as any, true);
-          this.toastService.showSuccess('Settlement confirmed successfully!');
+          this.toastService.showSuccess('Settlement confirmed successfully.');
         } finally {
           const after = new Set(this.processingIds());
           after.delete(key);
@@ -430,7 +432,7 @@ export class GroupExpenses implements OnInit {
   editSplit(split: SplitExpense) {
     if (split.category === 'Settlement' || split.category === 'Pending Settlement') return;
     if (split.payer_id !== this.currentUser()?.id) {
-       this.toastService.showError("You can only edit expenses that you added.");
+       this.toastService.showError("You can only edit expenses you created.");
        return;
     }
     this.splitService.openAddSplitSheet(split);

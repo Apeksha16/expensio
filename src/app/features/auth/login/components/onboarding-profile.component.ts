@@ -185,13 +185,13 @@ export class OnboardingProfileComponent implements OnInit {
           console.warn('Auto-login failed, but account was created:', loginErr);
         }
 
-        this.toastService.showSuccess('Account created successfully!');
+        this.toastService.showSuccess('Welcome to Expensio! Your account is ready.');
         this.state.clearAll();
 
         // Force navigation
         this.router.navigate(['/dashboard']);
       } else {
-        this.toastService.showError('Failed to create account.');
+        this.toastService.showError("Couldn't create your account. Please try again.");
       }
     } catch (e: any) {
       console.error(e);

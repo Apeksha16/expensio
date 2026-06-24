@@ -165,7 +165,7 @@ export class BudgetService {
               return;
             } else {
               // Rollover failed — show error and fall back to displaying last month's budgets
-              this.toastService.showError("Couldn't create this month's budgets. Please check your connection.");
+              this.toastService.showError("Couldn't load budget.");
               this._budgets.set(prevData as Budget[]);
               this.isLoading.set(false);
               return;
@@ -243,7 +243,7 @@ export class BudgetService {
       b => b.name.toLowerCase() === budget.name.toLowerCase()
     );
     if (duplicate) {
-      this.toastService.showError(`A budget for '${budget.name}' already exists this month.`);
+      this.toastService.showError(`A budget already exists for this period.`);
       return false;
     }
 
@@ -263,9 +263,9 @@ export class BudgetService {
 
     if (!error && data) {
       this._budgets.update(bs => [...bs, data as Budget]);
-      this.toastService.showSuccess('Budget added successfully!');
+      this.toastService.showSuccess('Budget created successfully.');
     } else {
-      this.toastService.showError('Failed to add budget. Please try again.');
+      this.toastService.showError("Couldn't create budget. Please try again.");
     }
     this.isSaving.set(false);
     return !error;
@@ -298,9 +298,9 @@ export class BudgetService {
       }
 
       this._budgets.update(bs => bs.map(b => b.id === id ? { ...b, ...data } : b));
-      this.toastService.showSuccess('Budget updated successfully!');
+      this.toastService.showSuccess('Budget updated successfully.');
     } else {
-      this.toastService.showError('Failed to update budget. Please try again.');
+      this.toastService.showError("Couldn't update budget. Please try again.");
     }
     this.isSaving.set(false);
     return !error;
@@ -328,9 +328,9 @@ export class BudgetService {
           .lt('date', endDate);
       }
       this._budgets.update(bs => bs.filter(b => b.id !== id));
-      this.toastService.showSuccess('Budget deleted successfully!');
+      this.toastService.showSuccess('Budget deleted successfully.');
     } else {
-      this.toastService.showError('Failed to delete budget. Please try again.');
+      this.toastService.showError("Couldn't delete budget. Please try again.");
     }
     this.isDeleting.set(false);
     return !error;

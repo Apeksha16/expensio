@@ -138,13 +138,13 @@ export class SubscriptionService {
         const updated = [data as Subscription, ...subs];
         return updated.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
       });
-      this.toastService.showSuccess('Subscription added successfully!');
+      this.toastService.showSuccess('Subscription added successfully.');
       return true;
     }
     
     if (error) {
       console.error('Supabase addSubscription error:', error);
-      this.toastService.showError('Failed to add subscription. Check database schema.');
+      this.toastService.showError("Couldn't add subscription. Please try again.");
     }
     return false;
   }
@@ -161,7 +161,7 @@ export class SubscriptionService {
       this.subscriptions.update(subs => 
         subs.map(s => s.id === id ? { ...s, ...updates } : s)
       );
-      this.toastService.showSuccess('Subscription updated!');
+      this.toastService.showSuccess('Subscription updated successfully.');
       return true;
     }
 
@@ -180,12 +180,12 @@ export class SubscriptionService {
         this.subscriptions.update(subs => 
           subs.map(s => s.id === id ? { ...s, ...updates } : s)
         );
-        this.toastService.showSuccess('Subscription updated!');
+        this.toastService.showSuccess('Subscription updated successfully.');
         return true;
       }
     }
 
-    this.toastService.showError('Failed to update subscription');
+    this.toastService.showError("Couldn't update subscription.");
     return false;
   }
 
@@ -197,11 +197,11 @@ export class SubscriptionService {
 
     if (!error) {
       this.subscriptions.update(subs => subs.filter(s => s.id !== id));
-      this.toastService.showSuccess('Subscription deleted!');
+      this.toastService.showSuccess('Subscription deleted successfully.');
       return true;
     }
 
-    this.toastService.showError('Failed to delete subscription');
+    this.toastService.showError("Couldn't delete subscription.");
     return false;
   }
 
@@ -241,7 +241,7 @@ export class SubscriptionService {
       this.subscriptions.update(subs => 
         subs.map(s => s.id === subscription.id ? { ...s, last_paid_month: currentMonth, updated_at: updatedTime } : s)
       );
-      this.toastService.showSuccess(`Your ${subscription.title} payment has been done.`);
+      this.toastService.showSuccess(`Payment recorded for ${subscription.title}.`);
       return true;
     }
 
@@ -257,12 +257,12 @@ export class SubscriptionService {
         this.subscriptions.update(subs => 
           subs.map(s => s.id === subscription.id ? { ...s, last_paid_month: currentMonth } : s)
         );
-        this.toastService.showSuccess(`Your ${subscription.title} payment has been done.`);
+        this.toastService.showSuccess(`Payment recorded for ${subscription.title}.`);
         return true;
       }
     }
 
-    this.toastService.showError('Logged expense but failed to update subscription status.');
+    this.toastService.showError("Payment recorded, but subscription status couldn't be updated.");
     return false;
   }
 }

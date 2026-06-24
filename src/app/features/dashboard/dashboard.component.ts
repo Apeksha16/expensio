@@ -11,7 +11,7 @@ import {
   effect,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+
 import { Chart } from 'chart.js/auto';
 import { ExpenseService, Expense } from '../../core/services/expense.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -23,11 +23,12 @@ import { SubscriptionService } from '../../core/services/subscription.service';
 import { ConfirmService } from '../../core/services/confirm.service';
 import { FriendService } from '../../core/services/friend.service';
 import { BudgetService } from '../../core/services/budget.service';
+import { KeyboardService } from '../../core/services/keyboard.service';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   host: {
     class: 'flex flex-col h-full',
   },
@@ -202,25 +203,25 @@ import { BudgetService } from '../../core/services/budget.service';
           </div>
           <div class="grid grid-cols-4 gap-3 mb-2">
             <!-- Add Expense -->
-            <button routerLink="/expenses" (click)="expenseService.openBottomSheet()" class="flex flex-col items-center justify-center gap-2 bg-gray-200 border-l-4 border-blue-500 py-3 rounded-none cursor-pointer hover:bg-gray-300 transition-colors">
+            <button (click)="keyboardService.openKeyboardSync(); expenseService.openBottomSheet()" class="flex flex-col items-center justify-center gap-2 bg-gray-200 border-l-4 border-blue-500 py-3 rounded-none cursor-pointer hover:bg-gray-300 transition-colors">
               <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
               <span class="text-[9px] font-extrabold text-gray-700 uppercase tracking-widest text-center">Add<br>Expense</span>
             </button>
 
             <!-- Add Budget -->
-            <button routerLink="/budgets" (click)="budgetService.openBottomSheet()" class="flex flex-col items-center justify-center gap-2 bg-gray-200 border-l-4 border-purple-500 py-3 rounded-none cursor-pointer hover:bg-gray-300 transition-colors">
+            <button (click)="keyboardService.openKeyboardSync(); budgetService.openBottomSheet()" class="flex flex-col items-center justify-center gap-2 bg-gray-200 border-l-4 border-purple-500 py-3 rounded-none cursor-pointer hover:bg-gray-300 transition-colors">
               <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
               <span class="text-[9px] font-extrabold text-gray-700 uppercase tracking-widest text-center">Add<br>Budget</span>
             </button>
 
             <!-- Add Goal -->
-            <button routerLink="/goals" (click)="goalService.openBottomSheet()" class="flex flex-col items-center justify-center gap-2 bg-gray-200 border-l-4 border-pink-500 py-3 rounded-none cursor-pointer hover:bg-gray-300 transition-colors">
+            <button (click)="keyboardService.openKeyboardSync(); goalService.openBottomSheet()" class="flex flex-col items-center justify-center gap-2 bg-gray-200 border-l-4 border-pink-500 py-3 rounded-none cursor-pointer hover:bg-gray-300 transition-colors">
               <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
               <span class="text-[9px] font-extrabold text-gray-700 uppercase tracking-widest text-center">Add<br>Goal</span>
             </button>
 
             <!-- Split Expense -->
-            <button routerLink="/splits" (click)="splitService.activeTab.set('expenses'); splitService.openAddSplitSheet()" class="flex flex-col items-center justify-center gap-2 bg-gray-200 border-l-4 border-emerald-500 py-3 rounded-none cursor-pointer hover:bg-gray-300 transition-colors">
+            <button (click)="keyboardService.openKeyboardSync(); splitService.activeTab.set('expenses'); splitService.openAddSplitSheet()" class="flex flex-col items-center justify-center gap-2 bg-gray-200 border-l-4 border-emerald-500 py-3 rounded-none cursor-pointer hover:bg-gray-300 transition-colors">
               <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
               <span class="text-[9px] font-extrabold text-gray-700 uppercase tracking-widest text-center">Split<br>Expense</span>
             </button>
@@ -231,7 +232,6 @@ import { BudgetService } from '../../core/services/budget.service';
         <div class="flex flex-col gap-3">
           <div class="flex justify-between items-end mb-1">
             <h3 class="text-lg font-bold">Split Summary</h3>
-            <span class="text-[9px] font-extrabold text-gray-500 uppercase tracking-widest bg-gray-200 px-2 py-0.5 rounded-sm">All outstanding • All time</span>
           </div>
 
           <div class="bg-white border-2 border-black p-5 flex flex-col gap-6">
@@ -240,15 +240,15 @@ import { BudgetService } from '../../core/services/budget.service';
           <div class="flex">
             <div class="flex-1 flex flex-col items-start">
               <span class="text-[10px] font-bold text-black uppercase tracking-widest">You are owed</span>
-              <span class="text-2xl font-black text-green-600 my-1">{{ isMasked() ? '••••' : (totalOwedToYou() | currency: 'INR' : 'symbol' : '1.0-0') }}</span>
+              <span class="text-2xl font-black text-green-600 my-1">{{ totalOwedToYou() | currency: 'INR' : 'symbol' : '1.0-0' }}</span>
               <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">from {{ friendsWhoOweYou().length }} people</span>
             </div>
             
             <div class="w-0.5 bg-gray-200 mx-4"></div>
             
-            <div class="flex-1 flex flex-col items-start pl-2">
+            <div class="flex-1 flex flex-col items-end">
               <span class="text-[10px] font-bold text-black uppercase tracking-widest">You owe</span>
-              <span class="text-2xl font-black text-red-600 my-1">{{ isMasked() ? '••••' : (totalYouOwe() | currency: 'INR' : 'symbol' : '1.0-0') }}</span>
+              <span class="text-2xl font-black text-red-600 my-1">{{ totalYouOwe() | currency: 'INR' : 'symbol' : '1.0-0' }}</span>
               <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">to {{ friendsYouOwe().length }} people</span>
             </div>
           </div>
@@ -266,7 +266,7 @@ import { BudgetService } from '../../core/services/budget.service';
                    <span class="font-extrabold text-sm text-black truncate">{{ fb.friend.profile.name }}</span>
                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{{ fb.balance > 0 ? 'owes you' : 'you owe' }}</span>
                    <span class="font-black text-sm text-right min-w-[50px]" [ngClass]="fb.balance > 0 ? 'text-green-600' : 'text-red-600'">
-                     {{ isMasked() ? '••••' : '₹' + (fb.absBalance | number: '1.0-0') }}
+                     ₹{{ fb.absBalance | number: '1.0-0' }}
                    </span>
                  </div>
                }
@@ -324,6 +324,7 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   private confirmService = inject(ConfirmService);
   private friendService = inject(FriendService);
   budgetService = inject(BudgetService);
+  keyboardService = inject(KeyboardService);
 
   chartType: 'weekly' | 'monthly' = 'weekly';
   chartInstance: any;
@@ -742,7 +743,7 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
         if (!error && data) {
           this.splitService.openAddSplitSheet(data as any);
         } else {
-          this.toastService.showError('Could not load split expense.');
+          this.toastService.showError("Couldn't load split expense.");
         }
       }
       return;

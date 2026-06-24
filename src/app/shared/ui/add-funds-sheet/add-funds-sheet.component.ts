@@ -222,10 +222,10 @@ export class AddFundsSheetComponent {
           await this.goalService.updateGoal(goal.id, {
             saved_amount: goal.saved_amount - editing.amount
           }, true);
-          this.toastService.showSuccess('Fund deleted successfully');
+          this.toastService.showSuccess('Funds removed successfully.');
           this.close();
         } else {
-          this.toastService.showError('Failed to delete fund');
+          this.toastService.showError("Couldn't remove funds.");
         }
         this.isDeleting.set(false);
       }
@@ -266,10 +266,10 @@ export class AddFundsSheetComponent {
           const goalSuccess = await this.goalService.updateGoal(goal.id, {
             saved_amount: updatedSavedAmount
           }, true);
-          if (!goalSuccess) throw new Error('Failed to update goal');
+          if (!goalSuccess) throw new Error("Couldn't update goal.");
         }
         
-        this.toastService.showSuccess(`Updated fund to ₹${amountToAdd}`);
+        this.toastService.showSuccess(`Goal balance updated to ₹${amountToAdd}.`);
         this.close();
       } else {
         // Add new
@@ -291,15 +291,15 @@ export class AddFundsSheetComponent {
         }, true);
 
         if (goalSuccess) {
-          this.toastService.showSuccess(`Added ₹${amountToAdd} to ${goal.name}`);
+          this.toastService.showSuccess(`₹${amountToAdd} added to ${goal.name}.`);
           this.close();
         } else {
-          throw new Error('Failed to update goal');
+          throw new Error("Couldn't update goal.");
         }
       }
     } catch (e) {
       console.error(e);
-      this.toastService.showError('Something went wrong adding funds.');
+      this.toastService.showError("Couldn't add funds. Please try again.");
     } finally {
       this.isSaving.set(false);
     }

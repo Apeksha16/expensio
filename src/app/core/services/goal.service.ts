@@ -146,13 +146,13 @@ export class GoalService {
         const updated = [data as Goal, ...g];
         return updated.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
       });
-      this.toastService.showSuccess('Goal added successfully!');
+      this.toastService.showSuccess('Goal created successfully.');
       return true;
     }
     
     if (error) {
       console.error('Supabase addGoal error:', error);
-      this.toastService.showError('Failed to add goal. Check database schema.');
+      this.toastService.showError("Couldn't create goal. Please try again.");
     }
     return false;
   }
@@ -189,7 +189,7 @@ export class GoalService {
       this.goals.update(goalsList => 
         goalsList.map(g => g.id === id ? { ...g, ...updates } : g)
       );
-      if (!silent) this.toastService.showSuccess('Goal updated!');
+      if (!silent) this.toastService.showSuccess('Goal updated successfully.');
       return true;
     }
 
@@ -207,12 +207,12 @@ export class GoalService {
         this.goals.update(goalsList => 
           goalsList.map(g => g.id === id ? { ...g, ...updates } : g)
         );
-        if (!silent) this.toastService.showSuccess('Goal updated!');
+        if (!silent) this.toastService.showSuccess('Goal updated successfully.');
         return true;
       }
     }
 
-    this.toastService.showError('Failed to update goal');
+    this.toastService.showError("Couldn't update goal.");
     return false;
   }
 
@@ -224,11 +224,11 @@ export class GoalService {
 
     if (!error) {
       this.goals.update(goalsList => goalsList.filter(g => g.id !== id));
-      this.toastService.showSuccess('Goal deleted!');
+      this.toastService.showSuccess('Goal deleted successfully.');
       return true;
     }
 
-    this.toastService.showError('Failed to delete goal');
+    this.toastService.showError("Couldn't delete goal.");
     return false;
   }
 

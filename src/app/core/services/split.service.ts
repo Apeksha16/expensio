@@ -138,14 +138,14 @@ export class SplitService {
       
     if (error) {
       console.error('Error adding split:', error);
-      this.toastService.showError('Failed to add split. Please try again.');
+      this.toastService.showError("Couldn't create split expense. Please try again.");
     } else if (data) {
       if (split.category === 'Pending Settlement') {
-        this.toastService.showSuccess('Settlement requested! Waiting for confirmation.');
+        this.toastService.showSuccess('Settlement request sent. Waiting for confirmation.');
       } else if (split.category === 'Settlement') {
-        this.toastService.showSuccess('Expense settled successfully!');
+        this.toastService.showSuccess('Expense settled successfully.');
       } else {
-        this.toastService.showSuccess('Split added successfully!');
+        this.toastService.showSuccess('Split expense created successfully.');
       }
       this.loadData(true);
     }
@@ -161,9 +161,9 @@ export class SplitService {
 
     if (error) {
       console.error('Error approving settlement:', error);
-      this.toastService.showError('Failed to confirm settlement.');
+      this.toastService.showError("Couldn't confirm settlement.");
     } else if (data) {
-      this.toastService.showSuccess('Settlement confirmed!');
+      this.toastService.showSuccess('Settlement confirmed successfully.');
       this.loadData(true);
     }
   }
@@ -182,7 +182,7 @@ export class SplitService {
       .eq('id', splitId);
 
     if (error) {
-      this.toastService.showError('Failed to cancel settlement request.');
+      this.toastService.showError("Couldn't cancel settlement request.");
     } else {
       this.toastService.showSuccess('Settlement request cancelled.');
       this.loadData(true);
@@ -204,23 +204,22 @@ export class SplitService {
       .eq('id', splitId);
 
     if (error) {
-      this.toastService.showError('Failed to dispute settlement.');
+      this.toastService.showError("Couldn't dispute settlement request.");
     } else {
-      this.toastService.showSuccess('Settlement request disputed and cancelled.');
+      this.toastService.showSuccess('Settlement request disputed successfully.');
       this.loadData(true);
     }
   }
 
   async updateSplit(split: SplitExpense, silent: boolean = false) {
-    // Validate: non-payer participant amounts must sum to total_amount
-    const nonPayerTotal = split.participants
-      .filter(p => p.userId !== split.payer_id)
+    // Validate: participant amounts must sum to total_amount
+    const totalParticipantAmount = split.participants
       .reduce((s, p) => s + p.amountOwed, 0);
-    if (Math.abs(nonPayerTotal - split.total_amount) > 1) {
+    if (Math.abs(totalParticipantAmount - split.total_amount) > 1) {
       this.toastService.showError(
-        `Participant amounts (₹${Math.round(nonPayerTotal)}) must equal total amount (₹${Math.round(split.total_amount)}).`
+        `Split amounts must match the total expense amount.`
       );
-      return;
+      return false;
     }
     const { data, error } = await this.supabase.client
       .from('split_expenses')
@@ -240,13 +239,17 @@ export class SplitService {
 
     if (error) {
       console.error('Error updating split:', error);
-      this.toastService.showError('Failed to update split. Please try again.');
+      this.toastService.showError("Couldn't update split expense. Please try again.");
+      return false;
     } else if (data && !silent) {
-      this.toastService.showSuccess('Split updated successfully!');
+      this.toastService.showSuccess('Split expense updated successfully.');
       this.loadData(true);
+      return true;
     } else if (data) {
       this.loadData(true);
+      return true;
     }
+    return false;
   }
 
   async deleteSplit(id: string) {
@@ -257,9 +260,9 @@ export class SplitService {
 
     if (error) {
       console.error('Error deleting split:', error);
-      this.toastService.showError('Failed to delete split. Please try again.');
+      this.toastService.showError("Couldn't delete split expense. Please try again.");
     } else {
-      this.toastService.showSuccess('Split deleted successfully!');
+      this.toastService.showSuccess('Split expense deleted successfully.');
       this.loadData(true);
     }
   }
@@ -303,9 +306,9 @@ export class SplitService {
 
     if (error) {
       console.error('Error creating group:', error);
-      this.toastService.showError('Failed to create group. Please try again.');
+      this.toastService.showError("Couldn't create group. Please try again.");
     } else if (data) {
-      this.toastService.showSuccess('Group created successfully!');
+      this.toastService.showSuccess('Group created successfully.');
       this.loadData(true);
     }
   }
@@ -321,7 +324,7 @@ export class SplitService {
           .eq('group_id', group.id);
 
         if (splitsError) {
-          this.toastService.showError('Failed to check member balances.');
+          this.toastService.showError("Couldn't verify member balances.");
           return;
         }
 
@@ -331,7 +334,7 @@ export class SplitService {
              const balances = this.simplifyDebts(splitsWithUser as SplitExpense[], userId);
              const hasDues = Object.values(balances).some(b => Math.abs(b) > 0.01);
              if (hasDues) {
-                this.toastService.showError('Cannot remove a member who still has unsettled dues in this group.');
+                this.toastService.showError("This member still has pending balances and can't be removed.");
                 return;
              }
           }
@@ -348,9 +351,9 @@ export class SplitService {
 
     if (error) {
       console.error('Error updating group:', error);
-      this.toastService.showError('Failed to update group. Please try again.');
+      this.toastService.showError("Couldn't update group. Please try again.");
     } else if (data) {
-      this.toastService.showSuccess('Group updated successfully!');
+      this.toastService.showSuccess('Group updated successfully.');
       this.loadData(true);
     }
   }
@@ -362,7 +365,7 @@ export class SplitService {
       .eq('id', groupId);
 
     if (error) {
-      this.toastService.showError(`Failed to ${archive ? 'archive' : 'restore'} group.`);
+      this.toastService.showError(`Couldn't ${archive ? 'archive' : 'restore'} group.`);
     } else {
       this.groups.update(gs =>
         gs.map(g => g.id === groupId ? { ...g, is_archived: archive } : g)
@@ -379,9 +382,9 @@ export class SplitService {
 
     if (error) {
       console.error('Error deleting group:', error);
-      this.toastService.showError('Failed to delete group. Please try again.');
+      this.toastService.showError("Couldn't delete group. Please try again.");
     } else {
-      this.toastService.showSuccess('Group deleted successfully!');
+      this.toastService.showSuccess('Group deleted successfully.');
       this.loadData(true);
     }
   }
@@ -491,7 +494,7 @@ export class SplitService {
       const hasPartialSettlements = this.splits().some(s => s.parent_expense_id === split.id);
       
       if (hasSettlements || hasPartialSettlements) {
-        this.toastService.showError("Cannot edit an expense that has been settled (or partially settled).");
+        this.toastService.showError("Settled expenses can't be edited.");
         return;
       }
     }

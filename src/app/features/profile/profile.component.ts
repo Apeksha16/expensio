@@ -274,9 +274,9 @@ export class Profile {
             this.isUpdating.set(true);
             const success = await this.authService.updateProfile(this.pendingProfile());
             if (success) {
-              this.toastService.showSuccess('Profile updated successfully!', 2000);
+              this.toastService.showSuccess('Profile updated successfully.', 2000);
             } else {
-              this.toastService.showError('Failed to update profile');
+              this.toastService.showError("Couldn't update profile. Please try again.");
             }
             this.isUpdating.set(false);
           },
@@ -285,15 +285,15 @@ export class Profile {
       } else {
         const success = await this.authService.updateProfile(this.pendingProfile());
         if (success) {
-          this.toastService.showSuccess('Profile updated successfully!', 2000);
+          this.toastService.showSuccess('Profile updated successfully.', 2000);
         } else {
-          this.toastService.showError('Failed to update profile');
+          this.toastService.showError("Couldn't update profile. Please try again.");
         }
         this.isUpdating.set(false);
       }
     } catch (e) {
       this.isUpdating.set(false);
-      this.toastService.showError('Failed to update profile');
+      this.toastService.showError("Couldn't update profile. Please try again.");
     }
   }
 }

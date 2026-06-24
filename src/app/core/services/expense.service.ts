@@ -222,14 +222,14 @@ export class ExpenseService {
       });
       this.applyFilterAndPagination();
       if (!silent) {
-        this.toastService.showSuccess('Expense added successfully!');
+        this.toastService.showSuccess('Expense added successfully.');
       }
       return true;
     }
     
     if (error) {
       console.error('Supabase addExpense error:', error);
-      this.toastService.showError('Failed to add expense. Please try again.');
+      this.toastService.showError("Couldn't add expense. Please try again.");
     }
     return false;
   }
@@ -237,7 +237,7 @@ export class ExpenseService {
   async updateExpense(id: string, data: Omit<Expense, 'id'>, silent = false): Promise<boolean> {
     // Guard: split expenses must be edited from the Splits page
     if (id.startsWith('split_')) {
-      this.toastService.showError('Edit this expense from the Splits page.');
+      this.toastService.showError('This expense can only be edited from Splits.');
       return false;
     }
     
@@ -275,11 +275,11 @@ export class ExpenseService {
       }
 
       if (!silent) {
-        this.toastService.showSuccess('Expense updated successfully!');
+        this.toastService.showSuccess('Expense updated successfully.');
       }
       return true;
     }
-    this.toastService.showError('Failed to update expense. Please try again.');
+    this.toastService.showError("Couldn't update expense. Please try again.");
     return false;
   }
 
@@ -321,7 +321,7 @@ export class ExpenseService {
   async deleteExpense(id: string): Promise<boolean> {
     // Guard: split expenses must be deleted from the Splits page
     if (id.startsWith('split_')) {
-      this.toastService.showError('Delete this expense from the Splits page.');
+      this.toastService.showError('This expense can only be deleted from Splits.');
       return false;
     }
     
@@ -357,10 +357,10 @@ export class ExpenseService {
         }
       }
 
-      this.toastService.showSuccess('Expense deleted successfully!');
+      this.toastService.showSuccess('Expense deleted successfully.');
       return true;
     }
-    this.toastService.showError('Failed to delete expense. Please try again.');
+    this.toastService.showError("Couldn't delete expense. Please try again.");
     return false;
   }
 

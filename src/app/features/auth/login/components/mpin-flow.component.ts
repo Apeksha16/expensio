@@ -243,7 +243,7 @@ export class MpinFlowComponent implements OnInit {
     try {
       await this.supabaseService.updateMpin(this.pin1(), this.email(), this.state.otpCode());
       await this.supabaseService.client.rpc('reset_failed_login', { p_email: this.email() });
-      this.toastService.showSuccess('MPIN reset successfully! You are now logged in.');
+      this.toastService.showSuccess("MPIN reset successfully. You're now logged in.");
       this.state.clearAll();
       this.router.navigate(['/dashboard']);
     } catch (e) {

@@ -212,7 +212,7 @@ export class BudgetExpenses implements OnInit {
         if (!error && data) {
           this.splitService.openAddSplitSheet(data as any);
         } else {
-          this.toastService.showError('Could not load split expense.');
+          this.toastService.showError("Couldn't load split expense.");
         }
       }
       return;

@@ -166,7 +166,7 @@ export class EnterEmailComponent implements OnInit {
       }
     } catch (err) {
       console.error(err);
-      this.toastService.showError('Something went wrong checking email.');
+      this.toastService.showError("Couldn't verify your email. Please try again.");
       this.keyboardService.closeKeyboard();
     } finally {
       this.isLoading.set(false);

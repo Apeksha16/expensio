@@ -79,7 +79,7 @@ export class PwaService {
 
   async checkForManualUpdate(): Promise<void> {
     if (!this.updates.isEnabled) {
-      this.toastService.showInfo('Updates are not supported in this environment');
+      this.toastService.showInfo("App updates aren't available on this device.");
       return;
     }
 
@@ -92,10 +92,10 @@ export class PwaService {
       }
 
       if (!updateFound) {
-        this.toastService.showInfo('No updates found');
+        this.toastService.showInfo("You're already using the latest version.");
       }
     } catch (err) {
-      this.toastService.showError('Failed to check for updates');
+      this.toastService.showError("Couldn't check for updates.");
     }
   }
 }

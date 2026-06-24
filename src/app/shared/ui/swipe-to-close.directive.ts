@@ -22,9 +22,19 @@ export class SwipeToCloseDirective {
   onTouchStart(event: TouchEvent) {
     const target = event.target as HTMLElement;
     
-    // Don't intercept scroll if we are scrolling inside an element
-    // But if we are pulling down from the top of a scroll container, allow it
-    if (this.isScrollable(target) && target.scrollTop > 0) {
+    // Check if any parent up to contentEl is scrolled down
+    let current: HTMLElement | null = target;
+    let isScrolledDown = false;
+    while (current && current !== document.body) {
+      if (current.scrollTop > 0) {
+        isScrolledDown = true;
+        break;
+      }
+      if (current === this.contentEl) break;
+      current = current.parentElement;
+    }
+
+    if (isScrolledDown) {
       return;
     }
 
@@ -38,8 +48,21 @@ export class SwipeToCloseDirective {
   onTouchMove(event: TouchEvent) {
     if (!this.isDragging) return;
 
+    // If the content is currently scrolled down, we should not be dragging the sheet
+    if (this.contentEl.scrollTop > 0) {
+      this.isDragging = false;
+      return;
+    }
+
     const y = event.touches[0].clientY;
     const deltaY = y - this.startY;
+
+    // If the user pulled UP, they intend to scroll the content. 
+    // Cancel sheet dragging for this touch session.
+    if (deltaY < -2) {
+      this.isDragging = false;
+      return;
+    }
 
     // Only allow dragging downwards
     if (deltaY > 0) {
@@ -75,10 +98,5 @@ export class SwipeToCloseDirective {
     }
   }
 
-  private isScrollable(el: HTMLElement): boolean {
-    if (!el) return false;
-    const overflowY = window.getComputedStyle(el).overflowY;
-    const isScrollableNode = overflowY === 'scroll' || overflowY === 'auto';
-    return isScrollableNode && el.scrollHeight > el.clientHeight;
-  }
+
 }
