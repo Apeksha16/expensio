@@ -399,7 +399,14 @@ as $$
 declare
   v_code text;
   v_expires timestamp with time zone;
+  v_uid uuid;
 begin
+  -- First check if the user actually exists
+  select id into v_uid from auth.users where email = p_email;
+  if v_uid is null then
+    return json_build_object('success', false, 'error', 'User not found');
+  end if;
+
   -- Generate a 4-digit code
   v_code := lpad(floor(random() * 10000)::text, 4, '0');
   v_expires := now() + interval '10 minutes';
@@ -513,3 +520,89 @@ NOTIFY pgrst, 'reload schema';
 -- Revoke execute from public/anon/authenticated on internal triggers
 REVOKE EXECUTE ON FUNCTION public.handle_new_user FROM PUBLIC;
 REVOKE EXECUTE ON FUNCTION public.handle_new_user FROM anon, authenticated;
+
+-- Create ledger_entries table
+create table if not exists public.ledger_entries (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users on delete cascade not null,
+  person_name text not null,
+  amount numeric not null,
+  type text not null check (type in ('in', 'out')), -- 'in' (Received/Borrow), 'out' (Given/Lend)
+  purpose text,
+  date timestamp with time zone not null,
+  created_at timestamp with time zone default timezone('utc'::text, now()),
+  updated_at timestamp with time zone default timezone('utc'::text, now())
+);
+
+-- Enable Row Level Security (RLS)
+alter table public.ledger_entries enable row level security;
+
+-- RLS Policies
+create policy "Users can insert own ledger entries."
+  on public.ledger_entries for insert
+  with check ( auth.uid() = user_id );
+
+create policy "Users can update own ledger entries."
+  on public.ledger_entries for update
+  using ( auth.uid() = user_id );
+
+create policy "Users can delete own ledger entries."
+  on public.ledger_entries for delete
+  using ( auth.uid() = user_id );
+
+create policy "Users can view own ledger entries."
+  on public.ledger_entries for select
+  using ( auth.uid() = user_id );
+
+-- Create ledger_sub_transactions table
+create table if not exists public.ledger_sub_transactions (
+  id uuid default gen_random_uuid() primary key,
+  ledger_id uuid references public.ledger_entries(id) on delete cascade not null,
+  amount numeric not null,
+  type text not null check (type in ('in', 'out')), -- 'in' (Received), 'out' (Given)
+  purpose text,
+  date timestamp with time zone not null,
+  created_at timestamp with time zone default timezone('utc'::text, now()),
+  updated_at timestamp with time zone default timezone('utc'::text, now())
+);
+
+-- Enable Row Level Security (RLS)
+alter table public.ledger_sub_transactions enable row level security;
+
+-- RLS Policies
+create policy "Users can insert own ledger sub-transactions."
+  on public.ledger_sub_transactions for insert
+  with check ( 
+    exists (
+      select 1 from public.ledger_entries 
+      where id = ledger_id and user_id = auth.uid()
+    )
+  );
+
+create policy "Users can update own ledger sub-transactions."
+  on public.ledger_sub_transactions for update
+  using ( 
+    exists (
+      select 1 from public.ledger_entries 
+      where id = ledger_id and user_id = auth.uid()
+    )
+  );
+
+create policy "Users can delete own ledger sub-transactions."
+  on public.ledger_sub_transactions for delete
+  using ( 
+    exists (
+      select 1 from public.ledger_entries 
+      where id = ledger_id and user_id = auth.uid()
+    )
+  );
+
+create policy "Users can view own ledger sub-transactions."
+  on public.ledger_sub_transactions for select
+  using ( 
+    exists (
+      select 1 from public.ledger_entries 
+      where id = ledger_id and user_id = auth.uid()
+    )
+  );
+

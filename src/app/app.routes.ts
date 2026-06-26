@@ -105,6 +105,16 @@ export const routes: Routes = [
         data: { animationIndex: 5.95 }
       },
       {
+        path: 'ledger',
+        loadComponent: () => import('./features/ledger/ledger.component').then(m => m.LedgerComponent),
+        data: { animationIndex: 5.92 }
+      },
+      {
+        path: 'ledger/:id',
+        loadComponent: () => import('./features/ledger/ledger-details/ledger-details.component').then(m => m.LedgerDetailsComponent),
+        data: { animationIndex: 5.93 }
+      },
+      {
         path: 'profile',
         loadComponent: () => import('./features/profile/profile.component').then(m => m.Profile),
         data: { animationIndex: 6 }

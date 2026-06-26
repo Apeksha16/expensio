@@ -32,6 +32,9 @@ import { SubscriptionSheetComponent } from '../../shared/ui/subscription-sheet/s
 import { GoalService } from '../services/goal.service';
 import { GoalSheetComponent } from '../../shared/ui/goal-sheet/goal-sheet.component';
 import { AddFundsSheetComponent } from '../../shared/ui/add-funds-sheet/add-funds-sheet.component';
+import { LedgerService } from '../services/ledger.service';
+import { LedgerSheetComponent } from '../../shared/ui/ledger-sheet/ledger-sheet.component';
+import { LedgerSubSheetComponent } from '../../shared/ui/ledger-sub-sheet/ledger-sub-sheet.component';
 
 @Component({
   selector: 'app-layout',
@@ -50,7 +53,9 @@ import { AddFundsSheetComponent } from '../../shared/ui/add-funds-sheet/add-fund
     QuickActionsSheetComponent,
     SubscriptionSheetComponent,
     GoalSheetComponent,
-    AddFundsSheetComponent
+    AddFundsSheetComponent,
+    LedgerSheetComponent,
+    LedgerSubSheetComponent
   ],
   animations: [slideInAnimation],
   template: `
@@ -62,7 +67,7 @@ import { AddFundsSheetComponent } from '../../shared/ui/add-funds-sheet/add-fund
       <header
         class="fixed top-0 w-full bg-black z-30 flex items-center justify-between px-4 border-b-2 border-black h-14"
       >
-        @if (isProfilePage() || isGroupExpensesPage() || isBudgetExpensesPage() || isGoalTransactionsPage()) {
+        @if (isProfilePage() || isGroupExpensesPage() || isBudgetExpensesPage() || isGoalTransactionsPage() || isLedgerDetailsPage()) {
           <button
             (click)="goBack()"
             class="p-2 -ml-2 text-gray-400 hover:text-white focus:outline-none transition-colors"
@@ -114,6 +119,15 @@ import { AddFundsSheetComponent } from '../../shared/ui/add-funds-sheet/add-fund
         } @else if (isGoalTransactionsPage()) {
           <button
             (click)="editGoal()"
+            class="p-2 -mr-2 text-gray-400 hover:text-white focus:outline-none transition-colors"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5z" />
+            </svg>
+          </button>
+        } @else if (isLedgerDetailsPage()) {
+          <button
+            (click)="editLedger()"
             class="p-2 -mr-2 text-gray-400 hover:text-white focus:outline-none transition-colors"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -191,7 +205,7 @@ import { AddFundsSheetComponent } from '../../shared/ui/add-funds-sheet/add-fund
           </button>
           <div class="mt-4 text-center">
             <span class="text-[10px] font-extrabold tracking-widest text-gray-500 uppercase mt-auto opacity-70"
-              >Version 1.0.22</span
+              >Version 1.0.23</span
             >
           </div>
         </div>
@@ -259,6 +273,8 @@ import { AddFundsSheetComponent } from '../../shared/ui/add-funds-sheet/add-fund
       <app-subscription-sheet></app-subscription-sheet>
       <app-goal-sheet></app-goal-sheet>
       <app-add-funds-sheet></app-add-funds-sheet>
+      <app-ledger-sheet></app-ledger-sheet>
+      <app-ledger-sub-sheet></app-ledger-sub-sheet>
 
       <!-- Global Toasts -->
       <app-toast></app-toast>
@@ -283,6 +299,7 @@ export class Layout implements AfterViewInit {
   quickActionsService = inject(QuickActionsService);
   subscriptionService = inject(SubscriptionService);
   goalService = inject(GoalService);
+  ledgerService = inject(LedgerService);
 
   currentUrl = signal(this.router.url);
 
@@ -291,6 +308,18 @@ export class Layout implements AfterViewInit {
   isGroupExpensesPage = computed(() => this.currentUrl().includes('/splits/group/'));
   isBudgetExpensesPage = computed(() => this.currentUrl().match(/\/budgets\/.+/) !== null);
   isGoalTransactionsPage = computed(() => this.currentUrl().match(/\/goals\/.+/) !== null);
+  isLedgerDetailsPage = computed(() => this.currentUrl().match(/\/ledger\/.+/) !== null);
+
+  activeLedger = computed(() => {
+    if (this.isLedgerDetailsPage()) {
+      const match = this.currentUrl().match(/\/ledger\/(.+)/);
+      const id = match ? match[1] : null;
+      if (id) {
+        return this.ledgerService.ledgerEntries().find(e => e.id === id);
+      }
+    }
+    return null;
+  });
 
   isVirtualOthersBudget = computed(() => {
     if (!this.isBudgetExpensesPage()) return false;
@@ -340,9 +369,13 @@ export class Layout implements AfterViewInit {
     if (this.isGoalTransactionsPage()) {
        return this.activeGoal()?.name || 'Loading...';
     }
+    if (this.isLedgerDetailsPage()) {
+       return this.activeLedger()?.person_name || 'Loading...';
+    }
     if (url.includes('/splits')) return 'Splits';
     if (url.includes('/subscriptions')) return 'Subscriptions';
     if (url.includes('/goals')) return 'Goals';
+    if (url.includes('/ledger')) return 'Private Ledger';
     if (url.includes('/profile')) return 'Profile';
     return 'Dashboard';
   });
@@ -396,6 +429,11 @@ export class Layout implements AfterViewInit {
       }
     } else if (this.currentUrl().includes('/subscriptions')) {
       this.subscriptionService.openBottomSheet();
+    } else if (this.isLedgerDetailsPage()) {
+      const ledger = this.activeLedger();
+      if (ledger) {
+        this.ledgerService.openSubBottomSheet(ledger);
+      }
     } else if (this.isGoalTransactionsPage()) {
       const goal = this.activeGoal();
       if (goal) {
@@ -403,6 +441,8 @@ export class Layout implements AfterViewInit {
       }
     } else if (this.currentUrl().includes('/goals')) {
       this.goalService.openBottomSheet();
+    } else if (this.currentUrl().includes('/ledger')) {
+      this.ledgerService.openBottomSheet();
     } else {
       this.expenseService.openBottomSheet();
     }
@@ -434,6 +474,13 @@ export class Layout implements AfterViewInit {
     const goal = this.activeGoal();
     if (goal) {
       this.goalService.openBottomSheet(goal);
+    }
+  }
+
+  editLedger() {
+    const ledger = this.activeLedger();
+    if (ledger) {
+      this.ledgerService.openBottomSheet(ledger);
     }
   }
 

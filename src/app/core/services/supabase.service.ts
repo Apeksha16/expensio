@@ -66,7 +66,11 @@ export class SupabaseService {
       }
     };
 
-    this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey, {
+    const supabaseUrl = environment.supabaseUrl.startsWith('http')
+      ? environment.supabaseUrl
+      : window.location.origin + environment.supabaseUrl;
+
+    this.supabase = createClient(supabaseUrl, environment.supabaseKey, {
       global: { fetch: customFetch },
       realtime: {
         log_level: 'info',
