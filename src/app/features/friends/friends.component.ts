@@ -17,11 +17,11 @@ import { UserProfile } from '../../core/services/auth.service';
       @if (isInitialLoading()) {
         <!-- Top Summary Box Shimmer -->
         <div
-          class="bg-black text-white p-5 border border-black rounded-none flex flex-col gap-4 relative overflow-hidden h-[124px]"
+          class="bg-gray-200 p-5 rounded-none flex flex-col gap-4 relative overflow-hidden h-[124px]"
         >
           <div class="flex flex-col gap-2 relative z-10 mt-2">
-            <div class="h-3 bg-gray-800 w-24 animate-pulse"></div>
-            <div class="h-10 bg-gray-800 w-16 animate-pulse mt-1"></div>
+            <div class="h-3 bg-gray-300 w-24 animate-pulse"></div>
+            <div class="h-10 bg-gray-300 w-16 animate-pulse mt-1"></div>
           </div>
         </div>
         <!-- Friends List Shimmer -->

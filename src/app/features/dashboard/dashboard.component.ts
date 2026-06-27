@@ -35,23 +35,23 @@ import { KeyboardService } from '../../core/services/keyboard.service';
     <div class="flex-1 bg-gray-50 p-6 flex flex-col gap-6 pb-36">
       @if (isInitialLoading()) {
         <!-- Total Expenses Shimmer -->
-        <div class="bg-black text-white p-6 border-2 border-black rounded-none relative overflow-hidden">
+        <div class="bg-gray-200 p-6 rounded-none relative overflow-hidden">
           <div class="flex flex-col items-center justify-center relative mt-2">
-            <div class="w-full max-w-[220px] aspect-[100/55] bg-gray-900 rounded-t-full animate-pulse"></div>
+            <div class="w-full max-w-[220px] aspect-[100/55] bg-gray-300 rounded-t-full animate-pulse"></div>
             <div class="absolute bottom-0 flex flex-col items-center translate-y-1">
-              <div class="h-2 bg-gray-800 w-16 mb-2 animate-pulse"></div>
-              <div class="h-8 bg-gray-800 w-32 animate-pulse"></div>
+              <div class="h-2 bg-gray-300 w-16 mb-2 animate-pulse"></div>
+              <div class="h-8 bg-gray-300 w-32 animate-pulse"></div>
             </div>
           </div>
           
-          <div class="flex justify-between items-end mt-6 pt-4 border-t-2 border-gray-800">
+          <div class="flex justify-between items-end mt-6 pt-4 border-t-2 border-gray-300">
             <div>
-              <div class="h-2 bg-gray-800 w-10 mb-2 animate-pulse"></div>
-              <div class="h-4 bg-gray-800 w-16 animate-pulse"></div>
+              <div class="h-2 bg-gray-300 w-10 mb-2 animate-pulse"></div>
+              <div class="h-4 bg-gray-300 w-16 animate-pulse"></div>
             </div>
             <div class="flex flex-col items-end">
-              <div class="h-2 bg-gray-800 w-10 mb-2 animate-pulse"></div>
-              <div class="h-4 bg-gray-800 w-16 animate-pulse"></div>
+              <div class="h-2 bg-gray-300 w-10 mb-2 animate-pulse"></div>
+              <div class="h-4 bg-gray-300 w-16 animate-pulse"></div>
             </div>
           </div>
         </div>

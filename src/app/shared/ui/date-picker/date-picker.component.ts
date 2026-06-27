@@ -50,7 +50,7 @@ import { HapticService } from '../../../core/services/haptic.service';
         class="fixed bottom-0 left-0 right-0 bg-white z-[90] 
                max-h-[95vh] flex flex-col shadow-2xl"
       >
-        <div class="p-6 pt-8 pb-6 border-b-2 text-white sticky top-[-2px] z-10" [ngClass]="[theme.darkBg, theme.border]">
+        <div class="p-6 pt-8 pb-6 border-b-2 text-white sticky top-[-2px] z-10" [ngClass]="[theme.bg, theme.border]">
           <div class="text-3xl font-extrabold tracking-tight">
             {{ selectedDate | date: 'EEE, MMM d, yyyy' }}
           </div>
