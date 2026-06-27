@@ -103,7 +103,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
                 type="text"
                 formControlName="title"
                 placeholder="e.g. Netflix, Gym"
-                class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-[#1a2e22] hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans"
+                class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-subscriptions-primary hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans"
               />
             </div>
             
@@ -124,7 +124,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
                     formControlName="amount"
                     placeholder="0"
                     (keydown)="preventE($event)"
-                    class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-[#1a2e22] hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans pl-8"
+                    class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-subscriptions-primary hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans pl-8"
                   />
                 </div>
               </div>
@@ -187,7 +187,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
               <button
                 type="button"
                 (click)="isDatePickerOpen = true"
-                class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-[#1a2e22] hover:border-gray-300 block p-2.5 outline-none transition-all min-h-[44px] touch-manipulation font-sans flex justify-between items-center text-left"
+                class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-subscriptions-primary hover:border-gray-300 block p-2.5 outline-none transition-all min-h-[44px] touch-manipulation font-sans flex justify-between items-center text-left"
               >
                 <span>{{ subForm.get('created_at')?.value | date: 'MMM d, y, h:mm a' }}</span>
                 <svg

@@ -111,7 +111,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                   type="text"
                   formControlName="title"
                   placeholder="e.g. Dinner, Taxi"
-                  class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-[#1a2e22] hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans"
+                  class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-splits-primary hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans"
                 />
               </div>
               <div class="flex flex-col gap-1">
@@ -130,7 +130,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                     formControlName="totalAmount"
                     placeholder="0"
                     (keydown)="preventE($event)"
-                    class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-[#1a2e22] hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans pl-8"
+                    class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-splits-primary hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans pl-8"
                   />
                 </div>
               </div>
@@ -177,7 +177,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                   <button
                     type="button"
                     (click)="isDropdownOpen.set(!isDropdownOpen())"
-                    class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-[#1a2e22] hover:border-gray-300 p-2.5 outline-none transition-all min-h-[44px] touch-manipulation font-sans flex justify-between items-center text-left"
+                    class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-splits-primary hover:border-gray-300 p-2.5 outline-none transition-all min-h-[44px] touch-manipulation font-sans flex justify-between items-center text-left"
                   >
                     <span class="truncate font-semibold">{{ getPayerName() }}</span>
                     <svg
@@ -335,7 +335,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                             [formControl]="getCustomControl(p)"
                             placeholder="0"
                             (keydown)="preventE($event)"
-                            class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-[#1a2e22] hover:border-gray-300 block p-2 outline-none transition-all placeholder-gray-300 pl-7 text-right"
+                            class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-splits-primary hover:border-gray-300 block p-2 outline-none transition-all placeholder-gray-300 pl-7 text-right"
                           />
                         </div>
                       }
