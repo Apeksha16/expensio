@@ -18,7 +18,7 @@ import { Router } from '@angular/router';
     <div class="flex-1 bg-gray-50 p-4 flex flex-col gap-4 pb-36">
       <!-- Top Summary Box -->
       <div
-        class="bg-budget-primary text-white p-5 border-2 border-budget-dark rounded-none flex flex-col gap-4 relative overflow-hidden"
+        class="bg-budget-primary text-white p-5 rounded-none flex flex-col gap-4 relative overflow-hidden"
       >
         <!-- Abstract Decoration -->
         <div

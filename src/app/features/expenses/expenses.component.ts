@@ -29,7 +29,7 @@ import { SubscriptionService } from '../../core/services/subscription.service';
   template: `
     <div class="h-full bg-gray-50 p-4 flex flex-col gap-4">
       <!-- Header Area -->
-      <div class="bg-expense-primary text-white p-5 border-2 border-expense-dark rounded-none">
+      <div class="bg-expense-primary text-white p-5 rounded-none">
         <h2 class="text-xs font-bold text-expense-surface uppercase tracking-widest mb-1 opacity-80">
           Total Expenses
         </h2>

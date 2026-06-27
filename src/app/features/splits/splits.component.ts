@@ -50,7 +50,7 @@ import { ToastService } from '../../core/services/toast.service';
       } @else {
         <!-- Top Summary Box -->
         <div
-          class="shrink-0 bg-splits-primary text-white p-5 border-2 border-splits-dark rounded-none flex flex-col gap-4 relative overflow-hidden"
+          class="shrink-0 bg-splits-primary text-white p-5 rounded-none flex flex-col gap-4 relative overflow-hidden"
         >
           <div
             class="absolute -right-10 -top-10 w-32 h-32 bg-splits-dark rounded-full opacity-50 blur-2xl pointer-events-none"

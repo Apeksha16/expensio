@@ -46,7 +46,7 @@ import { UserProfile } from '../../core/services/auth.service';
         ) {
           <!-- Top Summary Box -->
           <div
-            class="bg-friends-primary text-white p-5 border-2 border-friends-dark rounded-none flex flex-col gap-4 relative overflow-hidden"
+            class="bg-friends-primary text-white p-5 rounded-none flex flex-col gap-4 relative overflow-hidden"
           >
             <!-- Abstract Decoration -->
             <div

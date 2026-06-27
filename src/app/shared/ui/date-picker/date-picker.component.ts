@@ -114,7 +114,7 @@ import { HapticService } from '../../../core/services/haptic.service';
           <div class="mt-4 mb-2 flex gap-3">
             <button
               (click)="close()"
-              class="w-1/3 bg-gray-100 text-gray-700 px-4 py-3 text-[11px] font-extrabold uppercase tracking-widest min-h-[44px] border-2 border-transparent rounded-none hover:bg-gray-200 transition-colors"
+              class="flex-1 bg-gray-100 text-gray-700 px-4 py-3 text-[11px] font-extrabold uppercase tracking-widest min-h-[44px] border-2 border-transparent rounded-none hover:bg-gray-200 transition-colors"
             >
               Cancel
             </button>

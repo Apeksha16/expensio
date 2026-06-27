@@ -65,8 +65,8 @@ import { LedgerSubSheetComponent } from '../../shared/ui/ledger-sub-sheet/ledger
 
       <!-- Top Header -->
       <header
-        class="fixed top-0 w-full z-30 flex items-center justify-between px-4 border-b-2 h-14 transition-colors duration-300"
-        [ngClass]="getThemeClasses().bg + ' ' + getThemeClasses().border"
+        class="fixed top-0 w-full z-30 flex items-center justify-between px-4 h-14 transition-colors duration-300"
+        [ngClass]="getThemeClasses().bg"
       >
         @if (isProfilePage() || isGroupExpensesPage() || isBudgetExpensesPage() || isGoalTransactionsPage() || isLedgerDetailsPage()) {
           <button
@@ -248,8 +248,8 @@ import { LedgerSubSheetComponent } from '../../shared/ui/ledger-sub-sheet/ledger
       @if (!isProfilePage() && !isDashboardPage() && !isReportsPage()) {
         <button
           (click)="handleFabClick()"
-          class="fixed right-4 w-14 h-14 text-white border-2 rounded-none flex items-center justify-center z-40 hover:bg-white transition-colors duration-300"
-          [ngClass]="getThemeClasses().bg + ' ' + getThemeClasses().border + ' hover:' + getThemeClasses().text"
+          class="fixed right-4 w-14 h-14 text-white rounded-none flex items-center justify-center z-40 hover:bg-white transition-colors duration-300"
+          [ngClass]="getThemeClasses().bg + ' hover:' + getThemeClasses().text"
           style="bottom: 6.5rem;"
         >
           <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">

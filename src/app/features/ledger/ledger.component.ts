@@ -13,7 +13,7 @@ import { LedgerService, LedgerEntry } from '../../core/services/ledger.service';
   template: `
     <div class="h-full bg-gray-50 p-4 flex flex-col gap-5">
       <!-- Summary Header -->
-      <div class="bg-ledger-primary text-white p-5 border-2 border-ledger-dark rounded-none">
+      <div class="bg-ledger-primary text-white p-5 rounded-none">
         <h2 class="text-xs font-bold text-ledger-surface opacity-80 uppercase tracking-widest mb-1">
           Your Net Balance
         </h2>
