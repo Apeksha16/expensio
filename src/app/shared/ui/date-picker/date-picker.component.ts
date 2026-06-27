@@ -50,25 +50,7 @@ import { HapticService } from '../../../core/services/haptic.service';
         class="fixed bottom-0 left-0 right-0 bg-white z-[90] 
                max-h-[95vh] flex flex-col shadow-2xl"
       >
-        <div class="p-6 pt-4 pb-4 border-b-2 text-white sticky top-[-2px] z-10" [ngClass]="[theme.bg, theme.border]">
-          <div class="flex justify-between items-center mb-6">
-            <h2 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">
-              Select Date
-            </h2>
-            <button
-              (click)="close()"
-              class="p-2 hover:bg-white hover:text-black transition-colors border-2 border-transparent hover:border-white rounded-none"
-            >
-              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-          </div>
+        <div class="p-6 pt-8 pb-6 border-b-2 text-white sticky top-[-2px] z-10" [ngClass]="[theme.darkBg, theme.border]">
           <div class="text-3xl font-extrabold tracking-tight">
             {{ selectedDate | date: 'EEE, MMM d, yyyy' }}
           </div>
@@ -129,10 +111,16 @@ import { HapticService } from '../../../core/services/haptic.service';
               </button>
             }
           </div>
-          <div class="mt-4 mb-2">
+          <div class="mt-4 mb-2 flex gap-3">
+            <button
+              (click)="close()"
+              class="w-1/3 bg-gray-100 text-gray-700 px-4 py-3 text-[11px] font-extrabold uppercase tracking-widest min-h-[44px] border-2 border-transparent rounded-none hover:bg-gray-200 transition-colors"
+            >
+              Cancel
+            </button>
             <button
               (click)="confirm()"
-              class="w-full text-white px-4 py-3 text-[11px] font-extrabold uppercase tracking-widest min-h-[44px] border-2 rounded-none transition-colors"
+              class="flex-1 text-white px-4 py-3 text-[11px] font-extrabold uppercase tracking-widest min-h-[44px] border-2 rounded-none transition-colors"
               [ngClass]="[theme.bg, theme.border, theme.hoverDarkBg]"
             >
               Confirm Date
@@ -150,14 +138,14 @@ export class DatePickerComponent {
   get theme() {
     const route = this.router.url.split('/')[1] || 'dashboard';
     switch (route) {
-      case 'expenses': return { bg: 'bg-expense-primary', border: 'border-expense-primary', hoverBg: 'hover:bg-expense-primary', hoverBorder: 'hover:border-expense-primary', text: 'text-expense-primary', hoverDarkBg: 'hover:bg-expense-dark' };
-      case 'budgets': return { bg: 'bg-budget-primary', border: 'border-budget-primary', hoverBg: 'hover:bg-budget-primary', hoverBorder: 'hover:border-budget-primary', text: 'text-budget-primary', hoverDarkBg: 'hover:bg-budget-dark' };
-      case 'friends': return { bg: 'bg-friends-primary', border: 'border-friends-primary', hoverBg: 'hover:bg-friends-primary', hoverBorder: 'hover:border-friends-primary', text: 'text-friends-primary', hoverDarkBg: 'hover:bg-friends-dark' };
-      case 'splits': return { bg: 'bg-splits-primary', border: 'border-splits-primary', hoverBg: 'hover:bg-splits-primary', hoverBorder: 'hover:border-splits-primary', text: 'text-splits-primary', hoverDarkBg: 'hover:bg-splits-dark' };
-      case 'subscriptions': return { bg: 'bg-subscriptions-primary', border: 'border-subscriptions-primary', hoverBg: 'hover:bg-subscriptions-primary', hoverBorder: 'hover:border-subscriptions-primary', text: 'text-subscriptions-primary', hoverDarkBg: 'hover:bg-subscriptions-dark' };
-      case 'goals': return { bg: 'bg-goals-primary', border: 'border-goals-primary', hoverBg: 'hover:bg-goals-primary', hoverBorder: 'hover:border-goals-primary', text: 'text-goals-primary', hoverDarkBg: 'hover:bg-goals-dark' };
-      case 'ledger': return { bg: 'bg-ledger-primary', border: 'border-ledger-primary', hoverBg: 'hover:bg-ledger-primary', hoverBorder: 'hover:border-ledger-primary', text: 'text-ledger-primary', hoverDarkBg: 'hover:bg-ledger-dark' };
-      default: return { bg: 'bg-black', border: 'border-black', hoverBg: 'hover:bg-black', hoverBorder: 'hover:border-black', text: 'text-black', hoverDarkBg: 'hover:bg-gray-900' };
+      case 'expenses': return { bg: 'bg-expense-primary', border: 'border-expense-primary', hoverBg: 'hover:bg-expense-primary', hoverBorder: 'hover:border-expense-primary', text: 'text-expense-primary', hoverDarkBg: 'hover:bg-expense-dark', darkBg: 'bg-expense-dark' };
+      case 'budgets': return { bg: 'bg-budget-primary', border: 'border-budget-primary', hoverBg: 'hover:bg-budget-primary', hoverBorder: 'hover:border-budget-primary', text: 'text-budget-primary', hoverDarkBg: 'hover:bg-budget-dark', darkBg: 'bg-budget-dark' };
+      case 'friends': return { bg: 'bg-friends-primary', border: 'border-friends-primary', hoverBg: 'hover:bg-friends-primary', hoverBorder: 'hover:border-friends-primary', text: 'text-friends-primary', hoverDarkBg: 'hover:bg-friends-dark', darkBg: 'bg-friends-dark' };
+      case 'splits': return { bg: 'bg-splits-primary', border: 'border-splits-primary', hoverBg: 'hover:bg-splits-primary', hoverBorder: 'hover:border-splits-primary', text: 'text-splits-primary', hoverDarkBg: 'hover:bg-splits-dark', darkBg: 'bg-splits-dark' };
+      case 'subscriptions': return { bg: 'bg-subscriptions-primary', border: 'border-subscriptions-primary', hoverBg: 'hover:bg-subscriptions-primary', hoverBorder: 'hover:border-subscriptions-primary', text: 'text-subscriptions-primary', hoverDarkBg: 'hover:bg-subscriptions-dark', darkBg: 'bg-subscriptions-dark' };
+      case 'goals': return { bg: 'bg-goals-primary', border: 'border-goals-primary', hoverBg: 'hover:bg-goals-primary', hoverBorder: 'hover:border-goals-primary', text: 'text-goals-primary', hoverDarkBg: 'hover:bg-goals-dark', darkBg: 'bg-goals-dark' };
+      case 'ledger': return { bg: 'bg-ledger-primary', border: 'border-ledger-primary', hoverBg: 'hover:bg-ledger-primary', hoverBorder: 'hover:border-ledger-primary', text: 'text-ledger-primary', hoverDarkBg: 'hover:bg-ledger-dark', darkBg: 'bg-ledger-dark' };
+      default: return { bg: 'bg-black', border: 'border-black', hoverBg: 'hover:bg-black', hoverBorder: 'hover:border-black', text: 'text-black', hoverDarkBg: 'hover:bg-gray-900', darkBg: 'bg-gray-900' };
     }
   }
   isOpen = input<boolean>(false);
