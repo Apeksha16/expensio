@@ -21,8 +21,7 @@ import { SubscriptionService } from '../../../core/services/subscription.service
     <div class="h-full bg-gray-50 flex flex-col relative w-full overflow-hidden">
       <!-- Content Area -->
       <main class="flex-1 overflow-y-auto bg-gray-50 relative pb-20 p-4 flex flex-col gap-1.5">
-        <!-- Black Header Box -->
-        <div class="bg-black text-white p-5 border border-black rounded-none flex flex-col gap-4 relative overflow-hidden shrink-0 mb-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]">
+        <div class="bg-budget-primary text-white p-5 rounded-none flex flex-col gap-4 relative overflow-hidden shrink-0 mb-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]">
           <!-- Abstract Decoration -->
           <div class="absolute -right-10 -top-10 w-32 h-32 bg-gray-800 rounded-full opacity-50 blur-2xl pointer-events-none"></div>
 

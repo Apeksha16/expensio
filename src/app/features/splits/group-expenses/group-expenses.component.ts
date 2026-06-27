@@ -19,8 +19,7 @@ import { ConfirmService } from '../../../core/services/confirm.service';
     <div class="h-full bg-gray-50 flex flex-col relative w-full overflow-hidden">
       <!-- Content Area -->
       <main class="flex-1 overflow-y-auto bg-gray-50 relative pb-20 p-4">
-        <!-- Black Box for Group Balance -->
-        <div class="bg-black p-6 mb-4 flex flex-col gap-4 rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]">
+        <div class="bg-splits-primary text-white p-6 mb-4 flex flex-col gap-4 rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]">
           <div class="flex justify-between items-center w-full">
             <div class="flex flex-col">
               <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1"

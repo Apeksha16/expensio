@@ -22,7 +22,7 @@ import { ExpenseService } from '../../../core/services/expense.service';
             }
           </div>
         } @else {
-          <div class="mb-6 bg-black text-white p-6 shadow-xl relative overflow-hidden rounded-none border-2 border-black">
+          <div class="mb-6 bg-goals-primary text-white p-6 shadow-xl relative overflow-hidden rounded-none">
             <div class="relative z-10 flex flex-col">
               <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Saved Amount</span>
               <span class="text-3xl font-extrabold tracking-tight">₹{{ goal()?.saved_amount | number:'1.0-0' }}</span>

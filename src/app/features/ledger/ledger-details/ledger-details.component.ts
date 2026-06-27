@@ -38,7 +38,7 @@ import { LedgerService, LedgerEntry, LedgerSubTransaction } from '../../../core/
             }
 
             <!-- Summary Card -->
-            <div class="mb-5 bg-black p-4 border-2 border-black rounded-none relative overflow-hidden text-white">
+            <div class="mb-5 bg-ledger-primary p-4 rounded-none relative overflow-hidden text-white">
               <div class="relative z-10 flex flex-col items-center text-center">
                 <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Remaining Balance</span>
                 <span class="text-3xl font-extrabold tracking-tight mt-1">
