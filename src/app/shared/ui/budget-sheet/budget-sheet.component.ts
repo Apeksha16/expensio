@@ -51,7 +51,7 @@ import { SafeInputDirective } from '../safe-input.directive';
 
         <!-- Header -->
         <div
-          class="flex justify-between items-center py-4 px-6 bg-black border-b border-black text-white sticky top-[-2px] z-10"
+          class="flex justify-between items-center py-4 px-6 bg-budget-primary border-b border-budget-dark text-white sticky top-[-2px] z-10"
         >
           <h2 class="text-xl font-extrabold tracking-tight">
             {{ isEditing ? 'Edit budget' : 'Add budget' }}
@@ -216,7 +216,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                   budgetService.isSaving() ||
                   budgetService.isDeleting()
                 "
-                class="flex-1 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-[#1a2e22] hover:bg-[#2f4d3b] text-white disabled:opacity-70 disabled:cursor-not-allowed disabled:active:scale-100"
+                class="flex-1 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-budget-primary hover:bg-budget-dark text-white disabled:opacity-70 disabled:cursor-not-allowed disabled:active:scale-100"
               >
                 @if (budgetService.isSaving()) {
                   <svg

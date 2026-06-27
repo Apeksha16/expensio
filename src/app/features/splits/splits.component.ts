@@ -75,10 +75,11 @@ import { ToastService } from '../../core/services/toast.service';
           </div>
         </div>
         <!-- Tabs -->
-        <div class="shrink-0 flex border-b-2 border-splits-primary mt-2">
+        <div class="shrink-0 flex border-b-2 mt-2" 
+             [ngClass]="splitService.activeTab() === 'expenses' ? 'border-expense-primary' : 'border-friends-primary'">
           <button
             (click)="splitService.activeTab.set('expenses')"
-            [class.bg-splits-primary]="splitService.activeTab() === 'expenses'"
+            [class.bg-expense-primary]="splitService.activeTab() === 'expenses'"
             [class.text-white]="splitService.activeTab() === 'expenses'"
             class="flex-1 py-3 font-extrabold tracking-widest uppercase transition-colors"
           >
@@ -86,7 +87,7 @@ import { ToastService } from '../../core/services/toast.service';
           </button>
           <button
             (click)="splitService.activeTab.set('groups')"
-            [class.bg-splits-primary]="splitService.activeTab() === 'groups'"
+            [class.bg-friends-primary]="splitService.activeTab() === 'groups'"
             [class.text-white]="splitService.activeTab() === 'groups'"
             class="flex-1 py-3 font-extrabold tracking-widest uppercase transition-colors"
           >
@@ -95,15 +96,17 @@ import { ToastService } from '../../core/services/toast.service';
         </div>
         
         @if (splitService.activeTab() === 'expenses') {
-          <div class="flex justify-between items-center mt-4">
-             <h3 class="font-extrabold text-black uppercase tracking-widest text-sm">All Expenses</h3>
-             <button
-                (click)="settleUp()"
-                class="px-4 py-1.5 border-2 border-splits-primary text-splits-dark font-bold text-[10px] uppercase tracking-widest hover:bg-splits-primary hover:text-white transition-colors rounded-none"
-             >
-                Settle Up
-             </button>
-          </div>
+          @if (individualSplits().length > 0) {
+            <div class="flex justify-between items-center mt-4">
+               <h3 class="font-extrabold text-black uppercase tracking-widest text-sm">All Expenses</h3>
+               <button
+                  (click)="settleUp()"
+                  class="px-4 py-1.5 border-2 border-expense-primary text-expense-dark font-bold text-[10px] uppercase tracking-widest hover:bg-expense-primary hover:text-white transition-colors rounded-none"
+               >
+                  Settle Up
+               </button>
+            </div>
+          }
           <div class="flex-1 flex flex-col gap-1.5 pb-36 mt-2">
             @if (individualSplits().length > 0) {
               @for (split of individualSplits(); track split.id) {

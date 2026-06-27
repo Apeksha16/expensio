@@ -154,3 +154,13 @@ input[type="checkbox"]:checked {
   0% { transform: scaleX(0); }
   100% { transform: scaleX(1); }
 }
+
+.bg-reports-mix {
+  background: linear-gradient(to right, #10B981, #06B6D4, #F59E0B, #8B5CF6, #EF4444);
+}
+
+.text-reports-mix {
+  background: linear-gradient(to right, #10B981, #06B6D4, #F59E0B, #8B5CF6, #EF4444);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}

@@ -65,12 +65,13 @@ import { LedgerSubSheetComponent } from '../../shared/ui/ledger-sub-sheet/ledger
 
       <!-- Top Header -->
       <header
-        class="fixed top-0 w-full bg-black z-30 flex items-center justify-between px-4 border-b-2 border-black h-14"
+        class="fixed top-0 w-full z-30 flex items-center justify-between px-4 border-b-2 h-14 transition-colors duration-300"
+        [ngClass]="getThemeClasses().bg + ' ' + getThemeClasses().border"
       >
         @if (isProfilePage() || isGroupExpensesPage() || isBudgetExpensesPage() || isGoalTransactionsPage() || isLedgerDetailsPage()) {
           <button
             (click)="goBack()"
-            class="p-2 -ml-2 text-gray-400 hover:text-white focus:outline-none transition-colors"
+            class="p-2 -ml-2 text-white/80 hover:text-white focus:outline-none transition-colors"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -84,7 +85,7 @@ import { LedgerSubSheetComponent } from '../../shared/ui/ledger-sub-sheet/ledger
         } @else {
           <button
             (click)="toggleSidebar(true)"
-            class="p-2 -ml-2 text-gray-400 hover:text-white focus:outline-none transition-colors"
+            class="p-2 -ml-2 text-white/80 hover:text-white focus:outline-none transition-colors"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -101,7 +102,7 @@ import { LedgerSubSheetComponent } from '../../shared/ui/ledger-sub-sheet/ledger
         @if (isGroupExpensesPage()) {
           <button
             (click)="editGroup()"
-            class="p-2 -mr-2 text-gray-400 hover:text-white focus:outline-none transition-colors"
+            class="p-2 -mr-2 text-white/80 hover:text-white focus:outline-none transition-colors"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5z" />
@@ -110,7 +111,7 @@ import { LedgerSubSheetComponent } from '../../shared/ui/ledger-sub-sheet/ledger
         } @else if (isBudgetExpensesPage() && !isVirtualOthersBudget()) {
           <button
             (click)="editBudget()"
-            class="p-2 -mr-2 text-gray-400 hover:text-white focus:outline-none transition-colors"
+            class="p-2 -mr-2 text-white/80 hover:text-white focus:outline-none transition-colors"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5z" />
@@ -119,7 +120,7 @@ import { LedgerSubSheetComponent } from '../../shared/ui/ledger-sub-sheet/ledger
         } @else if (isGoalTransactionsPage()) {
           <button
             (click)="editGoal()"
-            class="p-2 -mr-2 text-gray-400 hover:text-white focus:outline-none transition-colors"
+            class="p-2 -mr-2 text-white/80 hover:text-white focus:outline-none transition-colors"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5z" />
@@ -128,7 +129,7 @@ import { LedgerSubSheetComponent } from '../../shared/ui/ledger-sub-sheet/ledger
         } @else if (isLedgerDetailsPage()) {
           <button
             (click)="editLedger()"
-            class="p-2 -mr-2 text-gray-400 hover:text-white focus:outline-none transition-colors"
+            class="p-2 -mr-2 text-white/80 hover:text-white focus:outline-none transition-colors"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5z" />
@@ -247,7 +248,8 @@ import { LedgerSubSheetComponent } from '../../shared/ui/ledger-sub-sheet/ledger
       @if (!isProfilePage() && !isDashboardPage() && !isReportsPage()) {
         <button
           (click)="handleFabClick()"
-          class="fixed right-4 w-14 h-14 bg-black text-white border-2 border-black rounded-none flex items-center justify-center z-40 hover:bg-white hover:text-black transition-colors"
+          class="fixed right-4 w-14 h-14 text-white border-2 rounded-none flex items-center justify-center z-40 hover:bg-white transition-colors duration-300"
+          [ngClass]="getThemeClasses().bg + ' ' + getThemeClasses().border + ' hover:' + getThemeClasses().text"
           style="bottom: 6.5rem;"
         >
           <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -518,6 +520,23 @@ export class Layout implements AfterViewInit {
       case 'reports': return 'bg-reports-primary text-white';
       case 'profile': return 'bg-profile-primary text-white';
       default: return 'bg-black text-white';
+    }
+  }
+
+  getThemeClasses() {
+    const route = this.currentUrl().split('/')[1] || 'dashboard';
+    switch (route) {
+      case 'expenses': return { bg: 'bg-expense-primary', border: 'border-expense-dark', text: 'text-expense-primary' };
+      case 'budgets': return { bg: 'bg-budget-primary', border: 'border-budget-dark', text: 'text-budget-primary' };
+      case 'friends': return { bg: 'bg-friends-primary', border: 'border-friends-dark', text: 'text-friends-primary' };
+      case 'splits': return { bg: 'bg-splits-primary', border: 'border-splits-dark', text: 'text-splits-primary' };
+      case 'subscriptions': return { bg: 'bg-subscriptions-primary', border: 'border-subscriptions-dark', text: 'text-subscriptions-primary' };
+      case 'goals': return { bg: 'bg-goals-primary', border: 'border-goals-dark', text: 'text-goals-primary' };
+      case 'ledger': return { bg: 'bg-ledger-primary', border: 'border-ledger-dark', text: 'text-ledger-primary' };
+      case 'reports': return { bg: 'bg-reports-mix', border: 'border-reports-dark', text: 'text-reports-mix' };
+      case 'profile': return { bg: 'bg-black', border: 'border-black', text: 'text-black' };
+      case 'dashboard': return { bg: 'bg-black', border: 'border-black', text: 'text-black' };
+      default: return { bg: 'bg-black', border: 'border-black', text: 'text-black' };
     }
   }
 

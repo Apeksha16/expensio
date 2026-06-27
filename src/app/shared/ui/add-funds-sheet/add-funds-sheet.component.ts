@@ -45,10 +45,10 @@ import { AutofocusDirective } from '../autofocus.directive';
       <div
         @slideUp
         appSwipeToClose (swipeClose)="close()"
-        class="fixed bottom-0 left-0 right-0 bg-black z-[70] max-h-[95vh] overflow-y-auto overscroll-none flex flex-col shadow-2xl"
+        class="fixed bottom-0 left-0 right-0 bg-goals-primary z-[70] max-h-[95vh] overflow-y-auto overscroll-none flex flex-col shadow-2xl"
       >
         <!-- Header -->
-        <div class="flex justify-between items-center py-4 px-6 bg-black border-b border-black text-white sticky top-[-2px] z-10">
+        <div class="flex justify-between items-center py-4 px-6 bg-goals-primary border-b border-goals-dark text-white sticky top-[-2px] z-10">
           <h2 class="text-xl font-extrabold tracking-tight">{{ goalService.editingFund() ? 'Edit Fund' : 'Add Funds' }}</h2>
           <div class="flex gap-2">
             @if (goalService.editingFund()) {
@@ -144,7 +144,7 @@ import { AutofocusDirective } from '../autofocus.directive';
                 type="button"
                 (click)="submit()"
                 [disabled]="isSaving() || isDeleting() || (fundMode() === 'custom' && customAmount.invalid)"
-                class="flex-1 font-medium rounded-none transition-all duration-200 flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-[#1a2e22] hover:bg-[#2f4d3b] text-white disabled:opacity-70 disabled:cursor-not-allowed"
+                class="flex-1 font-medium rounded-none transition-all duration-200 flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-goals-primary hover:bg-goals-dark text-white disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 @if (isSaving()) {
                   <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

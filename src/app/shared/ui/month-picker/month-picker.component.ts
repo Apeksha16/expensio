@@ -11,6 +11,8 @@ import { SwipeToCloseDirective } from '../swipe-to-close.directive';
 import { HapticService } from '../../../core/services/haptic.service';
 import { MonthPickerService } from '../../../core/services/month-picker.service';
 
+import { Router } from '@angular/router';
+
 @Component({
   selector: 'app-month-picker',
   standalone: true,
@@ -49,14 +51,14 @@ import { MonthPickerService } from '../../../core/services/month-picker.service'
                max-h-[80vh] overflow-y-auto overscroll-none flex flex-col shadow-2xl"
       >
 
-        <!-- Header -->
         <div
-          class="flex justify-between items-center py-4 px-6 bg-black border-b-2 border-black text-white sticky top-0 z-10"
+          class="flex justify-between items-center py-4 px-6 border-b-2 text-white sticky top-0 z-10 transition-colors duration-300"
+          [ngClass]="getThemeClasses().bg + ' ' + getThemeClasses().border"
         >
           <h2 class="text-xl font-extrabold tracking-tight text-white">Select Month</h2>
           <button
             (click)="close()"
-            class="w-8 h-8 flex items-center justify-center border-2 border-transparent hover:border-gray-200 transition-colors rounded-none text-white hover:bg-gray-800"
+            class="w-8 h-8 flex items-center justify-center border-2 border-transparent hover:border-white/20 transition-colors rounded-none text-white hover:bg-black/20"
           >
             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
@@ -76,8 +78,8 @@ import { MonthPickerService } from '../../../core/services/month-picker.service'
                 class="w-full text-center p-4 border-2 rounded-none font-bold transition-colors"
                 [ngClass]="
                   m.value === monthPicker.activeMonth()
-                    ? 'border-black bg-black text-white'
-                    : 'border-gray-200 bg-white text-gray-500 hover:border-black hover:text-black'
+                    ? getThemeClasses().border + ' ' + getThemeClasses().bg + ' text-white'
+                    : 'border-gray-200 bg-white text-gray-500 hover:' + getThemeClasses().border + ' hover:' + getThemeClasses().text
                 "
               >
                 {{ m.label }}
@@ -92,6 +94,24 @@ import { MonthPickerService } from '../../../core/services/month-picker.service'
 export class MonthPickerComponent { 
   haptic = inject(HapticService);
   monthPicker = inject(MonthPickerService);
+  router = inject(Router);
+
+  getThemeClasses() {
+    const route = this.router.url.split('/')[1] || 'dashboard';
+    switch (route) {
+      case 'expenses': return { bg: 'bg-expense-primary', border: 'border-expense-primary', text: 'text-expense-primary' };
+      case 'budgets': return { bg: 'bg-budget-primary', border: 'border-budget-primary', text: 'text-budget-primary' };
+      case 'friends': return { bg: 'bg-friends-primary', border: 'border-friends-primary', text: 'text-friends-primary' };
+      case 'splits': return { bg: 'bg-splits-primary', border: 'border-splits-primary', text: 'text-splits-primary' };
+      case 'subscriptions': return { bg: 'bg-subscriptions-primary', border: 'border-subscriptions-primary', text: 'text-subscriptions-primary' };
+      case 'goals': return { bg: 'bg-goals-primary', border: 'border-goals-primary', text: 'text-goals-primary' };
+      case 'ledger': return { bg: 'bg-ledger-primary', border: 'border-ledger-primary', text: 'text-ledger-primary' };
+      case 'reports': return { bg: 'bg-reports-primary', border: 'border-reports-primary', text: 'text-reports-primary' };
+      case 'profile': return { bg: 'bg-black', border: 'border-black', text: 'text-black' };
+      case 'dashboard': return { bg: 'bg-black', border: 'border-black', text: 'text-black' };
+      default: return { bg: 'bg-black', border: 'border-black', text: 'text-black' };
+    }
+  }
 
   months: MonthOption[] = [];
 

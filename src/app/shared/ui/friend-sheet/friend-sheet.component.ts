@@ -71,7 +71,7 @@ import { SafeInputDirective } from '../safe-input.directive';
 
         <!-- Header -->
         <div
-          class="flex justify-between items-center py-4 px-6 bg-black text-white sticky top-[-2px] z-10 shrink-0"
+          class="flex justify-between items-center py-4 px-6 bg-friends-primary text-white sticky top-[-2px] z-10 shrink-0"
         >
           <h2 class="text-xl font-extrabold tracking-tight">
             {{ isAddMode ? 'Add Friend' : 'Remove Friend' }}
@@ -181,7 +181,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                 <button
                   type="submit"
                   [disabled]="!selectedUser || isSending"
-                  class="flex-1 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-[#1a2e22] hover:bg-[#2f4d3b] text-white disabled:opacity-70 disabled:cursor-not-allowed disabled:active:scale-100"
+                  class="flex-1 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-friends-primary hover:bg-friends-dark text-white disabled:opacity-70 disabled:cursor-not-allowed disabled:active:scale-100"
                 >
                   @if (isSending) {
                     <svg
