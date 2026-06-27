@@ -27,10 +27,10 @@ import { ConfirmService } from '../../core/services/confirm.service';
         </div>
       } @else {
         <!-- Tabs -->
-        <div class="shrink-0 flex border-b-2 border-black mt-2">
+        <div class="shrink-0 flex border-b-2 border-subscriptions-primary mt-2">
           <button
             (click)="activeTab.set('upcoming')"
-            [class.bg-black]="activeTab() === 'upcoming'"
+            [class.bg-subscriptions-primary]="activeTab() === 'upcoming'"
             [class.text-white]="activeTab() === 'upcoming'"
             class="flex-1 py-3 font-extrabold tracking-widest uppercase transition-colors"
           >
@@ -38,7 +38,7 @@ import { ConfirmService } from '../../core/services/confirm.service';
           </button>
           <button
             (click)="activeTab.set('paid')"
-            [class.bg-black]="activeTab() === 'paid'"
+            [class.bg-subscriptions-primary]="activeTab() === 'paid'"
             [class.text-white]="activeTab() === 'paid'"
             class="flex-1 py-3 font-extrabold tracking-widest uppercase transition-colors"
           >
@@ -57,11 +57,11 @@ import { ConfirmService } from '../../core/services/confirm.service';
                 @for (sub of subscriptionService.upcomingSubscriptions(); track sub.id) {
                   <button
                     (click)="subscriptionService.openBottomSheet(sub)"
-                    class="w-full bg-white border-2 border-black rounded-none p-4 flex flex-col gap-2 text-left hover:bg-gray-50 transition-colors active:bg-gray-100"
+                    class="w-full bg-subscriptions-surface border-2 border-subscriptions-primary rounded-none p-4 flex flex-col gap-2 text-left hover:bg-subscriptions-light transition-colors active:bg-subscriptions-primary active:text-white"
                   >
                     <div class="flex justify-between items-start gap-4">
                       <div class="flex flex-col gap-0.5 flex-1 min-w-0 pr-4">
-                        <span class="font-extrabold text-lg text-black truncate">{{ sub.title }}</span>
+                        <span class="font-extrabold text-lg text-subscriptions-dark truncate">{{ sub.title }}</span>
                         <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{{ sub.category }}</span>
                       </div>
                       <span class="font-extrabold text-lg text-black flex-shrink-0">₹{{ sub.amount | number: '1.0-2' }}</span>
@@ -74,7 +74,7 @@ import { ConfirmService } from '../../core/services/confirm.service';
                       </span>
                       <button
                         (click)="markAsPaid($event, sub)"
-                        class="bg-black text-white px-3 py-1.5 rounded-none text-[9px] font-extrabold uppercase tracking-widest hover:bg-gray-800 transition-colors flex items-center gap-2"
+                        class="bg-subscriptions-primary text-white px-3 py-1.5 rounded-none text-[9px] font-extrabold uppercase tracking-widest hover:bg-subscriptions-dark transition-colors flex items-center gap-2"
                       >
                         Mark Paid
                       </button>
@@ -95,11 +95,11 @@ import { ConfirmService } from '../../core/services/confirm.service';
                 @for (sub of subscriptionService.nextMonthSubscriptions(); track sub.id) {
                   <button
                     (click)="subscriptionService.openBottomSheet(sub)"
-                    class="w-full bg-white border-2 border-gray-200 rounded-none p-4 flex flex-col gap-2 text-left hover:bg-gray-50 transition-colors active:bg-gray-100 opacity-80"
+                    class="w-full bg-white border-2 border-subscriptions-light rounded-none p-4 flex flex-col gap-2 text-left hover:bg-subscriptions-surface transition-colors active:bg-subscriptions-light opacity-80"
                   >
                     <div class="flex justify-between items-start gap-4">
                       <div class="flex flex-col gap-0.5 flex-1 min-w-0 pr-4">
-                        <span class="font-extrabold text-lg text-black truncate">{{ sub.title }}</span>
+                        <span class="font-extrabold text-lg text-subscriptions-dark truncate">{{ sub.title }}</span>
                         <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{{ sub.category }}</span>
                       </div>
                       <span class="font-extrabold text-lg text-black flex-shrink-0">₹{{ sub.amount | number: '1.0-2' }}</span>
@@ -130,11 +130,11 @@ import { ConfirmService } from '../../core/services/confirm.service';
               @for (sub of subscriptionService.paidSubscriptions(); track sub.id) {
                 <button
                   (click)="subscriptionService.openBottomSheet(sub)"
-                  class="w-full bg-gray-200 rounded-none p-4 flex flex-col gap-1 text-left hover:bg-gray-300 transition-colors active:bg-gray-400"
+                  class="w-full bg-subscriptions-light rounded-none p-4 flex flex-col gap-1 text-left hover:bg-subscriptions-surface transition-colors active:bg-subscriptions-primary"
                 >
                   <div class="flex justify-between items-start gap-4">
                     <div class="flex flex-col gap-0.5 flex-1 min-w-0 pr-4">
-                      <span class="font-extrabold text-lg text-black truncate">{{ sub.title }}</span>
+                      <span class="font-extrabold text-lg text-subscriptions-dark truncate">{{ sub.title }}</span>
                       <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{{ sub.category }}</span>
                     </div>
                     <span class="font-extrabold text-lg text-black flex-shrink-0 opacity-50 line-through">₹{{ sub.amount | number: '1.0-2' }}</span>

@@ -24,6 +24,61 @@
   --color-surface: var(--app-surface);
   --color-text: var(--app-text);
   --color-text-muted: var(--app-text-muted);
+
+  /* Expense Module */
+  --color-expense-primary: #EF4444;
+  --color-expense-dark: #B91C1C;
+  --color-expense-light: #F87171;
+  --color-expense-surface: #FEF2F2;
+
+  /* Budget Module */
+  --color-budget-primary: #10B981;
+  --color-budget-dark: #047857;
+  --color-budget-light: #6EE7B7;
+  --color-budget-surface: #ECFDF5;
+
+  /* Friends Module */
+  --color-friends-primary: #F59E0B;
+  --color-friends-dark: #B45309;
+  --color-friends-light: #FCD34D;
+  --color-friends-surface: #FFFBEB;
+
+  /* Splits Module */
+  --color-splits-primary: #06B6D4;
+  --color-splits-dark: #0E7490;
+  --color-splits-light: #67E8F9;
+  --color-splits-surface: #ECFEFF;
+
+  /* Subscriptions Module */
+  --color-subscriptions-primary: #8B5CF6;
+  --color-subscriptions-dark: #6D28D9;
+  --color-subscriptions-light: #C4B5FD;
+  --color-subscriptions-surface: #F5F3FF;
+
+  /* Goals Module */
+  --color-goals-primary: #84CC16;
+  --color-goals-dark: #4D7C0F;
+  --color-goals-light: #BEF264;
+  --color-goals-surface: #F7FEE7;
+
+  /* Ledger Module */
+  --color-ledger-primary: #92400E;
+  --color-ledger-dark: #78350F;
+  --color-ledger-light: #D97706;
+  --color-ledger-surface: #FFFBEB;
+
+  /* Reports Module */
+  --color-reports-primary: #EC4899;
+  --color-reports-dark: #BE185D;
+  --color-reports-light: #F9A8D4;
+  --color-reports-surface: #FDF2F8;
+
+  /* Profile Module */
+  --color-profile-primary: #6B7280;
+  --color-profile-dark: #374151;
+  --color-profile-light: #D1D5DB;
+  --color-profile-surface: #F9FAFB;
+
   
   --font-sans: 'Poppins', ui-sans-serif, system-ui, sans-serif;
 }

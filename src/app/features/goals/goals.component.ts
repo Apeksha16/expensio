@@ -35,32 +35,32 @@ import { AddFundsSheetComponent } from '../../shared/ui/add-funds-sheet/add-fund
             @for (goal of activeGoals(); track goal.id) {
               <button
                 (click)="openTransactions(goal.id)"
-                class="w-full bg-white border-2 border-black rounded-none p-4 flex flex-col gap-3 text-left hover:bg-gray-50 transition-colors active:bg-gray-100"
+                class="w-full bg-goals-surface border-2 border-goals-primary rounded-none p-4 flex flex-col gap-3 text-left hover:bg-goals-light transition-colors active:bg-goals-primary active:text-white"
               >
                 <div class="flex items-start gap-4">
-                  <div class="w-12 h-12 bg-black text-white flex items-center justify-center shrink-0 rounded-none">
+                  <div class="w-12 h-12 bg-goals-primary text-white flex items-center justify-center shrink-0 rounded-none">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
                       <path [attr.d]="getGoalIconPath(goal.icon)"></path>
                     </svg>
                   </div>
                   <div class="flex flex-col gap-0.5 flex-1 min-w-0 pr-2">
-                    <span class="font-extrabold text-lg text-black truncate">{{ goal.name }}</span>
+                    <span class="font-extrabold text-lg text-goals-dark truncate">{{ goal.name }}</span>
                     <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Target: {{ goal.target_date | date:'MMM yyyy' }}</span>
                   </div>
                   <div class="flex flex-col items-end shrink-0">
-                    <span class="font-extrabold text-lg text-black">₹{{ goal.calculated_installment | number: '1.0-0' }}</span>
+                    <span class="font-extrabold text-lg text-goals-dark">₹{{ goal.calculated_installment | number: '1.0-0' }}</span>
                     <span class="text-[9px] font-bold text-gray-500 uppercase tracking-widest">{{ goal.frequency }}</span>
                   </div>
                 </div>
 
                 <!-- Progress Bar -->
                 <div class="w-full flex flex-col gap-1 mt-1">
-                  <div class="flex justify-between text-[10px] font-bold text-black uppercase tracking-widest">
+                  <div class="flex justify-between text-[10px] font-bold text-goals-dark uppercase tracking-widest">
                     <span>₹{{ goal.saved_amount | number: '1.0-0' }} Saved</span>
                     <span>₹{{ goal.total_amount | number: '1.0-0' }} Goal</span>
                   </div>
                   <div class="h-2 w-full bg-gray-200 border border-gray-300 overflow-hidden">
-                    <div class="h-full bg-black transition-all duration-500 origin-left animate-[fillProgress_1s_ease-out]" [style.width.%]="getProgress(goal)"></div>
+                    <div class="h-full bg-goals-primary transition-all duration-500 origin-left animate-[fillProgress_1s_ease-out]" [style.width.%]="getProgress(goal)"></div>
                   </div>
                 </div>
 
@@ -83,7 +83,7 @@ import { AddFundsSheetComponent } from '../../shared/ui/add-funds-sheet/add-fund
                   }
                   <button
                     (click)="addFunds($event, goal)"
-                    class="bg-black text-white px-4 py-1.5 rounded-none text-[9px] font-extrabold uppercase tracking-widest hover:bg-gray-800 transition-colors flex items-center gap-2"
+                    class="bg-goals-primary text-white px-4 py-1.5 rounded-none text-[9px] font-extrabold uppercase tracking-widest hover:bg-goals-dark transition-colors flex items-center gap-2"
                   >
                     Add Funds
                   </button>
@@ -109,9 +109,9 @@ import { AddFundsSheetComponent } from '../../shared/ui/add-funds-sheet/add-fund
                <h3 class="font-extrabold text-black uppercase tracking-widest text-sm">Archived Goals</h3>
             </div>
             @for (goal of archivedGoals(); track goal.id) {
-              <div class="w-full bg-white border-2 border-black rounded-none p-4 flex flex-col gap-3 text-left opacity-75">
+              <div class="w-full bg-white border-2 border-goals-light rounded-none p-4 flex flex-col gap-3 text-left opacity-75">
                 <div class="flex justify-between items-center w-full pb-3 border-b border-gray-100">
-                  <span class="font-black text-green-600 uppercase tracking-widest text-xs flex items-center gap-1">
+                  <span class="font-black text-goals-primary uppercase tracking-widest text-xs flex items-center gap-1">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
@@ -119,17 +119,17 @@ import { AddFundsSheetComponent } from '../../shared/ui/add-funds-sheet/add-fund
                   </span>
                 </div>
                 <div class="flex items-start gap-4">
-                  <div class="w-12 h-12 bg-black text-white flex items-center justify-center shrink-0 rounded-none">
+                  <div class="w-12 h-12 bg-goals-light text-goals-dark flex items-center justify-center shrink-0 rounded-none">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
                       <path [attr.d]="getGoalIconPath(goal.icon)"></path>
                     </svg>
                   </div>
                   <div class="flex flex-col gap-0.5 flex-1 min-w-0 pr-2">
-                    <span class="font-extrabold text-lg text-black truncate">{{ goal.name }}</span>
+                    <span class="font-extrabold text-lg text-goals-dark truncate">{{ goal.name }}</span>
                     <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Achieved</span>
                   </div>
                   <div class="flex flex-col items-end shrink-0">
-                    <span class="font-extrabold text-lg text-black">₹{{ goal.total_amount | number: '1.0-0' }}</span>
+                    <span class="font-extrabold text-lg text-goals-dark">₹{{ goal.total_amount | number: '1.0-0' }}</span>
                     <span class="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Total</span>
                   </div>
                 </div>

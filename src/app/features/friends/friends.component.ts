@@ -46,14 +46,14 @@ import { UserProfile } from '../../core/services/auth.service';
         ) {
           <!-- Top Summary Box -->
           <div
-            class="bg-black text-white p-5 border border-black rounded-none flex flex-col gap-4 relative overflow-hidden"
+            class="bg-friends-primary text-white p-5 border-2 border-friends-dark rounded-none flex flex-col gap-4 relative overflow-hidden"
           >
             <!-- Abstract Decoration -->
             <div
-              class="absolute -right-10 -top-10 w-32 h-32 bg-gray-800 rounded-full opacity-50 blur-2xl pointer-events-none"
+              class="absolute -right-10 -top-10 w-32 h-32 bg-friends-dark rounded-full opacity-50 blur-2xl pointer-events-none"
             ></div>
             <div class="flex flex-col relative z-10">
-              <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1"
+              <span class="text-xs font-bold text-friends-surface uppercase tracking-widest mb-1 opacity-80"
                 >Total Friends</span
               >
               <span class="text-4xl font-extrabold tracking-tight">
@@ -72,20 +72,20 @@ import { UserProfile } from '../../core/services/auth.service';
                 <div class="flex flex-col gap-1.5">
                   @for (req of friendService.incomingRequests(); track req.id) {
                     <div
-                      class="w-full bg-white border-2 border-black rounded-none p-3 flex items-center justify-between gap-4"
+                      class="w-full bg-friends-surface border-2 border-friends-primary rounded-none p-3 flex items-center justify-between gap-4"
                     >
                       <div class="flex items-center gap-3">
                         <img
                           [src]="authService.getAvatarUrl(req.profile.avatarId)"
                           alt="Avatar"
-                          class="w-10 h-10 rounded-full border-2 border-black object-cover shrink-0"
+                          class="w-10 h-10 rounded-full border-2 border-friends-primary object-cover shrink-0"
                         />
                         <div class="flex flex-col gap-0.5">
-                          <span class="font-extrabold text-sm text-black">{{
+                          <span class="font-extrabold text-sm text-friends-dark">{{
                             req.profile.name
                           }}</span>
                           <span
-                            class="text-[10px] font-bold text-gray-500 uppercase tracking-widest"
+                            class="text-[10px] font-bold text-friends-dark opacity-70 uppercase tracking-widest"
                             >{{ '@' + req.profile.username }}</span
                           >
                         </div>
@@ -120,7 +120,7 @@ import { UserProfile } from '../../core/services/auth.service';
                         <button
                           (click)="acceptRequest(req.id)"
                           [disabled]="processingIds().has('accept_' + req.id) || processingIds().has('remove_' + req.id)"
-                          class="w-8 h-8 flex items-center justify-center bg-black border-2 border-black hover:bg-gray-800 active:bg-gray-700 transition-colors disabled:opacity-50"
+                          class="w-8 h-8 flex items-center justify-center bg-friends-primary border-2 border-friends-primary hover:bg-friends-dark active:bg-friends-dark transition-colors disabled:opacity-50"
                         >
                           @if (processingIds().has('accept_' + req.id)) {
                             <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -158,20 +158,20 @@ import { UserProfile } from '../../core/services/auth.service';
                 <div class="flex flex-col gap-1.5">
                   @for (req of friendService.outgoingRequests(); track req.id) {
                     <div
-                      class="w-full bg-gray-100 rounded-none p-3 flex items-center justify-between gap-4"
+                      class="w-full bg-white border-2 border-friends-light rounded-none p-3 flex items-center justify-between gap-4 opacity-80"
                     >
-                      <div class="flex items-center gap-3 opacity-60">
+                      <div class="flex items-center gap-3">
                         <img
                           [src]="authService.getAvatarUrl(req.profile.avatarId)"
                           alt="Avatar"
-                          class="w-10 h-10 rounded-full border-2 border-black object-cover shrink-0"
+                          class="w-10 h-10 rounded-full border-2 border-friends-light object-cover shrink-0"
                         />
                         <div class="flex flex-col gap-0.5">
-                          <span class="font-extrabold text-sm text-gray-600">{{
+                          <span class="font-extrabold text-sm text-friends-dark">{{
                             req.profile.name
                           }}</span>
                           <span
-                            class="text-[10px] font-bold text-gray-400 uppercase tracking-widest"
+                            class="text-[10px] font-bold text-friends-dark opacity-60 uppercase tracking-widest"
                             >Pending</span
                           >
                         </div>
@@ -204,19 +204,19 @@ import { UserProfile } from '../../core/services/auth.service';
                   @for (friend of friendService.acceptedFriends(); track friend.id) {
                     <button
                       (click)="friendService.openRemoveSheet(friend)"
-                      class="w-full bg-gray-200 rounded-none p-3 flex items-center gap-4 text-left hover:bg-gray-300 transition-colors active:bg-gray-400"
+                      class="w-full bg-friends-light rounded-none p-3 flex items-center gap-4 text-left hover:bg-friends-surface transition-colors active:bg-friends-primary active:text-white"
                     >
                       <img
                         [src]="authService.getAvatarUrl(friend.profile.avatarId)"
                         alt="Avatar"
-                        class="w-12 h-12 rounded-full border-2 border-black object-cover shrink-0"
+                        class="w-12 h-12 rounded-full border-2 border-friends-primary object-cover shrink-0"
                       />
                       <div class="flex flex-col gap-0.5 flex-1">
-                        <span class="font-extrabold text-lg text-black">{{
+                        <span class="font-extrabold text-lg text-friends-dark">{{
                           friend.profile.name
                         }}</span>
                         <div
-                          class="flex items-center gap-2 text-[10px] font-bold text-gray-500 uppercase tracking-widest"
+                          class="flex items-center gap-2 text-[10px] font-bold text-friends-dark opacity-70 uppercase tracking-widest"
                         >
                           <span>{{ '@' + friend.profile.username }}</span>
                         </div>

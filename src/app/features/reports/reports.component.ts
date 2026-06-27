@@ -18,8 +18,8 @@ import Chart from 'chart.js/auto';
               (click)="reportService.fetchReports(preset)"
               class="whitespace-nowrap px-4 py-2 text-sm font-bold border-2 rounded-none transition-colors"
               [ngClass]="{
-                'bg-black text-white border-black': reportService.activePreset() === preset,
-                'bg-white text-gray-700 border-gray-300 hover:border-black': reportService.activePreset() !== preset
+                'bg-reports-primary text-white border-reports-primary': reportService.activePreset() === preset,
+                'bg-white text-gray-700 border-gray-300 hover:border-reports-primary': reportService.activePreset() !== preset
               }"
             >
               {{ preset }}
@@ -30,15 +30,15 @@ import Chart from 'chart.js/auto';
         <!-- Type Toggles -->
         <div class="flex flex-wrap gap-3">
           <label class="flex items-center gap-2 text-xs font-bold text-gray-600 cursor-pointer">
-            <input type="checkbox" [checked]="reportService.showGoals()" (change)="reportService.toggleGoalFilter()" class="accent-black w-4 h-4 border-2 border-black rounded-none">
+            <input type="checkbox" [checked]="reportService.showGoals()" (change)="reportService.toggleGoalFilter()" class="accent-reports-primary w-4 h-4 border-2 border-reports-primary rounded-none">
             Include Goals
           </label>
           <label class="flex items-center gap-2 text-xs font-bold text-gray-600 cursor-pointer">
-            <input type="checkbox" [checked]="reportService.showSubscriptions()" (change)="reportService.toggleSubscriptionFilter()" class="accent-black w-4 h-4 border-2 border-black rounded-none">
+            <input type="checkbox" [checked]="reportService.showSubscriptions()" (change)="reportService.toggleSubscriptionFilter()" class="accent-reports-primary w-4 h-4 border-2 border-reports-primary rounded-none">
             Include Subs
           </label>
           <label class="flex items-center gap-2 text-xs font-bold text-gray-600 cursor-pointer">
-            <input type="checkbox" [checked]="reportService.showSplits()" (change)="reportService.toggleSplitFilter()" class="accent-black w-4 h-4 border-2 border-black rounded-none">
+            <input type="checkbox" [checked]="reportService.showSplits()" (change)="reportService.toggleSplitFilter()" class="accent-reports-primary w-4 h-4 border-2 border-reports-primary rounded-none">
             Include Splits
           </label>
         </div>
@@ -47,13 +47,13 @@ import Chart from 'chart.js/auto';
       <div class="p-4 flex flex-col gap-6 pb-24">
         <!-- Summary Cards -->
         <div class="grid grid-cols-2 gap-4">
-          <div class="bg-white p-4 border-2 border-black rounded-none flex flex-col gap-1">
-            <span class="text-xs font-extrabold text-gray-500 uppercase tracking-wider">Total Spent</span>
-            <span class="text-xl font-black">{{ totalSpent | currency:'INR':'symbol':'1.0-0' }}</span>
+          <div class="bg-reports-surface p-4 border-2 border-reports-primary rounded-none flex flex-col gap-1">
+            <span class="text-xs font-extrabold text-reports-dark opacity-80 uppercase tracking-wider">Total Spent</span>
+            <span class="text-xl font-black text-reports-dark">{{ totalSpent | currency:'INR':'symbol':'1.0-0' }}</span>
           </div>
-          <div class="bg-white p-4 border-2 border-black rounded-none flex flex-col gap-1">
-            <span class="text-xs font-extrabold text-gray-500 uppercase tracking-wider">Daily Avg</span>
-            <span class="text-xl font-black">{{ dailyAverage | currency:'INR':'symbol':'1.0-0' }}</span>
+          <div class="bg-reports-surface p-4 border-2 border-reports-primary rounded-none flex flex-col gap-1">
+            <span class="text-xs font-extrabold text-reports-dark opacity-80 uppercase tracking-wider">Daily Avg</span>
+            <span class="text-xl font-black text-reports-dark">{{ dailyAverage | currency:'INR':'symbol':'1.0-0' }}</span>
           </div>
         </div>
 
@@ -99,32 +99,32 @@ import Chart from 'chart.js/auto';
           </div>
         } @else {
           <!-- Category Doughnut Chart -->
-          <div class="bg-white p-4 border-2 border-black rounded-none">
-            <h2 class="text-sm font-extrabold text-black uppercase tracking-wider mb-4 border-b-2 border-black pb-2">Category Breakdown</h2>
+          <div class="bg-white p-4 border-2 border-reports-light rounded-none">
+            <h2 class="text-sm font-extrabold text-reports-dark uppercase tracking-wider mb-4 border-b-2 border-reports-light pb-2">Category Breakdown</h2>
             <div class="relative h-64 w-full">
               <canvas #categoryChart></canvas>
             </div>
           </div>
 
           <!-- Trend Bar Chart -->
-          <div class="bg-white p-4 border-2 border-black rounded-none">
-            <h2 class="text-sm font-extrabold text-black uppercase tracking-wider mb-4 border-b-2 border-black pb-2">Spending Trend</h2>
+          <div class="bg-white p-4 border-2 border-reports-light rounded-none mt-4">
+            <h2 class="text-sm font-extrabold text-reports-dark uppercase tracking-wider mb-4 border-b-2 border-reports-light pb-2">Spending Trend</h2>
             <div class="relative h-64 w-full">
               <canvas #trendChart></canvas>
             </div>
           </div>
 
           <!-- Top Spends List -->
-          <div>
+          <div class="mt-4">
             <h2 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">Top Transactions</h2>
             <div class="flex flex-col gap-1.5">
               @for (expense of topExpenses; track expense.id) {
                 <div
-                  class="w-full bg-gray-200 rounded-none p-3 flex justify-between items-center text-left border-l-4"
+                  class="w-full bg-reports-surface rounded-none p-3 flex justify-between items-center text-left border-l-4"
                   [ngClass]="getCategoryColor(expense.category)"
                 >
                   <div class="flex flex-col gap-0.5 flex-1 min-w-0 pr-4">
-                    <span class="font-extrabold text-lg text-black truncate">{{ expense.title }}</span>
+                    <span class="font-extrabold text-lg text-reports-dark truncate">{{ expense.title }}</span>
                     <div
                       class="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-widest min-w-0"
                     >
@@ -213,7 +213,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
     } else if (category.includes('(Subscription)')) {
       return 'border-pink-500';
     }
-    return 'border-black';
+    return 'border-reports-primary';
   }
 
   getCategoryColorHEX(category: string, index: number): string {
@@ -223,7 +223,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
     if (category.includes('(Subscription)')) return '#ec4899';
     
     // Default palette for regular expenses
-    const palette = ['#000000', '#FF3366', '#33CC99', '#3366FF', '#FF9900', '#999999'];
+    const palette = ['#EC4899', '#BE185D', '#F9A8D4', '#831843', '#F472B6', '#9D174D'];
     return palette[index % palette.length];
   }
 
@@ -358,9 +358,9 @@ export class ReportsComponent implements OnInit, OnDestroy {
         datasets: [{
           label: 'Total Spent',
           data,
-          backgroundColor: '#000000',
+          backgroundColor: '#EC4899',
           borderWidth: 2,
-          borderColor: '#000000',
+          borderColor: '#EC4899',
           borderRadius: 0,
         }]
       },

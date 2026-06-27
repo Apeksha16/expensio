@@ -89,78 +89,94 @@ serve(async (req: Request) => {
       const sortedCategories = Object.entries(categoriesMap).sort((a, b) => b[1] - a[1]);
 
       const getCategoryColorHEX = (category: string, index: number): string => {
-        if (category === 'virtual-invest') return '#f59e0b';
-        if (category.includes('(Group Split)')) return '#14b8a6';
-        if (category.includes('(Split)')) return '#2563eb';
-        if (category.includes('(Subscription)')) return '#ec4899';
-        const palette = ['#000000', '#FF3366', '#33CC99', '#3366FF', '#FF9900', '#999999'];
+        if (category === 'virtual-invest') return '#84CC16'; // Goals primary
+        if (category.includes('(Group Split)') || category.includes('(Split)')) return '#06B6D4'; // Splits primary
+        if (category.includes('(Subscription)')) return '#8B5CF6'; // Subs primary
+        const palette = ['#EF4444', '#10B981', '#F59E0B', '#92400E', '#EC4899', '#6B7280']; // Expense, Budget, Friends, Ledger, Reports, Profile
         return palette[index % palette.length];
       };
 
       const categoriesHtml = sortedCategories.map(([cat, amt], idx) => {
         const color = getCategoryColorHEX(cat, idx);
         return `
-          <div style="margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <div style="width: 14px; height: 14px; background-color: ${color}; border: 2px solid #000;"></div>
-              <div style="font-weight: 800; font-size: 13px; text-transform: uppercase; margin-left: 10px;">${cat.replace('virtual-invest', 'Investment')}</div>
+          <div style="margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; background-color: #ffffff; padding: 12px; border-radius: 8px; border-left: 4px solid ${color}; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div style="width: 12px; height: 12px; background-color: ${color}; border-radius: 50%;"></div>
+              <div style="font-weight: 700; font-size: 14px; color: #1f2937;">${cat.replace('virtual-invest', 'Investment')}</div>
             </div>
-            <div style="font-weight: 900; font-size: 14px;">₹${amt.toLocaleString('en-IN')}</div>
+            <div style="font-weight: 800; font-size: 15px; color: #111827;">₹${amt.toLocaleString('en-IN')}</div>
           </div>
         `;
       }).join('');
 
       const topExpensesHtml = topExpenses.map((exp) => {
+        const color = getCategoryColorHEX(exp.category || 'Other', 0);
         return `
-          <div style="border-bottom: 2px solid #000; padding: 12px 0; display: flex; justify-content: space-between; align-items: center;">
+          <div style="border-bottom: 1px solid #e5e7eb; padding: 16px 0; display: flex; justify-content: space-between; align-items: center;">
             <div>
-              <div style="font-weight: 800; font-size: 14px; text-transform: uppercase;">${exp.title || 'Expense'}</div>
-              <div style="font-size: 11px; color: #666; font-weight: 700; text-transform: uppercase; margin-top: 4px;">${new Date(exp.date).toLocaleDateString('en-GB')}</div>
+              <div style="font-weight: 700; font-size: 15px; color: #111827; margin-bottom: 4px;">${exp.title || 'Expense'}</div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 11px; font-weight: 600; color: ${color}; background-color: ${color}20; padding: 2px 8px; border-radius: 12px;">${exp.category || 'Other'}</span>
+                <span style="font-size: 11px; color: #6b7280; font-weight: 500;">${new Date(exp.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute:'2-digit'})}</span>
+              </div>
             </div>
-            <div style="font-weight: 900; font-size: 15px;">₹${exp.amount.toLocaleString('en-IN')}</div>
+            <div style="font-weight: 800; font-size: 16px; color: #111827;">₹${exp.amount.toLocaleString('en-IN')}</div>
           </div>
         `;
       }).join('');
       
+      const reportColor = '#EC4899'; // Reports module primary color
       const html = `
-        <div style="font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f0f0f0; padding: 20px;">
-          <div style="background-color: #fff; border: 3px solid #000; padding: 30px; box-shadow: 6px 6px 0px #000;">
+        <div style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9fafb; padding: 32px 16px;">
+          <div style="background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);">
             
             <!-- Header -->
-            <div style="border-bottom: 4px solid #000; padding-bottom: 15px; margin-bottom: 20px;">
-              <h1 style="font-weight: 900; margin: 0; font-size: 26px; text-transform: uppercase; letter-spacing: -1px;">Expensio ${type === 'weekly' ? 'Weekly' : 'Monthly'}</h1>
+            <div style="background: linear-gradient(135deg, ${reportColor}, #BE185D); padding: 40px 32px; text-align: center; color: white;">
+              <h1 style="font-weight: 800; margin: 0; font-size: 28px; letter-spacing: -0.5px;">Expensio</h1>
+              <p style="margin: 8px 0 0; font-size: 15px; font-weight: 500; opacity: 0.9;">Your ${type === 'weekly' ? 'Weekly' : 'Monthly'} Financial Report</p>
             </div>
             
-            <p style="font-weight: 700; font-size: 16px;">Hello ${user.user_metadata?.full_name || 'User'},</p>
-            <p style="font-size: 14px; font-weight: 500; color: #444; margin-bottom: 25px;">Here is your financial summary for the past ${type === 'weekly' ? '7 days' : 'month'}.</p>
-            
-            <!-- Total Banner -->
-            <div style="background-color: #000; color: #fff; padding: 25px; text-align: center; margin: 25px 0; border: 3px solid #000; position: relative;">
-              <div style="position: absolute; top: -10px; left: -10px; width: 20px; height: 20px; background-color: #C6F432; border: 2px solid #000;"></div>
-              <p style="margin: 0; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #C6F432;">Total Spent</p>
-              <h2 style="margin: 10px 0 0; font-size: 42px; font-weight: 900; letter-spacing: -2px;">₹${totalSpent.toLocaleString('en-IN')}</h2>
-            </div>
+            <div style="padding: 32px;">
+              <p style="font-weight: 600; font-size: 18px; color: #111827; margin-top: 0;">Hello ${user.user_metadata?.full_name || 'there'},</p>
+              <p style="font-size: 15px; line-height: 1.6; color: #4b5563; margin-bottom: 32px;">Here is your financial summary and spending insights for the past ${type === 'weekly' ? '7 days' : 'month'}. Keeping track of your expenses is the first step to financial freedom.</p>
+              
+              <!-- Total Banner -->
+              <div style="background: linear-gradient(to right, #111827, #374151); color: white; border-radius: 12px; padding: 32px; text-align: center; margin-bottom: 32px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                <p style="margin: 0; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: #9ca3af;">Total Spent</p>
+                <h2 style="margin: 12px 0 0; font-size: 48px; font-weight: 800; letter-spacing: -1.5px; color: #10B981;">₹${totalSpent.toLocaleString('en-IN')}</h2>
+              </div>
 
-            <!-- Categories -->
-            ${sortedCategories.length > 0 ? `
-            <div style="margin-top: 35px; background-color: #fafafa; border: 2px solid #000; padding: 20px;">
-              <h3 style="font-weight: 900; text-transform: uppercase; border-bottom: 3px solid #000; padding-bottom: 8px; margin-top: 0; margin-bottom: 15px; font-size: 15px; letter-spacing: 1px;">Categories</h3>
-              ${categoriesHtml}
-            </div>
-            ` : ''}
+              <!-- Categories -->
+              ${sortedCategories.length > 0 ? `
+              <div style="margin-bottom: 32px;">
+                <h3 style="font-weight: 700; color: #111827; margin-top: 0; margin-bottom: 16px; font-size: 18px; display: flex; align-items: center; gap: 8px;">
+                  <span style="display: inline-block; width: 4px; height: 18px; background-color: ${reportColor}; border-radius: 4px;"></span>
+                  Category Breakdown
+                </h3>
+                <div style="background-color: #f3f4f6; padding: 16px; border-radius: 12px;">
+                  ${categoriesHtml}
+                </div>
+              </div>
+              ` : ''}
 
-            <!-- Top Expenses -->
-            ${topExpenses.length > 0 ? `
-            <div style="margin-top: 35px;">
-              <h3 style="font-weight: 900; text-transform: uppercase; border-bottom: 3px solid #000; padding-bottom: 8px; margin-bottom: 10px; font-size: 15px; letter-spacing: 1px;">Top Transactions</h3>
-              ${topExpensesHtml}
+              <!-- Top Expenses -->
+              ${topExpenses.length > 0 ? `
+              <div>
+                <h3 style="font-weight: 700; color: #111827; margin-top: 0; margin-bottom: 8px; font-size: 18px; display: flex; align-items: center; gap: 8px;">
+                  <span style="display: inline-block; width: 4px; height: 18px; background-color: ${reportColor}; border-radius: 4px;"></span>
+                  Top Transactions
+                </h3>
+                <div>
+                  ${topExpensesHtml}
+                </div>
+              </div>
+              ` : ''}
             </div>
-            ` : ''}
             
             <!-- Footer -->
-            <div style="margin-top: 40px; padding-top: 25px; border-top: 4px solid #000; text-align: center;">
-              <p style="font-weight: 900; font-size: 15px; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px;">Keep tracking, stay wealthy.</p>
-              <p style="font-size: 11px; font-weight: 600; color: #666;">Change your report frequency in your Profile settings.</p>
+            <div style="background-color: #f9fafb; padding: 24px 32px; text-align: center; border-top: 1px solid #e5e7eb;">
+              <p style="font-weight: 700; font-size: 14px; color: #111827; margin: 0 0 8px;">Keep tracking, stay wealthy.</p>
+              <p style="font-size: 12px; font-weight: 500; color: #6b7280; margin: 0;">Sent automatically by Expensio. You can change your report frequency in your Profile settings.</p>
             </div>
 
           </div>

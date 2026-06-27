@@ -13,8 +13,8 @@ import { LedgerService, LedgerEntry } from '../../core/services/ledger.service';
   template: `
     <div class="h-full bg-gray-50 p-4 flex flex-col gap-5">
       <!-- Summary Header -->
-      <div class="bg-black text-white p-5 border border-black rounded-none">
-        <h2 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">
+      <div class="bg-ledger-primary text-white p-5 border-2 border-ledger-dark rounded-none">
+        <h2 class="text-xs font-bold text-ledger-surface opacity-80 uppercase tracking-widest mb-1">
           Your Net Balance
         </h2>
         <p class="text-4xl font-extrabold tracking-tight">
@@ -33,8 +33,8 @@ import { LedgerService, LedgerEntry } from '../../core/services/ledger.service';
             All settled!
           }
         </p>
-        <div class="flex justify-between items-center mt-4 pt-3 border-t border-gray-800 text-[10px] font-bold uppercase tracking-widest text-gray-400">
-          <div>Money In: <span class="text-green-400 font-extrabold ml-1">₹{{ ledgerService.totalReceived() | number: '1.0-0' }}</span></div>
+        <div class="flex justify-between items-center mt-4 pt-3 border-t-2 border-ledger-dark text-[10px] font-bold uppercase tracking-widest text-ledger-surface opacity-90">
+          <div>Money In: <span class="text-green-300 font-extrabold ml-1">₹{{ ledgerService.totalReceived() | number: '1.0-0' }}</span></div>
           <div>Money Out: <span class="text-red-400 font-extrabold ml-1">₹{{ ledgerService.totalGiven() | number: '1.0-0' }}</span></div>
         </div>
       </div>      <!-- Ledger Entry List -->
@@ -54,14 +54,14 @@ import { LedgerService, LedgerEntry } from '../../core/services/ledger.service';
             @for (entry of filteredEntries(); track entry.id) {
               <button
                 (click)="viewDetails(entry.id)"
-                class="w-full bg-gray-200 rounded-none p-3 flex justify-between items-center text-left hover:bg-gray-300 transition-colors active:bg-gray-400 border-l-4"
+                class="w-full bg-ledger-surface rounded-none p-3 flex justify-between items-center text-left hover:bg-ledger-light transition-colors active:bg-ledger-primary active:text-white border-l-4"
                 [class.border-green-500]="ledgerService.getLedgerBalance(entry) > 0"
                 [class.border-red-500]="ledgerService.getLedgerBalance(entry) < 0"
                 [class.border-gray-500]="ledgerService.getLedgerBalance(entry) === 0"
               >
                 <div class="flex flex-col gap-0.5 flex-1 min-w-0 pr-4">
                   <div class="flex items-center gap-2">
-                    <span class="font-extrabold text-lg text-black truncate">{{ entry.person_name }}</span>
+                    <span class="font-extrabold text-lg text-ledger-dark truncate">{{ entry.person_name }}</span>
                     @if (ledgerService.getLedgerBalance(entry) === 0) {
                       <div class="bg-gray-800 text-white text-[9px] font-extrabold px-2 py-0.5 rounded-none uppercase tracking-widest">Settled</div>
                     }

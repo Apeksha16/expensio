@@ -16,7 +16,7 @@ import { QuickActionsService } from '../../core/services/quick-actions.service';
     <div class="bg-gray-50 p-6 flex flex-col gap-8">
       <!-- Top Selected Avatar & Selection List -->
       <div class="flex flex-col items-center gap-6 mt-4">
-        <div class="w-32 h-32 border-2 border-black rounded-none bg-gray-200 overflow-hidden">
+        <div class="w-32 h-32 border-2 border-profile-dark rounded-none bg-gray-200 overflow-hidden">
           <img
             [src]="getSelectedAvatarUrl()"
             alt="Active Avatar"
@@ -33,7 +33,7 @@ import { QuickActionsService } from '../../core/services/quick-actions.service';
                 class="flex-shrink-0 w-20 h-20 border-2 rounded-none flex items-center justify-center transition-transform duration-300 overflow-hidden"
                 [ngClass]="
                   pendingProfile().avatarId === avatar.id
-                    ? 'border-black scale-110 bg-white'
+                    ? 'border-profile-dark scale-110 bg-white'
                     : 'border-transparent hover:scale-105 bg-gray-200'
                 "
               >
@@ -56,7 +56,7 @@ import { QuickActionsService } from '../../core/services/quick-actions.service';
               type="text"
               [ngModel]="pendingProfile().name"
               (ngModelChange)="updateField('name', $event)"
-              class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-[#1a2e22] hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans"
+              class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-profile-dark hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans"
               placeholder="e.g. Jane Doe"
               appSafeInput
             />
@@ -110,7 +110,7 @@ import { QuickActionsService } from '../../core/services/quick-actions.service';
               inputmode="numeric"
               [ngModel]="formattedSalary"
               (ngModelChange)="formatSalary($event)"
-              class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-[#1a2e22] hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans pl-8 pr-12"
+              class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-profile-dark hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans pl-8 pr-12"
               placeholder="0"
             />
             <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -129,7 +129,7 @@ import { QuickActionsService } from '../../core/services/quick-actions.service';
             type="button"
             (click)="toggleMaskValues()"
             class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-none border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
-            [ngClass]="pendingProfile().maskValues ? 'bg-black' : 'bg-gray-200'"
+            [ngClass]="pendingProfile().maskValues ? 'bg-profile-primary' : 'bg-gray-200'"
             role="switch"
             [attr.aria-checked]="pendingProfile().maskValues"
           >
@@ -150,7 +150,7 @@ import { QuickActionsService } from '../../core/services/quick-actions.service';
           <button
             type="button"
             (click)="quickActionsService.openSheet()"
-            class="text-black border-2 border-black p-2 hover:bg-black hover:text-white transition-colors flex items-center justify-center"
+            class="text-profile-dark border-2 border-profile-dark p-2 hover:bg-profile-primary hover:text-white hover:border-profile-primary transition-colors flex items-center justify-center"
             aria-label="Settings"
           >
             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -166,10 +166,10 @@ import { QuickActionsService } from '../../core/services/quick-actions.service';
             <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase">Email Reports</label>
             <span class="text-[10px] font-semibold text-gray-500 mt-0.5">Receive automated summaries of your expenses</span>
           </div>
-          <div class="flex border-2 border-black rounded-none overflow-hidden text-xs font-bold w-full">
+          <div class="flex border-2 border-profile-dark rounded-none overflow-hidden text-xs font-bold w-full">
             <button
               (click)="updateField('emailReportFrequency', 'none')"
-              [class.bg-black]="pendingProfile().emailReportFrequency === 'none'"
+              [class.bg-profile-primary]="pendingProfile().emailReportFrequency === 'none'"
               [class.text-white]="pendingProfile().emailReportFrequency === 'none'"
               [class.text-gray-500]="pendingProfile().emailReportFrequency !== 'none'"
               [class.bg-white]="pendingProfile().emailReportFrequency !== 'none'"
@@ -179,17 +179,17 @@ import { QuickActionsService } from '../../core/services/quick-actions.service';
             </button>
             <button
               (click)="updateField('emailReportFrequency', 'weekly')"
-              [class.bg-black]="pendingProfile().emailReportFrequency === 'weekly'"
+              [class.bg-profile-primary]="pendingProfile().emailReportFrequency === 'weekly'"
               [class.text-white]="pendingProfile().emailReportFrequency === 'weekly'"
               [class.text-gray-500]="pendingProfile().emailReportFrequency !== 'weekly'"
               [class.bg-white]="pendingProfile().emailReportFrequency !== 'weekly'"
-              class="flex-1 py-2.5 border-l-2 border-r-2 border-black transition-colors"
+              class="flex-1 py-2.5 border-l-2 border-r-2 border-profile-dark transition-colors"
             >
               Weekly
             </button>
             <button
               (click)="updateField('emailReportFrequency', 'monthly')"
-              [class.bg-black]="pendingProfile().emailReportFrequency === 'monthly'"
+              [class.bg-profile-primary]="pendingProfile().emailReportFrequency === 'monthly'"
               [class.text-white]="pendingProfile().emailReportFrequency === 'monthly'"
               [class.text-gray-500]="pendingProfile().emailReportFrequency !== 'monthly'"
               [class.bg-white]="pendingProfile().emailReportFrequency !== 'monthly'"
@@ -204,10 +204,10 @@ import { QuickActionsService } from '../../core/services/quick-actions.service';
             <button
               (click)="triggerTestEmail()"
               [disabled]="isSendingTestEmail()"
-              class="w-full bg-white text-black border-2 border-black p-2.5 font-bold text-xs tracking-wide transition-all hover:bg-gray-50 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
+              class="w-full bg-white text-profile-dark border-2 border-profile-dark p-2.5 font-bold text-xs tracking-wide transition-all hover:bg-profile-surface active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
             >
               @if (isSendingTestEmail()) {
-                <svg class="animate-spin h-4 w-4 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg class="animate-spin h-4 w-4 text-profile-dark" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
@@ -227,7 +227,7 @@ import { QuickActionsService } from '../../core/services/quick-actions.service';
       <button
         [disabled]="!isDirty() || isUpdating()"
         (click)="handleUpdate()"
-        class="w-full bg-black text-white p-3.5 font-bold text-sm tracking-wide transition-all border-2 border-transparent active:scale-[0.98] mt-4 rounded-none disabled:opacity-50 disabled:bg-black disabled:active:scale-100 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        class="w-full bg-profile-primary text-white p-3.5 font-bold text-sm tracking-wide transition-all border-2 border-transparent active:scale-[0.98] mt-4 rounded-none disabled:opacity-50 disabled:bg-profile-dark disabled:active:scale-100 disabled:cursor-not-allowed flex items-center justify-center gap-2"
       >
         @if (isUpdating()) {
           <svg

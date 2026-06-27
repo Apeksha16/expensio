@@ -29,8 +29,8 @@ import { SubscriptionService } from '../../core/services/subscription.service';
   template: `
     <div class="h-full bg-gray-50 p-4 flex flex-col gap-4">
       <!-- Header Area -->
-      <div class="bg-black text-white p-5 border border-black rounded-none">
-        <h2 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">
+      <div class="bg-expense-primary text-white p-5 border-2 border-expense-dark rounded-none">
+        <h2 class="text-xs font-bold text-expense-surface uppercase tracking-widest mb-1 opacity-80">
           Total Expenses
         </h2>
         <p class="text-4xl font-extrabold tracking-tight">₹{{ getTotal() | number: '1.2-2' }}</p>
@@ -40,7 +40,7 @@ import { SubscriptionService } from '../../core/services/subscription.service';
       <div class="flex justify-between items-center mt-2">
         <button
           (click)="openMonthPicker()"
-          class="flex items-center gap-2 px-3 py-1.5 bg-white border border-black rounded-none font-bold text-sm hover:bg-black hover:text-white transition-colors"
+          class="flex items-center gap-2 px-3 py-1.5 bg-expense-surface text-expense-dark border-2 border-expense-primary rounded-none font-bold text-sm hover:bg-expense-primary hover:text-white transition-colors"
         >
           <span>{{ getActiveMonthLabel() }}</span>
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -73,11 +73,11 @@ import { SubscriptionService } from '../../core/services/subscription.service';
             @for (expense of expenseService.expenses(); track trackById($index, expense)) {
               <button
                 (click)="editExpense(expense)"
-                class="w-full bg-gray-200 rounded-none p-3 flex justify-between items-center text-left hover:bg-gray-300 transition-colors active:bg-gray-400 border-l-4"
+                class="w-full rounded-none p-3 flex justify-between items-center text-left transition-colors border-l-4"
                 [ngClass]="getCategoryColor(expense.category)"
               >
                 <div class="flex flex-col gap-0.5 flex-1 min-w-0 pr-4">
-                  <span class="font-extrabold text-lg text-black truncate">{{ expense.title }}</span>
+                  <span class="font-extrabold text-lg truncate">{{ expense.title }}</span>
                   <div
                     class="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-widest min-w-0"
                   >
@@ -227,17 +227,17 @@ export class Expenses implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getCategoryColor(category: string): string {
-    if (!category) return 'border-black';
+    if (!category) return 'border-expense-primary bg-expense-surface hover:bg-expense-light text-expense-dark';
     if (category === 'virtual-invest') {
-      return 'border-amber-500';
+      return 'border-goals-primary bg-goals-surface hover:bg-goals-light text-goals-dark';
     } else if (category.includes('(Group Split)')) {
-      return 'border-teal-500';
+      return 'border-friends-primary bg-friends-surface hover:bg-friends-light text-friends-dark';
     } else if (category.includes('(Split)')) {
-      return 'border-blue-600';
+      return 'border-splits-primary bg-splits-surface hover:bg-splits-light text-splits-dark';
     } else if (category.includes('(Subscription)')) {
-      return 'border-pink-500';
+      return 'border-subscriptions-primary bg-subscriptions-surface hover:bg-subscriptions-light text-subscriptions-dark';
     }
-    return 'border-black';
+    return 'border-expense-primary bg-expense-surface hover:bg-expense-light text-expense-dark';
   }
 
   async editExpense(expense: Expense) {

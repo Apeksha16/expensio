@@ -50,10 +50,10 @@ import { ToastService } from '../../core/services/toast.service';
       } @else {
         <!-- Top Summary Box -->
         <div
-          class="shrink-0 bg-black text-white p-5 border border-black rounded-none flex flex-col gap-4 relative overflow-hidden"
+          class="shrink-0 bg-splits-primary text-white p-5 border-2 border-splits-dark rounded-none flex flex-col gap-4 relative overflow-hidden"
         >
           <div
-            class="absolute -right-10 -top-10 w-32 h-32 bg-gray-800 rounded-full opacity-50 blur-2xl pointer-events-none"
+            class="absolute -right-10 -top-10 w-32 h-32 bg-splits-dark rounded-full opacity-50 blur-2xl pointer-events-none"
           ></div>
           <div class="flex justify-between relative z-10 gap-4">
             <div class="flex flex-col flex-1 min-w-0">
@@ -75,10 +75,10 @@ import { ToastService } from '../../core/services/toast.service';
           </div>
         </div>
         <!-- Tabs -->
-        <div class="shrink-0 flex border-b-2 border-black mt-2">
+        <div class="shrink-0 flex border-b-2 border-splits-primary mt-2">
           <button
             (click)="splitService.activeTab.set('expenses')"
-            [class.bg-black]="splitService.activeTab() === 'expenses'"
+            [class.bg-splits-primary]="splitService.activeTab() === 'expenses'"
             [class.text-white]="splitService.activeTab() === 'expenses'"
             class="flex-1 py-3 font-extrabold tracking-widest uppercase transition-colors"
           >
@@ -86,7 +86,7 @@ import { ToastService } from '../../core/services/toast.service';
           </button>
           <button
             (click)="splitService.activeTab.set('groups')"
-            [class.bg-black]="splitService.activeTab() === 'groups'"
+            [class.bg-splits-primary]="splitService.activeTab() === 'groups'"
             [class.text-white]="splitService.activeTab() === 'groups'"
             class="flex-1 py-3 font-extrabold tracking-widest uppercase transition-colors"
           >
@@ -94,13 +94,12 @@ import { ToastService } from '../../core/services/toast.service';
           </button>
         </div>
         
-        <!-- Individual Expenses List -->
         @if (splitService.activeTab() === 'expenses') {
           <div class="flex justify-between items-center mt-4">
              <h3 class="font-extrabold text-black uppercase tracking-widest text-sm">All Expenses</h3>
              <button
                 (click)="settleUp()"
-                class="px-4 py-1.5 border-2 border-black text-black font-bold text-[10px] uppercase tracking-widest hover:bg-black hover:text-white transition-colors rounded-none"
+                class="px-4 py-1.5 border-2 border-splits-primary text-splits-dark font-bold text-[10px] uppercase tracking-widest hover:bg-splits-primary hover:text-white transition-colors rounded-none"
              >
                 Settle Up
              </button>
@@ -110,11 +109,11 @@ import { ToastService } from '../../core/services/toast.service';
               @for (split of individualSplits(); track split.id) {
                 <button
                   (click)="editSplit(split)"
-                  class="w-full bg-gray-200 rounded-none p-4 flex flex-col gap-1 text-left hover:bg-gray-300 transition-colors active:bg-gray-400"
+                  class="w-full bg-splits-surface border-2 border-splits-primary rounded-none p-4 flex flex-col gap-1 text-left hover:bg-splits-light transition-colors active:bg-splits-primary active:text-white"
                 >
                   <div class="flex justify-between items-start gap-4">
                     <div class="flex flex-col gap-0.5 flex-1 min-w-0 pr-4">
-                      <span class="font-extrabold text-lg text-black truncate">{{ split.title }}</span>
+                      <span class="font-extrabold text-lg text-splits-dark truncate">{{ split.title }}</span>
                       <div class="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest min-w-0">
                         <span class="truncate">{{ split.date | date: 'mediumDate' }}</span>
                       </div>
@@ -221,10 +220,10 @@ import { ToastService } from '../../core/services/toast.service';
               @for (group of splitService.activeGroups(); track group.id) {
                 <button
                   (click)="openGroup(group.id)"
-                  class="w-full bg-gray-200 rounded-none p-4 flex flex-col gap-1 text-left hover:bg-gray-300 transition-colors active:bg-gray-400"
+                  class="w-full bg-splits-surface border-2 border-splits-primary rounded-none p-4 flex flex-col gap-1 text-left hover:bg-splits-light transition-colors active:bg-splits-primary active:text-white"
                 >
                   <div class="flex justify-between items-start w-full">
-                    <span class="font-extrabold text-lg text-black truncate">{{ group.name }}</span>
+                    <span class="font-extrabold text-lg text-splits-dark truncate">{{ group.name }}</span>
                     <button
                       (click)="archiveGroup($event, group.id)"
                       class="text-[9px] font-bold text-gray-400 uppercase tracking-widest hover:text-black px-2 py-1 transition-colors flex-shrink-0"

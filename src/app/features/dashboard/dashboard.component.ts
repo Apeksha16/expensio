@@ -101,16 +101,25 @@ import { KeyboardService } from '../../core/services/keyboard.service';
         <div class="bg-black text-white p-6 border-2 border-black rounded-none relative overflow-hidden">
           <div class="flex flex-col items-center justify-center relative mt-2">
             <svg viewBox="0 0 100 55" class="w-full max-w-[220px] drop-shadow-xl">
+              <defs>
+                <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#10B981" /> <!-- budget -->
+                  <stop offset="25%" stop-color="#06B6D4" /> <!-- splits -->
+                  <stop offset="50%" stop-color="#F59E0B" /> <!-- friends -->
+                  <stop offset="75%" stop-color="#8B5CF6" /> <!-- subscriptions -->
+                  <stop offset="100%" stop-color="#EF4444" /> <!-- expense -->
+                </linearGradient>
+              </defs>
               <!-- Background track -->
               <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#333" stroke-width="8" stroke-linecap="butt" />
               <!-- Progress -->
-              <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" [attr.stroke]="gaugeColor()" stroke-width="8" stroke-linecap="butt"
+              <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="url(#gaugeGradient)" stroke-width="8" stroke-linecap="butt"
                     stroke-dasharray="125.66" [attr.stroke-dashoffset]="gaugeOffset()"
                     class="transition-all duration-1000 ease-out" />
             </svg>
             <div class="absolute bottom-0 flex flex-col items-center translate-y-1 cursor-pointer" (click)="toggleMask()">
               <h2 class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Remaining</h2>
-              <p class="text-3xl font-black tracking-tighter transition-colors duration-500" [style.color]="gaugeColor()">
+              <p class="text-3xl font-black tracking-tighter text-white">
                 {{ remainingAmount() | currency: 'INR' : 'symbol' : '1.0-0' }}
               </p>
             </div>
@@ -184,27 +193,27 @@ import { KeyboardService } from '../../core/services/keyboard.service';
           </div>
           <div class="grid grid-cols-4 gap-3 mb-2">
             <!-- Add Expense -->
-            <button (click)="keyboardService.openKeyboardSync(); expenseService.openBottomSheet()" class="flex flex-col items-center justify-center gap-2 bg-gray-200 border-l-4 border-blue-500 py-3 rounded-none cursor-pointer hover:bg-gray-300 transition-colors">
-              <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
-              <span class="text-[9px] font-extrabold text-gray-700 uppercase tracking-widest text-center">Add<br>Expense</span>
+            <button (click)="keyboardService.openKeyboardSync(); expenseService.openBottomSheet()" class="flex flex-col items-center justify-center gap-2 bg-expense-surface border-l-4 border-expense-primary py-3 rounded-none cursor-pointer hover:bg-expense-light transition-colors text-expense-dark">
+              <svg class="w-6 h-6 text-expense-dark" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
+              <span class="text-[9px] font-extrabold uppercase tracking-widest text-center">Add<br>Expense</span>
             </button>
 
             <!-- Add Budget -->
-            <button (click)="keyboardService.openKeyboardSync(); budgetService.openBottomSheet()" class="flex flex-col items-center justify-center gap-2 bg-gray-200 border-l-4 border-purple-500 py-3 rounded-none cursor-pointer hover:bg-gray-300 transition-colors">
-              <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
-              <span class="text-[9px] font-extrabold text-gray-700 uppercase tracking-widest text-center">Add<br>Budget</span>
+            <button (click)="keyboardService.openKeyboardSync(); budgetService.openBottomSheet()" class="flex flex-col items-center justify-center gap-2 bg-budget-surface border-l-4 border-budget-primary py-3 rounded-none cursor-pointer hover:bg-budget-light transition-colors text-budget-dark">
+              <svg class="w-6 h-6 text-budget-dark" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
+              <span class="text-[9px] font-extrabold uppercase tracking-widest text-center">Add<br>Budget</span>
             </button>
 
             <!-- Add Goal -->
-            <button (click)="keyboardService.openKeyboardSync(); goalService.openBottomSheet()" class="flex flex-col items-center justify-center gap-2 bg-gray-200 border-l-4 border-pink-500 py-3 rounded-none cursor-pointer hover:bg-gray-300 transition-colors">
-              <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-              <span class="text-[9px] font-extrabold text-gray-700 uppercase tracking-widest text-center">Add<br>Goal</span>
+            <button (click)="keyboardService.openKeyboardSync(); goalService.openBottomSheet()" class="flex flex-col items-center justify-center gap-2 bg-goals-surface border-l-4 border-goals-primary py-3 rounded-none cursor-pointer hover:bg-goals-light transition-colors text-goals-dark">
+              <svg class="w-6 h-6 text-goals-dark" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+              <span class="text-[9px] font-extrabold uppercase tracking-widest text-center">Add<br>Goal</span>
             </button>
 
             <!-- Split Expense -->
-            <button (click)="keyboardService.openKeyboardSync(); splitService.activeTab.set('expenses'); splitService.openAddSplitSheet()" class="flex flex-col items-center justify-center gap-2 bg-gray-200 border-l-4 border-emerald-500 py-3 rounded-none cursor-pointer hover:bg-gray-300 transition-colors">
-              <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
-              <span class="text-[9px] font-extrabold text-gray-700 uppercase tracking-widest text-center">Split<br>Expense</span>
+            <button (click)="keyboardService.openKeyboardSync(); splitService.activeTab.set('expenses'); splitService.openAddSplitSheet()" class="flex flex-col items-center justify-center gap-2 bg-splits-surface border-l-4 border-splits-primary py-3 rounded-none cursor-pointer hover:bg-splits-light transition-colors text-splits-dark">
+              <svg class="w-6 h-6 text-splits-dark" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+              <span class="text-[9px] font-extrabold uppercase tracking-widest text-center">Split<br>Expense</span>
             </button>
           </div>
         </div>
@@ -215,7 +224,7 @@ import { KeyboardService } from '../../core/services/keyboard.service';
             <h3 class="text-lg font-bold">Split Summary</h3>
           </div>
 
-          <div class="bg-white border-2 border-black p-5 flex flex-col gap-6">
+          <div class="bg-splits-surface border-2 border-splits-dark p-5 flex flex-col gap-6">
 
           <!-- Totals Header -->
           <div class="flex">
@@ -266,7 +275,7 @@ import { KeyboardService } from '../../core/services/keyboard.service';
             @for (expense of recentExpenses(); track expense.id) {
               <button
                 (click)="editExpense(expense)"
-                class="w-full bg-gray-200 rounded-none p-3 flex justify-between items-center text-left border-l-4 hover:bg-gray-300 transition-colors active:bg-gray-400"
+                class="w-full rounded-none p-3 flex justify-between items-center text-left border-l-4 transition-colors"
                 [ngClass]="getCategoryColor(expense.category)"
               >
                 <div class="flex flex-col gap-0.5 flex-1 min-w-0 pr-4">
@@ -333,13 +342,7 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
     return Math.min(total / max, 1);
   });
 
-  gaugeColor = computed(() => {
-    const p = this.percentage();
-    if (p < 0.25) return '#3b82f6'; // blue
-    if (p < 0.50) return '#22c55e'; // green
-    if (p < 0.80) return '#eab308'; // yellow
-    return '#ef4444'; // red
-  });
+
 
   gaugeOffset = computed(() => {
     const p = this.percentage();
@@ -469,17 +472,17 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getCategoryColor(category: string): string {
-    if (!category) return 'border-black';
+    if (!category) return 'border-expense-primary bg-expense-surface hover:bg-expense-light text-expense-dark';
     if (category === 'virtual-invest') {
-      return 'border-amber-500';
+      return 'border-goals-primary bg-goals-surface hover:bg-goals-light text-goals-dark';
     } else if (category.includes('(Group Split)')) {
-      return 'border-teal-500';
+      return 'border-friends-primary bg-friends-surface hover:bg-friends-light text-friends-dark';
     } else if (category.includes('(Split)')) {
-      return 'border-blue-600';
+      return 'border-splits-primary bg-splits-surface hover:bg-splits-light text-splits-dark';
     } else if (category.includes('(Subscription)')) {
-      return 'border-pink-500';
+      return 'border-subscriptions-primary bg-subscriptions-surface hover:bg-subscriptions-light text-subscriptions-dark';
     }
-    return 'border-black';
+    return 'border-expense-primary bg-expense-surface hover:bg-expense-light text-expense-dark';
   }
 
   constructor() {

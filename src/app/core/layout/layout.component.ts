@@ -163,7 +163,7 @@ import { LedgerSubSheetComponent } from '../../shared/ui/ledger-sub-sheet/ledger
           @for (item of navItems; track item) {
             <a
               [routerLink]="item.path"
-              routerLinkActive="bg-black text-white"
+              [routerLinkActive]="getActiveClasses(item.id)"
               [routerLinkActiveOptions]="{ exact: false }"
               (click)="toggleSidebar(false)"
               class="flex items-center gap-3 px-3 py-2.5 rounded-none font-semibold transition-colors
@@ -228,7 +228,7 @@ import { LedgerSubSheetComponent } from '../../shared/ui/ledger-sub-sheet/ledger
             @for (item of bottomNavItems(); track item.id) {
               <a
                 [routerLink]="item.path"
-                routerLinkActive="bg-black text-white"
+                [routerLinkActive]="getActiveClasses(item.id)"
                 [routerLinkActiveOptions]="{ exact: false }"
                 class="flex items-center justify-center w-full h-full text-gray-500 hover:text-black hover:bg-gray-100 transition-colors rounded-none"
               >
@@ -504,6 +504,23 @@ export class Layout implements AfterViewInit {
   get navItems() {
     return this.quickActionsService.navItems;
   }
+
+  getActiveClasses(id: string): string {
+    switch (id) {
+      case 'dashboard': return 'bg-black text-white';
+      case 'expenses': return 'bg-expense-primary text-white';
+      case 'budgets': return 'bg-budget-primary text-white';
+      case 'friends': return 'bg-friends-primary text-white';
+      case 'splits': return 'bg-splits-primary text-white';
+      case 'subscriptions': return 'bg-subscriptions-primary text-white';
+      case 'goals': return 'bg-goals-primary text-white';
+      case 'ledger': return 'bg-ledger-primary text-white';
+      case 'reports': return 'bg-reports-primary text-white';
+      case 'profile': return 'bg-profile-primary text-white';
+      default: return 'bg-black text-white';
+    }
+  }
+
   getAnimationData() {
     return this.contexts.getContext('primary')?.route?.snapshot?.data?.['animationIndex'];
   }

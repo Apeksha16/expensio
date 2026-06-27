@@ -18,7 +18,7 @@ import { Router } from '@angular/router';
     <div class="flex-1 bg-gray-50 p-4 flex flex-col gap-4 pb-36">
       <!-- Top Summary Box -->
       <div
-        class="bg-black text-white p-5 border border-black rounded-none flex flex-col gap-4 relative overflow-hidden"
+        class="bg-budget-primary text-white p-5 border-2 border-budget-dark rounded-none flex flex-col gap-4 relative overflow-hidden"
       >
         <!-- Abstract Decoration -->
         <div
@@ -27,7 +27,7 @@ import { Router } from '@angular/router';
 
         <div class="flex justify-between items-end relative z-10">
           <div class="flex flex-col">
-            <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1"
+            <span class="text-xs font-bold text-budget-surface uppercase tracking-widest mb-1 opacity-80"
               >Total Allocation</span
             >
             <span class="text-4xl font-extrabold tracking-tight">
@@ -35,10 +35,10 @@ import { Router } from '@angular/router';
             </span>
           </div>
           <div class="text-right flex flex-col">
-            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest"
+            <span class="text-[10px] font-bold text-budget-surface uppercase tracking-widest opacity-80"
               >Salary Limit</span
             >
-            <span class="text-sm font-extrabold text-gray-300">
+            <span class="text-sm font-extrabold text-white">
               ₹{{ monthlySalary() | number: '1.0-0' }}
             </span>
           </div>
@@ -59,7 +59,7 @@ import { Router } from '@angular/router';
       <div class="flex justify-between items-center mt-2">
         <button
           (click)="openMonthPicker()"
-          class="flex items-center gap-2 px-3 py-1.5 bg-white border border-black rounded-none font-bold text-sm hover:bg-black hover:text-white transition-colors"
+          class="flex items-center gap-2 px-3 py-1.5 bg-budget-surface text-budget-dark border-2 border-budget-primary rounded-none font-bold text-sm hover:bg-budget-primary hover:text-white transition-colors"
         >
           <span>{{ getActiveMonthLabel() }}</span>
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -96,7 +96,7 @@ import { Router } from '@angular/router';
             @for (budget of budgetService.budgets(); track budget) {
               <button
                 (click)="openBudget(budget)"
-                class="w-full bg-gray-200 rounded-none p-3 flex flex-col gap-2 text-left hover:bg-gray-300 transition-colors active:bg-gray-400"
+                class="w-full bg-white border-l-4 border-budget-primary rounded-none p-3 flex flex-col gap-2 text-left hover:bg-budget-surface transition-colors active:bg-budget-light shadow-[2px_2px_0px_0px_rgba(0,0,0,0.1)]"
               >
                 <div class="flex justify-between items-center w-full">
                   <div class="flex flex-col gap-0.5">
