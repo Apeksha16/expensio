@@ -76,19 +76,19 @@ import { AutofocusDirective } from '../autofocus.directive';
 
         <div class="p-6 bg-white flex-1">
           <div class="mb-5 text-center">
-            <h3 class="text-xl font-extrabold tracking-tight text-gray-900">{{ goalService.activeGoalForFunds()?.name }}</h3>
-            <p class="text-[11px] font-semibold text-goals-dark tracking-widest uppercase mt-1">
+            <h3 class="text-xl font-extrabold tracking-tight text-goals-dark">{{ goalService.activeGoalForFunds()?.name }}</h3>
+            <p class="text-[11px] font-semibold text-goals-dark/70 tracking-widest uppercase mt-1">
               ₹{{ goalService.activeGoalForFunds()?.saved_amount | number:'1.0-0' }} / ₹{{ goalService.activeGoalForFunds()?.total_amount | number:'1.0-0' }} Saved
             </p>
           </div>
 
           <div class="flex flex-col gap-6">
-            <div class="flex bg-gray-100 p-1">
+            <div class="flex bg-goals-surface p-1">
               <button
                 type="button"
                 (click)="setMode('installment')"
                 class="flex-1 py-2 text-[11px] font-bold uppercase tracking-widest transition-colors duration-200"
-                [ngClass]="fundMode() === 'installment' ? 'bg-black shadow-sm text-white' : 'text-gray-500 hover:bg-gray-200'"
+                [ngClass]="fundMode() === 'installment' ? 'bg-goals-primary shadow-sm text-white' : 'text-goals-dark hover:bg-goals-light'"
               >
                 Installment
               </button>
@@ -96,7 +96,7 @@ import { AutofocusDirective } from '../autofocus.directive';
                 type="button"
                 (click)="setMode('custom')"
                 class="flex-1 py-2 text-[11px] font-bold uppercase tracking-widest transition-colors duration-200"
-                [ngClass]="fundMode() === 'custom' ? 'bg-black shadow-sm text-white' : 'text-gray-500 hover:bg-gray-200'"
+                [ngClass]="fundMode() === 'custom' ? 'bg-goals-primary shadow-sm text-white' : 'text-goals-dark hover:bg-goals-light'"
               >
                 Custom
               </button>
@@ -104,18 +104,18 @@ import { AutofocusDirective } from '../autofocus.directive';
 
             <div class="h-[120px] flex flex-col justify-center">
               @if (fundMode() === 'installment') {
-                <div class="text-center py-6 border-2 border-dashed border-gray-200 bg-gray-50 w-full">
-                  <p class="text-4xl font-extrabold tracking-tight text-[#1a2e22]">
+                <div class="text-center py-6 border-2 border-dashed border-goals-primary/30 bg-goals-surface w-full">
+                  <p class="text-4xl font-extrabold tracking-tight text-goals-dark">
                     ₹{{ getRemainingInstallment() | number:'1.0-0' }}
                   </p>
-                  <p class="text-[10px] font-bold text-gray-400 tracking-widest uppercase mt-2">Recommended Installment</p>
+                  <p class="text-[10px] font-bold text-goals-dark/70 tracking-widest uppercase mt-2">Recommended Installment</p>
                 </div>
               } @else {
                 <div class="flex flex-col gap-1 w-full">
                   <label class="text-[11px] font-semibold text-goals-dark tracking-widest uppercase">Amount</label>
                   <div class="relative group">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <span class="text-gray-500 font-medium">₹</span>
+                      <span class="text-goals-dark/70 font-medium">₹</span>
                     </div>
                     <input
                       [formControl]="customAmount"
@@ -125,7 +125,7 @@ import { AutofocusDirective } from '../autofocus.directive';
                       inputmode="numeric"
                       placeholder="0"
                       (keydown)="preventE($event)"
-                      class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-goals-primary hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans pl-8"
+                      class="w-full bg-goals-surface text-goals-dark text-sm rounded-none focus:ring-2 focus:ring-goals-primary focus:outline-none block p-2.5 transition-all placeholder-goals-dark/50 min-h-[44px] touch-manipulation font-sans pl-8"
                     />
                   </div>
                 </div>
@@ -136,7 +136,7 @@ import { AutofocusDirective } from '../autofocus.directive';
               <button
                 type="button"
                 (click)="close()"
-                class="flex-1 font-medium rounded-none transition-all duration-200 flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-white border-2 border-gray-200 text-gray-900 hover:border-gray-300 text-center"
+                class="flex-1 font-medium rounded-none transition-all duration-200 flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-goals-surface text-goals-dark hover:bg-goals-light text-center"
               >
                 Cancel
               </button>

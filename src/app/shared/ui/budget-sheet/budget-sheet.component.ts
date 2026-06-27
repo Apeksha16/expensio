@@ -119,11 +119,11 @@ import { SafeInputDirective } from '../safe-input.directive';
                   <button
                     type="button"
                     (click)="selectCategory(cat)"
-                    class="flex flex-col items-center justify-center gap-1 p-2 border-2 rounded-none transition-all min-h-[60px]"
+                    class="flex flex-col items-center justify-center gap-1 p-2 rounded-none transition-all min-h-[60px]"
                     [ngClass]="
                       budgetForm.get('icon_path')?.value === cat.path
-                        ? 'border-[#1a2e22] bg-[#1a2e22] text-white'
-                        : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
+                        ? 'bg-budget-primary text-white'
+                        : 'bg-budget-surface text-budget-dark hover:bg-budget-light'
                     "
                   >
                     <svg
@@ -156,7 +156,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                   appSafeInput
                   type="text"
                   formControlName="name"
-                  class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-budget-primary hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans"
+                  class="w-full bg-budget-surface text-budget-dark text-sm rounded-none focus:ring-2 focus:ring-budget-primary focus:outline-none block p-2.5 transition-all placeholder-budget-dark/50 min-h-[44px] touch-manipulation font-sans"
                   placeholder="e.g. Groceries"
                 />
               </div>
@@ -182,7 +182,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                   appAmountInput
                   formControlName="amount"
                   (keydown)="preventE($event)"
-                  class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-budget-primary hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans pl-8"
+                  class="w-full bg-budget-surface text-budget-dark text-sm rounded-none focus:ring-2 focus:ring-budget-primary focus:outline-none block p-2.5 transition-all placeholder-budget-dark/50 min-h-[44px] touch-manipulation font-sans pl-8"
                   placeholder="0"
                 />
               </div>
@@ -193,7 +193,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                 type="checkbox"
                 id="autoRollover"
                 formControlName="auto_rollover"
-                class="w-4 h-4 text-black bg-white border-2 border-gray-300 rounded-none focus:ring-black focus:ring-2 cursor-pointer"
+                class="w-4 h-4 text-budget-primary bg-budget-surface border-0 rounded-none focus:ring-budget-primary focus:ring-2 cursor-pointer"
               />
               <label for="autoRollover" class="text-[11px] font-semibold text-budget-dark tracking-widest uppercase cursor-pointer select-none">
                 Auto-add for next month
@@ -204,7 +204,7 @@ import { SafeInputDirective } from '../safe-input.directive';
               <button
                 type="button"
                 (click)="close()"
-                class="flex-1 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-white border-2 border-gray-200 text-gray-900 hover:border-gray-300 text-center"
+                class="flex-1 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-budget-surface text-budget-dark hover:bg-budget-light text-center"
               >
                 Cancel
               </button>

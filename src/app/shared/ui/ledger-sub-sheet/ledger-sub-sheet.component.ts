@@ -140,11 +140,11 @@ import { SafeInputDirective } from '../safe-input.directive';
                 <button
                   type="button"
                   (click)="setType('in')"
-                  class="flex-1 font-extrabold tracking-widest uppercase rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-xs min-h-[44px] border-2 border-[#1a2e22]"
-                  [class.bg-[#1a2e22]]="subForm.get('type')?.value === 'in'"
+                  class="flex-1 font-extrabold tracking-widest uppercase rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-xs min-h-[44px] border-2 border-green-600"
+                  [class.bg-green-600]="subForm.get('type')?.value === 'in'"
                   [class.text-white]="subForm.get('type')?.value === 'in'"
                   [class.bg-white]="subForm.get('type')?.value !== 'in'"
-                  [class.text-[#1a2e22]]="subForm.get('type')?.value !== 'in'"
+                  [class.text-green-600]="subForm.get('type')?.value !== 'in'"
                 >
                   I Received Money
                 </button>

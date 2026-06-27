@@ -52,7 +52,7 @@ import { SafeInputDirective } from '../safe-input.directive';
 
         <!-- Header -->
         <div
-          class="flex justify-between items-center py-4 px-6 bg-friends-primary border-b border-friends-dark text-white sticky top-[-2px] z-10"
+          class="flex justify-between items-center py-4 px-6 bg-splits-primary border-b border-splits-dark text-white sticky top-[-2px] z-10"
         >
           <h2 class="text-xl font-extrabold tracking-tight">
             {{ isEditing ? 'Edit group' : 'Create group' }}
@@ -87,7 +87,7 @@ import { SafeInputDirective } from '../safe-input.directive';
         <div class="p-6 bg-white flex-1">
           @if (isEditing) {
             <div class="flex justify-center mb-5">
-              <span class="text-[9px] font-extrabold tracking-widest uppercase text-friends-dark bg-friends-surface px-3 py-1 rounded-none">
+              <span class="text-[9px] font-extrabold tracking-widest uppercase text-splits-dark bg-splits-surface px-3 py-1 rounded-none">
                 Added {{ splitService.editingGroup()?.created_at | date: 'medium' }}
               </span>
             </div>
@@ -95,7 +95,7 @@ import { SafeInputDirective } from '../safe-input.directive';
           @if (friendService.acceptedFriends().length > 0) {
             <form [formGroup]="groupForm" (ngSubmit)="onSubmit()" class="space-y-4">
               <div class="flex flex-col gap-1">
-                <label class="text-[11px] font-semibold text-friends-dark tracking-widest uppercase"
+                <label class="text-[11px] font-semibold text-splits-dark tracking-widest uppercase"
                   >Group Name</label
                 >
                 <input
@@ -104,11 +104,11 @@ import { SafeInputDirective } from '../safe-input.directive';
                   type="text"
                   formControlName="name"
                   placeholder="e.g. Goa Trip"
-                  class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-friends-primary hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans"
+                  class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-splits-primary hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans"
                 />
               </div>
               <div class="flex flex-col gap-1">
-                <label class="text-[11px] font-semibold text-friends-dark tracking-widest uppercase"
+                <label class="text-[11px] font-semibold text-splits-dark tracking-widest uppercase"
                   >Group Members</label
                 >
                 <div class="flex flex-col gap-2">
@@ -149,7 +149,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                 <button
                   type="submit"
                   [disabled]="!groupForm.valid || isSaving() || isDeleting()"
-                  class="flex-1 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-friends-primary hover:bg-friends-dark text-white disabled:opacity-70 disabled:cursor-not-allowed disabled:active:scale-100"
+                  class="flex-1 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-splits-primary hover:bg-splits-dark text-white disabled:opacity-70 disabled:cursor-not-allowed disabled:active:scale-100"
                 >
                   @if (isSaving()) {
                     <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -187,7 +187,7 @@ import { SafeInputDirective } from '../safe-input.directive';
               <button
                 type="button"
                 (click)="close()"
-                class="mt-4 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-6 py-2 text-sm min-h-[44px] bg-[#1a2e22] hover:bg-[#2f4d3b] text-white"
+                class="mt-4 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-6 py-2 text-sm min-h-[44px] bg-splits-primary hover:bg-splits-dark text-white"
               >
                 Okay
               </button>

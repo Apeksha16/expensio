@@ -18,13 +18,8 @@ import { Router } from '@angular/router';
     <div class="flex-1 bg-gray-50 p-4 flex flex-col gap-4 pb-36">
       <!-- Top Summary Box -->
       <div
-        class="bg-budget-primary text-white p-5 rounded-none flex flex-col gap-4 relative overflow-hidden"
+        class="shrink-0 bg-budget-primary text-white p-5 rounded-none flex flex-col gap-4 relative overflow-hidden"
       >
-        <!-- Abstract Decoration -->
-        <div
-          class="absolute -right-10 -top-10 w-32 h-32 bg-gray-800 rounded-full opacity-50 blur-2xl pointer-events-none"
-        ></div>
-
         <div class="flex justify-between items-end relative z-10">
           <div class="flex flex-col">
             <span class="text-xs font-bold text-budget-surface uppercase tracking-widest mb-1 opacity-80"
@@ -34,18 +29,18 @@ import { Router } from '@angular/router';
               ₹{{ totalAllocated() | number: '1.0-0' }}
             </span>
           </div>
-          <div class="text-right flex flex-col">
+          <div class="text-right flex flex-col cursor-pointer" (click)="showSalaryLimit.update(v => !v)">
             <span class="text-[10px] font-bold text-budget-surface uppercase tracking-widest opacity-80"
               >Salary Limit</span
             >
-            <span class="text-sm font-extrabold text-white">
-              ₹{{ monthlySalary() | number: '1.0-0' }}
+            <span class="text-sm font-extrabold text-white transition-all select-none">
+              {{ isMasked() && !showSalaryLimit() ? '••••' : '₹' + (monthlySalary() | number: '1.0-0') }}
             </span>
           </div>
         </div>
 
         <!-- Global Progress Bar -->
-        <div class="h-2 w-full bg-gray-800 rounded-none overflow-hidden flex relative z-10">
+        <div class="h-2 w-full bg-budget-dark rounded-none overflow-hidden flex relative z-10">
           <div
             class="h-full bg-white transition-all duration-1000 ease-out"
             [style.width.%]="
@@ -96,12 +91,12 @@ import { Router } from '@angular/router';
             @for (budget of budgetService.budgets(); track budget) {
               <button
                 (click)="openBudget(budget)"
-                class="w-full bg-white border-l-4 border-budget-primary rounded-none p-3 flex flex-col gap-2 text-left hover:bg-budget-surface transition-colors active:bg-budget-light shadow-[2px_2px_0px_0px_rgba(0,0,0,0.1)]"
+                class="w-full bg-budget-surface border-l-4 border-budget-primary text-budget-dark rounded-none p-3 flex flex-col gap-2 text-left hover:bg-budget-light transition-colors active:scale-[0.98]"
               >
                 <div class="flex justify-between items-center w-full">
                   <div class="flex flex-col gap-0.5">
-                    <span class="font-extrabold text-lg text-black">{{ budget.name }}</span>
-                    <div class="flex items-center gap-2 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                    <span class="font-extrabold text-lg">{{ budget.name }}</span>
+                    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest opacity-80">
                       <span>Consumed: ₹{{ getConsumed(budget.name) | number: '1.0-0' }}</span>
                     </div>
                   </div>
@@ -109,7 +104,7 @@ import { Router } from '@angular/router';
                     @if (budget.id === 'virtual-others') {
                       <div class="flex flex-col items-end">
                         <span class="font-extrabold text-xl">₹{{ (monthlySalary() - totalAllocated()) | number: '1.0-0' }}</span>
-                        <span class="text-[9px] font-bold text-gray-500 tracking-widest uppercase">Unallocated Limit</span>
+                        <span class="text-[9px] font-bold uppercase tracking-widest opacity-60">Unallocated Limit</span>
                       </div>
                     } @else {
                       <div class="flex flex-col items-end">
@@ -175,6 +170,8 @@ export class Budgets implements OnInit, AfterViewInit {
   private router = inject(Router);
   private monthSub: any;
   animateBars = signal(false);
+  isMasked = computed(() => this.authService.userProfile().maskValues);
+  showSalaryLimit = signal(false);
 
   ngOnInit() {
     this.expenseService.setMonthFilter(this.expenseService.getCurrentMonthString());

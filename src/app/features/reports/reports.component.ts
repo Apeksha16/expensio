@@ -10,7 +10,7 @@ import Chart from 'chart.js/auto';
   template: `
     <div class="h-full flex flex-col relative w-full bg-gray-50 overflow-y-auto">
       <!-- Filters Header -->
-      <div class="bg-white p-4 border-b-2 border-black sticky top-0 z-10 shadow-sm flex flex-col gap-4">
+      <div class="bg-white p-4 border-b-2 border-reports-primary sticky top-0 z-10 shadow-sm flex flex-col gap-4">
         <!-- Date Presets Scrollable -->
         <div class="flex overflow-x-auto gap-2 pb-2 hide-scrollbar">
           @for (preset of presets; track preset) {
@@ -29,16 +29,16 @@ import Chart from 'chart.js/auto';
         
         <!-- Type Toggles -->
         <div class="flex flex-wrap gap-3">
-          <label class="flex items-center gap-2 text-xs font-bold text-gray-600 cursor-pointer">
-            <input type="checkbox" [checked]="reportService.showGoals()" (change)="reportService.toggleGoalFilter()" class="accent-reports-primary w-4 h-4 border-2 border-reports-primary rounded-none">
+          <label class="flex items-center gap-2 text-xs font-bold text-reports-dark cursor-pointer">
+            <input type="checkbox" [checked]="reportService.showGoals()" (change)="reportService.toggleGoalFilter()" class="text-reports-primary bg-reports-surface border-reports-primary/50 focus:ring-reports-primary focus:ring-offset-0 w-4 h-4 rounded-none">
             Include Goals
           </label>
-          <label class="flex items-center gap-2 text-xs font-bold text-gray-600 cursor-pointer">
-            <input type="checkbox" [checked]="reportService.showSubscriptions()" (change)="reportService.toggleSubscriptionFilter()" class="accent-reports-primary w-4 h-4 border-2 border-reports-primary rounded-none">
+          <label class="flex items-center gap-2 text-xs font-bold text-reports-dark cursor-pointer">
+            <input type="checkbox" [checked]="reportService.showSubscriptions()" (change)="reportService.toggleSubscriptionFilter()" class="text-reports-primary bg-reports-surface border-reports-primary/50 focus:ring-reports-primary focus:ring-offset-0 w-4 h-4 rounded-none">
             Include Subs
           </label>
-          <label class="flex items-center gap-2 text-xs font-bold text-gray-600 cursor-pointer">
-            <input type="checkbox" [checked]="reportService.showSplits()" (change)="reportService.toggleSplitFilter()" class="accent-reports-primary w-4 h-4 border-2 border-reports-primary rounded-none">
+          <label class="flex items-center gap-2 text-xs font-bold text-reports-dark cursor-pointer">
+            <input type="checkbox" [checked]="reportService.showSplits()" (change)="reportService.toggleSplitFilter()" class="text-reports-primary bg-reports-surface border-reports-primary/50 focus:ring-reports-primary focus:ring-offset-0 w-4 h-4 rounded-none">
             Include Splits
           </label>
         </div>
@@ -47,11 +47,11 @@ import Chart from 'chart.js/auto';
       <div class="p-4 flex flex-col gap-6 pb-24">
         <!-- Summary Cards -->
         <div class="grid grid-cols-2 gap-4">
-          <div class="bg-reports-surface p-4 border-2 border-reports-primary rounded-none flex flex-col gap-1">
+          <div class="bg-reports-surface p-4 rounded-none flex flex-col gap-1">
             <span class="text-xs font-extrabold text-reports-dark opacity-80 uppercase tracking-wider">Total Spent</span>
             <span class="text-xl font-black text-reports-dark">{{ totalSpent | currency:'INR':'symbol':'1.0-0' }}</span>
           </div>
-          <div class="bg-reports-surface p-4 border-2 border-reports-primary rounded-none flex flex-col gap-1">
+          <div class="bg-reports-surface p-4 rounded-none flex flex-col gap-1">
             <span class="text-xs font-extrabold text-reports-dark opacity-80 uppercase tracking-wider">Daily Avg</span>
             <span class="text-xl font-black text-reports-dark">{{ dailyAverage | currency:'INR':'symbol':'1.0-0' }}</span>
           </div>
@@ -86,29 +86,29 @@ import Chart from 'chart.js/auto';
         } @else if (reportService.expenses().length === 0) {
           <div class="flex-1 flex flex-col items-center justify-center p-8 text-center mt-8">
             <div
-              class="w-32 h-32 bg-gray-200 border-2 border-transparent rounded-full flex items-center justify-center mb-6"
+              class="w-32 h-32 bg-reports-surface border-2 border-reports-light rounded-full flex items-center justify-center mb-6"
             >
-              <svg class="w-12 h-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg class="w-12 h-12 text-reports-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
             </div>
-            <p class="text-gray-500 font-extrabold text-xl">No data available</p>
-            <p class="text-gray-400 font-bold text-sm mt-2 max-w-[250px]">
+            <p class="text-reports-dark font-extrabold text-xl">No data available</p>
+            <p class="text-reports-dark opacity-70 font-bold text-sm mt-2 max-w-[250px]">
               Try changing the date range or toggling filters to see your reports.
             </p>
           </div>
         } @else {
           <!-- Category Doughnut Chart -->
-          <div class="bg-white p-4 border-2 border-reports-light rounded-none">
-            <h2 class="text-sm font-extrabold text-reports-dark uppercase tracking-wider mb-4 border-b-2 border-reports-light pb-2">Category Breakdown</h2>
+          <div class="bg-reports-surface p-4 rounded-none">
+            <h2 class="text-sm font-extrabold text-reports-dark uppercase tracking-wider mb-4 pb-2 border-b-2 border-reports-light/50">Category Breakdown</h2>
             <div class="relative h-64 w-full">
               <canvas #categoryChart></canvas>
             </div>
           </div>
 
           <!-- Trend Bar Chart -->
-          <div class="bg-white p-4 border-2 border-reports-light rounded-none mt-4">
-            <h2 class="text-sm font-extrabold text-reports-dark uppercase tracking-wider mb-4 border-b-2 border-reports-light pb-2">Spending Trend</h2>
+          <div class="bg-reports-surface p-4 rounded-none mt-4">
+            <h2 class="text-sm font-extrabold text-reports-dark uppercase tracking-wider mb-4 pb-2 border-b-2 border-reports-light/50">Spending Trend</h2>
             <div class="relative h-64 w-full">
               <canvas #trendChart></canvas>
             </div>
@@ -116,7 +116,7 @@ import Chart from 'chart.js/auto';
 
           <!-- Top Spends List -->
           <div class="mt-4">
-            <h2 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">Top Transactions</h2>
+            <h2 class="text-xs font-bold text-reports-dark opacity-70 uppercase tracking-widest mb-2 px-1">Top Transactions</h2>
             <div class="flex flex-col gap-1.5">
               @for (expense of topExpenses; track expense.id) {
                 <div
@@ -126,7 +126,7 @@ import Chart from 'chart.js/auto';
                   <div class="flex flex-col gap-0.5 flex-1 min-w-0 pr-4">
                     <span class="font-extrabold text-lg text-reports-dark truncate">{{ expense.title }}</span>
                     <div
-                      class="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-widest min-w-0"
+                      class="flex items-center gap-2 text-xs font-bold text-reports-dark opacity-70 uppercase tracking-widest min-w-0"
                     >
                       <span class="truncate">{{ expense.category }}</span>
                       <span class="flex-shrink-0">•</span>
@@ -205,26 +205,33 @@ export class ReportsComponent implements OnInit, OnDestroy {
   getCategoryColor(category: string): string {
     if (!category) return 'border-black';
     if (category === 'virtual-invest') {
-      return 'border-amber-500';
-    } else if (category.includes('(Group Split)')) {
-      return 'border-teal-500';
-    } else if (category.includes('(Split)')) {
-      return 'border-blue-600';
+      return 'border-goals-primary';
+    } else if (category.includes('(Group Split)') || category.includes('(Split)')) {
+      return 'border-splits-primary';
     } else if (category.includes('(Subscription)')) {
-      return 'border-pink-500';
+      return 'border-subscriptions-primary';
     }
-    return 'border-reports-primary';
+    return 'border-expense-primary';
   }
 
   getCategoryColorHEX(category: string, index: number): string {
-    if (category === 'virtual-invest') return '#f59e0b';
-    if (category.includes('(Group Split)')) return '#14b8a6';
-    if (category.includes('(Split)')) return '#2563eb';
-    if (category.includes('(Subscription)')) return '#ec4899';
+    if (category === 'virtual-invest') return '#f26a8d'; // Goals
     
-    // Default palette for regular expenses
-    const palette = ['#EC4899', '#BE185D', '#F9A8D4', '#831843', '#F472B6', '#9D174D'];
-    return palette[index % palette.length];
+    if (category.includes('(Group Split)') || category.includes('(Split)')) {
+      // Splits palette (base: #629900)
+      const splits = ['#629900', '#4d7a00', '#7ac200', '#a8e046', '#3f6200'];
+      return splits[index % splits.length];
+    }
+    
+    if (category.includes('(Subscription)')) {
+      // Subscriptions palette (base: #8B5CF6)
+      const subs = ['#8B5CF6', '#7C3AED', '#6D28D9', '#A78BFA', '#5B21B6'];
+      return subs[index % subs.length];
+    }
+    
+    // Default palette for regular expenses (base: #3B82F6)
+    const expenses = ['#3B82F6', '#2563EB', '#1D4ED8', '#60A5FA', '#1E40AF', '#93C5FD'];
+    return expenses[index % expenses.length];
   }
 
   private calculateInsights(expenses: ReportExpense[]) {

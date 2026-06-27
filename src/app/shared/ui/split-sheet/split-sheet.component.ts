@@ -111,7 +111,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                   type="text"
                   formControlName="title"
                   placeholder="e.g. Dinner, Taxi"
-                  class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-splits-primary hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans"
+                  class="w-full bg-splits-surface text-splits-dark text-sm rounded-none focus:ring-2 focus:ring-splits-primary focus:outline-none block p-2.5 transition-all placeholder-splits-dark/50 min-h-[44px] touch-manipulation font-sans"
                 />
               </div>
               <div class="flex flex-col gap-1">
@@ -130,7 +130,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                     formControlName="totalAmount"
                     placeholder="0"
                     (keydown)="preventE($event)"
-                    class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-splits-primary hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans pl-8"
+                    class="w-full bg-splits-surface text-splits-dark text-sm rounded-none focus:ring-2 focus:ring-splits-primary focus:outline-none block p-2.5 transition-all placeholder-splits-dark/50 min-h-[44px] touch-manipulation font-sans pl-8"
                   />
                 </div>
               </div>
@@ -143,11 +143,11 @@ import { SafeInputDirective } from '../safe-input.directive';
                     <button
                       type="button"
                       (click)="selectCategory(cat.name)"
-                      class="flex flex-col items-center justify-center gap-1 p-2 border-2 rounded-none transition-all min-h-[60px]"
+                      class="flex flex-col items-center justify-center gap-1 p-2 rounded-none transition-all min-h-[60px]"
                       [ngClass]="
                         splitForm.get('category')?.value === cat.name
-                          ? 'border-[#1a2e22] bg-[#1a2e22] text-white'
-                          : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
+                          ? 'bg-splits-primary text-white'
+                          : 'bg-splits-surface text-splits-dark hover:bg-splits-light'
                       "
                     >
                       <svg
@@ -177,7 +177,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                   <button
                     type="button"
                     (click)="isDropdownOpen.set(!isDropdownOpen())"
-                    class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-splits-primary hover:border-gray-300 p-2.5 outline-none transition-all min-h-[44px] touch-manipulation font-sans flex justify-between items-center text-left"
+                    class="w-full bg-splits-surface text-splits-dark text-sm rounded-none focus:ring-2 focus:ring-splits-primary p-2.5 outline-none transition-all min-h-[44px] touch-manipulation font-sans flex justify-between items-center text-left"
                   >
                     <span class="truncate font-semibold">{{ getPayerName() }}</span>
                     <svg
@@ -262,15 +262,15 @@ import { SafeInputDirective } from '../safe-input.directive';
 
                   @for (friend of friendService.acceptedFriends(); track friend.id) {
                     <label
-                      class="flex items-center gap-3 p-3 bg-white border-2 border-gray-200 cursor-pointer hover:border-[#1a2e22] transition-colors"
+                      class="flex items-center gap-3 p-3 bg-splits-surface cursor-pointer hover:bg-splits-light transition-colors"
                     >
                       <input
                         type="checkbox"
                         (change)="toggleParticipant(friend.profile.id)"
                         [checked]="isParticipant(friend.profile.id)"
-                        class="w-5 h-5 accent-[#1a2e22] border-2 border-gray-300 rounded-none focus:ring-0"
+                        class="w-5 h-5 text-splits-primary border-0 bg-white rounded-none focus:ring-splits-primary focus:ring-2"
                       />
-                      <span class="font-bold text-sm text-gray-900 truncate">{{ friend.profile.name.split(' ')[0] }}</span>
+                      <span class="font-bold text-sm text-splits-dark truncate">{{ friend.profile.name.split(' ')[0] }}</span>
                     </label>
                   }
                 </div>
@@ -284,11 +284,11 @@ import { SafeInputDirective } from '../safe-input.directive';
                     <button
                       type="button"
                       (click)="setStrategy('EQUAL')"
-                      class="flex-1 font-medium rounded-none transition-all duration-200 flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] border-2 border-gray-200"
+                      class="flex-1 font-medium rounded-none transition-all duration-200 flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px]"
                       [ngClass]="
                         splitStrategy() === 'EQUAL'
-                          ? 'bg-[#1a2e22] border-[#1a2e22] text-white'
-                          : 'bg-white text-gray-900 hover:border-gray-300'
+                          ? 'bg-splits-primary text-white'
+                          : 'bg-splits-surface text-splits-dark hover:bg-splits-light'
                       "
                     >
                       Equally
@@ -296,11 +296,11 @@ import { SafeInputDirective } from '../safe-input.directive';
                     <button
                       type="button"
                       (click)="setStrategy('CUSTOM')"
-                      class="flex-1 font-medium rounded-none transition-all duration-200 flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] border-2 border-gray-200"
+                      class="flex-1 font-medium rounded-none transition-all duration-200 flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px]"
                       [ngClass]="
                         splitStrategy() === 'CUSTOM'
-                          ? 'bg-[#1a2e22] border-[#1a2e22] text-white'
-                          : 'bg-white text-gray-900 hover:border-gray-300'
+                          ? 'bg-splits-primary text-white'
+                          : 'bg-splits-surface text-splits-dark hover:bg-splits-light'
                       "
                     >
                       Custom
@@ -309,14 +309,14 @@ import { SafeInputDirective } from '../safe-input.directive';
                 </div>
               }
               @if (selectedParticipants().length > 0) {
-                <div class="flex flex-col gap-2 bg-gray-50 p-4 border-2 border-gray-200">
+                <div class="flex flex-col gap-2 bg-splits-surface p-4">
                   @for (p of selectedParticipants(); track p) {
                     <div class="flex justify-between items-center gap-2">
-                      <span class="font-bold text-sm text-gray-900 truncate max-w-[45%]">{{
+                      <span class="font-bold text-sm text-splits-dark truncate max-w-[45%]">{{
                         getFriendName(p)
                       }}</span>
                       @if (splitStrategy() === 'EQUAL') {
-                        <span class="font-extrabold text-sm text-gray-900"
+                        <span class="font-extrabold text-sm text-splits-dark"
                           >₹{{ getEqualAmount() | number: '1.0-2' }}</span
                         >
                       }
@@ -335,7 +335,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                             [formControl]="getCustomControl(p)"
                             placeholder="0"
                             (keydown)="preventE($event)"
-                            class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-splits-primary hover:border-gray-300 block p-2 outline-none transition-all placeholder-gray-300 pl-7 text-right"
+                            class="w-full bg-white text-splits-dark text-sm rounded-none focus:ring-2 focus:ring-splits-primary border-0 block p-2 outline-none transition-all placeholder-splits-dark/50 pl-7 text-right"
                           />
                         </div>
                       }
@@ -346,13 +346,13 @@ import { SafeInputDirective } from '../safe-input.directive';
                       class="flex justify-between items-center mt-3 pt-3 border-t-2 border-gray-200"
                     >
                       <span
-                        class="text-[10px] font-semibold text-gray-500 tracking-widest uppercase"
+                        class="text-[10px] font-semibold text-splits-dark/60 tracking-widest uppercase"
                         >My Share</span
                       >
                       <span
                         class="font-extrabold text-sm"
                         [class.text-red-600]="getLeftToAssign() < 0"
-                        [class.text-gray-900]="getLeftToAssign() >= 0"
+                        [class.text-splits-dark]="getLeftToAssign() >= 0"
                         >₹{{ getLeftToAssign() | number: '1.0-2' }}</span
                       >
                     </div>
@@ -363,7 +363,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                 <button
                   type="button"
                   (click)="close()"
-                  class="flex-1 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-white border-2 border-gray-200 text-gray-900 hover:border-gray-300 text-center"
+                  class="flex-1 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-splits-surface text-splits-dark hover:bg-splits-light text-center"
                 >
                   Cancel
                 </button>
@@ -408,7 +408,7 @@ import { SafeInputDirective } from '../safe-input.directive';
               <button
                 type="button"
                 (click)="close()"
-                class="mt-4 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-6 py-2 text-sm min-h-[44px] bg-[#1a2e22] hover:bg-[#2f4d3b] text-white"
+                class="mt-4 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-6 py-2 text-sm min-h-[44px] bg-splits-primary hover:bg-splits-dark text-white"
               >
                 Okay
               </button>

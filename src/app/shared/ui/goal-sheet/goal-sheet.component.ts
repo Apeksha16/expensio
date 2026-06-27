@@ -103,7 +103,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
                 type="text"
                 formControlName="name"
                 placeholder="e.g. New Bike, Vacation"
-                class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-goals-primary hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans"
+                class="w-full bg-goals-surface text-goals-dark text-sm rounded-none focus:ring-2 focus:ring-goals-primary focus:outline-none block p-2.5 transition-all placeholder-goals-dark/50 min-h-[44px] touch-manipulation font-sans"
               />
             </div>
             
@@ -124,7 +124,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
                     formControlName="total_amount"
                     placeholder="0"
                     (keydown)="preventE($event)"
-                    class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-goals-primary hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans pl-8"
+                    class="w-full bg-goals-surface text-goals-dark text-sm rounded-none focus:ring-2 focus:ring-goals-primary focus:outline-none block p-2.5 transition-all placeholder-goals-dark/50 min-h-[44px] touch-manipulation font-sans pl-8"
                   />
                 </div>
               </div>
@@ -145,7 +145,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
                     formControlName="saved_amount"
                     placeholder="0"
                     (keydown)="preventE($event)"
-                    class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-goals-primary hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans pl-8"
+                    class="w-full bg-goals-surface text-goals-dark text-sm rounded-none focus:ring-2 focus:ring-goals-primary focus:outline-none block p-2.5 transition-all placeholder-goals-dark/50 min-h-[44px] touch-manipulation font-sans pl-8"
                   />
                 </div>
               </div>
@@ -159,7 +159,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
                 <button
                   type="button"
                   (click)="isDatePickerOpen = true"
-                  class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-goals-primary hover:border-gray-300 block p-2.5 outline-none transition-all min-h-[44px] touch-manipulation font-sans flex justify-between items-center text-left"
+                  class="w-full bg-goals-surface text-goals-dark text-sm rounded-none focus:ring-2 focus:ring-goals-primary focus:outline-none block p-2.5 transition-all min-h-[44px] touch-manipulation font-sans flex justify-between items-center text-left"
                 >
                   <span>{{ goalForm.get('target_date')?.value | date: 'MMM d, y' }}</span>
                   <svg class="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -175,7 +175,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
                 <button
                   type="button"
                   (click)="isDayPickerOpen = true"
-                  class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none hover:border-gray-300 flex justify-between items-center p-2.5 outline-none transition-all min-h-[44px] font-sans"
+                  class="w-full bg-goals-surface text-goals-dark text-sm rounded-none focus:ring-2 focus:ring-goals-primary flex justify-between items-center p-2.5 outline-none transition-all min-h-[44px] font-sans"
                 >
                   <span>{{ goalForm.get('installment_date')?.value || 1 }}</span>
                   <svg class="fill-current h-4 w-4 text-gray-700" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
@@ -187,12 +187,12 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
               <label class="text-[11px] font-semibold text-goals-dark tracking-widest uppercase"
                 >Frequency</label
               >
-              <div class="flex bg-gray-100 p-1">
+              <div class="flex bg-goals-surface p-1">
                 <button
                   type="button"
                   (click)="goalForm.patchValue({ frequency: 'monthly' })"
                   class="flex-1 py-2 text-[11px] font-bold uppercase tracking-widest transition-colors duration-200"
-                  [ngClass]="goalForm.get('frequency')?.value === 'monthly' ? 'bg-black shadow-sm text-white' : 'text-gray-500 hover:bg-gray-200'"
+                  [ngClass]="goalForm.get('frequency')?.value === 'monthly' ? 'bg-goals-primary shadow-sm text-white' : 'text-goals-dark/60 hover:bg-goals-light hover:text-goals-dark'"
                 >
                   Monthly
                 </button>
@@ -200,7 +200,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
                   type="button"
                   (click)="goalForm.patchValue({ frequency: 'alternate' })"
                   class="flex-1 py-2 text-[11px] font-bold uppercase tracking-widest transition-colors duration-200"
-                  [ngClass]="goalForm.get('frequency')?.value === 'alternate' ? 'bg-black shadow-sm text-white' : 'text-gray-500 hover:bg-gray-200'"
+                  [ngClass]="goalForm.get('frequency')?.value === 'alternate' ? 'bg-goals-primary shadow-sm text-white' : 'text-goals-dark/60 hover:bg-goals-light hover:text-goals-dark'"
                 >
                   Alternate
                 </button>
@@ -208,7 +208,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
                   type="button"
                   (click)="goalForm.patchValue({ frequency: 'quarterly' })"
                   class="flex-1 py-2 text-[11px] font-bold uppercase tracking-widest transition-colors duration-200"
-                  [ngClass]="goalForm.get('frequency')?.value === 'quarterly' ? 'bg-black shadow-sm text-white' : 'text-gray-500 hover:bg-gray-200'"
+                  [ngClass]="goalForm.get('frequency')?.value === 'quarterly' ? 'bg-goals-primary shadow-sm text-white' : 'text-goals-dark/60 hover:bg-goals-light hover:text-goals-dark'"
                 >
                   Quarterly
                 </button>
@@ -217,12 +217,12 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
 
 
             <!-- Calculated Preview -->
-            <div class="bg-gray-50 border-2 border-gray-200 p-4 flex justify-between items-center mt-2 gap-4">
+            <div class="bg-goals-surface p-4 flex justify-between items-center mt-2 gap-4">
                <div class="flex-1 min-w-0">
                  <p class="text-[11px] font-semibold text-goals-dark tracking-widest uppercase truncate">Calculated Installment</p>
-                 <p class="text-[10px] text-gray-400 leading-tight mt-0.5 pr-2">Based on remaining amount & time</p>
+                 <p class="text-[10px] text-goals-dark/60 leading-tight mt-0.5 pr-2">Based on remaining amount & time</p>
                </div>
-               <div class="text-lg font-extrabold text-[#1a2e22] whitespace-nowrap shrink-0">
+               <div class="text-lg font-extrabold text-goals-dark whitespace-nowrap shrink-0">
                  ₹{{ previewInstallment | number:'1.0-0' }}
                </div>
             </div>
@@ -231,7 +231,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
               <button
                 type="button"
                 (click)="close()"
-                class="flex-1 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-white border-2 border-gray-200 text-gray-900 hover:border-gray-300 text-center"
+                class="flex-1 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-goals-surface text-goals-dark hover:bg-goals-light text-center"
               >
                 Cancel
               </button>

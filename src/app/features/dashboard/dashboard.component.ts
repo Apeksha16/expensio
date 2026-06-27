@@ -60,7 +60,7 @@ import { KeyboardService } from '../../core/services/keyboard.service';
           <div class="h-6 bg-gray-200 w-48 animate-pulse mb-1"></div>
           <div class="flex gap-4 overflow-x-hidden pb-1 pt-1 px-1">
             @for (i of [1, 2]; track i) {
-              <div class="shrink-0 w-[240px] rounded-none border-2 border-gray-200 p-3 flex items-center gap-3 animate-pulse bg-white">
+              <div class="shrink-0 w-[240px] rounded-none bg-gray-100 p-3 flex items-center gap-3 animate-pulse">
                 <div class="bg-gray-200 w-10 h-10 shrink-0 rounded-none"></div>
                 <div class="flex flex-col flex-1 gap-2">
                   <div class="flex justify-between items-center w-full">
@@ -85,14 +85,14 @@ import { KeyboardService } from '../../core/services/keyboard.service';
         <!-- Split Summary Shimmer -->
         <div class="flex flex-col gap-3">
           <div class="h-6 bg-gray-200 w-36 animate-pulse mb-1"></div>
-          <div class="bg-white border-2 border-gray-300 p-5 flex flex-col gap-6 rounded-none h-[250px] animate-pulse"></div>
+          <div class="bg-gray-100 p-5 flex flex-col gap-6 rounded-none h-[250px] animate-pulse"></div>
         </div>
         <!-- Recent Transactions Shimmer -->
         <div class="flex flex-col gap-3">
           <div class="h-6 bg-gray-200 w-40 animate-pulse"></div>
           <div class="flex flex-col gap-2">
             @for (i of [1, 2, 3]; track i) {
-              <div class="bg-white border-2 border-gray-300 rounded-none h-[68px] animate-pulse"></div>
+              <div class="bg-gray-100 rounded-none h-[68px] animate-pulse"></div>
             }
           </div>
         </div>
@@ -141,7 +141,7 @@ import { KeyboardService } from '../../core/services/keyboard.service';
         <!-- Upcoming Payments (Horizontal Ticket Style) -->
         <div class="flex flex-col gap-3">
           <div class="flex justify-between items-end mb-1">
-            <h3 class="text-lg font-bold">Upcoming Payments</h3>
+            <h3 class="text-lg font-bold text-gray-900">Upcoming Payments</h3>
           </div>
           
           @if (combinedUpcomingPayments().length > 0) {
@@ -149,16 +149,16 @@ import { KeyboardService } from '../../core/services/keyboard.service';
             <div class="flex gap-4 overflow-x-auto pb-1 pt-1 px-1 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
               
               @for (payment of combinedUpcomingPayments(); track payment.id; let i = $index) {
-                <div class="snap-start shrink-0 w-[240px] rounded-none border-2 border-black p-3 flex items-center gap-3 transition-transform active:scale-95 cursor-pointer"
+                <div class="snap-start shrink-0 w-[240px] rounded-none border-l-4 p-3 flex items-center gap-3 transition-transform active:scale-95 cursor-pointer"
                      [ngClass]="getCardColor(i, payment.type)"
                      (click)="payUpcoming(payment)">
                   
                   <!-- Icon -->
-                  <div class="border-2 border-black bg-white flex items-center justify-center w-10 h-10 shrink-0">
+                  <div class="bg-white flex items-center justify-center w-10 h-10 shrink-0 text-current">
                     @if (payment.type === 'sub') {
-                      <svg class="w-5 h-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="square" stroke-linejoin="miter" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                     } @else {
-                      <svg class="w-5 h-5 text-black" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
                         <path [attr.d]="getGoalIconPath(payment.original.icon)"></path>
                       </svg>
                     }
@@ -167,10 +167,10 @@ import { KeyboardService } from '../../core/services/keyboard.service';
                   <!-- Details -->
                   <div class="flex flex-col flex-1 min-w-0">
                     <div class="flex justify-between items-start gap-2">
-                      <span class="font-extrabold text-sm text-black truncate">{{ payment.title }}</span>
-                      <span class="font-black text-sm text-black shrink-0">₹{{ payment.amount | number: '1.0-0' }}</span>
+                      <span class="font-extrabold text-sm truncate">{{ payment.title }}</span>
+                      <span class="font-black text-sm shrink-0">₹{{ payment.amount | number: '1.0-0' }}</span>
                     </div>
-                    <span class="text-[9px] font-bold text-black/60 uppercase tracking-widest mt-0.5">
+                    <span class="text-[9px] font-bold opacity-60 uppercase tracking-widest mt-0.5">
                       {{ payment.type === 'sub' ? 'Sub' : 'Goal' }} • Due {{ payment.dueDay }}{{ getOrdinalSuffix(payment.dueDay) }}
                     </span>
                   </div>
@@ -186,60 +186,29 @@ import { KeyboardService } from '../../core/services/keyboard.service';
           }
         </div>
 
-        <!-- Quick Actions -->
-        <div class="flex flex-col gap-3">
-          <div class="flex justify-between items-end mb-1">
-            <h3 class="text-lg font-bold">Quick Actions</h3>
-          </div>
-          <div class="grid grid-cols-4 gap-3 mb-2">
-            <!-- Add Expense -->
-            <button (click)="keyboardService.openKeyboardSync(); expenseService.openBottomSheet()" class="flex flex-col items-center justify-center gap-2 bg-expense-surface border-l-4 border-expense-primary py-3 rounded-none cursor-pointer hover:bg-expense-light transition-colors text-expense-dark">
-              <svg class="w-6 h-6 text-expense-dark" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
-              <span class="text-[9px] font-extrabold uppercase tracking-widest text-center">Add<br>Expense</span>
-            </button>
-
-            <!-- Add Budget -->
-            <button (click)="keyboardService.openKeyboardSync(); budgetService.openBottomSheet()" class="flex flex-col items-center justify-center gap-2 bg-budget-surface border-l-4 border-budget-primary py-3 rounded-none cursor-pointer hover:bg-budget-light transition-colors text-budget-dark">
-              <svg class="w-6 h-6 text-budget-dark" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
-              <span class="text-[9px] font-extrabold uppercase tracking-widest text-center">Add<br>Budget</span>
-            </button>
-
-            <!-- Add Goal -->
-            <button (click)="keyboardService.openKeyboardSync(); goalService.openBottomSheet()" class="flex flex-col items-center justify-center gap-2 bg-goals-surface border-l-4 border-goals-primary py-3 rounded-none cursor-pointer hover:bg-goals-light transition-colors text-goals-dark">
-              <svg class="w-6 h-6 text-goals-dark" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-              <span class="text-[9px] font-extrabold uppercase tracking-widest text-center">Add<br>Goal</span>
-            </button>
-
-            <!-- Split Expense -->
-            <button (click)="keyboardService.openKeyboardSync(); splitService.activeTab.set('expenses'); splitService.openAddSplitSheet()" class="flex flex-col items-center justify-center gap-2 bg-splits-surface border-l-4 border-splits-primary py-3 rounded-none cursor-pointer hover:bg-splits-light transition-colors text-splits-dark">
-              <svg class="w-6 h-6 text-splits-dark" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
-              <span class="text-[9px] font-extrabold uppercase tracking-widest text-center">Split<br>Expense</span>
-            </button>
-          </div>
-        </div>
 
         <!-- Split Summary -->
         <div class="flex flex-col gap-3">
           <div class="flex justify-between items-end mb-1">
-            <h3 class="text-lg font-bold">Split Summary</h3>
+            <h3 class="text-lg font-bold text-gray-900">Split Summary</h3>
           </div>
 
-          <div class="bg-splits-surface border-2 border-splits-dark p-5 flex flex-col gap-6">
+          <div class="bg-splits-surface p-5 flex flex-col gap-6">
 
           <!-- Totals Header -->
           <div class="flex">
             <div class="flex-1 flex flex-col items-start">
-              <span class="text-[10px] font-bold text-black uppercase tracking-widest">You are owed</span>
+              <span class="text-[10px] font-bold text-splits-dark uppercase tracking-widest">You are owed</span>
               <span class="text-2xl font-black text-green-600 my-1">{{ totalOwedToYou() | currency: 'INR' : 'symbol' : '1.0-0' }}</span>
-              <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">from {{ friendsWhoOweYou().length }} people</span>
+              <span class="text-[10px] font-bold text-splits-dark/60 uppercase tracking-widest">from {{ friendsWhoOweYou().length }} people</span>
             </div>
             
             <div class="w-0.5 bg-gray-200 mx-4"></div>
             
             <div class="flex-1 flex flex-col items-end">
-              <span class="text-[10px] font-bold text-black uppercase tracking-widest">You owe</span>
+              <span class="text-[10px] font-bold text-splits-dark uppercase tracking-widest">You owe</span>
               <span class="text-2xl font-black text-red-600 my-1">{{ totalYouOwe() | currency: 'INR' : 'symbol' : '1.0-0' }}</span>
-              <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">to {{ friendsYouOwe().length }} people</span>
+              <span class="text-[10px] font-bold text-splits-dark/60 uppercase tracking-widest">to {{ friendsYouOwe().length }} people</span>
             </div>
           </div>
 
@@ -253,8 +222,8 @@ import { KeyboardService } from '../../core/services/keyboard.service';
                    <div class="w-8 h-8 rounded-full border-2 border-black bg-gray-200 flex items-center justify-center overflow-hidden">
                      <img [src]="getAvatarUrl(fb.friend.profile.avatarId)" class="w-full h-full object-cover">
                    </div>
-                   <span class="font-extrabold text-sm text-black truncate">{{ fb.friend.profile.name }}</span>
-                   <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{{ fb.balance > 0 ? 'owes you' : 'you owe' }}</span>
+                   <span class="font-extrabold text-sm text-splits-dark truncate">{{ fb.friend.profile.name }}</span>
+                   <span class="text-[10px] font-bold text-splits-dark/60 uppercase tracking-widest">{{ fb.balance > 0 ? 'owes you' : 'you owe' }}</span>
                    <span class="font-black text-sm text-right min-w-[50px]" [ngClass]="fb.balance > 0 ? 'text-green-600' : 'text-red-600'">
                      ₹{{ fb.absBalance | number: '1.0-0' }}
                    </span>
@@ -269,7 +238,7 @@ import { KeyboardService } from '../../core/services/keyboard.service';
         <!-- Recent Transactions -->
         <div class="flex flex-col gap-3">
           <div class="flex justify-between items-end mb-1">
-            <h3 class="text-lg font-bold">Recent Transactions</h3>
+            <h3 class="text-lg font-bold text-gray-900">Recent Transactions</h3>
           </div>
           <div class="flex flex-col gap-2">
             @for (expense of recentExpenses(); track expense.id) {
@@ -279,8 +248,8 @@ import { KeyboardService } from '../../core/services/keyboard.service';
                 [ngClass]="getCategoryColor(expense.category)"
               >
                 <div class="flex flex-col gap-0.5 flex-1 min-w-0 pr-4">
-                  <span class="font-extrabold text-lg text-black truncate">{{ expense.title }}</span>
-                  <div class="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-widest min-w-0">
+                  <span class="font-extrabold text-lg truncate">{{ expense.title }}</span>
+                  <div class="flex items-center gap-2 text-xs font-bold opacity-60 uppercase tracking-widest min-w-0">
                     <span class="truncate">{{ expense.category }}</span>
                     <span class="flex-shrink-0">•</span>
                     <span class="whitespace-nowrap flex-shrink-0">{{ expense.date | date: 'MMM d, h:mm a' }}</span>
@@ -450,17 +419,9 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getCardColor(index: number, type: 'sub' | 'goal'): string {
-    const colors = [
-      'bg-[#B2F5EA]', // Teal-100/Cyan-100ish
-      'bg-[#FEEBC8]', // Orange-100ish
-      'bg-[#FED7E2]', // Pink-100ish
-      'bg-[#E9D8FD]', // Purple-100ish
-      'bg-[#FEFCBF]', // Yellow-100ish
-      'bg-[#C6F6D5]'  // Green-100ish
-    ];
-    // Use an offset so goals and subs have varied colors
-    const offset = type === 'goal' ? 3 : 0;
-    return colors[(index + offset) % colors.length];
+    if (type === 'sub') return 'border-subscriptions-primary bg-subscriptions-surface text-subscriptions-dark';
+    if (type === 'goal') return 'border-goals-primary bg-goals-surface text-goals-dark';
+    return 'border-gray-400 bg-gray-100 text-gray-800';
   }
 
   getGoalIconPath(iconPath: string): string {

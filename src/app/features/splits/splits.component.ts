@@ -52,34 +52,30 @@ import { ToastService } from '../../core/services/toast.service';
         <div
           class="shrink-0 bg-splits-primary text-white p-5 rounded-none flex flex-col gap-4 relative overflow-hidden"
         >
-          <div
-            class="absolute -right-10 -top-10 w-32 h-32 bg-splits-dark rounded-full opacity-50 blur-2xl pointer-events-none"
-          ></div>
           <div class="flex justify-between relative z-10 gap-4">
             <div class="flex flex-col flex-1 min-w-0">
-              <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1"
+              <span class="text-[10px] font-bold text-splits-surface uppercase tracking-widest mb-1 opacity-80"
                 >You Are Owed</span
               >
-              <span class="text-3xl font-extrabold tracking-tight text-green-400">
+              <span class="text-3xl font-extrabold tracking-tight text-white">
                 ₹{{ splitService.totalOwedToYou() | number: '1.0-0' }}
               </span>
             </div>
             <div class="flex flex-col flex-1 min-w-0 text-right">
-              <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1"
+              <span class="text-[10px] font-bold text-splits-surface uppercase tracking-widest mb-1 opacity-80"
                 >You Owe</span
               >
-              <span class="text-3xl font-extrabold tracking-tight text-red-400">
+              <span class="text-3xl font-extrabold tracking-tight text-white">
                 ₹{{ splitService.totalYouOwe() | number: '1.0-0' }}
               </span>
             </div>
           </div>
         </div>
         <!-- Tabs -->
-        <div class="shrink-0 flex border-b-2 mt-2" 
-             [ngClass]="splitService.activeTab() === 'expenses' ? 'border-expense-primary' : 'border-friends-primary'">
+        <div class="shrink-0 flex border-b-2 mt-2 border-splits-primary">
           <button
             (click)="splitService.activeTab.set('expenses')"
-            [class.bg-expense-primary]="splitService.activeTab() === 'expenses'"
+            [class.bg-splits-primary]="splitService.activeTab() === 'expenses'"
             [class.text-white]="splitService.activeTab() === 'expenses'"
             class="flex-1 py-3 font-extrabold tracking-widest uppercase transition-colors"
           >
@@ -87,7 +83,7 @@ import { ToastService } from '../../core/services/toast.service';
           </button>
           <button
             (click)="splitService.activeTab.set('groups')"
-            [class.bg-friends-primary]="splitService.activeTab() === 'groups'"
+            [class.bg-splits-primary]="splitService.activeTab() === 'groups'"
             [class.text-white]="splitService.activeTab() === 'groups'"
             class="flex-1 py-3 font-extrabold tracking-widest uppercase transition-colors"
           >

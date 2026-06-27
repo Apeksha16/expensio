@@ -40,15 +40,11 @@ import { LedgerService, LedgerEntry, LedgerSubTransaction } from '../../../core/
             <!-- Summary Card -->
             <div class="mb-5 bg-ledger-primary p-4 rounded-none relative overflow-hidden text-white">
               <div class="relative z-10 flex flex-col items-center text-center">
-                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Remaining Balance</span>
+                <span class="text-[10px] font-bold text-ledger-surface opacity-80 uppercase tracking-widest">Remaining Balance</span>
                 <span class="text-3xl font-extrabold tracking-tight mt-1">
                   {{ ledgerBalance() >= 0 ? '+' : '' }}₹{{ ledgerBalance() | number:'1.2-2' }}
                 </span>
-                <span class="text-[10px] font-bold mt-1 uppercase tracking-widest"
-                  [class.text-green-500]="ledgerBalance() > 0"
-                  [class.text-red-500]="ledgerBalance() < 0"
-                  [class.text-gray-400]="ledgerBalance() === 0"
-                >
+                <span class="text-[10px] font-bold mt-1 uppercase tracking-widest text-ledger-surface opacity-90">
                   @if (ledgerBalance() > 0) {
                     They still owe you
                   } @else if (ledgerBalance() < 0) {
@@ -58,14 +54,14 @@ import { LedgerService, LedgerEntry, LedgerSubTransaction } from '../../../core/
                   }
                 </span>
                 
-                <div class="w-full h-px bg-gray-800 my-3"></div>
+                <div class="w-full h-px bg-ledger-dark/30 my-3"></div>
                 
-                <div class="flex flex-col gap-0.5 w-full text-left bg-gray-900 p-3 border border-gray-700 rounded-none">
-                  <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                <div class="flex flex-col gap-0.5 w-full text-left bg-ledger-dark p-3 border border-ledger-dark/50 rounded-none">
+                  <span class="text-[10px] font-bold text-ledger-surface opacity-80 uppercase tracking-widest">
                     Started as <span class="font-extrabold text-white">₹{{ ledger()?.amount | number:'1.0-0' }}</span> {{ ledger()?.type === 'in' ? 'Received' : 'Given' }}
                   </span>
                   @if (ledger()?.purpose) {
-                    <span class="text-[10px] font-medium text-gray-500 uppercase tracking-wider">
+                    <span class="text-[10px] font-medium text-ledger-surface opacity-60 uppercase tracking-wider">
                       {{ ledger()?.purpose }}
                     </span>
                   }

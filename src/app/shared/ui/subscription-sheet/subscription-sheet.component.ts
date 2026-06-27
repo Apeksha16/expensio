@@ -103,7 +103,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
                 type="text"
                 formControlName="title"
                 placeholder="e.g. Netflix, Gym"
-                class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-subscriptions-primary hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans"
+                class="w-full bg-subscriptions-surface text-subscriptions-dark text-sm rounded-none focus:ring-2 focus:ring-subscriptions-primary focus:outline-none block p-2.5 transition-all placeholder-subscriptions-dark/50 min-h-[44px] touch-manipulation font-sans"
               />
             </div>
             
@@ -124,7 +124,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
                     formControlName="amount"
                     placeholder="0"
                     (keydown)="preventE($event)"
-                    class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-subscriptions-primary hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans pl-8"
+                    class="w-full bg-subscriptions-surface text-subscriptions-dark text-sm rounded-none focus:ring-2 focus:ring-subscriptions-primary focus:outline-none block p-2.5 transition-all placeholder-subscriptions-dark/50 min-h-[44px] touch-manipulation font-sans pl-8"
                   />
                 </div>
               </div>
@@ -136,7 +136,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
                 <button
                   type="button"
                   (click)="isDayPickerOpen = true"
-                  class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none hover:border-gray-300 flex justify-between items-center p-2.5 outline-none transition-all min-h-[44px] font-sans"
+                  class="w-full bg-subscriptions-surface text-subscriptions-dark text-sm rounded-none focus:ring-2 focus:ring-subscriptions-primary flex justify-between items-center p-2.5 outline-none transition-all min-h-[44px] font-sans"
                 >
                   <span>{{ subForm.get('billing_day')?.value || 1 }}</span>
                   <svg class="fill-current h-4 w-4 text-gray-700" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
@@ -153,11 +153,11 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
                   <button
                     type="button"
                     (click)="selectCategory(cat.name)"
-                    class="flex flex-col items-center justify-center gap-1 p-2 border-2 rounded-none transition-all min-h-[60px]"
+                    class="flex flex-col items-center justify-center gap-1 p-2 rounded-none transition-all min-h-[60px]"
                     [ngClass]="
                       subForm.get('category')?.value === cat.name
-                        ? 'border-[#1a2e22] bg-[#1a2e22] text-white'
-                        : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
+                        ? 'bg-subscriptions-primary text-white'
+                        : 'bg-subscriptions-surface text-subscriptions-dark hover:bg-subscriptions-light'
                     "
                   >
                     <svg
@@ -187,7 +187,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
               <button
                 type="button"
                 (click)="isDatePickerOpen = true"
-                class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-subscriptions-primary hover:border-gray-300 block p-2.5 outline-none transition-all min-h-[44px] touch-manipulation font-sans flex justify-between items-center text-left"
+                class="w-full bg-subscriptions-surface text-subscriptions-dark text-sm rounded-none focus:ring-2 focus:ring-subscriptions-primary p-2.5 outline-none transition-all min-h-[44px] touch-manipulation font-sans flex justify-between items-center text-left"
               >
                 <span>{{ subForm.get('created_at')?.value | date: 'MMM d, y, h:mm a' }}</span>
                 <svg
@@ -210,7 +210,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
               <button
                 type="button"
                 (click)="close()"
-                class="flex-1 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-white border-2 border-gray-200 text-gray-900 hover:border-gray-300 text-center"
+                class="flex-1 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-subscriptions-surface text-subscriptions-dark hover:bg-subscriptions-light text-center"
               >
                 Cancel
               </button>

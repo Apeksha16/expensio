@@ -151,12 +151,17 @@ import { SafeInputDirective } from '../safe-input.directive';
                     class="flex items-center gap-4 p-3 border-2 transition-colors rounded-none text-left shrink-0"
                     [ngClass]="
                       selectedUser?.username === user.username
-                        ? 'border-black bg-gray-50'
-                        : 'border-gray-200 bg-white hover:border-black'
+                        ? 'border-friends-primary bg-friends-surface'
+                        : 'border-gray-200 bg-white hover:border-friends-primary'
                     "
                   >
                     <div
-                      class="w-10 h-10 rounded-full border-2 border-black bg-gray-200 flex items-center justify-center font-extrabold text-lg text-black shrink-0"
+                      class="w-10 h-10 rounded-full border-2 transition-colors flex items-center justify-center font-extrabold text-lg shrink-0"
+                      [ngClass]="
+                        selectedUser?.username === user.username
+                          ? 'border-friends-primary bg-friends-primary text-white'
+                          : 'border-black bg-gray-200 text-black'
+                      "
                     >
                       {{ user.name.charAt(0) }}
                     </div>

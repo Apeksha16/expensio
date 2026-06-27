@@ -49,9 +49,6 @@ import { UserProfile } from '../../core/services/auth.service';
             class="bg-friends-primary text-white p-5 rounded-none flex flex-col gap-4 relative overflow-hidden"
           >
             <!-- Abstract Decoration -->
-            <div
-              class="absolute -right-10 -top-10 w-32 h-32 bg-friends-dark rounded-full opacity-50 blur-2xl pointer-events-none"
-            ></div>
             <div class="flex flex-col relative z-10">
               <span class="text-xs font-bold text-friends-surface uppercase tracking-widest mb-1 opacity-80"
                 >Total Friends</span

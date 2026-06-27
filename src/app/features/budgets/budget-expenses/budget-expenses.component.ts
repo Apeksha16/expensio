@@ -21,28 +21,26 @@ import { SubscriptionService } from '../../../core/services/subscription.service
     <div class="h-full bg-gray-50 flex flex-col relative w-full overflow-hidden">
       <!-- Content Area -->
       <main class="flex-1 overflow-y-auto bg-gray-50 relative pb-20 p-4 flex flex-col gap-1.5">
-        <div class="bg-budget-primary text-white p-5 rounded-none flex flex-col gap-4 relative overflow-hidden shrink-0 mb-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]">
+        <div class="bg-budget-primary text-white p-5 rounded-none flex flex-col gap-4 relative overflow-hidden shrink-0 mb-2">
           <!-- Abstract Decoration -->
-          <div class="absolute -right-10 -top-10 w-32 h-32 bg-gray-800 rounded-full opacity-50 blur-2xl pointer-events-none"></div>
-
           <div class="flex justify-between items-end relative z-10">
             <div class="flex flex-col">
-              <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">{{ budgetName() }}</span>
+              <span class="text-xs font-bold text-budget-surface uppercase tracking-widest mb-1 opacity-80">{{ budgetName() }}</span>
               <span class="text-4xl font-extrabold tracking-tight">₹{{ consumed() | number: '1.0-0' }}</span>
             </div>
             <div class="text-right flex flex-col">
               @if (isVirtualOthers()) {
-                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Unbudgeted</span>
+                <span class="text-[10px] font-bold text-budget-surface uppercase tracking-widest opacity-80">Unbudgeted</span>
               } @else {
-                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Limit</span>
-                <span class="text-sm font-extrabold text-gray-300">₹{{ budgetAmount() | number: '1.0-0' }}</span>
+                <span class="text-[10px] font-bold text-budget-surface uppercase tracking-widest opacity-80">Limit</span>
+                <span class="text-sm font-extrabold text-white">₹{{ budgetAmount() | number: '1.0-0' }}</span>
               }
             </div>
           </div>
 
           <!-- Progress Bar -->
           @if (!isVirtualOthers()) {
-            <div class="h-2 w-full bg-gray-800 rounded-none overflow-hidden flex relative z-10">
+            <div class="h-2 w-full bg-budget-dark rounded-none overflow-hidden flex relative z-10">
               <div
                 class="h-full transition-all duration-1000 ease-out"
                 [style.width.%]="!budgetService.isLoading() && animateBars() ? getPercent() : 0"
@@ -67,12 +65,12 @@ import { SubscriptionService } from '../../../core/services/subscription.service
             @for (expense of budgetExpenses(); track expense.id) {
               <button
                 (click)="editExpense(expense)"
-                class="w-full bg-gray-200 rounded-none p-3 flex justify-between items-center text-left hover:bg-gray-300 transition-colors active:bg-gray-400 border-l-4"
+                class="w-full rounded-none p-3 flex justify-between items-center text-left transition-colors border-l-4"
                 [ngClass]="getCategoryColor(expense.category)"
               >
                 <div class="flex flex-col gap-0.5 flex-1 min-w-0 pr-4">
-                  <span class="font-extrabold text-lg text-black truncate">{{ expense.title }}</span>
-                  <div class="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-widest min-w-0">
+                  <span class="font-extrabold text-lg truncate">{{ expense.title }}</span>
+                  <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest min-w-0 opacity-80">
                     <span class="truncate">{{ expense.category }}</span>
                     <span class="flex-shrink-0">•</span>
                     <span class="whitespace-nowrap flex-shrink-0">{{ expense.date | date: 'MMM d, h:mm a' }}</span>
@@ -220,16 +218,16 @@ export class BudgetExpenses implements OnInit {
   }
 
   getCategoryColor(category: string): string {
-    if (!category) return 'border-black';
+    if (!category) return 'border-expense-primary bg-expense-surface hover:bg-expense-light text-expense-dark';
     if (category === 'virtual-invest') {
-      return 'border-amber-500';
+      return 'border-goals-primary bg-goals-surface hover:bg-goals-light text-goals-dark';
     } else if (category.includes('(Group Split)')) {
-      return 'border-teal-500';
+      return 'border-friends-primary bg-friends-surface hover:bg-friends-light text-friends-dark';
     } else if (category.includes('(Split)')) {
-      return 'border-blue-600';
+      return 'border-splits-primary bg-splits-surface hover:bg-splits-light text-splits-dark';
     } else if (category.includes('(Subscription)')) {
-      return 'border-pink-500';
+      return 'border-subscriptions-primary bg-subscriptions-surface hover:bg-subscriptions-light text-subscriptions-dark';
     }
-    return 'border-black';
+    return 'border-expense-primary bg-expense-surface hover:bg-expense-light text-expense-dark';
   }
 }

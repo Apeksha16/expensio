@@ -167,8 +167,7 @@ import { LedgerSubSheetComponent } from '../../shared/ui/ledger-sub-sheet/ledger
               [routerLinkActive]="getActiveClasses(item.id)"
               [routerLinkActiveOptions]="{ exact: false }"
               (click)="toggleSidebar(false)"
-              class="flex items-center gap-3 px-3 py-2.5 rounded-none font-semibold transition-colors
-                    text-gray-600 hover:bg-gray-50 hover:text-black"
+              class="flex items-center gap-3 px-3 py-2.5 rounded-none font-semibold transition-colors border-l-4 border-transparent text-gray-600 hover:bg-gray-100 hover:text-black"
             >
               <span
                 [innerHTML]="item.icon"
@@ -180,34 +179,29 @@ import { LedgerSubSheetComponent } from '../../shared/ui/ledger-sub-sheet/ledger
           }
         </nav>
 
-        <div class="p-4 border-t-2 border-black">
-          <button
-            (click)="checkForUpdate()"
-            class="flex items-center justify-center gap-2 w-full p-3 mb-3 font-extrabold text-black bg-white border-2 border-black hover:bg-black hover:text-white transition-colors rounded-none"
-          >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            CHECK FOR UPDATE
-          </button>
-          <button
-            (click)="logout()"
-            class="flex items-center justify-center gap-2 w-full p-3 font-extrabold text-white bg-red-600 border-2 border-red-600 hover:bg-red-700 hover:border-red-700 transition-colors rounded-none"
-          >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M5.636 5.636a9 9 0 1012.728 0M12 3v9"
-              />
-            </svg>
-            LOGOUT
-          </button>
-          <div class="mt-4 text-center">
-            <span class="text-[10px] font-extrabold tracking-widest text-gray-500 uppercase mt-auto opacity-70"
-              >Version 1.0.23</span
+        <div class="p-4 border-t-2 border-black mt-auto flex items-center justify-between bg-white">
+          <span class="text-[10px] font-extrabold tracking-widest text-gray-400 uppercase">
+            v1.0.23
+          </span>
+          <div class="flex gap-3">
+            <button
+              (click)="checkForUpdate()"
+              title="Check for update"
+              class="p-3 text-gray-600 bg-gray-100 hover:bg-black hover:text-white transition-colors rounded-none"
             >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </button>
+            <button
+              (click)="logout()"
+              title="Logout"
+              class="p-3 text-red-600 bg-red-50 hover:bg-red-600 hover:text-white transition-colors rounded-none"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5.636 5.636a9 9 0 1012.728 0M12 3v9" />
+              </svg>
+            </button>
           </div>
         </div>
       </aside>
@@ -489,18 +483,10 @@ export class Layout implements AfterViewInit {
   }
 
   bottomNavItems = computed(() => {
-    const sequence = this.authService.userProfile().quickActions || ['expenses', 'splits', 'friends', 'budgets'];
-    
-    // Dashboard is always fixed at the first position
-    const dashboard = this.quickActionsService.navItems.find(item => item.id === 'dashboard');
-    
-    // Configurable items (excluding dashboard if it was previously saved by mistake)
-    const rest = sequence
-      .filter(id => id !== 'dashboard')
+    const sequence = ['dashboard', 'expenses', 'budgets', 'friends', 'splits'];
+    return sequence
       .map(id => this.quickActionsService.navItems.find(item => item.id === id))
       .filter((item): item is NonNullable<typeof item> => item !== undefined);
-
-    return dashboard ? [dashboard, ...rest] : rest;
   });
 
   get navItems() {
@@ -509,17 +495,17 @@ export class Layout implements AfterViewInit {
 
   getActiveClasses(id: string): string {
     switch (id) {
-      case 'dashboard': return 'bg-black text-white';
-      case 'expenses': return 'bg-expense-primary text-white';
-      case 'budgets': return 'bg-budget-primary text-white';
-      case 'friends': return 'bg-friends-primary text-white';
-      case 'splits': return 'bg-splits-primary text-white';
-      case 'subscriptions': return 'bg-subscriptions-primary text-white';
-      case 'goals': return 'bg-goals-primary text-white';
-      case 'ledger': return 'bg-ledger-primary text-white';
-      case 'reports': return 'bg-reports-primary text-white';
-      case 'profile': return 'bg-profile-primary text-white';
-      default: return 'bg-black text-white';
+      case 'dashboard': return 'bg-black text-white border-black';
+      case 'expenses': return 'bg-expense-primary text-white border-expense-primary';
+      case 'budgets': return 'bg-budget-primary text-white border-budget-primary';
+      case 'friends': return 'bg-friends-primary text-white border-friends-primary';
+      case 'splits': return 'bg-splits-primary text-white border-splits-primary';
+      case 'subscriptions': return 'bg-subscriptions-primary text-white border-subscriptions-primary';
+      case 'goals': return 'bg-goals-primary text-white border-goals-primary';
+      case 'ledger': return 'bg-ledger-primary text-white border-ledger-primary';
+      case 'reports': return 'bg-reports-primary text-white border-reports-primary';
+      case 'profile': return 'bg-black text-white border-black';
+      default: return 'bg-black text-white border-black';
     }
   }
 
@@ -533,7 +519,7 @@ export class Layout implements AfterViewInit {
       case 'subscriptions': return { bg: 'bg-subscriptions-primary', border: 'border-subscriptions-dark', text: 'text-subscriptions-primary' };
       case 'goals': return { bg: 'bg-goals-primary', border: 'border-goals-dark', text: 'text-goals-primary' };
       case 'ledger': return { bg: 'bg-ledger-primary', border: 'border-ledger-dark', text: 'text-ledger-primary' };
-      case 'reports': return { bg: 'bg-reports-mix', border: 'border-reports-dark', text: 'text-reports-mix' };
+      case 'reports': return { bg: 'bg-reports-primary', border: 'border-reports-dark', text: 'text-reports-primary' };
       case 'profile': return { bg: 'bg-black', border: 'border-black', text: 'text-black' };
       case 'dashboard': return { bg: 'bg-black', border: 'border-black', text: 'text-black' };
       default: return { bg: 'bg-black', border: 'border-black', text: 'text-black' };

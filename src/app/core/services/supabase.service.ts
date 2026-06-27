@@ -1,6 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { createClient, SupabaseClient, User } from '@supabase/supabase-js';
 import { environment } from '../../../environments/environment';
+import emailjs from '@emailjs/browser';
 
 @Injectable({
   providedIn: 'root'
@@ -137,6 +138,27 @@ export class SupabaseService {
     if (error) throw error;
     // In dev environment, we just log the code for testing.
     console.log('OTP Code generated:', data?.code);
+    
+    // Send email via EmailJS if credentials are provided
+    if (environment.emailjs.serviceId !== 'YOUR_SERVICE_ID') {
+      try {
+        await emailjs.send(
+          environment.emailjs.serviceId, 
+          environment.emailjs.templateId, 
+          {
+            to_email: email,
+            otp_code: data.code,
+          }, 
+          {
+            publicKey: environment.emailjs.publicKey
+          }
+        );
+      } catch (e) {
+        console.error('Failed to send email via EmailJS', e);
+        // We do not throw here to allow development mode to still work using console logs.
+      }
+    }
+    
     return data;
   }
 

@@ -22,18 +22,18 @@ import { ConfirmService } from '../../../core/services/confirm.service';
         <div class="bg-splits-primary text-white p-6 mb-4 flex flex-col gap-4 rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]">
           <div class="flex justify-between items-center w-full">
             <div class="flex flex-col">
-              <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1"
+              <span class="text-[10px] font-bold text-splits-surface uppercase tracking-widest mb-1 opacity-80"
                 >YOU ARE OWED</span
               >
-              <span class="text-3xl font-black tracking-tight text-green-500"
+              <span class="text-3xl font-black tracking-tight text-white"
                 >₹{{ groupBalance().owed | number: '1.0-2' }}</span
               >
             </div>
             <div class="flex flex-col items-end">
-              <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1"
+              <span class="text-[10px] font-bold text-splits-surface uppercase tracking-widest mb-1 opacity-80"
                 >YOU OWE</span
               >
-              <span class="text-2xl font-black tracking-tight text-red-400"
+              <span class="text-2xl font-black tracking-tight text-white"
                 >₹{{ groupBalance().owe | number: '1.0-2' }}</span
               >
             </div>

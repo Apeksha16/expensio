@@ -125,22 +125,26 @@ import { SafeInputDirective } from '../safe-input.directive';
                 <button
                   type="button"
                   (click)="setType('in')"
-                  class="flex-1 font-extrabold tracking-widest uppercase rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-xs min-h-[44px] border-2 border-[#1a2e22]"
-                  [class.bg-[#1a2e22]]="ledgerForm.get('type')?.value === 'in'"
+                  class="flex-1 font-extrabold tracking-widest uppercase rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-xs min-h-[44px]"
+                  [class.bg-green-600]="ledgerForm.get('type')?.value === 'in'"
                   [class.text-white]="ledgerForm.get('type')?.value === 'in'"
-                  [class.bg-white]="ledgerForm.get('type')?.value !== 'in'"
-                  [class.text-[#1a2e22]]="ledgerForm.get('type')?.value !== 'in'"
+                  [class.shadow-sm]="ledgerForm.get('type')?.value === 'in'"
+                  [class.bg-green-50]="ledgerForm.get('type')?.value !== 'in'"
+                  [class.text-green-700]="ledgerForm.get('type')?.value !== 'in'"
+                  [class.hover:bg-green-100]="ledgerForm.get('type')?.value !== 'in'"
                 >
                   I Received Money
                 </button>
                 <button
                   type="button"
                   (click)="setType('out')"
-                  class="flex-1 font-extrabold tracking-widest uppercase rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-xs min-h-[44px] border-2 border-red-600"
+                  class="flex-1 font-extrabold tracking-widest uppercase rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-xs min-h-[44px]"
                   [class.bg-red-600]="ledgerForm.get('type')?.value === 'out'"
                   [class.text-white]="ledgerForm.get('type')?.value === 'out'"
-                  [class.bg-white]="ledgerForm.get('type')?.value !== 'out'"
-                  [class.text-red-600]="ledgerForm.get('type')?.value !== 'out'"
+                  [class.shadow-sm]="ledgerForm.get('type')?.value === 'out'"
+                  [class.bg-red-50]="ledgerForm.get('type')?.value !== 'out'"
+                  [class.text-red-700]="ledgerForm.get('type')?.value !== 'out'"
+                  [class.hover:bg-red-100]="ledgerForm.get('type')?.value !== 'out'"
                 >
                   I Gave Money
                 </button>
@@ -156,7 +160,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                 type="text"
                 formControlName="person_name"
                 placeholder="e.g. Papa, Rahul, Mom"
-                class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-ledger-primary hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans"
+                class="w-full bg-ledger-surface text-ledger-dark text-sm rounded-none focus:ring-2 focus:ring-ledger-primary focus:outline-none block p-2.5 transition-all placeholder-ledger-dark/50 min-h-[44px] touch-manipulation font-sans"
               />
             </div>
             
@@ -175,7 +179,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                   formControlName="amount"
                   placeholder="0"
                   (keydown)="preventE($event)"
-                  class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-ledger-primary hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans pl-8"
+                  class="w-full bg-ledger-surface text-ledger-dark text-sm rounded-none focus:ring-2 focus:ring-ledger-primary focus:outline-none block p-2.5 transition-all placeholder-ledger-dark/50 min-h-[44px] touch-manipulation font-sans pl-8"
                 />
               </div>
             </div>
@@ -188,7 +192,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                 type="text"
                 formControlName="purpose"
                 placeholder="e.g. Loan for car repair, rent money"
-                class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-ledger-primary hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans"
+                class="w-full bg-ledger-surface text-ledger-dark text-sm rounded-none focus:ring-2 focus:ring-ledger-primary focus:outline-none block p-2.5 transition-all placeholder-ledger-dark/50 min-h-[44px] touch-manipulation font-sans"
               />
             </div>
             
@@ -198,7 +202,7 @@ import { SafeInputDirective } from '../safe-input.directive';
               <button
                 type="button"
                 (click)="isDatePickerOpen = true"
-                class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-ledger-primary hover:border-gray-300 block p-2.5 outline-none transition-all min-h-[44px] touch-manipulation font-sans flex justify-between items-center text-left"
+                class="w-full bg-ledger-surface text-ledger-dark text-sm rounded-none focus:ring-2 focus:ring-ledger-primary flex justify-between items-center p-2.5 outline-none transition-all min-h-[44px] font-sans"
               >
                 <span>{{ ledgerForm.get('date')?.value | date: 'MMM d, y, h:mm a' }}</span>
                 <svg class="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -212,7 +216,7 @@ import { SafeInputDirective } from '../safe-input.directive';
               <button
                 type="button"
                 (click)="close()"
-                class="flex-1 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-white border-2 border-gray-200 text-gray-900 hover:border-gray-300 text-center"
+                class="flex-1 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-ledger-surface text-ledger-dark hover:bg-ledger-light text-center"
               >
                 Cancel
               </button>

@@ -73,7 +73,7 @@ import { AddFundsSheetComponent } from '../../shared/ui/add-funds-sheet/add-fund
                       Paid this month
                     </span>
                   } @else if (goalService.isGoalDueThisMonth(goal)) {
-                    <span class="text-[10px] font-bold text-orange-500 uppercase tracking-widest">
+                    <span class="text-[10px] font-bold text-goals-dark uppercase tracking-widest">
                       Due · ₹{{ goal.calculated_installment | number: '1.0-0' }}
                     </span>
                   } @else {
