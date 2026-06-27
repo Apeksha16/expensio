@@ -146,7 +146,8 @@ export class BudgetService {
 
             const newBudgets = prevData.map(b => {
               const consumed = spentByCategory[b.name] || 0;
-              const rollover = Math.max(0, b.amount - consumed);
+              const prevLimit = b.amount + (b.rollover_amount || 0);
+              const rollover = Math.max(0, prevLimit - consumed);
               return {
                 user_id: user.id,
                 name: b.name,
@@ -222,12 +223,12 @@ export class BudgetService {
       // The previous month's budget limit is needed. We query the previous month's budget.
       const { data: prevBudget } = await this.supabaseService.client
         .from('budgets')
-        .select('amount')
+        .select('amount, rollover_amount')
         .eq('month', currentMonthStr)
         .eq('name', category)
         .single();
         
-      const prevLimit = prevBudget ? prevBudget.amount : nextBudget.amount; // fallback
+      const prevLimit = prevBudget ? (prevBudget.amount + (prevBudget.rollover_amount || 0)) : nextBudget.amount; // fallback
       const newRollover = Math.max(0, prevLimit - spent);
       
       await this.supabaseService.client
@@ -288,16 +289,21 @@ export class BudgetService {
       .eq('id', id);
 
     if (!error) {
-      // If the name changed, cascade the update to ALL expenses (all-time, not just this month)
+      // If the name changed, cascade the update to expenses ONLY in the budget's month
       if (oldName && oldName !== data.name) {
         const user = this.authService.currentUser();
         if (user) {
+          const budget = this._budgets().find(b => b.id === id);
+          const monthToUpdate = budget ? budget.month : this.expenseService.activeMonth();
+          const { startDate, endDate } = this.getMonthDateRange(monthToUpdate);
+          
           await this.supabaseService.client
             .from('expenses')
             .update({ category: data.name })
             .eq('user_id', user.id)
-            .eq('category', oldName);
-          // No date filters — intentionally updates all historical expenses
+            .eq('category', oldName)
+            .gte('date', startDate)
+            .lt('date', endDate);
         }
       }
 

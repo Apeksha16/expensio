@@ -244,7 +244,7 @@ import { LedgerSubSheetComponent } from '../../shared/ui/ledger-sub-sheet/ledger
       }
 
       <!-- Global Floating Action Button -->
-      @if (!isProfilePage() && !isDashboardPage()) {
+      @if (!isProfilePage() && !isDashboardPage() && !isReportsPage()) {
         <button
           (click)="handleFabClick()"
           class="fixed right-4 w-14 h-14 bg-black text-white border-2 border-black rounded-none flex items-center justify-center z-40 hover:bg-white hover:text-black transition-colors"
@@ -309,6 +309,7 @@ export class Layout implements AfterViewInit {
   isBudgetExpensesPage = computed(() => this.currentUrl().match(/\/budgets\/.+/) !== null);
   isGoalTransactionsPage = computed(() => this.currentUrl().match(/\/goals\/.+/) !== null);
   isLedgerDetailsPage = computed(() => this.currentUrl().match(/\/ledger\/.+/) !== null);
+  isReportsPage = computed(() => this.currentUrl().includes('/reports'));
 
   activeLedger = computed(() => {
     if (this.isLedgerDetailsPage()) {
@@ -376,6 +377,7 @@ export class Layout implements AfterViewInit {
     if (url.includes('/subscriptions')) return 'Subscriptions';
     if (url.includes('/goals')) return 'Goals';
     if (url.includes('/ledger')) return 'Private Ledger';
+    if (url.includes('/reports')) return 'Reports';
     if (url.includes('/profile')) return 'Profile';
     return 'Dashboard';
   });

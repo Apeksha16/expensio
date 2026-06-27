@@ -120,6 +120,11 @@ export const routes: Routes = [
         data: { animationIndex: 6 }
       },
       {
+        path: 'reports',
+        loadComponent: () => import('./features/reports/reports.component').then(m => m.ReportsComponent),
+        data: { animationIndex: 7 }
+      },
+      {
         path: '',
         redirectTo: 'dashboard',
         pathMatch: 'full'

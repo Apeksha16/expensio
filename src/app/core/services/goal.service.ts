@@ -100,6 +100,21 @@ export class GoalService {
     }, 300); // Clear after animation
   }
 
+  isGoalDueThisMonth(goal: Goal): boolean {
+    const createdDate = new Date(goal.created_at || new Date().toISOString());
+    const currentDate = new Date();
+    
+    const monthDiff = (currentDate.getFullYear() - createdDate.getFullYear()) * 12 + (currentDate.getMonth() - createdDate.getMonth());
+    
+    if (monthDiff < 0) return false;
+    
+    let interval = 1;
+    if (goal.frequency === 'alternate') interval = 2;
+    if (goal.frequency === 'quarterly') interval = 3;
+    
+    return monthDiff % interval === 0;
+  }
+
   calculateInstallment(total: number, saved: number, targetDate: string, frequency: 'monthly' | 'alternate' | 'quarterly'): number {
     const remainingAmount = Math.max(0, total - saved);
     if (remainingAmount === 0) return 0;

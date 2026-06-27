@@ -51,6 +51,7 @@ export class SplitService {
   readonly editingSplit = signal<SplitExpense | null>(null);
   
   readonly activeTab = signal<'expenses' | 'groups'>('expenses');
+  readonly activeGroupId = signal<string | null>(null);
 
   // Data state
   readonly splits = signal<SplitExpense[]>([]);
@@ -73,7 +74,7 @@ export class SplitService {
     }
   }
 
-  private async loadData(syncExpenses: boolean = false) {
+  async loadData(syncExpenses: boolean = false) {
     const user = this.authService.userProfile();
     if (!user) return;
 
@@ -90,7 +91,25 @@ export class SplitService {
       .select('*')
       .order('date', { ascending: false })
       .limit(50);
-    if (expensesData) this.splits.set(expensesData);
+      
+    let allSplits = expensesData || [];
+
+    const currentGroupId = this.activeGroupId();
+    if (currentGroupId) {
+       const { data: groupData } = await this.supabase.client
+          .from('split_expenses')
+          .select('*')
+          .eq('group_id', currentGroupId)
+          .order('date', { ascending: false });
+          
+       if (groupData) {
+          const map = new Map(allSplits.map(s => [s.id, s]));
+          groupData.forEach(s => map.set(s.id, s));
+          allSplits = Array.from(map.values()).sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+       }
+    }
+    
+    this.splits.set(allSplits);
 
     // Call RPC for global balances
     const { data: rpcData, error: rpcError } = await this.supabase.client.rpc('calculate_user_balances', { p_user_id: user.id });
@@ -420,12 +439,44 @@ export class SplitService {
 
     const optimizedBalances: Record<string, number> = {};
 
+    // Pass 1: Exact 1-to-1 matching to prevent redundant transaction paths in cycle cancellation
+    for (let c = 0; c < creditors.length; c++) {
+      for (let d = 0; d < debtors.length; d++) {
+        if (creditors[c].balance > 0.01 && debtors[d].balance < -0.01) {
+          if (Math.abs(creditors[c].balance - Math.abs(debtors[d].balance)) < 0.01) {
+            const amount = creditors[c].balance;
+            const creditor = creditors[c];
+            const debtor = debtors[d];
+            
+            if (debtor.userId === currentUserId) {
+              optimizedBalances[creditor.userId] = (optimizedBalances[creditor.userId] || 0) - amount;
+            } else if (creditor.userId === currentUserId) {
+              optimizedBalances[debtor.userId] = (optimizedBalances[debtor.userId] || 0) + amount;
+            }
+            
+            creditor.balance = 0;
+            debtor.balance = 0;
+            break; // Move to next creditor since this one is settled
+          }
+        }
+      }
+    }
+
     let i = 0;
     let j = 0;
 
     while (i < creditors.length && j < debtors.length) {
       const creditor = creditors[i];
       const debtor = debtors[j];
+
+      if (creditor.balance < 0.01) {
+        i++;
+        continue;
+      }
+      if (debtor.balance > -0.01) {
+        j++;
+        continue;
+      }
 
       const amount = Math.min(creditor.balance, Math.abs(debtor.balance));
 

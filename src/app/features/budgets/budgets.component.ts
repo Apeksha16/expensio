@@ -101,15 +101,16 @@ import { Router } from '@angular/router';
                 <div class="flex justify-between items-center w-full">
                   <div class="flex flex-col gap-0.5">
                     <span class="font-extrabold text-lg text-black">{{ budget.name }}</span>
-                    @if (budget.id !== 'virtual-others') {
-                      <div class="flex items-center gap-2 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
-                        <span>Consumed: ₹{{ getConsumed(budget.name) | number: '1.0-0' }}</span>
-                      </div>
-                    }
+                    <div class="flex items-center gap-2 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                      <span>Consumed: ₹{{ getConsumed(budget.name) | number: '1.0-0' }}</span>
+                    </div>
                   </div>
                   <div class="flex flex-col items-end gap-2">
                     @if (budget.id === 'virtual-others') {
-                      <span class="font-extrabold text-xl text-gray-500">₹{{ getConsumed(budget.name) | number: '1.0-0' }}</span>
+                      <div class="flex flex-col items-end">
+                        <span class="font-extrabold text-xl">₹{{ (monthlySalary() - totalAllocated()) | number: '1.0-0' }}</span>
+                        <span class="text-[9px] font-bold text-gray-500 tracking-widest uppercase">Unallocated Limit</span>
+                      </div>
                     } @else {
                       <div class="flex flex-col items-end">
                         <span class="font-extrabold text-xl">₹{{ (budget.amount + (budget.rollover_amount || 0)) | number: '1.0-0' }}</span>
@@ -121,19 +122,17 @@ import { Router } from '@angular/router';
                   </div>
                 </div>
                 <!-- Progress Bar -->
-                @if (budget.id !== 'virtual-others') {
-                  <div class="h-1.5 w-full bg-gray-300 rounded-none overflow-hidden mt-2">
-                    <div
-                      class="h-full transition-all duration-1000 ease-out"
-                      [style.width.%]="
-                        !budgetService.isLoading() && animateBars()
-                          ? getPercent(budget.name, budget.amount + (budget.rollover_amount || 0))
-                          : 0
-                      "
-                      [ngClass]="getColorClass(budget.name, budget.amount + (budget.rollover_amount || 0))"
-                    ></div>
-                  </div>
-                }
+                <div class="h-1.5 w-full bg-gray-300 rounded-none overflow-hidden mt-2">
+                  <div
+                    class="h-full transition-all duration-1000 ease-out"
+                    [style.width.%]="
+                      !budgetService.isLoading() && animateBars()
+                        ? getPercent(budget.name, budget.id === 'virtual-others' ? (monthlySalary() - totalAllocated()) : budget.amount + (budget.rollover_amount || 0))
+                        : 0
+                    "
+                    [ngClass]="getColorClass(budget.name, budget.id === 'virtual-others' ? (monthlySalary() - totalAllocated()) : budget.amount + (budget.rollover_amount || 0))"
+                  ></div>
+                </div>
               </button>
             }
           } @else {

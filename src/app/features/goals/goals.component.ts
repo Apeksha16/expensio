@@ -72,9 +72,13 @@ import { AddFundsSheetComponent } from '../../shared/ui/add-funds-sheet/add-fund
                       </svg>
                       Paid this month
                     </span>
-                  } @else {
+                  } @else if (goalService.isGoalDueThisMonth(goal)) {
                     <span class="text-[10px] font-bold text-orange-500 uppercase tracking-widest">
                       Due · ₹{{ goal.calculated_installment | number: '1.0-0' }}
+                    </span>
+                  } @else {
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                      No Payment Due
                     </span>
                   }
                   <button
@@ -185,21 +189,45 @@ export class GoalsComponent {
   }
 
   getDueMessage(installmentDate: number): string {
-    const today = new Date().getDate();
-    if (installmentDate > today) {
-      return `Due in ${installmentDate - today} day(s)`;
-    } else if (installmentDate === today) {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth();
+    
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    const actualDueDay = Math.min(installmentDate, daysInMonth);
+    
+    const dueDate = new Date(currentYear, currentMonth, actualDueDay);
+    const today = new Date(currentYear, currentMonth, now.getDate());
+    
+    const diffTime = dueDate.getTime() - today.getTime();
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays > 0) {
+      return `Due in ${diffDays} day(s)`;
+    } else if (diffDays === 0) {
       return 'Due Today';
     } else {
-      return `Overdue by ${today - installmentDate} day(s)`;
+      return `Overdue by ${Math.abs(diffDays)} day(s)`;
     }
   }
 
   getDueMessageClass(installmentDate: number): string {
-    const today = new Date().getDate();
-    if (installmentDate > today) {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth();
+    
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    const actualDueDay = Math.min(installmentDate, daysInMonth);
+    
+    const dueDate = new Date(currentYear, currentMonth, actualDueDay);
+    const today = new Date(currentYear, currentMonth, now.getDate());
+    
+    const diffTime = dueDate.getTime() - today.getTime();
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays > 0) {
       return 'text-orange-600';
-    } else if (installmentDate === today) {
+    } else if (diffDays === 0) {
       return 'text-red-500';
     } else {
       return 'text-red-600 font-extrabold';

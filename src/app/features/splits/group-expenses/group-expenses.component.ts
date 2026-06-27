@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, signal, computed, OnDestroy } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SplitService, SplitExpense } from '../../../core/services/split.service';
@@ -158,7 +158,7 @@ import { ConfirmService } from '../../../core/services/confirm.service';
     </div>
   `
 })
-export class GroupExpenses implements OnInit {
+export class GroupExpenses implements OnInit, OnDestroy {
   splitService = inject(SplitService);
   friendService = inject(FriendService);
   authService = inject(AuthService);
@@ -195,9 +195,15 @@ export class GroupExpenses implements OnInit {
       const id = params.get('id');
       if (id) {
         this.groupId.set(id);
+        this.splitService.activeGroupId.set(id);
         this.splitService.activeTab.set('groups');
+        this.splitService.loadData();
       }
     });
+  }
+
+  ngOnDestroy() {
+    this.splitService.activeGroupId.set(null);
   }
 
   getFriendName(id: string): string {

@@ -261,9 +261,16 @@ export class ExpenseService {
       });
       this.applyFilterAndPagination();
       
-      // Trigger Budget Rollover Sync
+      // Trigger Budget Rollover Sync for the new category/date
       const budgetService = this.injector.get(BudgetService);
       budgetService.syncRolloverForMonth(data.date, data.category);
+
+      // Trigger Budget Rollover Sync for the old category/date if it changed
+      if (oldExpense) {
+        if (oldExpense.category !== data.category || oldExpense.date !== data.date) {
+          budgetService.syncRolloverForMonth(oldExpense.date, oldExpense.category);
+        }
+      }
 
       // Trigger Goal Progress Sync
       if (data.category === 'virtual-invest' || oldExpense?.category === 'virtual-invest') {
