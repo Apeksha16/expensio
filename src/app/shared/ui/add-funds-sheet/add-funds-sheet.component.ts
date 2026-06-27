@@ -77,7 +77,7 @@ import { AutofocusDirective } from '../autofocus.directive';
         <div class="p-6 bg-white flex-1">
           <div class="mb-5 text-center">
             <h3 class="text-xl font-extrabold tracking-tight text-gray-900">{{ goalService.activeGoalForFunds()?.name }}</h3>
-            <p class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase mt-1">
+            <p class="text-[11px] font-semibold text-goals-dark tracking-widest uppercase mt-1">
               ₹{{ goalService.activeGoalForFunds()?.saved_amount | number:'1.0-0' }} / ₹{{ goalService.activeGoalForFunds()?.total_amount | number:'1.0-0' }} Saved
             </p>
           </div>
@@ -112,7 +112,7 @@ import { AutofocusDirective } from '../autofocus.directive';
                 </div>
               } @else {
                 <div class="flex flex-col gap-1 w-full">
-                  <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase">Amount</label>
+                  <label class="text-[11px] font-semibold text-goals-dark tracking-widest uppercase">Amount</label>
                   <div class="relative group">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <span class="text-gray-500 font-medium">₹</span>

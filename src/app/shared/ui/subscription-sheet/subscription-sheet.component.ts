@@ -83,7 +83,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
         <div class="p-6 bg-white flex-1">
           @if (subscriptionService.editingSubscription()?.id) {
             <div class="flex justify-center mb-5">
-              <span class="text-[9px] font-extrabold tracking-widest uppercase text-gray-400 bg-gray-100 px-3 py-1 rounded-none">
+              <span class="text-[9px] font-extrabold tracking-widest uppercase text-subscriptions-dark bg-subscriptions-surface px-3 py-1 rounded-none">
                 @if (isUpdated()) {
                   Updated {{ subscriptionService.editingSubscription()?.updated_at | date: 'medium' }}
                 } @else {
@@ -94,7 +94,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
           }
           <form [formGroup]="subForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
             <div class="flex flex-col gap-1">
-              <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
+              <label class="text-[11px] font-semibold text-subscriptions-dark tracking-widest uppercase"
                 >Name</label
               >
               <input
@@ -109,7 +109,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
             
             <div class="flex gap-4">
               <div class="flex-1 flex flex-col gap-1">
-                <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
+                <label class="text-[11px] font-semibold text-subscriptions-dark tracking-widest uppercase"
                   >Amount</label
                 >
                 <div class="relative group">
@@ -130,7 +130,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
               </div>
               
               <div class="w-32 flex flex-col gap-1">
-                <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
+                <label class="text-[11px] font-semibold text-subscriptions-dark tracking-widest uppercase"
                   >Billing Day</label
                 >
                 <button
@@ -145,7 +145,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
             </div>
 
             <div class="flex flex-col gap-1">
-              <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
+              <label class="text-[11px] font-semibold text-subscriptions-dark tracking-widest uppercase"
                 >Category</label
               >
               <div class="grid grid-cols-4 gap-2">
@@ -181,7 +181,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
             </div>
             
             <div class="flex flex-col gap-1">
-              <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
+              <label class="text-[11px] font-semibold text-subscriptions-dark tracking-widest uppercase"
                 >Date added</label
               >
               <button

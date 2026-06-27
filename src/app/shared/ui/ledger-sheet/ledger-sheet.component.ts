@@ -106,7 +106,7 @@ import { SafeInputDirective } from '../safe-input.directive';
         <div class="p-6 bg-white flex-1">
           @if (ledgerService.editingEntry()?.id) {
             <div class="flex justify-center mb-5">
-              <span class="text-[9px] font-extrabold tracking-widest uppercase text-gray-400 bg-gray-100 px-3 py-1 rounded-none">
+              <span class="text-[9px] font-extrabold tracking-widest uppercase text-ledger-dark bg-ledger-surface px-3 py-1 rounded-none">
                 @if (isUpdated()) {
                   Updated {{ ledgerService.editingEntry()?.updated_at | date: 'medium' }}
                 } @else {
@@ -120,7 +120,7 @@ import { SafeInputDirective } from '../safe-input.directive';
             
             <!-- Type Toggle -->
             <div class="flex flex-col gap-1">
-              <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase">Did you give or receive?</label>
+              <label class="text-[11px] font-semibold text-ledger-dark tracking-widest uppercase">Did you give or receive?</label>
               <div class="flex gap-2">
                 <button
                   type="button"
@@ -149,7 +149,7 @@ import { SafeInputDirective } from '../safe-input.directive';
 
             <!-- Person Name -->
             <div class="flex flex-col gap-1">
-              <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase">Who?</label>
+              <label class="text-[11px] font-semibold text-ledger-dark tracking-widest uppercase">Who?</label>
               <input
                 [appAutofocus]="!ledgerService.editingEntry()?.id"
                 appSafeInput
@@ -162,7 +162,7 @@ import { SafeInputDirective } from '../safe-input.directive';
             
             <!-- Amount -->
             <div class="flex flex-col gap-1">
-              <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase">How much?</label>
+              <label class="text-[11px] font-semibold text-ledger-dark tracking-widest uppercase">How much?</label>
               <div class="relative group">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <span class="text-gray-500 font-medium">₹</span>
@@ -182,7 +182,7 @@ import { SafeInputDirective } from '../safe-input.directive';
 
             <!-- Purpose -->
             <div class="flex flex-col gap-1">
-              <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase">What's this for?</label>
+              <label class="text-[11px] font-semibold text-ledger-dark tracking-widest uppercase">What's this for?</label>
               <input
                 appSafeInput
                 type="text"
@@ -194,7 +194,7 @@ import { SafeInputDirective } from '../safe-input.directive';
             
             <!-- Date -->
             <div class="flex flex-col gap-1">
-              <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase">Date</label>
+              <label class="text-[11px] font-semibold text-ledger-dark tracking-widest uppercase">Date</label>
               <button
                 type="button"
                 (click)="isDatePickerOpen = true"

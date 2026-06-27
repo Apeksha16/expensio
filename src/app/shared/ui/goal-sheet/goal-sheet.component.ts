@@ -83,7 +83,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
         <div class="p-6 bg-white flex-1">
           @if (goalService.editingGoal()?.id) {
             <div class="flex justify-center mb-5">
-              <span class="text-[9px] font-extrabold tracking-widest uppercase text-gray-400 bg-gray-100 px-3 py-1 rounded-none">
+              <span class="text-[9px] font-extrabold tracking-widest uppercase text-goals-dark bg-goals-surface px-3 py-1 rounded-none">
                 @if (isUpdated()) {
                   Updated {{ goalService.editingGoal()?.updated_at | date: 'medium' }}
                 } @else {
@@ -94,7 +94,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
           }
           <form [formGroup]="goalForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
             <div class="flex flex-col gap-1">
-              <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
+              <label class="text-[11px] font-semibold text-goals-dark tracking-widest uppercase"
                 >Name</label
               >
               <input
@@ -109,7 +109,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
             
             <div class="flex gap-4">
               <div class="flex-1 flex flex-col gap-1">
-                <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
+                <label class="text-[11px] font-semibold text-goals-dark tracking-widest uppercase"
                   >Total Amount</label
                 >
                 <div class="relative group">
@@ -130,7 +130,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
               </div>
               
               <div class="flex-1 flex flex-col gap-1">
-                <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
+                <label class="text-[11px] font-semibold text-goals-dark tracking-widest uppercase"
                   >Saved Amount</label
                 >
                 <div class="relative group">
@@ -153,7 +153,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
 
             <div class="flex gap-4">
               <div class="flex-1 flex flex-col gap-1">
-                <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
+                <label class="text-[11px] font-semibold text-goals-dark tracking-widest uppercase"
                   >Target Date</label
                 >
                 <button
@@ -169,7 +169,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
               </div>
 
               <div class="w-32 flex flex-col gap-1">
-                <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
+                <label class="text-[11px] font-semibold text-goals-dark tracking-widest uppercase"
                   >Installment Day</label
                 >
                 <button
@@ -184,7 +184,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
             </div>
 
             <div class="flex flex-col gap-1">
-              <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
+              <label class="text-[11px] font-semibold text-goals-dark tracking-widest uppercase"
                 >Frequency</label
               >
               <div class="flex bg-gray-100 p-1">
@@ -219,7 +219,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
             <!-- Calculated Preview -->
             <div class="bg-gray-50 border-2 border-gray-200 p-4 flex justify-between items-center mt-2 gap-4">
                <div class="flex-1 min-w-0">
-                 <p class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase truncate">Calculated Installment</p>
+                 <p class="text-[11px] font-semibold text-goals-dark tracking-widest uppercase truncate">Calculated Installment</p>
                  <p class="text-[10px] text-gray-400 leading-tight mt-0.5 pr-2">Based on remaining amount & time</p>
                </div>
                <div class="text-lg font-extrabold text-[#1a2e22] whitespace-nowrap shrink-0">

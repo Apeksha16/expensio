@@ -90,7 +90,7 @@ import { SafeInputDirective } from '../safe-input.directive';
         <div class="p-6 bg-white flex-1">
           @if (splitService.editingSplit()?.id) {
             <div class="flex justify-center mb-5">
-              <span class="text-[9px] font-extrabold tracking-widest uppercase text-gray-400 bg-gray-100 px-3 py-1 rounded-none">
+              <span class="text-[9px] font-extrabold tracking-widest uppercase text-splits-dark bg-splits-surface px-3 py-1 rounded-none">
                 @if (isUpdated()) {
                   Updated {{ splitService.editingSplit()?.date | date: 'medium' }}
                 } @else {
@@ -102,7 +102,7 @@ import { SafeInputDirective } from '../safe-input.directive';
           @if (friendService.acceptedFriends().length > 0) {
             <form [formGroup]="splitForm" (ngSubmit)="onSubmit()" class="space-y-4">
               <div class="flex flex-col gap-1">
-                <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
+                <label class="text-[11px] font-semibold text-splits-dark tracking-widest uppercase"
                   >Description</label
                 >
                 <input
@@ -115,7 +115,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                 />
               </div>
               <div class="flex flex-col gap-1">
-                <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
+                <label class="text-[11px] font-semibold text-splits-dark tracking-widest uppercase"
                   >Total Amount</label
                 >
                 <div class="relative group">
@@ -135,7 +135,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                 </div>
               </div>
               <div class="flex flex-col gap-1">
-                <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
+                <label class="text-[11px] font-semibold text-splits-dark tracking-widest uppercase"
                   >Category</label
                 >
                 <div class="grid grid-cols-4 gap-2">
@@ -170,7 +170,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                 </div>
               </div>
               <div class="flex flex-col gap-1">
-                <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
+                <label class="text-[11px] font-semibold text-splits-dark tracking-widest uppercase"
                   >Paid By</label
                 >
                 <div class="relative">
@@ -255,7 +255,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                 }
               </div>
               <div class="flex flex-col gap-1">
-                <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
+                <label class="text-[11px] font-semibold text-splits-dark tracking-widest uppercase"
                   >Split With (Participants)</label
                 >
                 <div class="flex flex-col gap-2">
@@ -277,7 +277,7 @@ import { SafeInputDirective } from '../safe-input.directive';
               </div>
               @if (selectedParticipants().length > 0) {
                 <div class="flex flex-col gap-1">
-                  <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
+                  <label class="text-[11px] font-semibold text-splits-dark tracking-widest uppercase"
                     >Split Strategy</label
                   >
                   <div class="flex gap-2">

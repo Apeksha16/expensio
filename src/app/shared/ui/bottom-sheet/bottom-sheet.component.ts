@@ -108,7 +108,7 @@ import { SafeInputDirective } from '../safe-input.directive';
         <div class="p-6 bg-white flex-1">
           @if (isEditing) {
             <div class="flex justify-center mb-5">
-              <span class="text-[9px] font-extrabold tracking-widest uppercase text-gray-400 bg-gray-100 px-3 py-1 rounded-none">
+              <span class="text-[9px] font-extrabold tracking-widest uppercase text-expense-dark bg-expense-surface px-3 py-1 rounded-none">
                 Added {{ expenseService.editingExpense()?.created_at | date: 'medium' }}
               </span>
             </div>
@@ -116,7 +116,7 @@ import { SafeInputDirective } from '../safe-input.directive';
           <form [formGroup]="expenseForm" (ngSubmit)="onSubmit()" class="space-y-4">
             <!-- Amount -->
             <div class="flex flex-col gap-1">
-              <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
+              <label class="text-[11px] font-semibold text-expense-dark tracking-widest uppercase"
                 >Amount</label
               >
               <div class="relative group">
@@ -138,7 +138,7 @@ import { SafeInputDirective } from '../safe-input.directive';
             </div>
             <!-- Name -->
             <div class="flex flex-col gap-1">
-              <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
+              <label class="text-[11px] font-semibold text-expense-dark tracking-widest uppercase"
                 >Expense Name</label
               >
               <div class="relative group">
@@ -154,7 +154,7 @@ import { SafeInputDirective } from '../safe-input.directive';
             <!-- Budgets -->
             @if (isBudgetsLoading()) {
               <div class="flex flex-col gap-1">
-                <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
+                <label class="text-[11px] font-semibold text-expense-dark tracking-widest uppercase"
                   >Budget</label
                 >
                 <div class="grid grid-cols-4 gap-2">
@@ -168,7 +168,7 @@ import { SafeInputDirective } from '../safe-input.directive';
               </div>
             } @else if (localBudgets().length > 0) {
               <div class="flex flex-col gap-1">
-                <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
+                <label class="text-[11px] font-semibold text-expense-dark tracking-widest uppercase"
                   >Budget</label
                 >
                 <div class="grid grid-cols-4 gap-2">
@@ -205,7 +205,7 @@ import { SafeInputDirective } from '../safe-input.directive';
             }
             <!-- Date -->
             <div class="flex flex-col gap-1">
-              <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
+              <label class="text-[11px] font-semibold text-expense-dark tracking-widest uppercase"
                 >Date</label
               >
               <button

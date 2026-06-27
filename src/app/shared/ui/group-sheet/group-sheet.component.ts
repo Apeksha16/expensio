@@ -87,7 +87,7 @@ import { SafeInputDirective } from '../safe-input.directive';
         <div class="p-6 bg-white flex-1">
           @if (isEditing) {
             <div class="flex justify-center mb-5">
-              <span class="text-[9px] font-extrabold tracking-widest uppercase text-gray-400 bg-gray-100 px-3 py-1 rounded-none">
+              <span class="text-[9px] font-extrabold tracking-widest uppercase text-friends-dark bg-friends-surface px-3 py-1 rounded-none">
                 Added {{ splitService.editingGroup()?.created_at | date: 'medium' }}
               </span>
             </div>
@@ -95,7 +95,7 @@ import { SafeInputDirective } from '../safe-input.directive';
           @if (friendService.acceptedFriends().length > 0) {
             <form [formGroup]="groupForm" (ngSubmit)="onSubmit()" class="space-y-4">
               <div class="flex flex-col gap-1">
-                <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
+                <label class="text-[11px] font-semibold text-friends-dark tracking-widest uppercase"
                   >Group Name</label
                 >
                 <input
@@ -108,7 +108,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                 />
               </div>
               <div class="flex flex-col gap-1">
-                <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
+                <label class="text-[11px] font-semibold text-friends-dark tracking-widest uppercase"
                   >Group Members</label
                 >
                 <div class="flex flex-col gap-2">

@@ -103,7 +103,7 @@ import { SafeInputDirective } from '../safe-input.directive';
         <div class="p-6 bg-white flex-1">
           @if (isEditing) {
             <div class="flex justify-center mb-5">
-              <span class="text-[9px] font-extrabold tracking-widest uppercase text-gray-400 bg-gray-100 px-3 py-1 rounded-none">
+              <span class="text-[9px] font-extrabold tracking-widest uppercase text-budget-dark bg-budget-surface px-3 py-1 rounded-none">
                 Added {{ budgetService.editingBudget()?.created_at | date: 'medium' }}
               </span>
             </div>
@@ -111,7 +111,7 @@ import { SafeInputDirective } from '../safe-input.directive';
           <form [formGroup]="budgetForm" (ngSubmit)="onSubmit()" class="space-y-4 text-left">
             <!-- Icon/Category Picker -->
             <div class="flex flex-col gap-1">
-              <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
+              <label class="text-[11px] font-semibold text-budget-dark tracking-widest uppercase"
                 >Choose Icon & Preset</label
               >
               <div class="grid grid-cols-4 gap-2">
@@ -147,7 +147,7 @@ import { SafeInputDirective } from '../safe-input.directive';
             </div>
             <!-- Budget Name -->
             <div class="flex flex-col gap-1">
-              <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
+              <label class="text-[11px] font-semibold text-budget-dark tracking-widest uppercase"
                 >Goal Name</label
               >
               <div class="relative group">
@@ -164,7 +164,7 @@ import { SafeInputDirective } from '../safe-input.directive';
             <!-- Allocated Amount -->
             <div class="flex flex-col gap-1">
               <div class="flex justify-between items-end">
-                <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
+                <label class="text-[11px] font-semibold text-budget-dark tracking-widest uppercase"
                   >Allocated Amount</label
                 >
                 <span class="text-[11px] font-semibold text-blue-600">
@@ -195,7 +195,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                 formControlName="auto_rollover"
                 class="w-4 h-4 text-black bg-white border-2 border-gray-300 rounded-none focus:ring-black focus:ring-2 cursor-pointer"
               />
-              <label for="autoRollover" class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase cursor-pointer select-none">
+              <label for="autoRollover" class="text-[11px] font-semibold text-budget-dark tracking-widest uppercase cursor-pointer select-none">
                 Auto-add for next month
               </label>
             </div>

@@ -1,4 +1,5 @@
 import { Component, input, output, effect, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { animate, style, transition, trigger } from '@angular/animations';
 
@@ -46,10 +47,10 @@ import { HapticService } from '../../../core/services/haptic.service';
       <div
         @slideUp
         appSwipeToClose (swipeClose)="close()"
-        class="fixed bottom-0 left-0 right-0 bg-black z-[90] 
+        class="fixed bottom-0 left-0 right-0 bg-white z-[90] 
                max-h-[95vh] flex flex-col shadow-2xl"
       >
-        <div class="p-6 pt-4 pb-4 border-b-2 border-black bg-black text-white sticky top-[-2px] z-10">
+        <div class="p-6 pt-4 pb-4 border-b-2 text-white sticky top-[-2px] z-10" [ngClass]="[theme.bg, theme.border]">
           <div class="flex justify-between items-center mb-6">
             <h2 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">
               Select Date
@@ -76,7 +77,8 @@ import { HapticService } from '../../../core/services/haptic.service';
           <div class="flex justify-between items-center mb-4">
             <button
               (click)="prevMonth()"
-              class="p-2 border-2 border-black hover:bg-black hover:text-white transition-colors rounded-none"
+              class="p-2 border-2 hover:text-white transition-colors rounded-none"
+              [ngClass]="[theme.border, theme.text, theme.hoverBg]"
             >
               <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path
@@ -90,7 +92,8 @@ import { HapticService } from '../../../core/services/haptic.service';
             <span class="font-extrabold text-lg">{{ viewDate | date: 'MMMM yyyy' }}</span>
             <button
               (click)="nextMonth()"
-              class="p-2 border-2 border-black hover:bg-black hover:text-white transition-colors rounded-none"
+              class="p-2 border-2 hover:text-white transition-colors rounded-none"
+              [ngClass]="[theme.border, theme.text, theme.hoverBg]"
             >
               <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path
@@ -115,13 +118,12 @@ import { HapticService } from '../../../core/services/haptic.service';
               <button
                 (click)="selectDate(day.date)"
                 class="h-10 w-full flex items-center justify-center font-bold border-2 rounded-none transition-colors text-sm"
-                [ngClass]="{
-                  'border-black bg-black text-white': day.isSelected,
-                  'border-transparent hover:border-black text-black bg-gray-50':
-                    !day.isSelected && day.isCurrentMonth,
-                  'border-transparent text-gray-300': !day.isSelected && !day.isCurrentMonth,
-                  'border-dashed border-gray-400': day.isToday && !day.isSelected,
-                }"
+                [ngClass]="[
+                  day.isSelected ? theme.border + ' ' + theme.bg + ' text-white' : '',
+                  !day.isSelected && day.isCurrentMonth ? 'border-transparent text-gray-900 bg-gray-50 ' + theme.hoverBorder : '',
+                  !day.isSelected && !day.isCurrentMonth ? 'border-transparent text-gray-300' : '',
+                  day.isToday && !day.isSelected ? 'border-dashed border-gray-400' : ''
+                ]"
               >
                 {{ day.date.getDate() }}
               </button>
@@ -130,7 +132,8 @@ import { HapticService } from '../../../core/services/haptic.service';
           <div class="mt-4 mb-2">
             <button
               (click)="confirm()"
-              class="w-full bg-black text-white px-4 py-3 text-[11px] font-extrabold uppercase tracking-widest min-h-[44px] border-2 border-black rounded-none hover:bg-gray-900 transition-colors"
+              class="w-full text-white px-4 py-3 text-[11px] font-extrabold uppercase tracking-widest min-h-[44px] border-2 rounded-none transition-colors"
+              [ngClass]="[theme.bg, theme.border, theme.hoverDarkBg]"
             >
               Confirm Date
             </button>
@@ -142,6 +145,21 @@ import { HapticService } from '../../../core/services/haptic.service';
 })
 export class DatePickerComponent { 
   haptic = inject(HapticService);
+  router = inject(Router);
+
+  get theme() {
+    const route = this.router.url.split('/')[1] || 'dashboard';
+    switch (route) {
+      case 'expenses': return { bg: 'bg-expense-primary', border: 'border-expense-primary', hoverBg: 'hover:bg-expense-primary', hoverBorder: 'hover:border-expense-primary', text: 'text-expense-primary', hoverDarkBg: 'hover:bg-expense-dark' };
+      case 'budgets': return { bg: 'bg-budget-primary', border: 'border-budget-primary', hoverBg: 'hover:bg-budget-primary', hoverBorder: 'hover:border-budget-primary', text: 'text-budget-primary', hoverDarkBg: 'hover:bg-budget-dark' };
+      case 'friends': return { bg: 'bg-friends-primary', border: 'border-friends-primary', hoverBg: 'hover:bg-friends-primary', hoverBorder: 'hover:border-friends-primary', text: 'text-friends-primary', hoverDarkBg: 'hover:bg-friends-dark' };
+      case 'splits': return { bg: 'bg-splits-primary', border: 'border-splits-primary', hoverBg: 'hover:bg-splits-primary', hoverBorder: 'hover:border-splits-primary', text: 'text-splits-primary', hoverDarkBg: 'hover:bg-splits-dark' };
+      case 'subscriptions': return { bg: 'bg-subscriptions-primary', border: 'border-subscriptions-primary', hoverBg: 'hover:bg-subscriptions-primary', hoverBorder: 'hover:border-subscriptions-primary', text: 'text-subscriptions-primary', hoverDarkBg: 'hover:bg-subscriptions-dark' };
+      case 'goals': return { bg: 'bg-goals-primary', border: 'border-goals-primary', hoverBg: 'hover:bg-goals-primary', hoverBorder: 'hover:border-goals-primary', text: 'text-goals-primary', hoverDarkBg: 'hover:bg-goals-dark' };
+      case 'ledger': return { bg: 'bg-ledger-primary', border: 'border-ledger-primary', hoverBg: 'hover:bg-ledger-primary', hoverBorder: 'hover:border-ledger-primary', text: 'text-ledger-primary', hoverDarkBg: 'hover:bg-ledger-dark' };
+      default: return { bg: 'bg-black', border: 'border-black', hoverBg: 'hover:bg-black', hoverBorder: 'hover:border-black', text: 'text-black', hoverDarkBg: 'hover:bg-gray-900' };
+    }
+  }
   isOpen = input<boolean>(false);
   initialDate = input<string | null>(null);
   dateSelected = output<string>();

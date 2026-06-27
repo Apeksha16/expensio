@@ -82,7 +82,7 @@ import { SafeInputDirective } from '../safe-input.directive';
           @if (isAddMode) {
             <form (submit)="$event.preventDefault(); sendRequest()" class="space-y-4">
               <div class="flex flex-col gap-1 shrink-0">
-                <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
+                <label class="text-[11px] font-semibold text-friends-dark tracking-widest uppercase"
                   >Search User</label
                 >
                 <div class="relative group">
