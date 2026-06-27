@@ -159,6 +159,46 @@ import { QuickActionsService } from '../../core/services/quick-actions.service';
             </svg>
           </button>
         </div>
+        
+        <!-- Configure Email Reports -->
+        <div class="flex flex-col gap-3 mt-4">
+          <div class="flex flex-col">
+            <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase">Email Reports</label>
+            <span class="text-[10px] font-semibold text-gray-500 mt-0.5">Receive automated summaries of your expenses</span>
+          </div>
+          <div class="flex border-2 border-black rounded-none overflow-hidden text-xs font-bold w-full">
+            <button
+              (click)="updateField('emailReportFrequency', 'none')"
+              [class.bg-black]="pendingProfile().emailReportFrequency === 'none'"
+              [class.text-white]="pendingProfile().emailReportFrequency === 'none'"
+              [class.text-gray-500]="pendingProfile().emailReportFrequency !== 'none'"
+              [class.bg-white]="pendingProfile().emailReportFrequency !== 'none'"
+              class="flex-1 py-2.5 transition-colors"
+            >
+              Off
+            </button>
+            <button
+              (click)="updateField('emailReportFrequency', 'weekly')"
+              [class.bg-black]="pendingProfile().emailReportFrequency === 'weekly'"
+              [class.text-white]="pendingProfile().emailReportFrequency === 'weekly'"
+              [class.text-gray-500]="pendingProfile().emailReportFrequency !== 'weekly'"
+              [class.bg-white]="pendingProfile().emailReportFrequency !== 'weekly'"
+              class="flex-1 py-2.5 border-l-2 border-r-2 border-black transition-colors"
+            >
+              Weekly
+            </button>
+            <button
+              (click)="updateField('emailReportFrequency', 'monthly')"
+              [class.bg-black]="pendingProfile().emailReportFrequency === 'monthly'"
+              [class.text-white]="pendingProfile().emailReportFrequency === 'monthly'"
+              [class.text-gray-500]="pendingProfile().emailReportFrequency !== 'monthly'"
+              [class.bg-white]="pendingProfile().emailReportFrequency !== 'monthly'"
+              class="flex-1 py-2.5 transition-colors"
+            >
+              Monthly
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- Update Button -->

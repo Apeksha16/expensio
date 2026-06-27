@@ -13,6 +13,7 @@ export interface UserProfile {
   avatarId: number;
   maskValues: boolean;
   quickActions?: string[];
+  emailReportFrequency?: 'none' | 'weekly' | 'monthly';
 }
 
 @Injectable({
@@ -63,9 +64,10 @@ export class AuthService {
     salary: 0,
     avatarId: 1,
     maskValues: false,
-    quickActions: ['expenses', 'splits', 'friends', 'budgets']
+    quickActions: ['expenses', 'splits', 'friends', 'budgets'],
+    emailReportFrequency: 'none'
   }, {
-    equal: (a, b) => a.name === b.name && a.username === b.username && a.salary === b.salary && a.avatarId === b.avatarId && a.email === b.email && a.maskValues === b.maskValues && JSON.stringify(a.quickActions) === JSON.stringify(b.quickActions)
+    equal: (a, b) => a.name === b.name && a.username === b.username && a.salary === b.salary && a.avatarId === b.avatarId && a.email === b.email && a.maskValues === b.maskValues && JSON.stringify(a.quickActions) === JSON.stringify(b.quickActions) && a.emailReportFrequency === b.emailReportFrequency
   });
 
   constructor() {
@@ -101,9 +103,10 @@ export class AuthService {
           username: metadata['preferred_username'] || metadata['username'] || session.user.email?.split('@')[0] || 'user',
           email: session.user.email || '',
           salary: metadata['salary'] || 0,
-          avatarId: metadata['avatarId'] || 1,
-          maskValues: metadata['maskValues'] === true,
-          quickActions: metadata['quickActions'] || ['expenses', 'splits', 'friends', 'budgets']
+          avatarId: metadata['avatar_id'] || 1,
+          maskValues: metadata['mask_values'] === true,
+          quickActions: metadata['quick_actions'] || ['expenses', 'splits', 'friends', 'budgets'],
+          emailReportFrequency: metadata['email_report_frequency'] || 'none'
         });
 
         // Always onboarded since onboarding happens pre-signup now
@@ -148,9 +151,10 @@ export class AuthService {
         full_name: profile.name,
         preferred_username: profile.username,
         salary: profile.salary,
-        avatarId: profile.avatarId,
-        maskValues: profile.maskValues,
-        quickActions: profile.quickActions
+        avatar_id: profile.avatarId,
+        mask_values: profile.maskValues,
+        quick_actions: profile.quickActions,
+        email_report_frequency: profile.emailReportFrequency
       }
     });
 
