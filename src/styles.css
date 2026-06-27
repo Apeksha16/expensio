@@ -26,10 +26,10 @@
   --color-text-muted: var(--app-text-muted);
 
   /* Expense Module */
-  --color-expense-primary: #6B21A8;
-  --color-expense-dark: #3B0764;
-  --color-expense-light: #9333EA;
-  --color-expense-surface: #FAF5FF;
+  --color-expense-primary: #3B82F6;
+  --color-expense-dark: #1D4ED8;
+  --color-expense-light: #60A5FA;
+  --color-expense-surface: #EFF6FF;
 
   /* Budget Module */
   --color-budget-primary: #10B981;
