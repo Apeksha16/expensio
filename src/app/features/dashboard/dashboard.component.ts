@@ -32,7 +32,28 @@ import { KeyboardService } from '../../core/services/keyboard.service';
     class: 'flex flex-col h-full',
   },
   template: `
-    <div class="flex-1 bg-gray-50 p-6 flex flex-col gap-6 pb-36">
+    <div class="flex-1 bg-gray-50 flex flex-col pb-36 select-none"
+         (touchstart)="onTouchStart($event)"
+         (touchmove)="onTouchMove($event)"
+         (touchend)="onTouchEnd($event)">
+      
+      <!-- Pull to Refresh Indicator -->
+      <div class="w-full flex justify-center items-center overflow-hidden transition-all duration-200 ease-out"
+           [style.height.px]="refreshing() ? 60 : pullDistance()">
+         @if (refreshing()) {
+           <svg class="animate-spin h-6 w-6 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+         } @else if (pullDistance() > 0) {
+           <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex flex-col items-center gap-1">
+             <svg class="w-5 h-5 transition-transform" [class.rotate-180]="pullDistance() > 60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+             {{ pullDistance() > 60 ? 'Release to refresh' : 'Pull to refresh' }}
+           </div>
+         }
+      </div>
+
+      <div class="p-6 flex flex-col gap-6">
       @if (isInitialLoading()) {
         <!-- Total Expenses Shimmer -->
         <div class="bg-gray-200 p-6 rounded-none relative overflow-hidden">
@@ -268,6 +289,7 @@ import { KeyboardService } from '../../core/services/keyboard.service';
           </div>
         </div>
       }
+      </div>
     </div>
   `,
   styles: ``,
@@ -287,6 +309,50 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
 
   isInitialLoading = computed(() => !this.expenseService.hasInitiallyLoaded() || this.expenseService.isLoading());
   isMasked = signal(false);
+
+  pullStartY = 0;
+  pullMoveY = 0;
+  isPulling = signal(false);
+  refreshing = signal(false);
+  
+  pullDistance = computed(() => {
+    if (!this.isPulling()) return 0;
+    const dist = this.pullMoveY - this.pullStartY;
+    return dist > 0 ? Math.min(dist * 0.4, 100) : 0;
+  });
+
+  onTouchStart(event: TouchEvent) {
+    const mainEl = document.querySelector('main');
+    if (mainEl && mainEl.scrollTop <= 0) {
+      this.pullStartY = event.touches[0].clientY;
+      this.isPulling.set(true);
+    }
+  }
+
+  onTouchMove(event: TouchEvent) {
+    if (!this.isPulling()) return;
+    const currentY = event.touches[0].clientY;
+    if (currentY > this.pullStartY) {
+      this.pullMoveY = currentY;
+    } else {
+      this.isPulling.set(false);
+    }
+  }
+
+  onTouchEnd(event: TouchEvent) {
+    if (!this.isPulling()) return;
+    if (this.pullDistance() >= 60 && !this.refreshing()) {
+      this.refreshing.set(true);
+      this.refreshData();
+    }
+    this.isPulling.set(false);
+    this.pullStartY = 0;
+    this.pullMoveY = 0;
+  }
+
+  async refreshData() {
+    window.location.reload();
+  }
 
   thisMonthTotal = computed(() => {
     const month = this.expenseService.activeMonth();

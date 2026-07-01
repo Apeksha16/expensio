@@ -20,6 +20,10 @@ export class SwipeToCloseDirective {
 
   @HostListener('touchstart', ['$event'])
   onTouchStart(event: TouchEvent) {
+    if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) {
+      return;
+    }
+
     const target = event.target as HTMLElement;
     
     // Check if any parent up to contentEl is scrolled down

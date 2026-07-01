@@ -188,17 +188,16 @@ import { SafeInputDirective } from '../safe-input.directive';
               </div>
             </div>
             <!-- Auto Rollover -->
-            <div class="flex items-center gap-2 mt-2">
+            <label class="flex items-center gap-3 p-4 bg-budget-surface border-2 border-transparent hover:border-budget-primary transition-colors cursor-pointer w-full mt-2">
               <input
                 type="checkbox"
-                id="autoRollover"
                 formControlName="auto_rollover"
-                class="w-4 h-4 text-budget-primary bg-budget-surface border-0 rounded-none focus:ring-budget-primary focus:ring-2 cursor-pointer"
+                class="w-6 h-6 text-budget-primary bg-white border-2 border-gray-300 rounded-none focus:ring-budget-primary focus:ring-2 cursor-pointer"
               />
-              <label for="autoRollover" class="text-[11px] font-semibold text-budget-dark tracking-widest uppercase cursor-pointer select-none">
+              <span class="text-xs font-bold text-budget-dark tracking-widest uppercase select-none">
                 Auto-add for next month
-              </label>
-            </div>
+              </span>
+            </label>
             <!-- Bottom Buttons -->
             <div class="mt-4 flex gap-4">
               <button

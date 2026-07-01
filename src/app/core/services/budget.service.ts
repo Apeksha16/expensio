@@ -129,25 +129,7 @@ export class BudgetService {
         if (!prevError && prevData && prevData.length > 0) {
           const user = this.authService.currentUser();
           if (user) {
-            const { startDate, endDate } = this.getMonthDateRange(prevMonthStr);
-            const { data: prevExpenses, error: prevExpError } = await this.supabaseService.client
-              .from('expenses')
-              .select('category, amount')
-              .eq('user_id', user.id)
-              .gte('date', startDate)
-              .lt('date', endDate);
-
-            const spentByCategory: Record<string, number> = {};
-            if (!prevExpError && prevExpenses) {
-              prevExpenses.forEach(exp => {
-                spentByCategory[exp.category] = (spentByCategory[exp.category] || 0) + exp.amount;
-              });
-            }
-
             const newBudgets = prevData.map(b => {
-              const consumed = spentByCategory[b.name] || 0;
-              const prevLimit = b.amount + (b.rollover_amount || 0);
-              const rollover = Math.max(0, prevLimit - consumed);
               return {
                 user_id: user.id,
                 name: b.name,
@@ -155,7 +137,7 @@ export class BudgetService {
                 icon_path: b.icon_path,
                 month: monthStr,
                 auto_rollover: true,
-                rollover_amount: rollover
+                rollover_amount: 0
               };
             });
             
@@ -184,58 +166,7 @@ export class BudgetService {
   }
 
   async syncRolloverForMonth(expenseDateStr: string, category: string) {
-    // Expense date e.g. "2026-06-15"
-    const [year, m] = expenseDateStr.split('T')[0].split('-');
-    let nextM = parseInt(m) + 1;
-    let nextY = parseInt(year);
-    if (nextM > 12) {
-      nextM = 1;
-      nextY += 1;
-    }
-    const nextMonthStr = `${nextY}-${nextM.toString().padStart(2, '0')}`;
-    const currentMonthStr = `${year}-${m}`;
-
-    // 1. Check if next month has a budget for this category
-    const { data: nextBudget } = await this.supabaseService.client
-      .from('budgets')
-      .select('*')
-      .eq('month', nextMonthStr)
-      .eq('name', category)
-      .single();
-
-    if (nextBudget && nextBudget.auto_rollover) {
-      // 2. Recalculate spent in currentMonthStr
-      const user = this.authService.currentUser();
-      if (!user) return;
-      
-      const { startDate, endDate } = this.getMonthDateRange(currentMonthStr);
-      const { data: prevExpenses } = await this.supabaseService.client
-        .from('expenses')
-        .select('amount')
-        .eq('user_id', user.id)
-        .eq('category', category)
-        .gte('date', startDate)
-        .lt('date', endDate);
-        
-      const spent = prevExpenses?.reduce((s, e) => s + e.amount, 0) || 0;
-      
-      // 3. Update the rollover_amount in the next month's budget
-      // The previous month's budget limit is needed. We query the previous month's budget.
-      const { data: prevBudget } = await this.supabaseService.client
-        .from('budgets')
-        .select('amount, rollover_amount')
-        .eq('month', currentMonthStr)
-        .eq('name', category)
-        .single();
-        
-      const prevLimit = prevBudget ? (prevBudget.amount + (prevBudget.rollover_amount || 0)) : nextBudget.amount; // fallback
-      const newRollover = Math.max(0, prevLimit - spent);
-      
-      await this.supabaseService.client
-        .from('budgets')
-        .update({ rollover_amount: newRollover })
-        .eq('id', nextBudget.id);
-    }
+    // Intentionally empty. Rollover calculations are no longer needed.
   }
 
   async addBudget(budget: Omit<Budget, 'id' | 'month'>): Promise<boolean> {

@@ -179,7 +179,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                       class="flex flex-col items-center justify-center gap-1 p-2 border-2 rounded-none transition-all min-h-[60px]"
                       [ngClass]="
                         expenseForm.get('category')?.value === cat.name
-                          ? 'border-[#1a2e22] bg-[#1a2e22] text-white'
+                          ? 'border-expense-primary bg-expense-primary text-white'
                           : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
                       "
                     >
@@ -380,7 +380,10 @@ export class BottomSheetComponent implements OnInit {
         } else {
           this.isEditing = !!editing;
           const dateStr = editing?.date ? editing.date : new Date().toISOString();
-          this.selectedMonth.set(dateStr.substring(0, 7)); // YYYY-MM
+          const d = editing?.date ? new Date(editing.date) : new Date();
+          const y = d.getFullYear();
+          const m = (d.getMonth() + 1).toString().padStart(2, '0');
+          this.selectedMonth.set(`${y}-${m}`);
           this.expenseForm.reset({
             title: editing?.title || '',
             amount: editing?.amount || null,
@@ -403,7 +406,10 @@ export class BottomSheetComponent implements OnInit {
     this.isEditing = !!editing;
 
     const dateStr = editing?.date ? editing.date : new Date().toISOString();
-    this.selectedMonth.set(dateStr.substring(0, 7)); // YYYY-MM
+    const d = editing?.date ? new Date(editing.date) : new Date();
+    const y = d.getFullYear();
+    const m = (d.getMonth() + 1).toString().padStart(2, '0');
+    this.selectedMonth.set(`${y}-${m}`);
 
     this.expenseForm = this.fb.group({
       title: [{ value: editing?.title || '', disabled: editing?.category === 'virtual-invest' }, Validators.required],

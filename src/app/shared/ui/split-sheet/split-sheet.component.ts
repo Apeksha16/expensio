@@ -517,7 +517,8 @@ export class SplitSheetComponent implements OnInit {
   }
 
   async loadCategories() {
-    const month = new Date().toISOString().substring(0, 7);
+    const d = new Date();
+    const month = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}`;
     try {
       const { data } = await this.supabaseService.client
         .from('budgets')

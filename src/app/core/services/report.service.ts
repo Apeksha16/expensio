@@ -1,4 +1,4 @@
-import { Injectable, signal, inject } from '@angular/core';
+import { Injectable, signal, inject, effect, untracked } from '@angular/core';
 import { SupabaseService } from './supabase.service';
 import { AuthService } from './auth.service';
 
@@ -27,6 +27,17 @@ export class ReportService {
   readonly showGoals = signal<boolean>(true);
   readonly showSubscriptions = signal<boolean>(true);
   readonly showSplits = signal<boolean>(true);
+
+  constructor() {
+    effect(() => {
+      const user = this.authService.currentUser();
+      if (!user) {
+        untracked(() => {
+          this.expenses.set([]);
+        });
+      }
+    });
+  }
 
   getDateRangeForPreset(preset: DateRangePreset): { startDate: string, endDate: string } {
     const now = new Date();

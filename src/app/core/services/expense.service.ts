@@ -37,6 +37,7 @@ export class ExpenseService {
         this.fetchExpenses(month);
       } else if (untracked(() => this.authService.isInitialized())) {
         this.allExpenses.set([]);
+        this.monthlyCache.clear();
         this.applyFilterAndPagination();
         this.hasInitiallyLoaded.set(true);
       }

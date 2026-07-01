@@ -1,4 +1,4 @@
-import { Injectable, signal, PLATFORM_ID, inject, computed } from '@angular/core';
+import { Injectable, signal, PLATFORM_ID, inject, computed, effect, untracked } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { AuthService } from './auth.service';
 import { SupabaseService } from './supabase.service';
@@ -64,13 +64,35 @@ export class SplitService {
   readonly globalRpcBalances = signal<Record<string, number>>({});
   readonly rpcFailed = signal(false);
 
+  private groupChannel: any = null;
+  private expenseChannel: any = null;
+
   constructor() {
     if (isPlatformBrowser(this.platformId)) {
-      // Small delay to ensure auth is ready or wait for auth events
-      setTimeout(() => {
-        this.loadData();
-        this.setupRealtime();
-      }, 100);
+      effect(() => {
+        const user = this.authService.currentUser();
+        if (user) {
+          untracked(() => {
+            // Small delay to ensure auth is ready
+            setTimeout(() => {
+              this.loadData();
+              this.setupRealtime();
+            }, 100);
+          });
+        } else {
+          this.splits.set([]);
+          this.groups.set([]);
+          this.globalRpcBalances.set({});
+          if (this.groupChannel) {
+            this.supabase.client.removeChannel(this.groupChannel);
+            this.groupChannel = null;
+          }
+          if (this.expenseChannel) {
+            this.supabase.client.removeChannel(this.expenseChannel);
+            this.expenseChannel = null;
+          }
+        }
+      });
     }
   }
 
@@ -131,19 +153,23 @@ export class SplitService {
   }
 
   private setupRealtime() {
-    this.supabase.client
-      .channel('public:split_groups')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'split_groups' }, () => {
-        this.loadData(true);
-      })
-      .subscribe();
+    if (!this.groupChannel) {
+      this.groupChannel = this.supabase.client
+        .channel('public:split_groups')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'split_groups' }, () => {
+          this.loadData(true);
+        })
+        .subscribe();
+    }
 
-    this.supabase.client
-      .channel('public:split_expenses')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'split_expenses' }, () => {
-        this.loadData(true);
-      })
-      .subscribe();
+    if (!this.expenseChannel) {
+      this.expenseChannel = this.supabase.client
+        .channel('public:split_expenses')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'split_expenses' }, () => {
+          this.loadData(true);
+        })
+        .subscribe();
+    }
   }
 
   // --- Actions ---

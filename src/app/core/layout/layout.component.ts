@@ -181,7 +181,7 @@ import { LedgerSubSheetComponent } from '../../shared/ui/ledger-sub-sheet/ledger
 
         <div class="p-4 border-t-2 border-black mt-auto flex items-center justify-between bg-white">
           <span class="text-[10px] font-extrabold tracking-widest text-gray-400 uppercase">
-            v1.0.23
+            v1.0.25
           </span>
           <div class="flex gap-3">
             <button
@@ -409,7 +409,17 @@ export class Layout implements AfterViewInit {
   }
 
   handleFabClick() {
-    this.keyboardService.openKeyboardSync();
+    let shouldOpenKeyboard = true;
+
+    if (this.currentUrl().includes('/splits') || this.isGroupExpensesPage()) {
+      if (this.friendService.acceptedFriends().length === 0) {
+        shouldOpenKeyboard = false;
+      }
+    }
+
+    if (shouldOpenKeyboard) {
+      this.keyboardService.openKeyboardSync();
+    }
     
     if (this.currentUrl().includes('/budgets')) {
       this.budgetService.openBottomSheet();
