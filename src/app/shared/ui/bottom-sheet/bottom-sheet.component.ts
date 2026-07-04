@@ -328,7 +328,8 @@ export class BottomSheetComponent implements OnInit {
   constructor() {
     effect(() => {
       const month = this.selectedMonth();
-      if (month) {
+      const isOpen = this.expenseService.isBottomSheetOpen();
+      if (month && isOpen) {
         untracked(async () => {
           try {
             this.isBudgetsLoading.set(true);

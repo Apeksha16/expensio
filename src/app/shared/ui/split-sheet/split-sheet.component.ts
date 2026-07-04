@@ -474,6 +474,9 @@ export class SplitSheetComponent implements OnInit {
       const split = this.splitService.editingSplit();
       
       if (isOpen) {
+        untracked(() => {
+          this.loadCategories();
+        });
         if (split && split.id) {
           this.splitForm.patchValue({
             title: split.title,
@@ -513,7 +516,7 @@ export class SplitSheetComponent implements OnInit {
       }
     });
 
-    this.loadCategories();
+    // Initial load handled by effect when sheet opens
   }
 
   async loadCategories() {
