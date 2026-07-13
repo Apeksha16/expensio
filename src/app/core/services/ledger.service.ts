@@ -48,6 +48,10 @@ export class LedgerService {
   readonly activeLedgerForSub = signal<LedgerEntry | null>(null);
   readonly editingSubEntry = signal<LedgerSubTransaction | null>(null);
 
+  private ledgerChannel: any = null;
+  private subLedgerChannel: any = null;
+  private fetchEntriesTimeout: any;
+
   // Computeds for convenience
   readonly totalReceived = computed(() => {
     const parentIn = this.ledgerEntries()
@@ -75,10 +79,21 @@ export class LedgerService {
     effect(() => {
       const user = this.authService.currentUser();
       if (user) {
-        this.fetchEntries();
-      } else if (untracked(() => this.authService.isInitialized())) {
+        untracked(() => {
+          this.fetchEntries();
+          this.setupRealtime();
+        });
+      } else {
         this.ledgerEntries.set([]);
         this.subTransactions.set([]);
+        if (this.ledgerChannel) {
+          this.supabaseService.client.removeChannel(this.ledgerChannel);
+          this.ledgerChannel = null;
+        }
+        if (this.subLedgerChannel) {
+          this.supabaseService.client.removeChannel(this.subLedgerChannel);
+          this.subLedgerChannel = null;
+        }
       }
     });
   }
@@ -88,6 +103,31 @@ export class LedgerService {
     const parentVal = ledger.type === 'in' ? ledger.amount : -ledger.amount;
     const subsVal = subs.reduce((sum, s) => sum + (s.type === 'in' ? s.amount : -s.amount), 0);
     return parentVal + subsVal;
+  }
+
+  private setupRealtime() {
+    if (!this.ledgerChannel) {
+      this.ledgerChannel = this.supabaseService.client.channel('public:ledger_entries')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'ledger_entries' }, () => {
+          this.triggerFetchEntries();
+        })
+        .subscribe();
+    }
+
+    if (!this.subLedgerChannel) {
+      this.subLedgerChannel = this.supabaseService.client.channel('public:ledger_sub_transactions')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'ledger_sub_transactions' }, () => {
+          this.triggerFetchEntries();
+        })
+        .subscribe();
+    }
+  }
+
+  triggerFetchEntries() {
+    if (this.fetchEntriesTimeout) clearTimeout(this.fetchEntriesTimeout);
+    this.fetchEntriesTimeout = setTimeout(() => {
+      this.fetchEntries();
+    }, 100);
   }
 
   async fetchEntries() {

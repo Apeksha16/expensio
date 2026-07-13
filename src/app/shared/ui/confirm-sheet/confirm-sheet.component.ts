@@ -113,6 +113,7 @@ export class ConfirmSheetComponent {
 
   close() {
     this.haptic.impactLight();
+    this.currentAmount = undefined;
     this.confirmService.close();
   }
 

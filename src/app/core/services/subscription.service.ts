@@ -54,13 +54,23 @@ export class SubscriptionService {
   readonly isBottomSheetOpen = signal(false);
   readonly editingSubscription = signal<Subscription | null>(null);
 
+  private realtimeChannel: any = null;
+  private fetchSubsTimeout: any;
+
   constructor(@Inject(DOCUMENT) private document: Document) {
     effect(() => {
       const user = this.authService.currentUser();
       if (user) {
-        this.fetchSubscriptions();
-      } else if (untracked(() => this.authService.isInitialized())) {
+        untracked(() => {
+          this.fetchSubscriptions();
+          this.setupRealtime();
+        });
+      } else {
         this.subscriptions.set([]);
+        if (this.realtimeChannel) {
+          this.supabaseService.client.removeChannel(this.realtimeChannel);
+          this.realtimeChannel = null;
+        }
       }
     });
   }
@@ -69,6 +79,22 @@ export class SubscriptionService {
     const d = new Date();
     const m = (d.getMonth() + 1).toString().padStart(2, '0');
     return `${d.getFullYear()}-${m}`;
+  }
+
+  private setupRealtime() {
+    if (this.realtimeChannel) return;
+    this.realtimeChannel = this.supabaseService.client.channel('public:subscriptions')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'subscriptions' }, () => {
+        this.triggerFetchSubscriptions();
+      })
+      .subscribe();
+  }
+
+  triggerFetchSubscriptions() {
+    if (this.fetchSubsTimeout) clearTimeout(this.fetchSubsTimeout);
+    this.fetchSubsTimeout = setTimeout(() => {
+      this.fetchSubscriptions();
+    }, 100);
   }
 
   async fetchSubscriptions() {

@@ -41,15 +41,41 @@ export class GoalService {
   readonly activeGoalForFunds = signal<Goal | null>(null);
   readonly editingFund = signal<any | null>(null);
 
+  private realtimeChannel: any = null;
+  private fetchGoalsTimeout: any;
+
   constructor(@Inject(DOCUMENT) private document: Document) {
     effect(() => {
       const user = this.authService.currentUser();
       if (user) {
-        this.fetchGoals();
-      } else if (untracked(() => this.authService.isInitialized())) {
+        untracked(() => {
+          this.fetchGoals();
+          this.setupRealtime();
+        });
+      } else {
         this.goals.set([]);
+        if (this.realtimeChannel) {
+          this.supabaseService.client.removeChannel(this.realtimeChannel);
+          this.realtimeChannel = null;
+        }
       }
     });
+  }
+
+  private setupRealtime() {
+    if (this.realtimeChannel) return;
+    this.realtimeChannel = this.supabaseService.client.channel('public:goals')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'goals' }, () => {
+        this.triggerFetchGoals();
+      })
+      .subscribe();
+  }
+
+  triggerFetchGoals() {
+    if (this.fetchGoalsTimeout) clearTimeout(this.fetchGoalsTimeout);
+    this.fetchGoalsTimeout = setTimeout(() => {
+      this.fetchGoals();
+    }, 100);
   }
 
   async fetchGoals() {

@@ -80,7 +80,8 @@ create table if not exists public.budgets (
   icon_path text not null,
   month text not null,
   auto_rollover boolean default false,
-  created_at timestamp with time zone default timezone('utc'::text, now())
+  created_at timestamp with time zone default timezone('utc'::text, now()),
+  unique(user_id, name, month)
 );
 
 -- Enable RLS
@@ -156,6 +157,11 @@ commit;
 alter publication supabase_realtime add table public.friends;
 alter publication supabase_realtime add table public.split_groups;
 alter publication supabase_realtime add table public.split_expenses;
+alter publication supabase_realtime add table public.budgets;
+alter publication supabase_realtime add table public.goals;
+alter publication supabase_realtime add table public.subscriptions;
+alter publication supabase_realtime add table public.ledger_entries;
+alter publication supabase_realtime add table public.ledger_sub_transactions;
 
 -- Search Function
 create or replace function search_users_for_friendship(search_query text, max_friends int default 10)
@@ -606,3 +612,104 @@ create policy "Users can view own ledger sub-transactions."
     )
   );
 
+-- RPC: calculate_monthly_spend
+create or replace function calculate_monthly_spend(p_user_id uuid, p_month text)
+returns numeric
+language plpgsql
+security definer set search_path = ''
+as $$
+declare
+  total_spent numeric := 0;
+  expenses_total numeric := 0;
+  splits_total numeric := 0;
+begin
+  -- 1. Regular Expenses
+  select coalesce(sum(amount), 0) into expenses_total
+  from public.expenses
+  where user_id = p_user_id
+    and to_char(date::date, 'YYYY-MM') = p_month;
+    
+  -- 2. Your share of Split Expenses
+  -- We sum the amountOwed by the user across all splits for the month
+  select coalesce(sum(
+    (
+      select coalesce(sum((p->>'amountOwed')::numeric), 0)
+      from jsonb_array_elements(participants) as p
+      where p->>'userId' = p_user_id::text
+        and (p->>'amountOwed')::numeric > 0
+    )
+  ), 0) into splits_total
+  from public.split_expenses
+  where to_char(date::date, 'YYYY-MM') = p_month
+    and title != 'Settlement';
+
+  total_spent := expenses_total + splits_total;
+  
+  return total_spent;
+end;
+$$;
+
+-- ==========================================
+-- VIEW: monthly_summaries
+-- ==========================================
+CREATE OR REPLACE VIEW public.monthly_summaries AS
+WITH all_expenses AS (
+    SELECT 
+        user_id,
+        to_char(date::date, 'YYYY-MM') as month,
+        amount,
+        category,
+        CASE 
+            WHEN category = 'virtual-invest' THEN 'goal'
+            WHEN subscription_id IS NOT NULL THEN 'subscription'
+            ELSE 'expense'
+        END as source
+    FROM public.expenses
+    UNION ALL
+    SELECT 
+        (p->>'userId')::uuid as user_id,
+        to_char(se.date::date, 'YYYY-MM') as month,
+        (p->>'amountOwed')::numeric as amount,
+        se.category as category,
+        'split' as source
+    FROM public.split_expenses se,
+         jsonb_array_elements(se.participants) as p
+    WHERE se.title != 'Settlement'
+      AND (p->>'amountOwed')::numeric > 0
+),
+category_sums_by_source AS (
+    SELECT user_id, month, source, category, SUM(amount) as cat_total
+    FROM all_expenses
+    GROUP BY user_id, month, source, category
+),
+source_jsons AS (
+    SELECT user_id, month, source, jsonb_object_agg(category, cat_total) as cat_json
+    FROM category_sums_by_source
+    GROUP BY user_id, month, source
+),
+month_totals AS (
+    SELECT 
+        user_id, 
+        month, 
+        SUM(amount) as total_spent,
+        SUM(CASE WHEN source = 'expense' THEN amount ELSE 0 END) as regular_expenses_total,
+        SUM(CASE WHEN source = 'goal' THEN amount ELSE 0 END) as goal_expenses_total,
+        SUM(CASE WHEN source = 'subscription' THEN amount ELSE 0 END) as subscription_expenses_total,
+        SUM(CASE WHEN source = 'split' THEN amount ELSE 0 END) as split_expenses_total
+    FROM all_expenses
+    GROUP BY user_id, month
+)
+SELECT 
+    m.user_id,
+    m.month,
+    m.total_spent,
+    m.regular_expenses_total,
+    m.goal_expenses_total,
+    m.subscription_expenses_total,
+    m.split_expenses_total,
+    (
+        SELECT jsonb_object_agg(s.source, s.cat_json)
+        FROM source_jsons s
+        WHERE s.user_id = m.user_id AND s.month = m.month
+    ) as breakdown_by_source
+FROM month_totals m;

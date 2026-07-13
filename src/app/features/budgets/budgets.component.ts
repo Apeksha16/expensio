@@ -25,17 +25,25 @@ import { Router } from '@angular/router';
             <span class="text-xs font-bold text-budget-surface uppercase tracking-widest mb-1 opacity-80"
               >Total Allocation</span
             >
-            <span class="text-4xl font-extrabold tracking-tight">
-              ₹{{ totalAllocated() | number: '1.0-0' }}
-            </span>
+            @if (budgetService.isLoading()) {
+              <div class="h-10 w-32 bg-white/20 animate-pulse rounded-none mt-1"></div>
+            } @else {
+              <span class="text-4xl font-extrabold tracking-tight">
+                ₹{{ totalAllocated() | number: '1.0-0' }}
+              </span>
+            }
           </div>
           <div class="text-right flex flex-col cursor-pointer" (click)="showSalaryLimit.update(v => !v)">
             <span class="text-[10px] font-bold text-budget-surface uppercase tracking-widest opacity-80"
               >Salary Limit</span
             >
-            <span class="text-sm font-extrabold text-white transition-all select-none">
-              {{ isMasked() && !showSalaryLimit() ? '••••' : '₹' + (monthlySalary() | number: '1.0-0') }}
-            </span>
+            @if (budgetService.isLoading()) {
+              <div class="h-5 w-16 bg-white/20 animate-pulse rounded-none mt-1 self-end"></div>
+            } @else {
+              <span class="text-sm font-extrabold text-white transition-all select-none mt-1">
+                {{ isMasked() && !showSalaryLimit() ? '••••' : '₹' + (monthlySalary() | number: '1.0-0') }}
+              </span>
+            }
           </div>
         </div>
 

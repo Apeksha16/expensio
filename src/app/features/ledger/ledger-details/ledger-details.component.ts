@@ -69,6 +69,30 @@ import { LedgerService, LedgerEntry, LedgerSubTransaction } from '../../../core/
               </div>
             </div>
 
+            @if (ledgerBalance() !== 0) {
+              <div class="mb-5 flex gap-3">
+                @if (ledgerBalance() > 0) {
+                  <button 
+                    (click)="settleBalance('in')"
+                    class="flex-1 bg-green-600 hover:bg-green-700 text-white p-3 font-extrabold text-sm uppercase tracking-widest transition-colors rounded-none flex items-center justify-center gap-2 border-2 border-transparent active:scale-[0.98]">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                    </svg>
+                    Received Back
+                  </button>
+                } @else {
+                  <button 
+                    (click)="settleBalance('out')"
+                    class="flex-1 bg-red-600 hover:bg-red-700 text-white p-3 font-extrabold text-sm uppercase tracking-widest transition-colors rounded-none flex items-center justify-center gap-2 border-2 border-transparent active:scale-[0.98]">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                    </svg>
+                    Paid Back
+                  </button>
+                }
+              </div>
+            }
+
             <!-- Payment History -->
             <div class="flex flex-col gap-3">
               <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest px-1 mb-1">
@@ -149,6 +173,21 @@ export class LedgerDetailsComponent {
     if (!active) return 0;
     return this.ledgerService.getLedgerBalance(active);
   });
+
+  async settleBalance(type: 'in' | 'out') {
+    const parent = this.ledger();
+    if (!parent) return;
+    const balance = Math.abs(this.ledgerBalance());
+    if (balance === 0) return;
+    
+    await this.ledgerService.addSubEntry({
+      ledger_id: parent.id,
+      amount: balance,
+      type: type,
+      purpose: 'Settlement',
+      date: new Date().toISOString()
+    });
+  }
 
   editTransaction(tx: LedgerSubTransaction) {
     const parent = this.ledger();

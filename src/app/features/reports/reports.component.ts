@@ -1,12 +1,12 @@
-import { Component, inject, OnInit, OnDestroy, ViewChild, ElementRef, effect } from '@angular/core';
-import { CommonModule, CurrencyPipe } from '@angular/common';
-import { ReportService, DateRangePreset, ReportExpense } from '../../core/services/report.service';
+import { Component, OnInit, OnDestroy, ElementRef, ViewChild, inject, effect } from '@angular/core';
+import { CommonModule, CurrencyPipe, DecimalPipe } from '@angular/common';
+import { ReportService, DateRangePreset, ReportExpense, MonthlySummary } from '../../core/services/report.service';
 import Chart from 'chart.js/auto';
 
 @Component({
   selector: 'app-reports',
   standalone: true,
-  imports: [CommonModule, CurrencyPipe],
+  imports: [CommonModule, CurrencyPipe, DecimalPipe],
   template: `
     <div class="h-full flex flex-col relative w-full bg-gray-50 overflow-y-auto">
       <!-- Filters Header -->
@@ -83,7 +83,7 @@ import Chart from 'chart.js/auto';
               }
             </div>
           </div>
-        } @else if (reportService.expenses().length === 0) {
+        } @else if (reportService.expenses().length === 0 && (!reportService.isLongTerm() || reportService.monthlySummaries().length === 0)) {
           <div class="flex-1 flex flex-col items-center justify-center p-8 text-center mt-8">
             <div
               class="w-32 h-32 bg-reports-surface border-2 border-reports-light rounded-full flex items-center justify-center mb-6"
@@ -172,19 +172,30 @@ export class ReportsComponent implements OnInit, OnDestroy {
   topExpenses: ReportExpense[] = [];
 
   constructor() {
-    // Re-render charts when data changes
     effect(() => {
+      const isLongTerm = this.reportService.isLongTerm();
       const expenses = this.reportService.expenses();
+      const summaries = this.reportService.monthlySummaries();
       const isLoading = this.reportService.isLoading();
       
-      if (!isLoading && expenses.length > 0) {
-        this.calculateInsights(expenses);
-        
-        // Wait a tick for the canvas elements to be rendered in the DOM by @if
-        setTimeout(() => {
-          this.renderCategoryChart(expenses);
-          this.renderTrendChart(expenses);
-        }, 0);
+      if (!isLoading) {
+        if (isLongTerm) {
+          if (summaries.length > 0 || expenses.length > 0) {
+            this.calculateInsightsLongTerm(summaries, expenses);
+            setTimeout(() => {
+              this.renderCategoryChartLongTerm(summaries);
+              this.renderTrendChartLongTerm(summaries);
+            }, 0);
+          }
+        } else {
+          if (expenses.length > 0) {
+            this.calculateInsights(expenses);
+            setTimeout(() => {
+              this.renderCategoryChart(expenses);
+              this.renderTrendChart(expenses);
+            }, 0);
+          }
+        }
       }
     });
   }
@@ -218,35 +229,42 @@ export class ReportsComponent implements OnInit, OnDestroy {
     if (category === 'virtual-invest') return '#f26a8d'; // Goals
     
     if (category.includes('(Group Split)') || category.includes('(Split)')) {
-      // Splits palette (base: #629900)
       const splits = ['#629900', '#4d7a00', '#7ac200', '#a8e046', '#3f6200'];
       return splits[index % splits.length];
     }
     
     if (category.includes('(Subscription)')) {
-      // Subscriptions palette (base: #8B5CF6)
       const subs = ['#8B5CF6', '#7C3AED', '#6D28D9', '#A78BFA', '#5B21B6'];
       return subs[index % subs.length];
     }
     
-    // Default palette for regular expenses (base: #3B82F6)
     const expenses = ['#3B82F6', '#2563EB', '#1D4ED8', '#60A5FA', '#1E40AF', '#93C5FD'];
     return expenses[index % expenses.length];
   }
-
-  private calculateInsights(expenses: ReportExpense[]) {
-    this.totalSpent = expenses.reduce((sum, e) => sum + e.amount, 0);
-    
-    // Sort by amount descending to get top 5
-    const sortedByAmount = [...expenses].sort((a, b) => b.amount - a.amount);
-    this.topExpenses = sortedByAmount.slice(0, 5);
-
-    // Calculate daily average based on range
+  
+  private calculateDailyAverageFromTotal(total: number) {
     const { startDate, endDate } = this.reportService.getDateRangeForPreset(this.reportService.activePreset());
     const start = new Date(startDate);
     const end = new Date(endDate);
     
-    // If "All Time", we use the date of the first expense to now
+    let diffTime = end.getTime() - start.getTime();
+    if (this.reportService.activePreset() === 'All Time') {
+       diffTime = new Date().getTime() - new Date(2023, 0, 1).getTime();
+    }
+    
+    const diffDays = Math.max(1, Math.round(diffTime / (1000 * 60 * 60 * 24)));
+    this.dailyAverage = total / diffDays;
+  }
+
+  private calculateInsights(expenses: ReportExpense[]) {
+    this.totalSpent = expenses.reduce((sum, e) => sum + e.amount, 0);
+    const sortedByAmount = [...expenses].sort((a, b) => b.amount - a.amount);
+    this.topExpenses = sortedByAmount.slice(0, 5);
+
+    const { startDate, endDate } = this.reportService.getDateRangeForPreset(this.reportService.activePreset());
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    
     let diffTime = end.getTime() - start.getTime();
     if (this.reportService.activePreset() === 'All Time' && expenses.length > 0) {
       const firstExpDate = new Date(expenses[expenses.length - 1].date);
@@ -255,6 +273,23 @@ export class ReportsComponent implements OnInit, OnDestroy {
     
     const diffDays = Math.max(1, Math.round(diffTime / (1000 * 60 * 60 * 24)));
     this.dailyAverage = this.totalSpent / diffDays;
+  }
+  
+  private calculateInsightsLongTerm(summaries: MonthlySummary[], expenses: ReportExpense[]) {
+    const showGoals = this.reportService.showGoals();
+    const showSubs = this.reportService.showSubscriptions();
+    const showSplits = this.reportService.showSplits();
+    
+    this.totalSpent = summaries.reduce((sum, m) => {
+      let t = m.regular_expenses_total;
+      if (showGoals) t += m.goal_expenses_total;
+      if (showSubs) t += m.subscription_expenses_total;
+      if (showSplits) t += m.split_expenses_total;
+      return sum + t;
+    }, 0);
+    
+    this.calculateDailyAverageFromTotal(this.totalSpent);
+    this.topExpenses = expenses;
   }
 
   private renderCategoryChart(expenses: ReportExpense[]) {
@@ -265,16 +300,13 @@ export class ReportsComponent implements OnInit, OnDestroy {
 
     if (this.catChartInstance) this.catChartInstance.destroy();
 
-    // Group by category
     const categoryTotals: Record<string, number> = {};
     expenses.forEach(e => {
       categoryTotals[e.category] = (categoryTotals[e.category] || 0) + e.amount;
     });
 
-    // Sort by total descending
     const sortedEntries = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]);
     
-    // Top 5 and Others
     const labels: string[] = [];
     const data: number[] = [];
     let othersTotal = 0;
@@ -326,6 +358,85 @@ export class ReportsComponent implements OnInit, OnDestroy {
       }
     });
   }
+  
+  private renderCategoryChartLongTerm(summaries: MonthlySummary[]) {
+    if (!this.categoryCanvas) return;
+    
+    const ctx = this.categoryCanvas.nativeElement.getContext('2d');
+    if (!ctx) return;
+
+    if (this.catChartInstance) this.catChartInstance.destroy();
+
+    const showGoals = this.reportService.showGoals();
+    const showSubs = this.reportService.showSubscriptions();
+    const showSplits = this.reportService.showSplits();
+    
+    const categoryTotals: Record<string, number> = {};
+    
+    summaries.forEach(m => {
+      if (!m.breakdown_by_source) return;
+      
+      const applySource = (sourceKey: string) => {
+         const catMap = m.breakdown_by_source[sourceKey];
+         if (catMap) {
+           Object.entries(catMap).forEach(([cat, val]) => {
+              categoryTotals[cat] = (categoryTotals[cat] || 0) + val;
+           });
+         }
+      };
+      
+      applySource('expense');
+      if (showGoals) applySource('goal');
+      if (showSubs) applySource('subscription');
+      if (showSplits) applySource('split');
+    });
+
+    const sortedEntries = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]);
+    const labels: string[] = [];
+    const data: number[] = [];
+    let othersTotal = 0;
+
+    sortedEntries.forEach((entry, index) => {
+      if (index < 5) {
+        labels.push(entry[0]);
+        data.push(entry[1]);
+      } else {
+        othersTotal += entry[1];
+      }
+    });
+
+    if (othersTotal > 0) {
+      labels.push('Others');
+      data.push(othersTotal);
+    }
+
+    const backgroundColors = labels.map((label, idx) => {
+      if (label === 'Others') return '#999999';
+      return this.getCategoryColorHEX(label, idx);
+    });
+
+    this.catChartInstance = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels,
+        datasets: [{
+          data,
+          backgroundColor: backgroundColors,
+          borderWidth: 2,
+          borderColor: '#ffffff',
+          hoverOffset: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'right', labels: { font: { weight: 'bold', size: 10 }, color: '#000' } }
+        },
+        cutout: '65%'
+      }
+    });
+  }
 
   private renderTrendChart(expenses: ReportExpense[]) {
     if (!this.trendCanvas) return;
@@ -335,24 +446,20 @@ export class ReportsComponent implements OnInit, OnDestroy {
 
     if (this.trendChartInstance) this.trendChartInstance.destroy();
 
-    // Group by month (YYYY-MM) or Day (YYYY-MM-DD) depending on range
     const preset = this.reportService.activePreset();
     const groupBy = (preset === 'This Month' || preset === 'Last Month') ? 'day' : 'month';
 
     const trends: Record<string, number> = {};
     
     expenses.forEach(e => {
-      // e.date is ISO string or YYYY-MM-DD
       const dateStr = e.date.split('T')[0];
-      const key = groupBy === 'day' ? dateStr.substring(8, 10) : dateStr.substring(0, 7); // '15' or '2026-06'
+      const key = groupBy === 'day' ? dateStr.substring(8, 10) : dateStr.substring(0, 7); 
       trends[key] = (trends[key] || 0) + e.amount;
     });
 
-    // Sort chronologically
     const sortedKeys = Object.keys(trends).sort();
     const labels = sortedKeys.map(k => {
-      if (groupBy === 'day') return k; // day number
-      // Format '2026-06' to 'Jun 26'
+      if (groupBy === 'day') return k; 
       const date = new Date(k + '-01');
       return date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
     });
@@ -381,7 +488,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
           x: {
             grid: { display: false },
             ticks: {
-              font: { family: 'Inter, sans-serif', weight: 'bold', size: 10 },
+              font: { weight: 'bold', size: 10 },
               color: '#666'
             }
           },
@@ -389,7 +496,74 @@ export class ReportsComponent implements OnInit, OnDestroy {
             grid: { color: '#f3f4f6' },
             beginAtZero: true,
             ticks: {
-              font: { family: 'Inter, sans-serif', weight: 'bold', size: 10 },
+              font: { weight: 'bold', size: 10 },
+              color: '#666',
+              maxTicksLimit: 5,
+              callback: (value) => '₹' + value
+            }
+          }
+        }
+      }
+    });
+  }
+  
+  private renderTrendChartLongTerm(summaries: MonthlySummary[]) {
+    if (!this.trendCanvas) return;
+    
+    const ctx = this.trendCanvas.nativeElement.getContext('2d');
+    if (!ctx) return;
+
+    if (this.trendChartInstance) this.trendChartInstance.destroy();
+
+    const trends: Record<string, number> = {};
+    const showGoals = this.reportService.showGoals();
+    const showSubs = this.reportService.showSubscriptions();
+    const showSplits = this.reportService.showSplits();
+    
+    summaries.forEach(m => {
+      let t = m.regular_expenses_total;
+      if (showGoals) t += m.goal_expenses_total;
+      if (showSubs) t += m.subscription_expenses_total;
+      if (showSplits) t += m.split_expenses_total;
+      trends[m.month] = (trends[m.month] || 0) + t;
+    });
+
+    const sortedKeys = Object.keys(trends).sort();
+    const labels = sortedKeys.map(k => {
+      const date = new Date(k + '-01');
+      return date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+    });
+    const data = sortedKeys.map(k => trends[k]);
+
+    this.trendChartInstance = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Total Spent',
+          data,
+          backgroundColor: '#EC4899',
+          borderWidth: 2,
+          borderColor: '#EC4899',
+          borderRadius: 0,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { font: { weight: 'bold', size: 10 }, color: '#666' }
+          },
+          y: {
+            grid: { color: '#f3f4f6' },
+            beginAtZero: true,
+            ticks: {
+              font: { weight: 'bold', size: 10 },
               color: '#666',
               maxTicksLimit: 5,
               callback: (value) => '₹' + value

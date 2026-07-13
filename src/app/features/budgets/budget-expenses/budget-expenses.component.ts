@@ -25,15 +25,25 @@ import { SubscriptionService } from '../../../core/services/subscription.service
           <!-- Abstract Decoration -->
           <div class="flex justify-between items-end relative z-10">
             <div class="flex flex-col">
-              <span class="text-xs font-bold text-budget-surface uppercase tracking-widest mb-1 opacity-80">{{ budgetName() }}</span>
-              <span class="text-4xl font-extrabold tracking-tight">₹{{ consumed() | number: '1.0-0' }}</span>
+              @if (budgetService.isLoading()) {
+                <div class="h-4 w-24 bg-white/20 animate-pulse rounded-none mb-1"></div>
+                <div class="h-10 w-32 bg-white/20 animate-pulse rounded-none mt-1"></div>
+              } @else {
+                <span class="text-xs font-bold text-budget-surface uppercase tracking-widest mb-1 opacity-80">{{ budgetName() }}</span>
+                <span class="text-4xl font-extrabold tracking-tight">₹{{ consumed() | number: '1.0-0' }}</span>
+              }
             </div>
             <div class="text-right flex flex-col">
-              @if (isVirtualOthers()) {
-                <span class="text-[10px] font-bold text-budget-surface uppercase tracking-widest opacity-80">Unbudgeted</span>
+              @if (budgetService.isLoading()) {
+                <div class="h-4 w-16 bg-white/20 animate-pulse rounded-none mb-1 self-end"></div>
+                <div class="h-5 w-20 bg-white/20 animate-pulse rounded-none mt-1 self-end"></div>
               } @else {
-                <span class="text-[10px] font-bold text-budget-surface uppercase tracking-widest opacity-80">Limit</span>
-                <span class="text-sm font-extrabold text-white">₹{{ budgetAmount() | number: '1.0-0' }}</span>
+                @if (isVirtualOthers()) {
+                  <span class="text-[10px] font-bold text-budget-surface uppercase tracking-widest opacity-80">Unbudgeted</span>
+                } @else {
+                  <span class="text-[10px] font-bold text-budget-surface uppercase tracking-widest opacity-80">Limit</span>
+                  <span class="text-sm font-extrabold text-white">₹{{ budgetAmount() | number: '1.0-0' }}</span>
+                }
               }
             </div>
           </div>

@@ -122,19 +122,11 @@ import { KeyboardService } from '../../core/services/keyboard.service';
         <div class="bg-black text-white p-6 border-2 border-black rounded-none relative overflow-hidden">
           <div class="flex flex-col items-center justify-center relative mt-2">
             <svg viewBox="0 0 100 55" class="w-full max-w-[220px] drop-shadow-xl">
-              <defs>
-                <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stop-color="#10B981" /> <!-- budget -->
-                  <stop offset="25%" stop-color="#06B6D4" /> <!-- splits -->
-                  <stop offset="50%" stop-color="#F59E0B" /> <!-- friends -->
-                  <stop offset="75%" stop-color="#8B5CF6" /> <!-- subscriptions -->
-                  <stop offset="100%" stop-color="#EF4444" /> <!-- expense -->
-                </linearGradient>
-              </defs>
+              <!-- Removed gaugeGradient defs -->
               <!-- Background track -->
               <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#333" stroke-width="8" stroke-linecap="butt" />
               <!-- Progress -->
-              <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="url(#gaugeGradient)" stroke-width="8" stroke-linecap="butt"
+              <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="butt"
                     stroke-dasharray="125.66" [attr.stroke-dashoffset]="gaugeOffset()"
                     class="transition-all duration-1000 ease-out" />
             </svg>
@@ -355,11 +347,7 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   }
 
   thisMonthTotal = computed(() => {
-    const month = this.expenseService.activeMonth();
-    return this.expenseService
-      .expenses()
-      .filter((e) => e.date.startsWith(month))
-      .reduce((sum, e) => sum + e.amount, 0);
+    return this.expenseService.monthlyTotalSpend();
   });
 
   salary = computed(() => this.authService.userProfile().salary || 0);

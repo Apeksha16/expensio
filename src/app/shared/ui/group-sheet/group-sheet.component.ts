@@ -119,7 +119,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                       type="checkbox"
                       checked
                       disabled
-                      class="w-5 h-5 accent-[#1a2e22] border-2 border-gray-300 rounded-none focus:ring-0"
+                      class="w-5 h-5 accent-splits-primary border-2 border-gray-300 rounded-none focus:ring-0"
                     />
                     <span class="font-bold text-sm text-gray-400">Me (Admin)</span>
                   </label>
@@ -131,7 +131,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                         type="checkbox"
                         (change)="toggleGroupMember(friend.profile.id)"
                         [checked]="isGroupMember(friend.profile.id)"
-                        class="w-5 h-5 accent-[#1a2e22] border-2 border-gray-300 rounded-none focus:ring-0"
+                        class="w-5 h-5 accent-splits-primary border-2 border-gray-300 rounded-none focus:ring-0"
                       />
                       <span class="font-bold text-sm text-gray-900 truncate">{{ friend.profile.name.split(' ')[0] }}</span>
                     </label>

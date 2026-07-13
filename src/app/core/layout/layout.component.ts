@@ -181,7 +181,7 @@ import { LedgerSubSheetComponent } from '../../shared/ui/ledger-sub-sheet/ledger
 
         <div class="p-4 border-t-2 border-black mt-auto flex items-center justify-between bg-white">
           <span class="text-[10px] font-extrabold tracking-widest text-gray-400 uppercase">
-            v1.0.25
+            v1.0.26
           </span>
           <div class="flex gap-3">
             <button

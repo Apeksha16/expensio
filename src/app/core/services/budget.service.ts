@@ -54,9 +54,16 @@ export class BudgetService {
       const user = this.authService.currentUser();
       const month = this.expenseService.activeMonth();
       if (user && month) {
-        this.fetchBudgets(month);
+        untracked(() => {
+          this.fetchBudgets(month);
+          this.setupRealtime(month);
+        });
       } else {
         this._budgets.set([]);
+        if (this.realtimeChannel) {
+          this.supabaseService.client.removeChannel(this.realtimeChannel);
+          this.realtimeChannel = null;
+        }
       }
     });
   }
@@ -64,6 +71,9 @@ export class BudgetService {
   // Global bottom sheet state
   readonly isBottomSheetOpen = signal(false);
   readonly editingBudget = signal<Budget | null>(null);
+
+  private realtimeChannel: any = null;
+  private fetchBudgetsTimeout: any;
 
   // Calculate the remaining budget available to allocate
   readonly remainingSalary = computed(() => {
@@ -97,6 +107,27 @@ export class BudgetService {
   }
 
   private activeFetchMonth = '';
+
+  private setupRealtime(monthStr: string) {
+    if (this.realtimeChannel) {
+      this.supabaseService.client.removeChannel(this.realtimeChannel);
+    }
+    
+    // We filter realtime events to only those affecting the current active month, 
+    // to prevent unnecessary re-fetches if background tasks update other months
+    this.realtimeChannel = this.supabaseService.client.channel('public:budgets')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'budgets', filter: `month=eq.${monthStr}` }, () => {
+        this.triggerFetchBudgets(monthStr);
+      })
+      .subscribe();
+  }
+
+  triggerFetchBudgets(monthStr: string) {
+    if (this.fetchBudgetsTimeout) clearTimeout(this.fetchBudgetsTimeout);
+    this.fetchBudgetsTimeout = setTimeout(() => {
+      this.fetchBudgets(monthStr);
+    }, 100);
+  }
 
   async fetchBudgets(monthStr: string) {
     if (untracked(() => this.isLoading()) && this.activeFetchMonth === monthStr) return;

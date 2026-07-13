@@ -65,6 +65,7 @@ export class ExpenseService {
 
   // The displayed expenses
   readonly expenses = signal<Expense[]>([]);
+  readonly monthlyTotalSpend = signal<number>(0);
   
   // Global bottom sheet state
   readonly isBottomSheetOpen = signal(false);
@@ -99,7 +100,8 @@ export class ExpenseService {
 
     const [
       { data: expensesData, error: expensesError },
-      { data: splitsData, error: splitsError }
+      { data: splitsData, error: splitsError },
+      { data: spendData, error: spendError }
     ] = await Promise.all([
       this.supabaseService.client
         .from('expenses')
@@ -110,8 +112,19 @@ export class ExpenseService {
         .from('split_expenses')
         .select('*')
         .gte('date', startDate)
-        .lt('date', nextMonthStr)
+        .lt('date', nextMonthStr),
+      this.supabaseService.client
+        .rpc('calculate_monthly_spend', {
+          p_user_id: this.authService.currentUser()?.id,
+          p_month: month
+        })
     ]);
+
+    if (!spendError && spendData !== null) {
+      this.monthlyTotalSpend.set(Number(spendData));
+    } else {
+      this.monthlyTotalSpend.set(0);
+    }
 
     let all: Expense[] = [];
 

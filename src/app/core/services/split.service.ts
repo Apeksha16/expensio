@@ -66,6 +66,7 @@ export class SplitService {
 
   private groupChannel: any = null;
   private expenseChannel: any = null;
+  private loadDataTimeout: any;
 
   constructor() {
     if (isPlatformBrowser(this.platformId)) {
@@ -152,12 +153,19 @@ export class SplitService {
     }
   }
 
+  triggerLoadData(syncExpenses: boolean = false) {
+    if (this.loadDataTimeout) clearTimeout(this.loadDataTimeout);
+    this.loadDataTimeout = setTimeout(() => {
+      this.loadData(syncExpenses);
+    }, 100);
+  }
+
   private setupRealtime() {
     if (!this.groupChannel) {
       this.groupChannel = this.supabase.client
         .channel('public:split_groups')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'split_groups' }, () => {
-          this.loadData(true);
+          this.triggerLoadData(true);
         })
         .subscribe();
     }
@@ -166,7 +174,7 @@ export class SplitService {
       this.expenseChannel = this.supabase.client
         .channel('public:split_expenses')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'split_expenses' }, () => {
-          this.loadData(true);
+          this.triggerLoadData(true);
         })
         .subscribe();
     }
