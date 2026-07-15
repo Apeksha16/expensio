@@ -22,6 +22,7 @@ export interface SplitExpense {
   category?: string | null;
   date: string;
   parent_expense_id?: string | null;
+  paid_via?: 'Cash' | 'Credit Card' | 'UPI';
   created_at: string;
 }
 
@@ -183,9 +184,10 @@ export class SplitService {
   // --- Actions ---
 
   async addSplit(split: Omit<SplitExpense, 'id' | 'created_at'>) {
+    const splitData = { ...split, paid_via: split.paid_via || 'UPI' };
     const { data, error } = await this.supabase.client
       .from('split_expenses')
-      .insert([split])
+      .insert([splitData])
       .select()
       .single();
       
@@ -286,7 +288,8 @@ export class SplitService {
         participant_ids: split.participant_ids,
         category: split.category,
         group_id: split.group_id,
-        date: split.date
+        date: split.date,
+        paid_via: split.paid_via || 'UPI'
       })
       .eq('id', split.id)
       .select()

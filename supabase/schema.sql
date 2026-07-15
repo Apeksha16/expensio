@@ -41,6 +41,7 @@ create table if not exists public.expenses (
   amount numeric not null,
   category text not null,
   date timestamp with time zone not null,
+  paid_via text default 'UPI' check (paid_via in ('Cash', 'Credit Card', 'UPI')),
   created_at timestamp with time zone default timezone('utc'::text, now())
 );
 
@@ -249,6 +250,7 @@ create table if not exists public.split_expenses (
   date timestamp with time zone not null,
   participants jsonb not null default '[]'::jsonb,
   participant_ids uuid[] not null default '{}',
+  paid_via text default 'UPI' check (paid_via in ('Cash', 'Credit Card', 'UPI')),
   created_at timestamp with time zone default timezone('utc'::text, now())
 );
 

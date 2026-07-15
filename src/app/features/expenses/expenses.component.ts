@@ -207,7 +207,7 @@ export class Expenses implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getTotal() {
-    return this.expenseService.expenses().reduce((sum, exp) => sum + exp.amount, 0);
+    return this.expenseService.monthlyTotalSpend();
   }
 
   getActiveMonthLabel() {

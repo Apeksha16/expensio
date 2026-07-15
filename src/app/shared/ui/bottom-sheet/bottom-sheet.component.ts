@@ -203,6 +203,28 @@ import { SafeInputDirective } from '../safe-input.directive';
                 </div>
               </div>
             }
+            <!-- Paid Via -->
+            <div class="flex flex-col gap-1">
+              <label class="text-[11px] font-semibold text-expense-dark tracking-widest uppercase"
+                >Paid Via</label
+              >
+              <div class="grid grid-cols-3 gap-2">
+                @for (method of ['Cash', 'Credit Card', 'UPI']; track method) {
+                  <button
+                    type="button"
+                    (click)="expenseForm.patchValue({ paid_via: method })"
+                    class="flex flex-col items-center justify-center gap-1 p-2 border-2 rounded-none transition-all min-h-[44px]"
+                    [ngClass]="
+                      expenseForm.get('paid_via')?.value === method
+                        ? 'border-expense-primary bg-expense-primary text-white'
+                        : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
+                    "
+                  >
+                    <span class="text-[10px] font-semibold uppercase tracking-wider text-center">{{ method }}</span>
+                  </button>
+                }
+              </div>
+            </div>
             <!-- Date -->
             <div class="flex flex-col gap-1">
               <label class="text-[11px] font-semibold text-expense-dark tracking-widest uppercase"
@@ -390,6 +412,7 @@ export class BottomSheetComponent implements OnInit {
             amount: editing?.amount || null,
             category: editing?.category || 'Others',
             date: dateStr,
+            paid_via: editing?.paid_via || 'UPI',
           });
         }
       }
@@ -416,6 +439,7 @@ export class BottomSheetComponent implements OnInit {
       title: [{ value: editing?.title || '', disabled: editing?.category === 'virtual-invest' }, Validators.required],
       amount: [editing?.amount || null, [Validators.required, Validators.min(0.01)]],
       category: [{ value: editing?.category || 'Others', disabled: editing?.category === 'virtual-invest' }, Validators.required],
+      paid_via: [editing?.paid_via || 'UPI', Validators.required],
       date: [
         dateStr,
         Validators.required,
@@ -492,6 +516,7 @@ export class BottomSheetComponent implements OnInit {
         title: formValue.title,
         amount: Number(formValue.amount),
         category: formValue.category || 'Others',
+        paid_via: formValue.paid_via || 'UPI',
         date: new Date(formValue.date).toISOString(),
       };
 

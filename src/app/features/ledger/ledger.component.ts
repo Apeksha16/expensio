@@ -104,10 +104,22 @@ import { LedgerService, LedgerEntry } from '../../core/services/ledger.service';
                     {{ entry.purpose || 'No note' }}
                   </span>
                   
-                  <div class="shrink-0">
-                    @if (ledgerService.getLedgerBalance(entry) > 0) {
+                  <div class="shrink-0 flex items-center gap-2">
+                    @if (ledgerService.getLedgerBalance(entry) < 0) {
+                      <button 
+                        (click)="settleUp($event, entry)"
+                        class="text-[9px] font-extrabold text-green-700 border border-green-700 hover:bg-green-50 px-2 py-1 rounded-none uppercase tracking-widest transition-colors"
+                      >
+                        Received back
+                      </button>
                       <span class="text-[9px] font-extrabold text-green-700 bg-green-100 border border-green-200 px-2.5 py-1 rounded-none uppercase tracking-widest">They owe you</span>
-                    } @else if (ledgerService.getLedgerBalance(entry) < 0) {
+                    } @else if (ledgerService.getLedgerBalance(entry) > 0) {
+                      <button 
+                        (click)="settleUp($event, entry)"
+                        class="text-[9px] font-extrabold text-red-700 border border-red-700 hover:bg-red-50 px-2 py-1 rounded-none uppercase tracking-widest transition-colors"
+                      >
+                        Paid back
+                      </button>
                       <span class="text-[9px] font-extrabold text-red-700 bg-red-100 border border-red-200 px-2.5 py-1 rounded-none uppercase tracking-widest">You owe</span>
                     } @else {
                       <span class="text-[9px] font-extrabold text-gray-700 bg-gray-200 border border-gray-300 px-2.5 py-1 rounded-none uppercase tracking-widest">Settled</span>
@@ -173,5 +185,22 @@ export class LedgerComponent {
 
   viewDetails(id: string) {
     this.router.navigate(['/ledger', id]);
+  }
+
+  async settleUp(event: Event, entry: LedgerEntry) {
+    event.stopPropagation();
+    const balance = this.ledgerService.getLedgerBalance(entry);
+    if (balance === 0) return;
+
+    const amountToSettle = Math.abs(balance);
+    const type = balance < 0 ? 'in' : 'out';
+
+    await this.ledgerService.addSubEntry({
+      ledger_id: entry.id,
+      amount: amountToSettle,
+      type: type,
+      purpose: 'Settled',
+      date: new Date().toISOString(),
+    });
   }
 }

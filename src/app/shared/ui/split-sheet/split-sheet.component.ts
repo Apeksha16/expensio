@@ -171,6 +171,27 @@ import { SafeInputDirective } from '../safe-input.directive';
               </div>
               <div class="flex flex-col gap-1">
                 <label class="text-[11px] font-semibold text-splits-dark tracking-widest uppercase"
+                  >Paid Via</label
+                >
+                <div class="grid grid-cols-3 gap-2">
+                  @for (method of ['Cash', 'Credit Card', 'UPI']; track method) {
+                    <button
+                      type="button"
+                      (click)="splitForm.patchValue({ paid_via: method })"
+                      class="flex flex-col items-center justify-center gap-1 p-2 rounded-none transition-all min-h-[44px]"
+                      [ngClass]="
+                        splitForm.get('paid_via')?.value === method
+                          ? 'bg-splits-primary text-white'
+                          : 'bg-splits-surface text-splits-dark hover:bg-splits-light'
+                      "
+                    >
+                      <span class="text-[10px] font-semibold uppercase tracking-wider text-center">{{ method }}</span>
+                    </button>
+                  }
+                </div>
+              </div>
+              <div class="flex flex-col gap-1">
+                <label class="text-[11px] font-semibold text-splits-dark tracking-widest uppercase"
                   >Paid By</label
                 >
                 <div class="relative">
@@ -482,7 +503,8 @@ export class SplitSheetComponent implements OnInit {
             title: split.title,
             totalAmount: split.total_amount,
             payerId: split.payer_id,
-            category: split.category || ''
+            category: split.category || '',
+            paid_via: split.paid_via || 'UPI'
           });
 
           const currentUserProfile = this.currentUser();
@@ -507,7 +529,8 @@ export class SplitSheetComponent implements OnInit {
             title: '',
             totalAmount: null,
             payerId: currentUserProfile?.id,
-            category: ''
+            category: '',
+            paid_via: 'UPI'
           });
           this.selectedParticipants.set([]);
           this.customAmounts = {};
@@ -545,6 +568,7 @@ export class SplitSheetComponent implements OnInit {
       totalAmount: [null, [Validators.required, Validators.min(1)]],
       payerId: [this.currentUser()?.id, Validators.required],
       category: [''],
+      paid_via: ['UPI', Validators.required],
     });
   }
 
@@ -668,6 +692,7 @@ export class SplitSheetComponent implements OnInit {
         participants: participants,
         participant_ids: participants.map((p) => p.userId),
         category: v.category || 'Others',
+        paid_via: v.paid_via || 'UPI',
         date: new Date().toISOString(),
       };
       await this.splitService.updateSplit(updatedSplit);
@@ -685,6 +710,7 @@ export class SplitSheetComponent implements OnInit {
         participant_ids: participants.map((p) => p.userId),
         group_id: groupId,
         category: v.category || 'Others',
+        paid_via: v.paid_via || 'UPI',
         date: new Date().toISOString(),
       };
       await this.splitService.addSplit(split);

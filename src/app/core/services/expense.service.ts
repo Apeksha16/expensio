@@ -14,6 +14,7 @@ export interface Expense {
   date: string;
   goal_id?: string;
   subscription_id?: string;
+  paid_via?: 'Cash' | 'Credit Card' | 'UPI';
   created_at?: string;
 }
 
@@ -147,7 +148,8 @@ export class ExpenseService {
               title: s.title,
               amount: myParticipant.amountOwed,
               category: mappedCategory,
-              date: s.date
+              date: s.date,
+              paid_via: s.paid_via
             };
           }
           return null;
@@ -222,6 +224,7 @@ export class ExpenseService {
         amount: expense.amount,
         category: expense.category,
         date: expense.date,
+        paid_via: expense.paid_via || 'UPI',
         goal_id: expense.goal_id || null,
         subscription_id: expense.subscription_id || null
       })
@@ -263,7 +266,8 @@ export class ExpenseService {
         title: data.title,
         amount: data.amount,
         category: data.category,
-        date: data.date
+        date: data.date,
+        paid_via: data.paid_via || 'UPI'
       })
       .eq('id', id);
 
