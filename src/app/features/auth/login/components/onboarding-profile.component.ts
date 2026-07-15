@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthLayoutComponent } from './auth-layout.component';
 
@@ -16,6 +16,7 @@ import { LoginStateService } from '../login-state.service';
   host: {
     class: 'block w-full h-full',
   },
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <app-auth-layout
       [isMpinScreen]="true"

@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SubscriptionService, Subscription } from '../../core/services/subscription.service';
 import { ConfirmService } from '../../core/services/confirm.service';
@@ -10,13 +10,16 @@ import { ConfirmService } from '../../core/services/confirm.service';
   host: {
     class: 'block h-full',
   },
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="h-full bg-gray-50 p-4 flex flex-col gap-4">
       @if (subscriptionService.isLoading()) {
         <!-- Shimmer -->
         <div class="flex flex-col gap-1.5 pb-36 mt-2">
           @for (i of [1, 2, 3]; track i) {
-            <div class="w-full bg-gray-200 rounded-none p-4 flex items-center gap-4 h-[76px] animate-pulse">
+            <div
+              class="w-full bg-gray-200 rounded-none p-4 flex items-center gap-4 h-[76px] animate-pulse"
+            >
               <div class="flex flex-col gap-2 flex-1">
                 <div class="h-4 bg-gray-300 w-1/3"></div>
                 <div class="h-3 bg-gray-300 w-1/4"></div>
@@ -45,14 +48,15 @@ import { ConfirmService } from '../../core/services/confirm.service';
             Paid
           </button>
         </div>
-        
+
         <!-- Upcoming Tab -->
         @if (activeTab() === 'upcoming') {
           <div class="flex-1 flex flex-col gap-6 pb-36 mt-2">
-            
             <!-- This Month Section -->
             <div class="flex flex-col gap-1.5">
-              <h3 class="font-extrabold text-xs text-gray-500 uppercase tracking-widest px-1">This Month</h3>
+              <h3 class="font-extrabold text-xs text-gray-500 uppercase tracking-widest px-1">
+                This Month
+              </h3>
               @if (subscriptionService.upcomingSubscriptions().length > 0) {
                 @for (sub of subscriptionService.upcomingSubscriptions(); track sub.id) {
                   <button
@@ -61,13 +65,22 @@ import { ConfirmService } from '../../core/services/confirm.service';
                   >
                     <div class="flex justify-between items-start gap-4">
                       <div class="flex flex-col gap-0.5 flex-1 min-w-0 pr-4">
-                        <span class="font-extrabold text-lg text-subscriptions-dark truncate">{{ sub.title }}</span>
-                        <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{{ sub.category }}</span>
+                        <span class="font-extrabold text-lg text-subscriptions-dark truncate">{{
+                          sub.title
+                        }}</span>
+                        <span
+                          class="text-[10px] font-bold text-gray-500 uppercase tracking-widest"
+                          >{{ sub.category }}</span
+                        >
                       </div>
-                      <span class="font-extrabold text-lg text-black flex-shrink-0">₹{{ sub.amount | number: '1.0-2' }}</span>
+                      <span class="font-extrabold text-lg text-black flex-shrink-0"
+                        >₹{{ sub.amount | number: '1.0-2' }}</span
+                      >
                     </div>
                     <div class="flex justify-between items-center mt-1 w-full gap-2">
-                      <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest min-w-0">
+                      <span
+                        class="text-[10px] font-bold text-gray-500 uppercase tracking-widest min-w-0"
+                      >
                         <span [ngClass]="getDueMessageClass(sub.billing_day)">
                           {{ getDueMessage(sub.billing_day) }}
                         </span>
@@ -83,14 +96,18 @@ import { ConfirmService } from '../../core/services/confirm.service';
                 }
               } @else {
                 <div class="bg-gray-50 border-2 border-dashed border-gray-300 p-4 text-center">
-                  <p class="text-gray-500 font-bold text-xs uppercase tracking-widest">No pending for this month</p>
+                  <p class="text-gray-500 font-bold text-xs uppercase tracking-widest">
+                    No pending for this month
+                  </p>
                 </div>
               }
             </div>
 
             <!-- Next Month Section -->
             <div class="flex flex-col gap-1.5">
-              <h3 class="font-extrabold text-xs text-gray-500 uppercase tracking-widest px-1">Next Month</h3>
+              <h3 class="font-extrabold text-xs text-gray-500 uppercase tracking-widest px-1">
+                Next Month
+              </h3>
               @if (subscriptionService.nextMonthSubscriptions().length > 0) {
                 @for (sub of subscriptionService.nextMonthSubscriptions(); track sub.id) {
                   <button
@@ -99,13 +116,22 @@ import { ConfirmService } from '../../core/services/confirm.service';
                   >
                     <div class="flex justify-between items-start gap-4">
                       <div class="flex flex-col gap-0.5 flex-1 min-w-0 pr-4">
-                        <span class="font-extrabold text-lg text-subscriptions-dark truncate">{{ sub.title }}</span>
-                        <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{{ sub.category }}</span>
+                        <span class="font-extrabold text-lg text-subscriptions-dark truncate">{{
+                          sub.title
+                        }}</span>
+                        <span
+                          class="text-[10px] font-bold text-gray-500 uppercase tracking-widest"
+                          >{{ sub.category }}</span
+                        >
                       </div>
-                      <span class="font-extrabold text-lg text-black flex-shrink-0">₹{{ sub.amount | number: '1.0-2' }}</span>
+                      <span class="font-extrabold text-lg text-black flex-shrink-0"
+                        >₹{{ sub.amount | number: '1.0-2' }}</span
+                      >
                     </div>
                     <div class="flex justify-between items-center mt-1 w-full gap-2">
-                      <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest min-w-0">
+                      <span
+                        class="text-[10px] font-bold text-gray-500 uppercase tracking-widest min-w-0"
+                      >
                         <span class="text-blue-600 font-bold">
                           {{ getNextMonthDueMessage(sub.billing_day) }}
                         </span>
@@ -115,11 +141,12 @@ import { ConfirmService } from '../../core/services/confirm.service';
                 }
               } @else {
                 <div class="bg-gray-50 border-2 border-dashed border-gray-300 p-4 text-center">
-                  <p class="text-gray-500 font-bold text-xs uppercase tracking-widest">No subscriptions added yet</p>
+                  <p class="text-gray-500 font-bold text-xs uppercase tracking-widest">
+                    No subscriptions added yet
+                  </p>
                 </div>
               }
             </div>
-
           </div>
         }
 
@@ -134,13 +161,22 @@ import { ConfirmService } from '../../core/services/confirm.service';
                 >
                   <div class="flex justify-between items-start gap-4">
                     <div class="flex flex-col gap-0.5 flex-1 min-w-0 pr-4">
-                      <span class="font-extrabold text-lg text-subscriptions-dark truncate">{{ sub.title }}</span>
-                      <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{{ sub.category }}</span>
+                      <span class="font-extrabold text-lg text-subscriptions-dark truncate">{{
+                        sub.title
+                      }}</span>
+                      <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{{
+                        sub.category
+                      }}</span>
                     </div>
-                    <span class="font-extrabold text-lg text-black flex-shrink-0 opacity-50 line-through">₹{{ sub.amount | number: '1.0-2' }}</span>
+                    <span
+                      class="font-extrabold text-lg text-black flex-shrink-0 opacity-50 line-through"
+                      >₹{{ sub.amount | number: '1.0-2' }}</span
+                    >
                   </div>
                   <div class="flex justify-between items-center mt-1 w-full gap-2">
-                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest min-w-0">
+                    <span
+                      class="text-[10px] font-bold text-gray-500 uppercase tracking-widest min-w-0"
+                    >
                       <span class="text-green-600">Paid for this month</span>
                     </span>
                   </div>
@@ -148,9 +184,21 @@ import { ConfirmService } from '../../core/services/confirm.service';
               }
             } @else {
               <div class="flex-1 flex flex-col items-center justify-center p-8 text-center">
-                <div class="w-32 h-32 bg-gray-200 border-2 border-transparent rounded-full flex items-center justify-center mb-6">
-                  <svg class="w-12 h-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                <div
+                  class="w-32 h-32 bg-gray-200 border-2 border-transparent rounded-full flex items-center justify-center mb-6"
+                >
+                  <svg
+                    class="w-12 h-12 text-gray-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 13l4 4L19 7"
+                    />
                   </svg>
                 </div>
                 <p class="text-gray-500 font-extrabold text-xl">Nothing paid yet</p>
@@ -179,7 +227,7 @@ export class SubscriptionsComponent {
       cancelText: 'Cancel',
       onConfirm: async () => {
         await this.subscriptionService.markAsPaid(sub);
-      }
+      },
     });
   }
 

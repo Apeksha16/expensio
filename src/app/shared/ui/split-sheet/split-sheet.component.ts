@@ -1,4 +1,13 @@
-import { Component, inject, computed, signal, OnInit, effect, untracked } from '@angular/core';
+import {
+  Component,
+  inject,
+  computed,
+  signal,
+  OnInit,
+  effect,
+  untracked,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
@@ -23,7 +32,14 @@ import { SafeInputDirective } from '../safe-input.directive';
 @Component({
   selector: 'app-split-sheet',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, SwipeToCloseDirective, AmountInputDirective, AutofocusDirective, SafeInputDirective],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    SwipeToCloseDirective,
+    AmountInputDirective,
+    AutofocusDirective,
+    SafeInputDirective,
+  ],
   animations: [
     trigger('slideUp', [
       transition(':enter', [
@@ -42,6 +58,7 @@ import { SafeInputDirective } from '../safe-input.directive';
       transition(':leave', [animate('300ms ease-in', style({ opacity: 0 }))]),
     ]),
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     @if (splitService.isSheetOpen()) {
       <!-- Backdrop -->
@@ -53,48 +70,73 @@ import { SafeInputDirective } from '../safe-input.directive';
       <!-- Sheet Content -->
       <div
         @slideUp
-        appSwipeToClose (swipeClose)="close()"
+        appSwipeToClose
+        (swipeClose)="close()"
         class="fixed bottom-0 left-0 right-0 bg-black z-[70] max-h-[95vh] overflow-y-auto overscroll-none flex flex-col shadow-2xl"
       >
-
         <!-- Header -->
         <div
           class="flex justify-between items-center py-4 px-6 bg-splits-primary border-b border-splits-dark text-white sticky top-[-2px] z-10"
         >
-          <h2 class="text-xl font-extrabold tracking-tight">{{ splitService.editingSplit()?.id ? 'Edit Split Expense' : 'Add Split Expense' }}</h2>
+          <h2 class="text-xl font-extrabold tracking-tight">
+            {{ splitService.editingSplit()?.id ? 'Edit Split Expense' : 'Add Split Expense' }}
+          </h2>
           @if (splitService.editingSplit()?.id) {
-              <button
-                type="button"
-                (click)="onDelete()"
-                [disabled]="isDeleting()"
-                class="w-8 h-8 bg-red-500 flex items-center justify-center border-2 border-transparent hover:border-white transition-colors rounded-none text-white disabled:opacity-70"
-              >
-                @if (isDeleting()) {
-                  <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                } @else {
-                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                    />
-                  </svg>
-                }
-              </button>
+            <button
+              type="button"
+              (click)="onDelete()"
+              [disabled]="isDeleting()"
+              class="w-8 h-8 bg-red-500 flex items-center justify-center border-2 border-transparent hover:border-white transition-colors rounded-none text-white disabled:opacity-70"
+            >
+              @if (isDeleting()) {
+                <svg
+                  class="animate-spin h-4 w-4 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    class="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    stroke-width="4"
+                  ></circle>
+                  <path
+                    class="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+              } @else {
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                  />
+                </svg>
+              }
+            </button>
           }
         </div>
         <div class="p-6 bg-white flex-1">
           @if (splitService.editingSplit()?.id) {
             <div class="flex justify-center mb-5">
-              <span class="text-[9px] font-extrabold tracking-widest uppercase text-splits-dark bg-splits-surface px-3 py-1 rounded-none">
+              <span
+                class="text-[9px] font-extrabold tracking-widest uppercase text-splits-dark bg-splits-surface px-3 py-1 rounded-none"
+              >
                 @if (isUpdated()) {
-                  Updated {{ splitService.editingSplit()?.date | date: 'medium' }}
+                  Updated
+                  {{ $safeNavigationMigration(splitService.editingSplit()?.date) | date: 'medium' }}
                 } @else {
-                  Added {{ splitService.editingSplit()?.created_at | date: 'medium' }}
+                  Added
+                  {{
+                    $safeNavigationMigration(splitService.editingSplit()?.created_at)
+                      | date: 'medium'
+                  }}
                 }
               </span>
             </div>
@@ -185,7 +227,10 @@ import { SafeInputDirective } from '../safe-input.directive';
                           : 'bg-splits-surface text-splits-dark hover:bg-splits-light'
                       "
                     >
-                      <span class="text-[10px] font-semibold uppercase tracking-wider text-center">{{ method }}</span>
+                      <span
+                        class="text-[10px] font-semibold uppercase tracking-wider text-center"
+                        >{{ method }}</span
+                      >
                     </button>
                   }
                 </div>
@@ -280,7 +325,6 @@ import { SafeInputDirective } from '../safe-input.directive';
                   >Split With (Participants)</label
                 >
                 <div class="flex flex-col gap-2">
-
                   @for (friend of friendService.acceptedFriends(); track friend.id) {
                     <label
                       class="flex items-center gap-3 p-3 bg-splits-surface cursor-pointer hover:bg-splits-light transition-colors"
@@ -291,14 +335,17 @@ import { SafeInputDirective } from '../safe-input.directive';
                         [checked]="isParticipant(friend.profile.id)"
                         class="w-5 h-5 text-splits-primary border-0 bg-white rounded-none focus:ring-splits-primary focus:ring-2"
                       />
-                      <span class="font-bold text-sm text-splits-dark truncate">{{ friend.profile.name.split(' ')[0] }}</span>
+                      <span class="font-bold text-sm text-splits-dark truncate">{{
+                        friend.profile.name.split(' ')[0]
+                      }}</span>
                     </label>
                   }
                 </div>
               </div>
               @if (selectedParticipants().length > 0) {
                 <div class="flex flex-col gap-1">
-                  <label class="text-[11px] font-semibold text-splits-dark tracking-widest uppercase"
+                  <label
+                    class="text-[11px] font-semibold text-splits-dark tracking-widest uppercase"
                     >Split Strategy</label
                   >
                   <div class="flex gap-2">
@@ -394,9 +441,25 @@ import { SafeInputDirective } from '../safe-input.directive';
                   class="flex-1 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-splits-primary hover:bg-splits-dark text-white disabled:opacity-70 disabled:cursor-not-allowed disabled:active:scale-100"
                 >
                   @if (isSaving()) {
-                    <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <svg
+                      class="animate-spin h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        class="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        stroke-width="4"
+                      ></circle>
+                      <path
+                        class="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
                     </svg>
                   }
                   {{ isUpdated() ? 'Update' : 'Save' }}
@@ -440,7 +503,7 @@ import { SafeInputDirective } from '../safe-input.directive';
     }
   `,
 })
-export class SplitSheetComponent implements OnInit { 
+export class SplitSheetComponent implements OnInit {
   haptic = inject(HapticService);
   splitService = inject(SplitService);
   friendService = inject(FriendService);
@@ -465,18 +528,33 @@ export class SplitSheetComponent implements OnInit {
 
   budgetCategories = computed(() => {
     const defaultCats = [
-      { name: 'Food', path: 'M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2 M7 2v20 M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7' },
-      { name: 'Transport', path: 'M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2 M7 17a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm10 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z' },
-      { name: 'Shopping', path: 'M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z M3 6h18 M16 10a4 4 0 0 1-8 0' },
+      {
+        name: 'Food',
+        path: 'M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2 M7 2v20 M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7',
+      },
+      {
+        name: 'Transport',
+        path: 'M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2 M7 17a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm10 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z',
+      },
+      {
+        name: 'Shopping',
+        path: 'M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z M3 6h18 M16 10a4 4 0 0 1-8 0',
+      },
       { name: 'Utilities', path: 'M13 2L3 14h9l-1 8 10-12h-9l1-8z' },
-      { name: 'Entertain', path: 'M2 10h20 M8 2v4 M16 2v4 M2 14h20 M2 18h20 M2 6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6z' },
+      {
+        name: 'Entertain',
+        path: 'M2 10h20 M8 2v4 M16 2v4 M2 14h20 M2 18h20 M2 6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6z',
+      },
       { name: 'Health', path: 'M22 12h-4l-3 9L9 3l-3 9H2' },
       { name: 'Travel', path: 'M22 2 11 13 M22 2l-7 20-4-9-9-4Z' },
-      { name: 'Other', path: 'M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0-2 0 M19 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0-2 0 M5 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0-2 0' },
+      {
+        name: 'Other',
+        path: 'M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0-2 0 M19 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0-2 0 M5 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0-2 0',
+      },
     ];
     if (this.localBudgets().length === 0) return defaultCats;
     return this.localBudgets()
-      .filter(b => b.id !== 'virtual-others')
+      .filter((b) => b.id !== 'virtual-others')
       .map((b) => ({
         name: b.name,
         path:
@@ -489,11 +567,11 @@ export class SplitSheetComponent implements OnInit {
 
   constructor() {
     this.initForms();
-    
+
     effect(() => {
       const isOpen = this.splitService.isSheetOpen();
       const split = this.splitService.editingSplit();
-      
+
       if (isOpen) {
         untracked(() => {
           this.loadCategories();
@@ -504,20 +582,22 @@ export class SplitSheetComponent implements OnInit {
             totalAmount: split.total_amount,
             payerId: split.payer_id,
             category: split.category || '',
-            paid_via: split.paid_via || 'UPI'
+            paid_via: split.paid_via || 'UPI',
           });
 
           const currentUserProfile = this.currentUser();
-          const friendsInvolved = split.participants.filter(p => p.userId !== currentUserProfile?.id);
-          this.selectedParticipants.set(friendsInvolved.map(p => p.userId));
-          
+          const friendsInvolved = split.participants.filter(
+            (p) => p.userId !== currentUserProfile?.id,
+          );
+          this.selectedParticipants.set(friendsInvolved.map((p) => p.userId));
+
           const equalAmt = split.total_amount / split.participants.length;
-          const isEqual = split.participants.every(p => Math.abs(p.amountOwed - equalAmt) <= 1);
-          
-          friendsInvolved.forEach(p => {
+          const isEqual = split.participants.every((p) => Math.abs(p.amountOwed - equalAmt) <= 1);
+
+          friendsInvolved.forEach((p) => {
             this.customAmounts[p.userId] = new FormControl(Math.round(p.amountOwed));
           });
-          
+
           if (isEqual) {
             this.splitStrategy.set('EQUAL');
           } else {
@@ -530,7 +610,7 @@ export class SplitSheetComponent implements OnInit {
             totalAmount: null,
             payerId: currentUserProfile?.id,
             category: '',
-            paid_via: 'UPI'
+            paid_via: 'UPI',
           });
           this.selectedParticipants.set([]);
           this.customAmounts = {};
@@ -559,8 +639,7 @@ export class SplitSheetComponent implements OnInit {
     }
   }
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   initForms() {
     this.splitForm = this.fb.group({
@@ -699,9 +778,9 @@ export class SplitSheetComponent implements OnInit {
     } else {
       let groupId = null;
       if (splitContext && !splitContext.id && splitContext.group_id) {
-         groupId = splitContext.group_id;
+        groupId = splitContext.group_id;
       }
-      
+
       const split: Omit<SplitExpense, 'id' | 'created_at'> = {
         title: v.title,
         total_amount: v.totalAmount,
@@ -728,7 +807,7 @@ export class SplitSheetComponent implements OnInit {
   onDelete() {
     const split = this.splitService.editingSplit();
     if (!split) return;
-    
+
     this.confirmService.open({
       title: 'Delete Split',
       message: 'Are you sure you want to delete this split expense? This action cannot be undone.',
@@ -739,7 +818,7 @@ export class SplitSheetComponent implements OnInit {
         await this.splitService.deleteSplit(split.id);
         this.isDeleting.set(false);
         this.close();
-      }
+      },
     });
   }
 

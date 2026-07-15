@@ -1,4 +1,4 @@
-import { Component, input, output, effect, inject } from '@angular/core';
+import { Component, input, output, effect, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { animate, style, transition, trigger } from '@angular/animations';
@@ -35,6 +35,7 @@ import { HapticService } from '../../../core/services/haptic.service';
       transition(':leave', [animate('300ms ease-in', style({ opacity: 0 }))]),
     ]),
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     @if (isOpen()) {
       <!-- Backdrop -->
@@ -46,11 +47,15 @@ import { HapticService } from '../../../core/services/haptic.service';
       <!-- Sheet Content -->
       <div
         @slideUp
-        appSwipeToClose (swipeClose)="close()"
+        appSwipeToClose
+        (swipeClose)="close()"
         class="fixed bottom-0 left-0 right-0 bg-white z-[90] 
                max-h-[95vh] flex flex-col shadow-2xl"
       >
-        <div class="p-6 pt-8 pb-6 border-b-2 text-white sticky top-[-2px] z-10" [ngClass]="[theme.bg, theme.border]">
+        <div
+          class="p-6 pt-8 pb-6 border-b-2 text-white sticky top-[-2px] z-10"
+          [ngClass]="[theme.bg, theme.border]"
+        >
           <div class="text-3xl font-extrabold tracking-tight">
             {{ selectedDate | date: 'EEE, MMM d, yyyy' }}
           </div>
@@ -102,9 +107,11 @@ import { HapticService } from '../../../core/services/haptic.service';
                 class="h-10 w-full flex items-center justify-center font-bold border-2 rounded-none transition-colors text-sm"
                 [ngClass]="[
                   day.isSelected ? theme.border + ' ' + theme.bg + ' text-white' : '',
-                  !day.isSelected && day.isCurrentMonth ? 'border-transparent text-gray-900 bg-gray-50 ' + theme.hoverBorder : '',
+                  !day.isSelected && day.isCurrentMonth
+                    ? 'border-transparent text-gray-900 bg-gray-50 ' + theme.hoverBorder
+                    : '',
                   !day.isSelected && !day.isCurrentMonth ? 'border-transparent text-gray-300' : '',
-                  day.isToday && !day.isSelected ? 'border-dashed border-gray-400' : ''
+                  day.isToday && !day.isSelected ? 'border-dashed border-gray-400' : '',
                 ]"
               >
                 {{ day.date.getDate() }}
@@ -131,21 +138,93 @@ import { HapticService } from '../../../core/services/haptic.service';
     }
   `,
 })
-export class DatePickerComponent { 
+export class DatePickerComponent {
   haptic = inject(HapticService);
   router = inject(Router);
 
   get theme() {
     const route = this.router.url.split('/')[1] || 'dashboard';
     switch (route) {
-      case 'expenses': return { bg: 'bg-expense-primary', border: 'border-expense-primary', hoverBg: 'hover:bg-expense-primary', hoverBorder: 'hover:border-expense-primary', text: 'text-expense-primary', hoverDarkBg: 'hover:bg-expense-dark', darkBg: 'bg-expense-dark' };
-      case 'budgets': return { bg: 'bg-budget-primary', border: 'border-budget-primary', hoverBg: 'hover:bg-budget-primary', hoverBorder: 'hover:border-budget-primary', text: 'text-budget-primary', hoverDarkBg: 'hover:bg-budget-dark', darkBg: 'bg-budget-dark' };
-      case 'friends': return { bg: 'bg-friends-primary', border: 'border-friends-primary', hoverBg: 'hover:bg-friends-primary', hoverBorder: 'hover:border-friends-primary', text: 'text-friends-primary', hoverDarkBg: 'hover:bg-friends-dark', darkBg: 'bg-friends-dark' };
-      case 'splits': return { bg: 'bg-splits-primary', border: 'border-splits-primary', hoverBg: 'hover:bg-splits-primary', hoverBorder: 'hover:border-splits-primary', text: 'text-splits-primary', hoverDarkBg: 'hover:bg-splits-dark', darkBg: 'bg-splits-dark' };
-      case 'subscriptions': return { bg: 'bg-subscriptions-primary', border: 'border-subscriptions-primary', hoverBg: 'hover:bg-subscriptions-primary', hoverBorder: 'hover:border-subscriptions-primary', text: 'text-subscriptions-primary', hoverDarkBg: 'hover:bg-subscriptions-dark', darkBg: 'bg-subscriptions-dark' };
-      case 'goals': return { bg: 'bg-goals-primary', border: 'border-goals-primary', hoverBg: 'hover:bg-goals-primary', hoverBorder: 'hover:border-goals-primary', text: 'text-goals-primary', hoverDarkBg: 'hover:bg-goals-dark', darkBg: 'bg-goals-dark' };
-      case 'ledger': return { bg: 'bg-ledger-primary', border: 'border-ledger-primary', hoverBg: 'hover:bg-ledger-primary', hoverBorder: 'hover:border-ledger-primary', text: 'text-ledger-primary', hoverDarkBg: 'hover:bg-ledger-dark', darkBg: 'bg-ledger-dark' };
-      default: return { bg: 'bg-black', border: 'border-black', hoverBg: 'hover:bg-black', hoverBorder: 'hover:border-black', text: 'text-black', hoverDarkBg: 'hover:bg-gray-900', darkBg: 'bg-gray-900' };
+      case 'expenses':
+        return {
+          bg: 'bg-expense-primary',
+          border: 'border-expense-primary',
+          hoverBg: 'hover:bg-expense-primary',
+          hoverBorder: 'hover:border-expense-primary',
+          text: 'text-expense-primary',
+          hoverDarkBg: 'hover:bg-expense-dark',
+          darkBg: 'bg-expense-dark',
+        };
+      case 'budgets':
+        return {
+          bg: 'bg-budget-primary',
+          border: 'border-budget-primary',
+          hoverBg: 'hover:bg-budget-primary',
+          hoverBorder: 'hover:border-budget-primary',
+          text: 'text-budget-primary',
+          hoverDarkBg: 'hover:bg-budget-dark',
+          darkBg: 'bg-budget-dark',
+        };
+      case 'friends':
+        return {
+          bg: 'bg-friends-primary',
+          border: 'border-friends-primary',
+          hoverBg: 'hover:bg-friends-primary',
+          hoverBorder: 'hover:border-friends-primary',
+          text: 'text-friends-primary',
+          hoverDarkBg: 'hover:bg-friends-dark',
+          darkBg: 'bg-friends-dark',
+        };
+      case 'splits':
+        return {
+          bg: 'bg-splits-primary',
+          border: 'border-splits-primary',
+          hoverBg: 'hover:bg-splits-primary',
+          hoverBorder: 'hover:border-splits-primary',
+          text: 'text-splits-primary',
+          hoverDarkBg: 'hover:bg-splits-dark',
+          darkBg: 'bg-splits-dark',
+        };
+      case 'subscriptions':
+        return {
+          bg: 'bg-subscriptions-primary',
+          border: 'border-subscriptions-primary',
+          hoverBg: 'hover:bg-subscriptions-primary',
+          hoverBorder: 'hover:border-subscriptions-primary',
+          text: 'text-subscriptions-primary',
+          hoverDarkBg: 'hover:bg-subscriptions-dark',
+          darkBg: 'bg-subscriptions-dark',
+        };
+      case 'goals':
+        return {
+          bg: 'bg-goals-primary',
+          border: 'border-goals-primary',
+          hoverBg: 'hover:bg-goals-primary',
+          hoverBorder: 'hover:border-goals-primary',
+          text: 'text-goals-primary',
+          hoverDarkBg: 'hover:bg-goals-dark',
+          darkBg: 'bg-goals-dark',
+        };
+      case 'ledger':
+        return {
+          bg: 'bg-ledger-primary',
+          border: 'border-ledger-primary',
+          hoverBg: 'hover:bg-ledger-primary',
+          hoverBorder: 'hover:border-ledger-primary',
+          text: 'text-ledger-primary',
+          hoverDarkBg: 'hover:bg-ledger-dark',
+          darkBg: 'bg-ledger-dark',
+        };
+      default:
+        return {
+          bg: 'bg-black',
+          border: 'border-black',
+          hoverBg: 'hover:bg-black',
+          hoverBorder: 'hover:border-black',
+          text: 'text-black',
+          hoverDarkBg: 'hover:bg-gray-900',
+          darkBg: 'bg-gray-900',
+        };
     }
   }
   isOpen = input<boolean>(false);
@@ -161,7 +240,7 @@ export class DatePickerComponent {
     effect(() => {
       const open = this.isOpen();
       const initDate = this.initialDate();
-      
+
       if (open) {
         if (initDate) {
           this.selectedDate = new Date(initDate);

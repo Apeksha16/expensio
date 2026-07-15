@@ -6,6 +6,7 @@ import {
   OnInit,
   OnDestroy,
   ChangeDetectorRef,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -31,7 +32,13 @@ import { SafeInputDirective } from '../safe-input.directive';
 @Component({
   selector: 'app-friend-sheet',
   standalone: true,
-  imports: [CommonModule, FormsModule, SwipeToCloseDirective, AutofocusDirective, SafeInputDirective],
+  imports: [
+    CommonModule,
+    FormsModule,
+    SwipeToCloseDirective,
+    AutofocusDirective,
+    SafeInputDirective,
+  ],
   animations: [
     trigger('slideUp', [
       transition(':enter', [
@@ -50,6 +57,7 @@ import { SafeInputDirective } from '../safe-input.directive';
       transition(':leave', [animate('200ms ease-in', style({ opacity: 0 }))]),
     ]),
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <!-- Backdrop -->
     @if (isVisible()) {
@@ -64,11 +72,11 @@ import { SafeInputDirective } from '../safe-input.directive';
     @if (isVisible()) {
       <div
         @slideUp
-        appSwipeToClose (swipeClose)="close()"
+        appSwipeToClose
+        (swipeClose)="close()"
         class="fixed bottom-0 left-0 right-0 bg-black z-[70] 
              max-h-[95vh] flex flex-col shadow-2xl"
       >
-
         <!-- Header -->
         <div
           class="flex justify-between items-center py-4 px-6 bg-friends-primary text-white sticky top-[-2px] z-10 shrink-0"
@@ -291,7 +299,7 @@ export class FriendSheetComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.searchSubscription = this.searchSubject
       .pipe(
-        map(query => query.trim()),
+        map((query) => query.trim()),
         tap((query) => {
           if (query.length < 1) {
             this.searchResults = [];

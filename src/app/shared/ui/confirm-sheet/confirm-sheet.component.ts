@@ -1,4 +1,4 @@
-import { Component, inject, signal, effect } from '@angular/core';
+import { Component, inject, signal, effect, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { animate, style, transition, trigger } from '@angular/animations';
@@ -13,7 +13,13 @@ import { SafeInputDirective } from '../safe-input.directive';
 @Component({
   selector: 'app-confirm-sheet',
   standalone: true,
-  imports: [SwipeToCloseDirective, FormsModule, AmountInputDirective, AutofocusDirective, SafeInputDirective],
+  imports: [
+    SwipeToCloseDirective,
+    FormsModule,
+    AmountInputDirective,
+    AutofocusDirective,
+    SafeInputDirective,
+  ],
   animations: [
     trigger('slideUp', [
       transition(':enter', [
@@ -32,6 +38,7 @@ import { SafeInputDirective } from '../safe-input.directive';
       transition(':leave', [animate('300ms ease-in', style({ opacity: 0 }))]),
     ]),
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     @if (confirmService.isOpen()) {
       <!-- Backdrop -->
@@ -43,7 +50,8 @@ import { SafeInputDirective } from '../safe-input.directive';
       <!-- Sheet Content -->
       <div
         @slideUp
-        appSwipeToClose (swipeClose)="close()"
+        appSwipeToClose
+        (swipeClose)="close()"
         class="fixed bottom-0 left-0 right-0 bg-white z-[110] p-6 pb-8 flex flex-col gap-6 shadow-2xl"
       >
         <div class="flex flex-col gap-2">
@@ -55,11 +63,20 @@ import { SafeInputDirective } from '../safe-input.directive';
           </p>
           @if (confirmService.config()?.showInput) {
             <div class="mt-2 flex flex-col gap-1">
-               <label class="text-xs font-bold text-gray-500 uppercase tracking-widest">Amount</label>
-               <input [(ngModel)]="currentAmount" type="text" inputmode="numeric" pattern="[0-9]*"
-                 appAmountInput appAutofocus appSafeInput
-                 [max]="confirmService.config()?.inputMax ?? null"
-                 class="w-full bg-gray-50 border-2 border-gray-200 p-3 font-extrabold text-black outline-none focus:border-black transition-colors rounded-none" />
+              <label class="text-xs font-bold text-gray-500 uppercase tracking-widest"
+                >Amount</label
+              >
+              <input
+                [(ngModel)]="currentAmount"
+                type="text"
+                inputmode="numeric"
+                pattern="[0-9]*"
+                appAmountInput
+                appAutofocus
+                appSafeInput
+                [max]="confirmService.config()?.inputMax ?? null"
+                class="w-full bg-gray-50 border-2 border-gray-200 p-3 font-extrabold text-black outline-none focus:border-black transition-colors rounded-none"
+              />
             </div>
           }
         </div>
@@ -76,9 +93,25 @@ import { SafeInputDirective } from '../safe-input.directive';
             class="flex-1 bg-red-600 text-white p-3.5 font-bold text-sm tracking-wide transition-all border-2 border-transparent active:scale-[0.98] rounded-none flex items-center justify-center gap-2 disabled:opacity-70"
           >
             @if (isProcessing()) {
-              <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              <svg
+                class="animate-spin h-5 w-5 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
               </svg>
             }
             {{ confirmService.config()?.confirmText }}
@@ -88,7 +121,7 @@ import { SafeInputDirective } from '../safe-input.directive';
     }
   `,
 })
-export class ConfirmSheetComponent { 
+export class ConfirmSheetComponent {
   haptic = inject(HapticService);
   confirmService = inject(ConfirmService);
   isProcessing = signal(false);
@@ -102,7 +135,7 @@ export class ConfirmSheetComponent {
         if (config.showInput) {
           // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
           setTimeout(() => {
-             this.currentAmount = config.inputValue;
+            this.currentAmount = config.inputValue;
           });
         } else {
           this.currentAmount = undefined;

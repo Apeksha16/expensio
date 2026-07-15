@@ -1,4 +1,13 @@
-import { Component, inject, OnInit, effect, signal, computed, untracked } from '@angular/core';
+import {
+  Component,
+  inject,
+  OnInit,
+  effect,
+  signal,
+  computed,
+  untracked,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { animate, style, transition, trigger } from '@angular/animations';
@@ -18,7 +27,15 @@ import { SafeInputDirective } from '../safe-input.directive';
 @Component({
   selector: 'app-bottom-sheet',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, DatePickerComponent, SwipeToCloseDirective, AmountInputDirective, AutofocusDirective, SafeInputDirective],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    DatePickerComponent,
+    SwipeToCloseDirective,
+    AmountInputDirective,
+    AutofocusDirective,
+    SafeInputDirective,
+  ],
   animations: [
     trigger('slideUp', [
       transition(':enter', [
@@ -37,6 +54,7 @@ import { SafeInputDirective } from '../safe-input.directive';
       transition(':leave', [animate('300ms ease-in', style({ opacity: 0 }))]),
     ]),
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     @if (expenseService.isBottomSheetOpen()) {
       <!-- Backdrop -->
@@ -53,7 +71,6 @@ import { SafeInputDirective } from '../safe-input.directive';
         class="fixed bottom-0 left-0 right-0 bg-black z-[70] 
                max-h-[95vh] overflow-y-auto overscroll-none flex flex-col shadow-2xl"
       >
-
         <!-- Header -->
         <div
           class="flex justify-between items-center py-4 px-6 bg-expense-primary border-b border-expense-dark text-white sticky top-[-2px] z-10"
@@ -108,8 +125,14 @@ import { SafeInputDirective } from '../safe-input.directive';
         <div class="p-6 bg-white flex-1">
           @if (isEditing) {
             <div class="flex justify-center mb-5">
-              <span class="text-[9px] font-extrabold tracking-widest uppercase text-expense-dark bg-expense-surface px-3 py-1 rounded-none">
-                Added {{ expenseService.editingExpense()?.created_at | date: 'medium' }}
+              <span
+                class="text-[9px] font-extrabold tracking-widest uppercase text-expense-dark bg-expense-surface px-3 py-1 rounded-none"
+              >
+                Added
+                {{
+                  $safeNavigationMigration(expenseService.editingExpense()?.created_at)
+                    | date: 'medium'
+                }}
               </span>
             </div>
           }
@@ -159,7 +182,9 @@ import { SafeInputDirective } from '../safe-input.directive';
                 >
                 <div class="grid grid-cols-4 gap-2">
                   @for (i of [1, 2, 3, 4, 5, 6, 7, 8]; track i) {
-                    <div class="flex flex-col items-center justify-center gap-1 p-2 border-2 border-gray-100 bg-gray-50 rounded-none min-h-[60px] animate-pulse">
+                    <div
+                      class="flex flex-col items-center justify-center gap-1 p-2 border-2 border-gray-100 bg-gray-50 rounded-none min-h-[60px] animate-pulse"
+                    >
                       <div class="w-5 h-5 bg-gray-200 rounded-none"></div>
                       <div class="h-2 bg-gray-200 w-10 mt-1 rounded"></div>
                     </div>
@@ -220,7 +245,9 @@ import { SafeInputDirective } from '../safe-input.directive';
                         : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
                     "
                   >
-                    <span class="text-[10px] font-semibold uppercase tracking-wider text-center">{{ method }}</span>
+                    <span class="text-[10px] font-semibold uppercase tracking-wider text-center">{{
+                      method
+                    }}</span>
                   </button>
                 }
               </div>
@@ -235,7 +262,10 @@ import { SafeInputDirective } from '../safe-input.directive';
                 (click)="isDatePickerOpen = true"
                 class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-expense-primary hover:border-gray-300 block p-2.5 outline-none transition-all min-h-[44px] touch-manipulation font-sans flex justify-between items-center text-left"
               >
-                <span>{{ expenseForm.get('date')?.value | date: 'MMM d, y, h:mm a' }}</span>
+                <span>{{
+                  $safeNavigationMigration(expenseForm.get('date')?.value)
+                    | date: 'MMM d, y, h:mm a'
+                }}</span>
                 <svg
                   class="w-5 h-5 text-gray-500"
                   fill="none"
@@ -298,7 +328,7 @@ import { SafeInputDirective } from '../safe-input.directive';
     <!-- Global Date Picker for Form -->
     <app-date-picker
       [isOpen]="isDatePickerOpen"
-      [initialDate]="expenseForm.get('date')?.value"
+      [initialDate]="$safeNavigationMigration(expenseForm.get('date')?.value)"
       (dateSelected)="onDateSelected($event)"
       (closed)="isDatePickerOpen = false"
     >
@@ -320,21 +350,36 @@ export class BottomSheetComponent implements OnInit {
   isDatePickerOpen = false;
   isSaving = signal(false);
   isDeleting = signal(false);
-  
+
   selectedMonth = signal<string>('');
   localBudgets = signal<any[]>([]);
   isBudgetsLoading = signal(false);
 
   budgetCategories = computed(() => {
     const defaultCats = [
-      { name: 'Food', path: 'M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2 M7 2v20 M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7' },
-      { name: 'Transport', path: 'M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2 M7 17a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm10 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z' },
-      { name: 'Shopping', path: 'M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z M3 6h18 M16 10a4 4 0 0 1-8 0' },
+      {
+        name: 'Food',
+        path: 'M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2 M7 2v20 M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7',
+      },
+      {
+        name: 'Transport',
+        path: 'M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2 M7 17a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm10 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z',
+      },
+      {
+        name: 'Shopping',
+        path: 'M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z M3 6h18 M16 10a4 4 0 0 1-8 0',
+      },
       { name: 'Utilities', path: 'M13 2L3 14h9l-1 8 10-12h-9l1-8z' },
-      { name: 'Entertain', path: 'M2 10h20 M8 2v4 M16 2v4 M2 14h20 M2 18h20 M2 6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6z' },
+      {
+        name: 'Entertain',
+        path: 'M2 10h20 M8 2v4 M16 2v4 M2 14h20 M2 18h20 M2 6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6z',
+      },
       { name: 'Health', path: 'M22 12h-4l-3 9L9 3l-3 9H2' },
       { name: 'Travel', path: 'M22 2 11 13 M22 2l-7 20-4-9-9-4Z' },
-      { name: 'Other', path: 'M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0-2 0 M19 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0-2 0 M5 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0-2 0' },
+      {
+        name: 'Other',
+        path: 'M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0-2 0 M19 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0-2 0 M5 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0-2 0',
+      },
     ];
     if (this.localBudgets().length === 0) return defaultCats;
     return this.localBudgets()
@@ -360,23 +405,26 @@ export class BottomSheetComponent implements OnInit {
               .select('*')
               .eq('month', month)
               .order('created_at', { ascending: true });
-              
+
             if (error) throw error;
-            
+
             const fetchedBudgets = data || [];
-            const hasOthers = fetchedBudgets.some((b: any) => b.name.toLowerCase() === 'others' || b.name.toLowerCase() === 'other');
-            
+            const hasOthers = fetchedBudgets.some(
+              (b: any) => b.name.toLowerCase() === 'others' || b.name.toLowerCase() === 'other',
+            );
+
             if (!hasOthers) {
               fetchedBudgets.push({
                 id: 'virtual-others',
                 name: 'Others',
                 amount: 0,
-                icon_path: '<svg class="w-6 h-6 text-current" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" /></svg>',
+                icon_path:
+                  '<svg class="w-6 h-6 text-current" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" /></svg>',
                 month: month,
-                auto_rollover: false
+                auto_rollover: false,
               });
             }
-            
+
             this.localBudgets.set(fetchedBudgets);
           } catch (error) {
             console.error('Error fetching budgets:', error);
@@ -436,14 +484,17 @@ export class BottomSheetComponent implements OnInit {
     this.selectedMonth.set(`${y}-${m}`);
 
     this.expenseForm = this.fb.group({
-      title: [{ value: editing?.title || '', disabled: editing?.category === 'virtual-invest' }, Validators.required],
-      amount: [editing?.amount || null, [Validators.required, Validators.min(0.01)]],
-      category: [{ value: editing?.category || 'Others', disabled: editing?.category === 'virtual-invest' }, Validators.required],
-      paid_via: [editing?.paid_via || 'UPI', Validators.required],
-      date: [
-        dateStr,
+      title: [
+        { value: editing?.title || '', disabled: editing?.category === 'virtual-invest' },
         Validators.required,
       ],
+      amount: [editing?.amount || null, [Validators.required, Validators.min(0.01)]],
+      category: [
+        { value: editing?.category || 'Others', disabled: editing?.category === 'virtual-invest' },
+        Validators.required,
+      ],
+      paid_via: [editing?.paid_via || 'UPI', Validators.required],
+      date: [dateStr, Validators.required],
     });
   }
 
@@ -461,14 +512,14 @@ export class BottomSheetComponent implements OnInit {
   onDateSelected(dateStr: string) {
     const existingDateVal = this.expenseForm.get('date')?.value;
     const dateObj = existingDateVal ? new Date(existingDateVal) : new Date();
-    
+
     // dateStr is YYYY-MM-DD
     const [year, month, day] = dateStr.split('-');
     if (year && month && day) {
       dateObj.setFullYear(parseInt(year, 10), parseInt(month, 10) - 1, parseInt(day, 10));
       this.selectedMonth.set(`${year}-${month}`);
     }
-    
+
     this.expenseForm.patchValue({ date: dateObj.toISOString() });
   }
 
@@ -493,9 +544,13 @@ export class BottomSheetComponent implements OnInit {
           if (success) {
             if (original.category === 'virtual-invest') {
               const goalName = original.title.replace('Goal: ', '');
-              const goal = this.goalService.goals().find(g => g.name === goalName);
+              const goal = this.goalService.goals().find((g) => g.name === goalName);
               if (goal) {
-                await this.goalService.updateGoal(goal.id, { saved_amount: goal.saved_amount - original.amount }, true);
+                await this.goalService.updateGoal(
+                  goal.id,
+                  { saved_amount: goal.saved_amount - original.amount },
+                  true,
+                );
               }
             }
             this.haptic.success();
@@ -527,11 +582,15 @@ export class BottomSheetComponent implements OnInit {
         success = await this.expenseService.updateExpense(id, expenseData);
         if (success && original.category === 'virtual-invest') {
           const goalName = original.title.replace('Goal: ', '');
-          const goal = this.goalService.goals().find(g => g.name === goalName);
+          const goal = this.goalService.goals().find((g) => g.name === goalName);
           if (goal) {
             const diff = expenseData.amount - original.amount;
             if (diff !== 0) {
-               await this.goalService.updateGoal(goal.id, { saved_amount: goal.saved_amount + diff }, true);
+              await this.goalService.updateGoal(
+                goal.id,
+                { saved_amount: goal.saved_amount + diff },
+                true,
+              );
             }
           }
         }

@@ -1,11 +1,14 @@
-import { Component, inject, computed, signal, OnInit, effect } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import {
-  FormBuilder,
-  FormGroup,
-  Validators,
-  ReactiveFormsModule
-} from '@angular/forms';
+  Component,
+  inject,
+  computed,
+  signal,
+  OnInit,
+  effect,
+  ChangeDetectionStrategy,
+} from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { DatePickerComponent } from '../date-picker/date-picker.component';
 import { ConfirmService } from '../../../core/services/confirm.service';
@@ -26,7 +29,7 @@ import { SafeInputDirective } from '../safe-input.directive';
     AmountInputDirective,
     AutofocusDirective,
     SafeInputDirective,
-    DatePickerComponent
+    DatePickerComponent,
   ],
   animations: [
     trigger('slideUp', [
@@ -46,6 +49,7 @@ import { SafeInputDirective } from '../safe-input.directive';
       transition(':leave', [animate('300ms ease-in', style({ opacity: 0 }))]),
     ]),
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     @if (ledgerService.isBottomSheetOpen()) {
       <!-- Backdrop -->
@@ -94,33 +98,55 @@ import { SafeInputDirective } from '../safe-input.directive';
                     fill="none"
                     viewBox="0 0 24 24"
                   >
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <circle
+                      class="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      stroke-width="4"
+                    ></circle>
+                    <path
+                      class="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                 }
               </button>
             }
           </div>
         </div>
-        
+
         <div class="p-6 bg-white flex-1">
           @if (ledgerService.editingEntry()?.id) {
             <div class="flex justify-center mb-5">
-              <span class="text-[9px] font-extrabold tracking-widest uppercase text-ledger-dark bg-ledger-surface px-3 py-1 rounded-none">
+              <span
+                class="text-[9px] font-extrabold tracking-widest uppercase text-ledger-dark bg-ledger-surface px-3 py-1 rounded-none"
+              >
                 @if (isUpdated()) {
-                  Updated {{ ledgerService.editingEntry()?.updated_at | date: 'medium' }}
+                  Updated
+                  {{
+                    $safeNavigationMigration(ledgerService.editingEntry()?.updated_at)
+                      | date: 'medium'
+                  }}
                 } @else {
-                  Added {{ ledgerService.editingEntry()?.created_at | date: 'medium' }}
+                  Added
+                  {{
+                    $safeNavigationMigration(ledgerService.editingEntry()?.created_at)
+                      | date: 'medium'
+                  }}
                 }
               </span>
             </div>
           }
-          
+
           <form [formGroup]="ledgerForm" (ngSubmit)="onSubmit()" class="space-y-4">
-            
             <!-- Type Toggle -->
             <div class="flex flex-col gap-1">
-              <label class="text-[11px] font-semibold text-ledger-dark tracking-widest uppercase">Did you give or receive?</label>
+              <label class="text-[11px] font-semibold text-ledger-dark tracking-widest uppercase"
+                >Did you give or receive?</label
+              >
               <div class="flex gap-2">
                 <button
                   type="button"
@@ -153,7 +179,9 @@ import { SafeInputDirective } from '../safe-input.directive';
 
             <!-- Person Name -->
             <div class="flex flex-col gap-1">
-              <label class="text-[11px] font-semibold text-ledger-dark tracking-widest uppercase">Who?</label>
+              <label class="text-[11px] font-semibold text-ledger-dark tracking-widest uppercase"
+                >Who?</label
+              >
               <input
                 [appAutofocus]="!ledgerService.editingEntry()?.id"
                 appSafeInput
@@ -163,10 +191,12 @@ import { SafeInputDirective } from '../safe-input.directive';
                 class="w-full bg-ledger-surface text-ledger-dark text-sm rounded-none focus:ring-2 focus:ring-ledger-primary focus:outline-none block p-2.5 transition-all placeholder-ledger-dark/50 min-h-[44px] touch-manipulation font-sans"
               />
             </div>
-            
+
             <!-- Amount -->
             <div class="flex flex-col gap-1">
-              <label class="text-[11px] font-semibold text-ledger-dark tracking-widest uppercase">How much?</label>
+              <label class="text-[11px] font-semibold text-ledger-dark tracking-widest uppercase"
+                >How much?</label
+              >
               <div class="relative group">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <span class="text-gray-500 font-medium">₹</span>
@@ -186,7 +216,9 @@ import { SafeInputDirective } from '../safe-input.directive';
 
             <!-- Purpose -->
             <div class="flex flex-col gap-1">
-              <label class="text-[11px] font-semibold text-ledger-dark tracking-widest uppercase">What's this for?</label>
+              <label class="text-[11px] font-semibold text-ledger-dark tracking-widest uppercase"
+                >What's this for?</label
+              >
               <input
                 appSafeInput
                 type="text"
@@ -195,18 +227,32 @@ import { SafeInputDirective } from '../safe-input.directive';
                 class="w-full bg-ledger-surface text-ledger-dark text-sm rounded-none focus:ring-2 focus:ring-ledger-primary focus:outline-none block p-2.5 transition-all placeholder-ledger-dark/50 min-h-[44px] touch-manipulation font-sans"
               />
             </div>
-            
+
             <!-- Date -->
             <div class="flex flex-col gap-1">
-              <label class="text-[11px] font-semibold text-ledger-dark tracking-widest uppercase">Date</label>
+              <label class="text-[11px] font-semibold text-ledger-dark tracking-widest uppercase"
+                >Date</label
+              >
               <button
                 type="button"
                 (click)="isDatePickerOpen = true"
                 class="w-full bg-ledger-surface text-ledger-dark text-sm rounded-none focus:ring-2 focus:ring-ledger-primary flex justify-between items-center p-2.5 outline-none transition-all min-h-[44px] font-sans"
               >
-                <span>{{ ledgerForm.get('date')?.value | date: 'MMM d, y, h:mm a' }}</span>
-                <svg class="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                <span>{{
+                  $safeNavigationMigration(ledgerForm.get('date')?.value) | date: 'MMM d, y, h:mm a'
+                }}</span>
+                <svg
+                  class="w-5 h-5 text-gray-500"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
                 </svg>
               </button>
             </div>
@@ -226,12 +272,30 @@ import { SafeInputDirective } from '../safe-input.directive';
                 class="flex-1 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-ledger-primary hover:bg-ledger-dark text-white disabled:opacity-70 disabled:cursor-not-allowed disabled:active:scale-100"
               >
                 @if (isSaving()) {
-                  <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    class="animate-spin h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      class="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      stroke-width="4"
+                    ></circle>
+                    <path
+                      class="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                 }
-                <span>{{ isSaving() ? 'Saving...' : ledgerService.editingEntry()?.id ? 'Update' : 'Save' }}</span>
+                <span>{{
+                  isSaving() ? 'Saving...' : ledgerService.editingEntry()?.id ? 'Update' : 'Save'
+                }}</span>
               </button>
             </div>
           </form>
@@ -242,7 +306,7 @@ import { SafeInputDirective } from '../safe-input.directive';
     <!-- Global Date Picker for Form -->
     <app-date-picker
       [isOpen]="isDatePickerOpen"
-      [initialDate]="ledgerForm.get('date')?.value"
+      [initialDate]="$safeNavigationMigration(ledgerForm.get('date')?.value)"
       (dateSelected)="onDateSelected($event)"
       (closed)="isDatePickerOpen = false"
     ></app-date-picker>
@@ -263,7 +327,7 @@ export class LedgerSheetComponent implements OnInit {
     amount: ['', [Validators.required, Validators.min(1)]],
     type: ['in', Validators.required],
     purpose: [''],
-    date: [new Date().toISOString(), Validators.required]
+    date: [new Date().toISOString(), Validators.required],
   });
 
   constructor() {
@@ -275,7 +339,7 @@ export class LedgerSheetComponent implements OnInit {
           amount: editing.amount.toString(),
           type: editing.type,
           purpose: editing.purpose || '',
-          date: editing.date || new Date().toISOString()
+          date: editing.date || new Date().toISOString(),
         });
       } else {
         const currentCreatedAt = this.ledgerForm?.get('date')?.value || new Date().toISOString();
@@ -289,7 +353,9 @@ export class LedgerSheetComponent implements OnInit {
   isUpdated(): boolean {
     const entry = this.ledgerService.editingEntry();
     if (!entry || !entry.created_at || !entry.updated_at) return false;
-    const diff = Math.abs(new Date(entry.updated_at).getTime() - new Date(entry.created_at).getTime());
+    const diff = Math.abs(
+      new Date(entry.updated_at).getTime() - new Date(entry.created_at).getTime(),
+    );
     return diff > 5000;
   }
 
@@ -329,7 +395,7 @@ export class LedgerSheetComponent implements OnInit {
         amount: Number(val.amount),
         type: val.type,
         purpose: val.purpose || '',
-        date: val.date
+        date: val.date,
       });
     } else {
       success = await this.ledgerService.addEntry({
@@ -337,7 +403,7 @@ export class LedgerSheetComponent implements OnInit {
         amount: Number(val.amount),
         type: val.type,
         purpose: val.purpose || '',
-        date: val.date
+        date: val.date,
       });
     }
 
@@ -363,7 +429,7 @@ export class LedgerSheetComponent implements OnInit {
         if (success) {
           this.close();
         }
-      }
+      },
     });
   }
 }

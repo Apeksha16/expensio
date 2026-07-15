@@ -1,4 +1,12 @@
-import { Component, inject, computed, signal, OnInit, AfterViewInit } from '@angular/core';
+import {
+  Component,
+  inject,
+  computed,
+  signal,
+  OnInit,
+  AfterViewInit,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BudgetService } from '../../core/services/budget.service';
 import { ExpenseService } from '../../core/services/expense.service';
@@ -14,6 +22,7 @@ import { Router } from '@angular/router';
   host: {
     class: 'flex flex-col h-full',
   },
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="flex-1 bg-gray-50 p-4 flex flex-col gap-4 pb-36">
       <!-- Top Summary Box -->
@@ -22,7 +31,8 @@ import { Router } from '@angular/router';
       >
         <div class="flex justify-between items-end relative z-10">
           <div class="flex flex-col">
-            <span class="text-xs font-bold text-budget-surface uppercase tracking-widest mb-1 opacity-80"
+            <span
+              class="text-xs font-bold text-budget-surface uppercase tracking-widest mb-1 opacity-80"
               >Total Allocation</span
             >
             @if (budgetService.isLoading()) {
@@ -33,15 +43,23 @@ import { Router } from '@angular/router';
               </span>
             }
           </div>
-          <div class="text-right flex flex-col cursor-pointer" (click)="showSalaryLimit.update(v => !v)">
-            <span class="text-[10px] font-bold text-budget-surface uppercase tracking-widest opacity-80"
+          <div
+            class="text-right flex flex-col cursor-pointer"
+            (click)="showSalaryLimit.update((v) => !v)"
+          >
+            <span
+              class="text-[10px] font-bold text-budget-surface uppercase tracking-widest opacity-80"
               >Salary Limit</span
             >
             @if (budgetService.isLoading()) {
               <div class="h-5 w-16 bg-white/20 animate-pulse rounded-none mt-1 self-end"></div>
             } @else {
               <span class="text-sm font-extrabold text-white transition-all select-none mt-1">
-                {{ isMasked() && !showSalaryLimit() ? '••••' : '₹' + (monthlySalary() | number: '1.0-0') }}
+                {{
+                  isMasked() && !showSalaryLimit()
+                    ? '••••'
+                    : '₹' + (monthlySalary() | number: '1.0-0')
+                }}
               </span>
             }
           </div>
@@ -104,21 +122,34 @@ import { Router } from '@angular/router';
                 <div class="flex justify-between items-center w-full">
                   <div class="flex flex-col gap-0.5">
                     <span class="font-extrabold text-lg">{{ budget.name }}</span>
-                    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest opacity-80">
+                    <div
+                      class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest opacity-80"
+                    >
                       <span>Consumed: ₹{{ getConsumed(budget.name) | number: '1.0-0' }}</span>
                     </div>
                   </div>
                   <div class="flex flex-col items-end gap-2">
                     @if (budget.id === 'virtual-others') {
                       <div class="flex flex-col items-end">
-                        <span class="font-extrabold text-xl">₹{{ (monthlySalary() - totalAllocated()) | number: '1.0-0' }}</span>
-                        <span class="text-[9px] font-bold uppercase tracking-widest opacity-60">Unallocated Limit</span>
+                        <span class="font-extrabold text-xl"
+                          >₹{{ monthlySalary() - totalAllocated() | number: '1.0-0' }}</span
+                        >
+                        <span class="text-[9px] font-bold uppercase tracking-widest opacity-60"
+                          >Unallocated Limit</span
+                        >
                       </div>
                     } @else {
                       <div class="flex flex-col items-end">
-                        <span class="font-extrabold text-xl">₹{{ (budget.amount + (budget.rollover_amount || 0)) | number: '1.0-0' }}</span>
+                        <span class="font-extrabold text-xl"
+                          >₹{{
+                            budget.amount + (budget.rollover_amount || 0) | number: '1.0-0'
+                          }}</span
+                        >
                         @if (budget.rollover_amount) {
-                          <span class="text-[9px] font-bold text-green-600 tracking-widest uppercase">+ ₹{{ budget.rollover_amount | number: '1.0-0' }} Rolled Over</span>
+                          <span
+                            class="text-[9px] font-bold text-green-600 tracking-widest uppercase"
+                            >+ ₹{{ budget.rollover_amount | number: '1.0-0' }} Rolled Over</span
+                          >
                         }
                       </div>
                     }
@@ -130,10 +161,22 @@ import { Router } from '@angular/router';
                     class="h-full transition-all duration-1000 ease-out"
                     [style.width.%]="
                       !budgetService.isLoading() && animateBars()
-                        ? getPercent(budget.name, budget.id === 'virtual-others' ? (monthlySalary() - totalAllocated()) : budget.amount + (budget.rollover_amount || 0))
+                        ? getPercent(
+                            budget.name,
+                            budget.id === 'virtual-others'
+                              ? monthlySalary() - totalAllocated()
+                              : budget.amount + (budget.rollover_amount || 0)
+                          )
                         : 0
                     "
-                    [ngClass]="getColorClass(budget.name, budget.id === 'virtual-others' ? (monthlySalary() - totalAllocated()) : budget.amount + (budget.rollover_amount || 0))"
+                    [ngClass]="
+                      getColorClass(
+                        budget.name,
+                        budget.id === 'virtual-others'
+                          ? monthlySalary() - totalAllocated()
+                          : budget.amount + (budget.rollover_amount || 0)
+                      )
+                    "
                   ></div>
                 </div>
               </button>
@@ -166,7 +209,6 @@ import { Router } from '@angular/router';
         }
       </div>
     </div>
-
   `,
 })
 export class Budgets implements OnInit, AfterViewInit {
@@ -183,7 +225,7 @@ export class Budgets implements OnInit, AfterViewInit {
 
   ngOnInit() {
     this.expenseService.setMonthFilter(this.expenseService.getCurrentMonthString());
-    this.monthSub = this.monthPicker.monthSelected$.subscribe(month => {
+    this.monthSub = this.monthPicker.monthSelected$.subscribe((month) => {
       this.onMonthSelected(month);
     });
   }
@@ -218,7 +260,9 @@ export class Budgets implements OnInit, AfterViewInit {
   monthlySalary = computed(() => this.authService.userProfile().salary);
 
   totalAllocated = computed(() => {
-    return this.budgetService.budgets().reduce((sum, b) => sum + b.amount + (b.rollover_amount || 0), 0);
+    return this.budgetService
+      .budgets()
+      .reduce((sum, b) => sum + b.amount + (b.rollover_amount || 0), 0);
   });
 
   globalProgressPercent = computed(() => {

@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService, UserProfile } from '../../core/services/auth.service';
@@ -12,11 +12,14 @@ import { QuickActionsService } from '../../core/services/quick-actions.service';
   selector: 'app-profile',
   standalone: true,
   imports: [CommonModule, FormsModule, SafeInputDirective],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="bg-gray-50 p-6 flex flex-col gap-8">
       <!-- Top Selected Avatar & Selection List -->
       <div class="flex flex-col items-center gap-6 mt-4">
-        <div class="w-32 h-32 border-2 border-profile-dark rounded-none bg-gray-200 overflow-hidden">
+        <div
+          class="w-32 h-32 border-2 border-profile-dark rounded-none bg-gray-200 overflow-hidden"
+        >
           <img
             [src]="getSelectedAvatarUrl()"
             alt="Active Avatar"
@@ -122,8 +125,12 @@ import { QuickActionsService } from '../../core/services/quick-actions.service';
         <!-- Mask Values Preference -->
         <div class="flex items-center justify-between mt-4">
           <div class="flex flex-col">
-            <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase">Mask Values</label>
-            <span class="text-[10px] font-semibold text-gray-500 mt-0.5">Hide dashboard numbers on every visit</span>
+            <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
+              >Mask Values</label
+            >
+            <span class="text-[10px] font-semibold text-gray-500 mt-0.5"
+              >Hide dashboard numbers on every visit</span
+            >
           </div>
           <button
             type="button"
@@ -141,14 +148,19 @@ import { QuickActionsService } from '../../core/services/quick-actions.service';
           </button>
         </div>
 
-
         <!-- Configure Email Reports -->
         <div class="flex flex-col gap-3 mt-4">
           <div class="flex flex-col">
-            <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase">Email Reports</label>
-            <span class="text-[10px] font-semibold text-gray-500 mt-0.5">Receive automated summaries of your expenses</span>
+            <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
+              >Email Reports</label
+            >
+            <span class="text-[10px] font-semibold text-gray-500 mt-0.5"
+              >Receive automated summaries of your expenses</span
+            >
           </div>
-          <div class="flex border-2 border-black rounded-none overflow-hidden text-xs font-bold w-full">
+          <div
+            class="flex border-2 border-black rounded-none overflow-hidden text-xs font-bold w-full"
+          >
             <button
               (click)="updateField('emailReportFrequency', 'none')"
               [class.bg-black]="pendingProfile().emailReportFrequency === 'none'"
@@ -180,8 +192,6 @@ import { QuickActionsService } from '../../core/services/quick-actions.service';
               Monthly
             </button>
           </div>
-          
-
         </div>
       </div>
 
@@ -255,7 +265,7 @@ export class Profile {
   }
 
   toggleMaskValues() {
-    this.pendingProfile.update(p => ({ ...p, maskValues: !p.maskValues }));
+    this.pendingProfile.update((p) => ({ ...p, maskValues: !p.maskValues }));
   }
 
   isSendingTestEmail = signal(false);
@@ -263,10 +273,18 @@ export class Profile {
   async triggerTestEmail() {
     this.isSendingTestEmail.set(true);
     try {
-      const { data, error } = await this.supabaseService.client.functions.invoke('send-email-reports', {
-        body: { type: this.pendingProfile().emailReportFrequency === 'none' ? 'weekly' : this.pendingProfile().emailReportFrequency }
-      });
-      
+      const { data, error } = await this.supabaseService.client.functions.invoke(
+        'send-email-reports',
+        {
+          body: {
+            type:
+              this.pendingProfile().emailReportFrequency === 'none'
+                ? 'weekly'
+                : this.pendingProfile().emailReportFrequency,
+          },
+        },
+      );
+
       if (error) {
         console.error('Error triggering test email:', error);
         this.toastService.showError('Error triggering test email.');

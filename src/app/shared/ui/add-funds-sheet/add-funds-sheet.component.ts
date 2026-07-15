@@ -1,4 +1,4 @@
-import { Component, inject, signal, effect } from '@angular/core';
+import { Component, inject, signal, effect, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { animate, style, transition, trigger } from '@angular/animations';
@@ -14,7 +14,13 @@ import { AutofocusDirective } from '../autofocus.directive';
 @Component({
   selector: 'app-add-funds-sheet',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, SwipeToCloseDirective, AmountInputDirective, AutofocusDirective],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    SwipeToCloseDirective,
+    AmountInputDirective,
+    AutofocusDirective,
+  ],
   animations: [
     trigger('slideUp', [
       transition(':enter', [
@@ -33,6 +39,7 @@ import { AutofocusDirective } from '../autofocus.directive';
       transition(':leave', [animate('300ms ease-in', style({ opacity: 0 }))]),
     ]),
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     @if (goalService.isAddFundsSheetOpen()) {
       <!-- Backdrop -->
@@ -44,12 +51,17 @@ import { AutofocusDirective } from '../autofocus.directive';
       <!-- Sheet Content -->
       <div
         @slideUp
-        appSwipeToClose (swipeClose)="close()"
+        appSwipeToClose
+        (swipeClose)="close()"
         class="fixed bottom-0 left-0 right-0 bg-goals-primary z-[70] max-h-[95vh] overflow-y-auto overscroll-none flex flex-col shadow-2xl"
       >
         <!-- Header -->
-        <div class="flex justify-between items-center py-4 px-6 bg-goals-primary border-b border-goals-dark text-white sticky top-[-2px] z-10">
-          <h2 class="text-xl font-extrabold tracking-tight">{{ goalService.editingFund() ? 'Edit Fund' : 'Add Funds' }}</h2>
+        <div
+          class="flex justify-between items-center py-4 px-6 bg-goals-primary border-b border-goals-dark text-white sticky top-[-2px] z-10"
+        >
+          <h2 class="text-xl font-extrabold tracking-tight">
+            {{ goalService.editingFund() ? 'Edit Fund' : 'Add Funds' }}
+          </h2>
           <div class="flex gap-2">
             @if (goalService.editingFund()) {
               <button
@@ -60,13 +72,34 @@ import { AutofocusDirective } from '../autofocus.directive';
               >
                 @if (!isDeleting()) {
                   <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
                   </svg>
                 }
                 @if (isDeleting()) {
-                  <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    class="animate-spin h-4 w-4 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      class="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      stroke-width="4"
+                    ></circle>
+                    <path
+                      class="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                 }
               </button>
@@ -76,9 +109,19 @@ import { AutofocusDirective } from '../autofocus.directive';
 
         <div class="p-6 bg-white flex-1">
           <div class="mb-5 text-center">
-            <h3 class="text-xl font-extrabold tracking-tight text-goals-dark">{{ goalService.activeGoalForFunds()?.name }}</h3>
+            <h3 class="text-xl font-extrabold tracking-tight text-goals-dark">
+              {{ goalService.activeGoalForFunds()?.name }}
+            </h3>
             <p class="text-[11px] font-semibold text-goals-dark/70 tracking-widest uppercase mt-1">
-              ₹{{ goalService.activeGoalForFunds()?.saved_amount | number:'1.0-0' }} / ₹{{ goalService.activeGoalForFunds()?.total_amount | number:'1.0-0' }} Saved
+              ₹{{
+                $safeNavigationMigration(goalService.activeGoalForFunds()?.saved_amount)
+                  | number: '1.0-0'
+              }}
+              / ₹{{
+                $safeNavigationMigration(goalService.activeGoalForFunds()?.total_amount)
+                  | number: '1.0-0'
+              }}
+              Saved
             </p>
           </div>
 
@@ -88,7 +131,11 @@ import { AutofocusDirective } from '../autofocus.directive';
                 type="button"
                 (click)="setMode('installment')"
                 class="flex-1 py-2 text-[11px] font-bold uppercase tracking-widest transition-colors duration-200"
-                [ngClass]="fundMode() === 'installment' ? 'bg-goals-primary shadow-sm text-white' : 'text-goals-dark hover:bg-goals-light'"
+                [ngClass]="
+                  fundMode() === 'installment'
+                    ? 'bg-goals-primary shadow-sm text-white'
+                    : 'text-goals-dark hover:bg-goals-light'
+                "
               >
                 Installment
               </button>
@@ -96,7 +143,11 @@ import { AutofocusDirective } from '../autofocus.directive';
                 type="button"
                 (click)="setMode('custom')"
                 class="flex-1 py-2 text-[11px] font-bold uppercase tracking-widest transition-colors duration-200"
-                [ngClass]="fundMode() === 'custom' ? 'bg-goals-primary shadow-sm text-white' : 'text-goals-dark hover:bg-goals-light'"
+                [ngClass]="
+                  fundMode() === 'custom'
+                    ? 'bg-goals-primary shadow-sm text-white'
+                    : 'text-goals-dark hover:bg-goals-light'
+                "
               >
                 Custom
               </button>
@@ -104,17 +155,27 @@ import { AutofocusDirective } from '../autofocus.directive';
 
             <div class="h-[120px] flex flex-col justify-center">
               @if (fundMode() === 'installment') {
-                <div class="text-center py-6 border-2 border-dashed border-goals-primary/30 bg-goals-surface w-full">
+                <div
+                  class="text-center py-6 border-2 border-dashed border-goals-primary/30 bg-goals-surface w-full"
+                >
                   <p class="text-4xl font-extrabold tracking-tight text-goals-dark">
-                    ₹{{ getRemainingInstallment() | number:'1.0-0' }}
+                    ₹{{ getRemainingInstallment() | number: '1.0-0' }}
                   </p>
-                  <p class="text-[10px] font-bold text-goals-dark/70 tracking-widest uppercase mt-2">Recommended Installment</p>
+                  <p
+                    class="text-[10px] font-bold text-goals-dark/70 tracking-widest uppercase mt-2"
+                  >
+                    Recommended Installment
+                  </p>
                 </div>
               } @else {
                 <div class="flex flex-col gap-1 w-full">
-                  <label class="text-[11px] font-semibold text-goals-dark tracking-widest uppercase">Amount</label>
+                  <label class="text-[11px] font-semibold text-goals-dark tracking-widest uppercase"
+                    >Amount</label
+                  >
                   <div class="relative group">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <div
+                      class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+                    >
                       <span class="text-goals-dark/70 font-medium">₹</span>
                     </div>
                     <input
@@ -143,13 +204,31 @@ import { AutofocusDirective } from '../autofocus.directive';
               <button
                 type="button"
                 (click)="submit()"
-                [disabled]="isSaving() || isDeleting() || (fundMode() === 'custom' && customAmount.invalid)"
+                [disabled]="
+                  isSaving() || isDeleting() || (fundMode() === 'custom' && customAmount.invalid)
+                "
                 class="flex-1 font-medium rounded-none transition-all duration-200 flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-goals-primary hover:bg-goals-dark text-white disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 @if (isSaving()) {
-                  <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    class="animate-spin h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      class="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      stroke-width="4"
+                    ></circle>
+                    <path
+                      class="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                 }
                 {{ goalService.editingFund() ? 'Update' : 'Add Funds' }}
@@ -159,7 +238,7 @@ import { AutofocusDirective } from '../autofocus.directive';
         </div>
       </div>
     }
-  `
+  `,
 })
 export class AddFundsSheetComponent {
   goalService = inject(GoalService);
@@ -195,13 +274,16 @@ export class AddFundsSheetComponent {
   getRemainingInstallment(): number {
     const goal = this.goalService.activeGoalForFunds();
     if (!goal) return 0;
-    
+
     const activeMonth = this.expenseService.activeMonth();
-    const paidThisMonth = this.expenseService.expenses().filter(e => {
-      const isGoal = e.category === 'virtual-invest' && e.date.startsWith(activeMonth);
-      const isMatch = e.title === goal.name || e.title === `Goal: ${goal.name}`;
-      return isGoal && isMatch;
-    }).reduce((sum, e) => sum + e.amount, 0);
+    const paidThisMonth = this.expenseService
+      .expenses()
+      .filter((e) => {
+        const isGoal = e.category === 'virtual-invest' && e.date.startsWith(activeMonth);
+        const isMatch = e.title === goal.name || e.title === `Goal: ${goal.name}`;
+        return isGoal && isMatch;
+      })
+      .reduce((sum, e) => sum + e.amount, 0);
 
     return Math.max(0, goal.calculated_installment - paidThisMonth);
   }
@@ -229,20 +311,24 @@ export class AddFundsSheetComponent {
       onConfirm: async () => {
         this.haptic.impactMedium();
         this.isDeleting.set(true);
-        
+
         const success = await this.expenseService.deleteExpense(editing.id);
-        
+
         if (success) {
-          await this.goalService.updateGoal(goal.id, {
-            saved_amount: goal.saved_amount - editing.amount
-          }, true);
+          await this.goalService.updateGoal(
+            goal.id,
+            {
+              saved_amount: goal.saved_amount - editing.amount,
+            },
+            true,
+          );
           this.toastService.showSuccess('Funds removed successfully.');
           this.close();
         } else {
           this.toastService.showError("Couldn't remove funds.");
         }
         this.isDeleting.set(false);
-      }
+      },
     });
   }
 
@@ -264,31 +350,39 @@ export class AddFundsSheetComponent {
 
     try {
       const editing = this.goalService.editingFund();
-      
+
       if (editing) {
         const difference = amountToAdd - editing.amount;
-        
-        const updateSuccess = await this.expenseService.updateExpense(editing.id, {
-          ...editing,
-          amount: amountToAdd
-        }, true);
-        
+
+        const updateSuccess = await this.expenseService.updateExpense(
+          editing.id,
+          {
+            ...editing,
+            amount: amountToAdd,
+          },
+          true,
+        );
+
         if (!updateSuccess) throw new Error('Failed to update expense');
-        
+
         if (difference !== 0) {
           const updatedSavedAmount = goal.saved_amount + difference;
-          const goalSuccess = await this.goalService.updateGoal(goal.id, {
-            saved_amount: updatedSavedAmount
-          }, true);
+          const goalSuccess = await this.goalService.updateGoal(
+            goal.id,
+            {
+              saved_amount: updatedSavedAmount,
+            },
+            true,
+          );
           if (!goalSuccess) throw new Error("Couldn't update goal.");
         }
-        
+
         this.toastService.showSuccess(`Goal balance updated to ₹${amountToAdd}.`);
         this.close();
       } else {
         // Add new or update existing for this month
         const activeMonth = this.expenseService.activeMonth();
-        const existingExpense = this.expenseService.expenses().find(e => {
+        const existingExpense = this.expenseService.expenses().find((e) => {
           const isGoal = e.category === 'virtual-invest' && e.date.startsWith(activeMonth);
           const isMatch = e.title === goal.name || e.title === `Goal: ${goal.name}`;
           return isGoal && isMatch;
@@ -296,17 +390,25 @@ export class AddFundsSheetComponent {
 
         if (existingExpense) {
           // Append to existing expense
-          const updateSuccess = await this.expenseService.updateExpense(existingExpense.id, {
-            ...existingExpense,
-            amount: existingExpense.amount + amountToAdd
-          }, true);
+          const updateSuccess = await this.expenseService.updateExpense(
+            existingExpense.id,
+            {
+              ...existingExpense,
+              amount: existingExpense.amount + amountToAdd,
+            },
+            true,
+          );
 
           if (!updateSuccess) throw new Error('Failed to update existing expense');
-          
+
           const updatedSavedAmount = goal.saved_amount + amountToAdd;
-          const goalSuccess = await this.goalService.updateGoal(goal.id, {
-            saved_amount: updatedSavedAmount
-          }, true);
+          const goalSuccess = await this.goalService.updateGoal(
+            goal.id,
+            {
+              saved_amount: updatedSavedAmount,
+            },
+            true,
+          );
 
           if (goalSuccess) {
             this.toastService.showSuccess(`₹${amountToAdd} added to ${goal.name}.`);
@@ -316,22 +418,29 @@ export class AddFundsSheetComponent {
           }
         } else {
           // Create new
-          const expenseSuccess = await this.expenseService.addExpense({
-            amount: amountToAdd,
-            category: 'virtual-invest',
-            title: goal.name,
-            date: new Date().toISOString(),
-            goal_id: goal.id
-          }, true);
+          const expenseSuccess = await this.expenseService.addExpense(
+            {
+              amount: amountToAdd,
+              category: 'virtual-invest',
+              title: goal.name,
+              date: new Date().toISOString(),
+              goal_id: goal.id,
+            },
+            true,
+          );
 
           if (!expenseSuccess) {
             throw new Error('Failed to create expense');
           }
 
           const updatedSavedAmount = goal.saved_amount + amountToAdd;
-          const goalSuccess = await this.goalService.updateGoal(goal.id, {
-            saved_amount: updatedSavedAmount
-          }, true);
+          const goalSuccess = await this.goalService.updateGoal(
+            goal.id,
+            {
+              saved_amount: updatedSavedAmount,
+            },
+            true,
+          );
 
           if (goalSuccess) {
             this.toastService.showSuccess(`₹${amountToAdd} added to ${goal.name}.`);

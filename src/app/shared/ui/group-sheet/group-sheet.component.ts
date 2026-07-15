@@ -1,4 +1,4 @@
-import { Component, inject, effect, signal, OnInit } from '@angular/core';
+import { Component, inject, effect, signal, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { animate, style, transition, trigger } from '@angular/animations';
@@ -16,7 +16,13 @@ import { SafeInputDirective } from '../safe-input.directive';
 @Component({
   selector: 'app-group-sheet',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, SwipeToCloseDirective, AutofocusDirective, SafeInputDirective],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    SwipeToCloseDirective,
+    AutofocusDirective,
+    SafeInputDirective,
+  ],
   animations: [
     trigger('slideUp', [
       transition(':enter', [
@@ -35,6 +41,7 @@ import { SafeInputDirective } from '../safe-input.directive';
       transition(':leave', [animate('300ms ease-in', style({ opacity: 0 }))]),
     ]),
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     @if (splitService.isGroupSheetOpen()) {
       <!-- Backdrop -->
@@ -46,10 +53,10 @@ import { SafeInputDirective } from '../safe-input.directive';
       <!-- Sheet Content -->
       <div
         @slideUp
-        appSwipeToClose (swipeClose)="close()"
+        appSwipeToClose
+        (swipeClose)="close()"
         class="fixed bottom-0 left-0 right-0 bg-black z-[70] max-h-[95vh] overflow-y-auto overscroll-none flex flex-col shadow-2xl"
       >
-
         <!-- Header -->
         <div
           class="flex justify-between items-center py-4 px-6 bg-splits-primary border-b border-splits-dark text-white sticky top-[-2px] z-10"
@@ -66,9 +73,25 @@ import { SafeInputDirective } from '../safe-input.directive';
                 class="w-8 h-8 bg-red-500 flex items-center justify-center border-2 border-transparent hover:border-white transition-colors rounded-none text-white disabled:opacity-70"
               >
                 @if (isDeleting()) {
-                  <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    class="animate-spin h-4 w-4 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      class="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      stroke-width="4"
+                    ></circle>
+                    <path
+                      class="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                 } @else {
                   <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -87,8 +110,13 @@ import { SafeInputDirective } from '../safe-input.directive';
         <div class="p-6 bg-white flex-1">
           @if (isEditing) {
             <div class="flex justify-center mb-5">
-              <span class="text-[9px] font-extrabold tracking-widest uppercase text-splits-dark bg-splits-surface px-3 py-1 rounded-none">
-                Added {{ splitService.editingGroup()?.created_at | date: 'medium' }}
+              <span
+                class="text-[9px] font-extrabold tracking-widest uppercase text-splits-dark bg-splits-surface px-3 py-1 rounded-none"
+              >
+                Added
+                {{
+                  $safeNavigationMigration(splitService.editingGroup()?.created_at) | date: 'medium'
+                }}
               </span>
             </div>
           }
@@ -133,7 +161,9 @@ import { SafeInputDirective } from '../safe-input.directive';
                         [checked]="isGroupMember(friend.profile.id)"
                         class="w-5 h-5 accent-splits-primary border-2 border-gray-300 rounded-none focus:ring-0"
                       />
-                      <span class="font-bold text-sm text-gray-900 truncate">{{ friend.profile.name.split(' ')[0] }}</span>
+                      <span class="font-bold text-sm text-gray-900 truncate">{{
+                        friend.profile.name.split(' ')[0]
+                      }}</span>
                     </label>
                   }
                 </div>
@@ -152,9 +182,25 @@ import { SafeInputDirective } from '../safe-input.directive';
                   class="flex-1 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-splits-primary hover:bg-splits-dark text-white disabled:opacity-70 disabled:cursor-not-allowed disabled:active:scale-100"
                 >
                   @if (isSaving()) {
-                    <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <svg
+                      class="animate-spin h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        class="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        stroke-width="4"
+                      ></circle>
+                      <path
+                        class="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
                     </svg>
                   }
                   {{ isEditing ? 'Update' : 'Save' }}
@@ -198,7 +244,7 @@ import { SafeInputDirective } from '../safe-input.directive';
     }
   `,
 })
-export class GroupSheetComponent implements OnInit { 
+export class GroupSheetComponent implements OnInit {
   haptic = inject(HapticService);
   splitService = inject(SplitService);
   friendService = inject(FriendService);

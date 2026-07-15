@@ -1,4 +1,4 @@
-import { Component, input, inject } from '@angular/core';
+import { Component, input, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Location } from '@angular/common';
 
 @Component({
@@ -8,6 +8,7 @@ import { Location } from '@angular/common';
   host: {
     class: 'block w-full h-full',
   },
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div
       class="min-h-[100dvh] flex flex-col items-center justify-end p-4 bg-black relative overflow-hidden"

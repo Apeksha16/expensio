@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/services/auth.service';
@@ -12,6 +12,7 @@ import { UserProfile } from '../../core/services/auth.service';
   host: {
     class: 'block h-full',
   },
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="h-full bg-gray-50 p-4 flex flex-col gap-4">
       @if (isInitialLoading()) {
@@ -50,7 +51,8 @@ import { UserProfile } from '../../core/services/auth.service';
           >
             <!-- Abstract Decoration -->
             <div class="flex flex-col relative z-10">
-              <span class="text-xs font-bold text-friends-surface uppercase tracking-widest mb-1 opacity-80"
+              <span
+                class="text-xs font-bold text-friends-surface uppercase tracking-widest mb-1 opacity-80"
                 >Total Friends</span
               >
               <span class="text-4xl font-extrabold tracking-tight">
@@ -90,13 +92,32 @@ import { UserProfile } from '../../core/services/auth.service';
                       <div class="flex items-center gap-2">
                         <button
                           (click)="removeFriend(req.id)"
-                          [disabled]="processingIds().has('remove_' + req.id) || processingIds().has('accept_' + req.id)"
+                          [disabled]="
+                            processingIds().has('remove_' + req.id) ||
+                            processingIds().has('accept_' + req.id)
+                          "
                           class="w-8 h-8 flex items-center justify-center border-2 border-gray-200 hover:border-gray-400 active:bg-gray-100 transition-colors disabled:opacity-50"
                         >
                           @if (processingIds().has('remove_' + req.id)) {
-                            <svg class="animate-spin h-4 w-4 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            <svg
+                              class="animate-spin h-4 w-4 text-gray-600"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <circle
+                                class="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                stroke-width="4"
+                              ></circle>
+                              <path
+                                class="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                              ></path>
                             </svg>
                           } @else {
                             <svg
@@ -116,13 +137,32 @@ import { UserProfile } from '../../core/services/auth.service';
                         </button>
                         <button
                           (click)="acceptRequest(req.id)"
-                          [disabled]="processingIds().has('accept_' + req.id) || processingIds().has('remove_' + req.id)"
+                          [disabled]="
+                            processingIds().has('accept_' + req.id) ||
+                            processingIds().has('remove_' + req.id)
+                          "
                           class="w-8 h-8 flex items-center justify-center bg-friends-primary border-2 border-friends-primary hover:bg-friends-dark active:bg-friends-dark transition-colors disabled:opacity-50"
                         >
                           @if (processingIds().has('accept_' + req.id)) {
-                            <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            <svg
+                              class="animate-spin h-4 w-4 text-white"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <circle
+                                class="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                stroke-width="4"
+                              ></circle>
+                              <path
+                                class="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                              ></path>
                             </svg>
                           } @else {
                             <svg
@@ -179,9 +219,25 @@ import { UserProfile } from '../../core/services/auth.service';
                         class="text-[10px] font-bold text-red-500 uppercase tracking-widest px-2 py-1 border-2 border-transparent hover:border-red-200 active:bg-red-50 transition-colors disabled:opacity-50 flex items-center gap-1"
                       >
                         @if (processingIds().has('remove_' + req.id)) {
-                          <svg class="animate-spin h-3 w-3 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          <svg
+                            class="animate-spin h-3 w-3 text-red-500"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              class="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              stroke-width="4"
+                            ></circle>
+                            <path
+                              class="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
                           </svg>
                         }
                         Cancel

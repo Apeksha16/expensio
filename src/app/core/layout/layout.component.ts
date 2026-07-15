@@ -1,4 +1,13 @@
-import { Component, inject, signal, computed, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import {
+  Component,
+  inject,
+  signal,
+  computed,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { KeyboardService } from '../services/keyboard.service';
 import {
   Router,
@@ -55,20 +64,31 @@ import { LedgerSubSheetComponent } from '../../shared/ui/ledger-sub-sheet/ledger
     GoalSheetComponent,
     AddFundsSheetComponent,
     LedgerSheetComponent,
-    LedgerSubSheetComponent
+    LedgerSubSheetComponent,
   ],
   animations: [slideInAnimation],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="h-full bg-gray-50 flex flex-col relative w-full overflow-hidden">
       <!-- Global hidden input for iOS keyboard hack -->
-      <input #globalHiddenInput type="text" class="fixed opacity-0 pointer-events-none -z-50 -left-[9999px] -top-[9999px]" />
+      <input
+        #globalHiddenInput
+        type="text"
+        class="fixed opacity-0 pointer-events-none -z-50 -left-[9999px] -top-[9999px]"
+      />
 
       <!-- Top Header -->
       <header
         class="fixed top-0 w-full z-30 flex items-center justify-between px-4 h-14 transition-colors duration-300"
         [ngClass]="getThemeClasses().bg"
       >
-        @if (isProfilePage() || isGroupExpensesPage() || isBudgetExpensesPage() || isGoalTransactionsPage() || isLedgerDetailsPage()) {
+        @if (
+          isProfilePage() ||
+          isGroupExpensesPage() ||
+          isBudgetExpensesPage() ||
+          isGoalTransactionsPage() ||
+          isLedgerDetailsPage()
+        ) {
           <button
             (click)="goBack()"
             class="p-2 -ml-2 text-white/80 hover:text-white focus:outline-none transition-colors"
@@ -97,15 +117,23 @@ import { LedgerSubSheetComponent } from '../../shared/ui/ledger-sub-sheet/ledger
             </svg>
           </button>
         }
-        <span class="text-lg font-extrabold tracking-tight text-white truncate max-w-[200px] text-center">{{ pageTitle() }}</span>
-        
+        <span
+          class="text-lg font-extrabold tracking-tight text-white truncate max-w-[200px] text-center"
+          >{{ pageTitle() }}</span
+        >
+
         @if (isGroupExpensesPage()) {
           <button
             (click)="editGroup()"
             class="p-2 -mr-2 text-white/80 hover:text-white focus:outline-none transition-colors"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5z" />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5z"
+              />
             </svg>
           </button>
         } @else if (isBudgetExpensesPage() && !isVirtualOthersBudget()) {
@@ -114,7 +142,12 @@ import { LedgerSubSheetComponent } from '../../shared/ui/ledger-sub-sheet/ledger
             class="p-2 -mr-2 text-white/80 hover:text-white focus:outline-none transition-colors"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5z" />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5z"
+              />
             </svg>
           </button>
         } @else if (isGoalTransactionsPage()) {
@@ -123,7 +156,12 @@ import { LedgerSubSheetComponent } from '../../shared/ui/ledger-sub-sheet/ledger
             class="p-2 -mr-2 text-white/80 hover:text-white focus:outline-none transition-colors"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5z" />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5z"
+              />
             </svg>
           </button>
         } @else if (isLedgerDetailsPage()) {
@@ -132,7 +170,12 @@ import { LedgerSubSheetComponent } from '../../shared/ui/ledger-sub-sheet/ledger
             class="p-2 -mr-2 text-white/80 hover:text-white focus:outline-none transition-colors"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5z" />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5z"
+              />
             </svg>
           </button>
         } @else {
@@ -189,8 +232,18 @@ import { LedgerSubSheetComponent } from '../../shared/ui/ledger-sub-sheet/ledger
               title="Check for update"
               class="p-3 text-gray-600 bg-gray-100 hover:bg-black hover:text-white transition-colors rounded-none"
             >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                />
               </svg>
             </button>
             <button
@@ -198,8 +251,18 @@ import { LedgerSubSheetComponent } from '../../shared/ui/ledger-sub-sheet/ledger
               title="Logout"
               class="p-3 text-red-600 bg-red-50 hover:bg-red-600 hover:text-white transition-colors rounded-none"
             >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M5.636 5.636a9 9 0 1012.728 0M12 3v9" />
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M5.636 5.636a9 9 0 1012.728 0M12 3v9"
+                />
               </svg>
             </button>
           </div>
@@ -300,7 +363,9 @@ export class Layout implements AfterViewInit {
   currentUrl = signal(this.router.url);
 
   isProfilePage = computed(() => this.currentUrl().includes('/profile'));
-  isDashboardPage = computed(() => this.currentUrl().includes('/dashboard') || this.currentUrl() === '/');
+  isDashboardPage = computed(
+    () => this.currentUrl().includes('/dashboard') || this.currentUrl() === '/',
+  );
   isGroupExpensesPage = computed(() => this.currentUrl().includes('/splits/group/'));
   isBudgetExpensesPage = computed(() => this.currentUrl().match(/\/budgets\/.+/) !== null);
   isGoalTransactionsPage = computed(() => this.currentUrl().match(/\/goals\/.+/) !== null);
@@ -312,7 +377,7 @@ export class Layout implements AfterViewInit {
       const match = this.currentUrl().match(/\/ledger\/(.+)/);
       const id = match ? match[1] : null;
       if (id) {
-        return this.ledgerService.ledgerEntries().find(e => e.id === id);
+        return this.ledgerService.ledgerEntries().find((e) => e.id === id);
       }
     }
     return null;
@@ -334,7 +399,7 @@ export class Layout implements AfterViewInit {
       const match = this.currentUrl().match(/\/splits\/group\/(.+)/);
       const id = match ? match[1] : null;
       if (id) {
-        return this.splitService.groups().find(g => g.id === id);
+        return this.splitService.groups().find((g) => g.id === id);
       }
     }
     return null;
@@ -345,7 +410,7 @@ export class Layout implements AfterViewInit {
       const match = this.currentUrl().match(/\/goals\/(.+)/);
       const id = match ? match[1] : null;
       if (id) {
-        return this.goalService.goals().find(g => g.id === id);
+        return this.goalService.goals().find((g) => g.id === id);
       }
     }
     return null;
@@ -361,13 +426,13 @@ export class Layout implements AfterViewInit {
     if (url.includes('/budgets')) return 'Budgets';
     if (url.includes('/friends')) return 'Friends';
     if (this.isGroupExpensesPage()) {
-       return this.activeGroup()?.name || 'Loading...';
+      return this.activeGroup()?.name || 'Loading...';
     }
     if (this.isGoalTransactionsPage()) {
-       return this.activeGoal()?.name || 'Loading...';
+      return this.activeGoal()?.name || 'Loading...';
     }
     if (this.isLedgerDetailsPage()) {
-       return this.activeLedger()?.person_name || 'Loading...';
+      return this.activeLedger()?.person_name || 'Loading...';
     }
     if (url.includes('/splits')) return 'Splits';
     if (url.includes('/subscriptions')) return 'Subscriptions';
@@ -420,7 +485,7 @@ export class Layout implements AfterViewInit {
     if (shouldOpenKeyboard) {
       this.keyboardService.openKeyboardSync();
     }
-    
+
     if (this.currentUrl().includes('/budgets')) {
       this.budgetService.openBottomSheet();
     } else if (this.currentUrl().includes('/friends')) {
@@ -471,7 +536,7 @@ export class Layout implements AfterViewInit {
     const match = this.currentUrl().match(/\/budgets\/(.+)/);
     const name = match ? decodeURIComponent(match[1]) : null;
     if (name) {
-      const budget = this.budgetService.budgets().find(b => b.name === name);
+      const budget = this.budgetService.budgets().find((b) => b.name === name);
       if (budget) {
         this.budgetService.openBottomSheet(budget);
       }
@@ -495,7 +560,7 @@ export class Layout implements AfterViewInit {
   bottomNavItems = computed(() => {
     const sequence = ['dashboard', 'expenses', 'budgets', 'friends', 'splits'];
     return sequence
-      .map(id => this.quickActionsService.navItems.find(item => item.id === id))
+      .map((id) => this.quickActionsService.navItems.find((item) => item.id === id))
       .filter((item): item is NonNullable<typeof item> => item !== undefined);
   });
 
@@ -505,34 +570,84 @@ export class Layout implements AfterViewInit {
 
   getActiveClasses(id: string): string {
     switch (id) {
-      case 'dashboard': return 'bg-black text-white border-black';
-      case 'expenses': return 'bg-expense-primary text-white border-expense-primary';
-      case 'budgets': return 'bg-budget-primary text-white border-budget-primary';
-      case 'friends': return 'bg-friends-primary text-white border-friends-primary';
-      case 'splits': return 'bg-splits-primary text-white border-splits-primary';
-      case 'subscriptions': return 'bg-subscriptions-primary text-white border-subscriptions-primary';
-      case 'goals': return 'bg-goals-primary text-white border-goals-primary';
-      case 'ledger': return 'bg-ledger-primary text-white border-ledger-primary';
-      case 'reports': return 'bg-reports-primary text-white border-reports-primary';
-      case 'profile': return 'bg-black text-white border-black';
-      default: return 'bg-black text-white border-black';
+      case 'dashboard':
+        return 'bg-black text-white border-black';
+      case 'expenses':
+        return 'bg-expense-primary text-white border-expense-primary';
+      case 'budgets':
+        return 'bg-budget-primary text-white border-budget-primary';
+      case 'friends':
+        return 'bg-friends-primary text-white border-friends-primary';
+      case 'splits':
+        return 'bg-splits-primary text-white border-splits-primary';
+      case 'subscriptions':
+        return 'bg-subscriptions-primary text-white border-subscriptions-primary';
+      case 'goals':
+        return 'bg-goals-primary text-white border-goals-primary';
+      case 'ledger':
+        return 'bg-ledger-primary text-white border-ledger-primary';
+      case 'reports':
+        return 'bg-reports-primary text-white border-reports-primary';
+      case 'profile':
+        return 'bg-black text-white border-black';
+      default:
+        return 'bg-black text-white border-black';
     }
   }
 
   getThemeClasses() {
     const route = this.currentUrl().split('/')[1] || 'dashboard';
     switch (route) {
-      case 'expenses': return { bg: 'bg-expense-primary', border: 'border-expense-dark', text: 'text-expense-primary' };
-      case 'budgets': return { bg: 'bg-budget-primary', border: 'border-budget-dark', text: 'text-budget-primary' };
-      case 'friends': return { bg: 'bg-friends-primary', border: 'border-friends-dark', text: 'text-friends-primary' };
-      case 'splits': return { bg: 'bg-splits-primary', border: 'border-splits-dark', text: 'text-splits-primary' };
-      case 'subscriptions': return { bg: 'bg-subscriptions-primary', border: 'border-subscriptions-dark', text: 'text-subscriptions-primary' };
-      case 'goals': return { bg: 'bg-goals-primary', border: 'border-goals-dark', text: 'text-goals-primary' };
-      case 'ledger': return { bg: 'bg-ledger-primary', border: 'border-ledger-dark', text: 'text-ledger-primary' };
-      case 'reports': return { bg: 'bg-reports-primary', border: 'border-reports-dark', text: 'text-reports-primary' };
-      case 'profile': return { bg: 'bg-black', border: 'border-black', text: 'text-black' };
-      case 'dashboard': return { bg: 'bg-black', border: 'border-black', text: 'text-black' };
-      default: return { bg: 'bg-black', border: 'border-black', text: 'text-black' };
+      case 'expenses':
+        return {
+          bg: 'bg-expense-primary',
+          border: 'border-expense-dark',
+          text: 'text-expense-primary',
+        };
+      case 'budgets':
+        return {
+          bg: 'bg-budget-primary',
+          border: 'border-budget-dark',
+          text: 'text-budget-primary',
+        };
+      case 'friends':
+        return {
+          bg: 'bg-friends-primary',
+          border: 'border-friends-dark',
+          text: 'text-friends-primary',
+        };
+      case 'splits':
+        return {
+          bg: 'bg-splits-primary',
+          border: 'border-splits-dark',
+          text: 'text-splits-primary',
+        };
+      case 'subscriptions':
+        return {
+          bg: 'bg-subscriptions-primary',
+          border: 'border-subscriptions-dark',
+          text: 'text-subscriptions-primary',
+        };
+      case 'goals':
+        return { bg: 'bg-goals-primary', border: 'border-goals-dark', text: 'text-goals-primary' };
+      case 'ledger':
+        return {
+          bg: 'bg-ledger-primary',
+          border: 'border-ledger-dark',
+          text: 'text-ledger-primary',
+        };
+      case 'reports':
+        return {
+          bg: 'bg-reports-primary',
+          border: 'border-reports-dark',
+          text: 'text-reports-primary',
+        };
+      case 'profile':
+        return { bg: 'bg-black', border: 'border-black', text: 'text-black' };
+      case 'dashboard':
+        return { bg: 'bg-black', border: 'border-black', text: 'text-black' };
+      default:
+        return { bg: 'bg-black', border: 'border-black', text: 'text-black' };
     }
   }
 

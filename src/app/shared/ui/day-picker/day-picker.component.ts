@@ -1,4 +1,4 @@
-import { Component, input, output, effect, inject } from '@angular/core';
+import { Component, input, output, effect, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { SwipeToCloseDirective } from '../swipe-to-close.directive';
@@ -26,6 +26,7 @@ import { HapticService } from '../../../core/services/haptic.service';
       transition(':leave', [animate('300ms ease-in', style({ opacity: 0 }))]),
     ]),
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     @if (isOpen()) {
       <!-- Backdrop -->
@@ -37,11 +38,14 @@ import { HapticService } from '../../../core/services/haptic.service';
       <!-- Sheet Content -->
       <div
         @slideUp
-        appSwipeToClose (swipeClose)="close()"
+        appSwipeToClose
+        (swipeClose)="close()"
         class="fixed bottom-0 left-0 right-0 bg-black z-[90] 
                max-h-[95vh] flex flex-col shadow-2xl"
       >
-        <div class="p-6 pt-4 pb-4 border-b-2 border-black bg-black text-white sticky top-[-2px] z-10">
+        <div
+          class="p-6 pt-4 pb-4 border-b-2 border-black bg-black text-white sticky top-[-2px] z-10"
+        >
           <div class="flex justify-between items-center mb-6">
             <h2 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">
               Select Day
@@ -60,9 +64,7 @@ import { HapticService } from '../../../core/services/haptic.service';
               </svg>
             </button>
           </div>
-          <div class="text-3xl font-extrabold tracking-tight">
-            Day {{ selectedDay }}
-          </div>
+          <div class="text-3xl font-extrabold tracking-tight">Day {{ selectedDay }}</div>
         </div>
         <div class="p-6 bg-white flex-1 overflow-y-auto">
           <!-- Calendar Grid 1-31 -->
@@ -73,7 +75,8 @@ import { HapticService } from '../../../core/services/haptic.service';
                 class="h-10 w-full flex items-center justify-center font-bold border-2 rounded-none transition-colors text-sm"
                 [ngClass]="{
                   'border-black bg-black text-white': day === selectedDay,
-                  'border-transparent hover:border-black text-black bg-gray-50': day !== selectedDay
+                  'border-transparent hover:border-black text-black bg-gray-50':
+                    day !== selectedDay,
                 }"
               >
                 {{ day }}
@@ -101,7 +104,7 @@ export class DayPickerComponent {
   closed = output<void>();
 
   selectedDay: number = 1;
-  days: number[] = Array.from({length: 31}, (_, i) => i + 1);
+  days: number[] = Array.from({ length: 31 }, (_, i) => i + 1);
 
   constructor() {
     effect(() => {

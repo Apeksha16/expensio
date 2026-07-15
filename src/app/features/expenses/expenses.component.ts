@@ -8,6 +8,7 @@ import {
   AfterViewInit,
   signal,
   computed,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ExpenseService, Expense } from '../../core/services/expense.service';
@@ -26,11 +27,14 @@ import { SubscriptionService } from '../../core/services/subscription.service';
   host: {
     class: 'block h-full',
   },
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="h-full bg-gray-50 p-4 flex flex-col gap-4">
       <!-- Header Area -->
       <div class="bg-expense-primary text-white p-5 rounded-none">
-        <h2 class="text-xs font-bold text-expense-surface uppercase tracking-widest mb-1 opacity-80">
+        <h2
+          class="text-xs font-bold text-expense-surface uppercase tracking-widest mb-1 opacity-80"
+        >
           Total Expenses
         </h2>
         <p class="text-4xl font-extrabold tracking-tight">₹{{ getTotal() | number: '1.2-2' }}</p>
@@ -83,7 +87,9 @@ import { SubscriptionService } from '../../core/services/subscription.service';
                   >
                     <span class="truncate">{{ expense.category }}</span>
                     <span class="flex-shrink-0">•</span>
-                    <span class="whitespace-nowrap flex-shrink-0">{{ expense.date | date: 'MMM d, h:mm a' }}</span>
+                    <span class="whitespace-nowrap flex-shrink-0">{{
+                      expense.date | date: 'MMM d, h:mm a'
+                    }}</span>
                   </div>
                 </div>
                 <div class="flex flex-col items-end gap-2 flex-shrink-0">
@@ -149,7 +155,6 @@ import { SubscriptionService } from '../../core/services/subscription.service';
         }
       </div>
     </div>
-
   `,
 })
 export class Expenses implements OnInit, AfterViewInit, OnDestroy {
@@ -180,7 +185,7 @@ export class Expenses implements OnInit, AfterViewInit, OnDestroy {
       }
     }, options);
 
-    this.monthSub = this.monthPicker.monthSelected$.subscribe(month => {
+    this.monthSub = this.monthPicker.monthSelected$.subscribe((month) => {
       this.onMonthSelected(month);
     });
   }
@@ -227,7 +232,8 @@ export class Expenses implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getCategoryColor(category: string): string {
-    if (!category) return 'border-expense-primary bg-expense-surface hover:bg-expense-light text-expense-dark';
+    if (!category)
+      return 'border-expense-primary bg-expense-surface hover:bg-expense-light text-expense-dark';
     if (category === 'virtual-invest') {
       return 'border-goals-primary bg-goals-surface hover:bg-goals-light text-goals-dark';
     } else if (category.includes('(Group Split)')) {
@@ -242,8 +248,10 @@ export class Expenses implements OnInit, AfterViewInit, OnDestroy {
 
   async editExpense(expense: Expense) {
     if (expense.category === 'virtual-invest') {
-      const goalName = expense.title.startsWith('Goal: ') ? expense.title.replace('Goal: ', '') : expense.title;
-      const goal = this.goalService.goals().find(g => g.name === goalName);
+      const goalName = expense.title.startsWith('Goal: ')
+        ? expense.title.replace('Goal: ', '')
+        : expense.title;
+      const goal = this.goalService.goals().find((g) => g.name === goalName);
       if (goal) {
         this.goalService.openAddFundsSheet(goal, expense);
       } else {
@@ -253,7 +261,7 @@ export class Expenses implements OnInit, AfterViewInit, OnDestroy {
     }
 
     if (expense.category.includes('(Subscription)')) {
-      const sub = this.subscriptionService.subscriptions().find(s => s.title === expense.title);
+      const sub = this.subscriptionService.subscriptions().find((s) => s.title === expense.title);
       if (sub) {
         this.subscriptionService.openBottomSheet(sub);
       } else {
@@ -264,7 +272,7 @@ export class Expenses implements OnInit, AfterViewInit, OnDestroy {
 
     if (expense.id.startsWith('split_')) {
       const splitId = expense.id.replace('split_', '');
-      const existingSplit = this.splitService.splits().find(s => s.id === splitId);
+      const existingSplit = this.splitService.splits().find((s) => s.id === splitId);
       if (existingSplit) {
         this.splitService.openAddSplitSheet(existingSplit);
       } else {
@@ -274,7 +282,7 @@ export class Expenses implements OnInit, AfterViewInit, OnDestroy {
           .select('*')
           .eq('id', splitId)
           .single();
-          
+
         if (!error && data) {
           this.splitService.openAddSplitSheet(data as any);
         } else {

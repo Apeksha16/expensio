@@ -1,4 +1,15 @@
-import { Component, forwardRef, ElementRef, HostListener, input, viewChildren, effect, inject, AfterViewInit } from '@angular/core';
+import {
+  Component,
+  forwardRef,
+  ElementRef,
+  HostListener,
+  input,
+  viewChildren,
+  effect,
+  inject,
+  AfterViewInit,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor, FormsModule } from '@angular/forms';
 import { HapticService } from '../../../core/services/haptic.service';
 
@@ -9,9 +20,10 @@ import { HapticService } from '../../../core/services/haptic.service';
     {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => PinInputComponent),
-      multi: true
-    }
+      multi: true,
+    },
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <style>
       .pin-input {
@@ -34,12 +46,12 @@ import { HapticService } from '../../../core/services/haptic.service';
           (keydown)="onKeyDown($event, $index)"
           (paste)="onPaste($event)"
           (focus)="onFocus($index)"
-          [attr.autofocus]="(autofocus() && $index === 0) ? '' : null"
+          [attr.autofocus]="autofocus() && $index === 0 ? '' : null"
           class="pin-input w-14 h-16 text-center text-3xl font-extrabold bg-gray-50 border-2 border-black focus:outline-none focus:bg-white text-black placeholder-gray-400 rounded-none transition-colors"
         />
       }
     </div>
-  `
+  `,
 })
 export class PinInputComponent implements ControlValueAccessor, AfterViewInit {
   length = input<number>(4);
@@ -55,7 +67,7 @@ export class PinInputComponent implements ControlValueAccessor, AfterViewInit {
 
   constructor() {
     this.digits = Array(this.length()).fill('');
-    
+
     effect(() => {
       const len = this.length();
       if (this.digits.length !== len) {
@@ -77,7 +89,7 @@ export class PinInputComponent implements ControlValueAccessor, AfterViewInit {
       this.digits = Array(this.length()).fill('');
       return;
     }
-    
+
     const valStr = value.toString();
     for (let i = 0; i < this.length(); i++) {
       this.digits[i] = valStr[i] || '';
@@ -106,7 +118,7 @@ export class PinInputComponent implements ControlValueAccessor, AfterViewInit {
     if (val.length > 1) {
       val = val[val.length - 1];
     }
-    
+
     if (val) this.haptic.impactLight();
 
     this.digits[index] = val;
@@ -156,17 +168,17 @@ export class PinInputComponent implements ControlValueAccessor, AfterViewInit {
 
     // Filter to only digits
     const digitsOnly = pasteData.replace(/\D/g, '');
-    
+
     for (let i = 0; i < this.length(); i++) {
       if (i < digitsOnly.length) {
         this.digits[i] = digitsOnly[i];
       }
     }
-    
+
     // Focus the next empty input or the last input
     const nextIndex = Math.min(digitsOnly.length, this.length() - 1);
     this.focusInput(nextIndex);
-    
+
     this.emitChange();
   }
 

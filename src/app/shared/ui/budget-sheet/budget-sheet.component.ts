@@ -1,4 +1,4 @@
-import { Component, inject, effect } from '@angular/core';
+import { Component, inject, effect, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { animate, style, transition, trigger } from '@angular/animations';
@@ -15,7 +15,14 @@ import { SafeInputDirective } from '../safe-input.directive';
 @Component({
   selector: 'app-budget-sheet',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, SwipeToCloseDirective, AmountInputDirective, AutofocusDirective, SafeInputDirective],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    SwipeToCloseDirective,
+    AmountInputDirective,
+    AutofocusDirective,
+    SafeInputDirective,
+  ],
   animations: [
     trigger('slideUp', [
       transition(':enter', [
@@ -34,6 +41,7 @@ import { SafeInputDirective } from '../safe-input.directive';
       transition(':leave', [animate('300ms ease-in', style({ opacity: 0 }))]),
     ]),
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     @if (budgetService.isBottomSheetOpen()) {
       <!-- Backdrop -->
@@ -45,10 +53,10 @@ import { SafeInputDirective } from '../safe-input.directive';
       <!-- Sheet Content -->
       <div
         @slideUp
-        appSwipeToClose (swipeClose)="close()"
+        appSwipeToClose
+        (swipeClose)="close()"
         class="fixed bottom-0 left-0 right-0 bg-black z-[70] max-h-[95vh] overflow-y-auto overscroll-none flex flex-col shadow-2xl"
       >
-
         <!-- Header -->
         <div
           class="flex justify-between items-center py-4 px-6 bg-budget-primary border-b border-budget-dark text-white sticky top-[-2px] z-10"
@@ -103,8 +111,14 @@ import { SafeInputDirective } from '../safe-input.directive';
         <div class="p-6 bg-white flex-1">
           @if (isEditing) {
             <div class="flex justify-center mb-5">
-              <span class="text-[9px] font-extrabold tracking-widest uppercase text-budget-dark bg-budget-surface px-3 py-1 rounded-none">
-                Added {{ budgetService.editingBudget()?.created_at | date: 'medium' }}
+              <span
+                class="text-[9px] font-extrabold tracking-widest uppercase text-budget-dark bg-budget-surface px-3 py-1 rounded-none"
+              >
+                Added
+                {{
+                  $safeNavigationMigration(budgetService.editingBudget()?.created_at)
+                    | date: 'medium'
+                }}
               </span>
             </div>
           }
@@ -188,13 +202,17 @@ import { SafeInputDirective } from '../safe-input.directive';
               </div>
             </div>
             <!-- Auto Rollover -->
-            <label class="flex items-center gap-3 p-4 bg-budget-surface border-2 border-transparent hover:border-budget-primary transition-colors cursor-pointer w-full mt-2">
+            <label
+              class="flex items-center gap-3 p-4 bg-budget-surface border-2 border-transparent hover:border-budget-primary transition-colors cursor-pointer w-full mt-2"
+            >
               <input
                 type="checkbox"
                 formControlName="auto_rollover"
                 class="w-6 h-6 text-budget-primary bg-white border-2 border-gray-300 rounded-none focus:ring-budget-primary focus:ring-2 cursor-pointer"
               />
-              <span class="text-xs font-bold text-budget-dark tracking-widest uppercase select-none">
+              <span
+                class="text-xs font-bold text-budget-dark tracking-widest uppercase select-none"
+              >
                 Auto-add for next month
               </span>
             </label>
@@ -250,7 +268,7 @@ import { SafeInputDirective } from '../safe-input.directive';
     }
   `,
 })
-export class BudgetSheetComponent { 
+export class BudgetSheetComponent {
   haptic = inject(HapticService);
   budgetService = inject(BudgetService);
   private fb = inject(FormBuilder);
@@ -264,7 +282,7 @@ export class BudgetSheetComponent {
       name: ['', [Validators.required, Validators.minLength(2)]],
       amount: ['', [Validators.required, Validators.min(1)]],
       icon_path: ['', Validators.required],
-      auto_rollover: [false]
+      auto_rollover: [false],
     });
 
     effect(() => {

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { animate, style, transition, trigger } from '@angular/animations';
 
@@ -35,6 +35,7 @@ import { Router } from '@angular/router';
       transition(':leave', [animate('300ms ease-in', style({ opacity: 0 }))]),
     ]),
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     @if (monthPicker.isOpen()) {
       <!-- Backdrop -->
@@ -46,11 +47,11 @@ import { Router } from '@angular/router';
       <!-- Sheet Content -->
       <div
         @slideUp
-        appSwipeToClose (swipeClose)="close()"
+        appSwipeToClose
+        (swipeClose)="close()"
         class="fixed bottom-0 left-0 right-0 bg-black z-[90] 
                max-h-[80vh] overflow-y-auto overscroll-none flex flex-col shadow-2xl"
       >
-
         <div
           class="flex justify-between items-center py-4 px-6 border-b-2 text-white sticky top-0 z-10 transition-colors duration-300"
           [ngClass]="getThemeClasses().bg + ' ' + getThemeClasses().border"
@@ -79,7 +80,10 @@ import { Router } from '@angular/router';
                 [ngClass]="
                   m.value === monthPicker.activeMonth()
                     ? getThemeClasses().border + ' ' + getThemeClasses().bg + ' text-white'
-                    : 'border-gray-200 bg-white text-gray-500 hover:' + getThemeClasses().border + ' hover:' + getThemeClasses().text
+                    : 'border-gray-200 bg-white text-gray-500 hover:' +
+                      getThemeClasses().border +
+                      ' hover:' +
+                      getThemeClasses().text
                 "
               >
                 {{ m.label }}
@@ -91,7 +95,7 @@ import { Router } from '@angular/router';
     }
   `,
 })
-export class MonthPickerComponent { 
+export class MonthPickerComponent {
   haptic = inject(HapticService);
   monthPicker = inject(MonthPickerService);
   router = inject(Router);
@@ -99,17 +103,60 @@ export class MonthPickerComponent {
   getThemeClasses() {
     const route = this.router.url.split('/')[1] || 'dashboard';
     switch (route) {
-      case 'expenses': return { bg: 'bg-expense-primary', border: 'border-expense-primary', text: 'text-expense-primary' };
-      case 'budgets': return { bg: 'bg-budget-primary', border: 'border-budget-primary', text: 'text-budget-primary' };
-      case 'friends': return { bg: 'bg-friends-primary', border: 'border-friends-primary', text: 'text-friends-primary' };
-      case 'splits': return { bg: 'bg-splits-primary', border: 'border-splits-primary', text: 'text-splits-primary' };
-      case 'subscriptions': return { bg: 'bg-subscriptions-primary', border: 'border-subscriptions-primary', text: 'text-subscriptions-primary' };
-      case 'goals': return { bg: 'bg-goals-primary', border: 'border-goals-primary', text: 'text-goals-primary' };
-      case 'ledger': return { bg: 'bg-ledger-primary', border: 'border-ledger-primary', text: 'text-ledger-primary' };
-      case 'reports': return { bg: 'bg-reports-primary', border: 'border-reports-primary', text: 'text-reports-primary' };
-      case 'profile': return { bg: 'bg-black', border: 'border-black', text: 'text-black' };
-      case 'dashboard': return { bg: 'bg-black', border: 'border-black', text: 'text-black' };
-      default: return { bg: 'bg-black', border: 'border-black', text: 'text-black' };
+      case 'expenses':
+        return {
+          bg: 'bg-expense-primary',
+          border: 'border-expense-primary',
+          text: 'text-expense-primary',
+        };
+      case 'budgets':
+        return {
+          bg: 'bg-budget-primary',
+          border: 'border-budget-primary',
+          text: 'text-budget-primary',
+        };
+      case 'friends':
+        return {
+          bg: 'bg-friends-primary',
+          border: 'border-friends-primary',
+          text: 'text-friends-primary',
+        };
+      case 'splits':
+        return {
+          bg: 'bg-splits-primary',
+          border: 'border-splits-primary',
+          text: 'text-splits-primary',
+        };
+      case 'subscriptions':
+        return {
+          bg: 'bg-subscriptions-primary',
+          border: 'border-subscriptions-primary',
+          text: 'text-subscriptions-primary',
+        };
+      case 'goals':
+        return {
+          bg: 'bg-goals-primary',
+          border: 'border-goals-primary',
+          text: 'text-goals-primary',
+        };
+      case 'ledger':
+        return {
+          bg: 'bg-ledger-primary',
+          border: 'border-ledger-primary',
+          text: 'text-ledger-primary',
+        };
+      case 'reports':
+        return {
+          bg: 'bg-reports-primary',
+          border: 'border-reports-primary',
+          text: 'text-reports-primary',
+        };
+      case 'profile':
+        return { bg: 'bg-black', border: 'border-black', text: 'text-black' };
+      case 'dashboard':
+        return { bg: 'bg-black', border: 'border-black', text: 'text-black' };
+      default:
+        return { bg: 'bg-black', border: 'border-black', text: 'text-black' };
     }
   }
 

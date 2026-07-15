@@ -1,4 +1,11 @@
-import { Component, inject, computed, signal, OnInit } from '@angular/core';
+import {
+  Component,
+  inject,
+  computed,
+  signal,
+  OnInit,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { BudgetService } from '../../../core/services/budget.service';
@@ -17,11 +24,14 @@ import { SubscriptionService } from '../../../core/services/subscription.service
   host: {
     class: 'block h-full',
   },
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="h-full bg-gray-50 flex flex-col relative w-full overflow-hidden">
       <!-- Content Area -->
       <main class="flex-1 overflow-y-auto bg-gray-50 relative pb-20 p-4 flex flex-col gap-1.5">
-        <div class="bg-budget-primary text-white p-5 rounded-none flex flex-col gap-4 relative overflow-hidden shrink-0 mb-2">
+        <div
+          class="bg-budget-primary text-white p-5 rounded-none flex flex-col gap-4 relative overflow-hidden shrink-0 mb-2"
+        >
           <!-- Abstract Decoration -->
           <div class="flex justify-between items-end relative z-10">
             <div class="flex flex-col">
@@ -29,8 +39,13 @@ import { SubscriptionService } from '../../../core/services/subscription.service
                 <div class="h-4 w-24 bg-white/20 animate-pulse rounded-none mb-1"></div>
                 <div class="h-10 w-32 bg-white/20 animate-pulse rounded-none mt-1"></div>
               } @else {
-                <span class="text-xs font-bold text-budget-surface uppercase tracking-widest mb-1 opacity-80">{{ budgetName() }}</span>
-                <span class="text-4xl font-extrabold tracking-tight">₹{{ consumed() | number: '1.0-0' }}</span>
+                <span
+                  class="text-xs font-bold text-budget-surface uppercase tracking-widest mb-1 opacity-80"
+                  >{{ budgetName() }}</span
+                >
+                <span class="text-4xl font-extrabold tracking-tight"
+                  >₹{{ consumed() | number: '1.0-0' }}</span
+                >
               }
             </div>
             <div class="text-right flex flex-col">
@@ -39,10 +54,18 @@ import { SubscriptionService } from '../../../core/services/subscription.service
                 <div class="h-5 w-20 bg-white/20 animate-pulse rounded-none mt-1 self-end"></div>
               } @else {
                 @if (isVirtualOthers()) {
-                  <span class="text-[10px] font-bold text-budget-surface uppercase tracking-widest opacity-80">Unbudgeted</span>
+                  <span
+                    class="text-[10px] font-bold text-budget-surface uppercase tracking-widest opacity-80"
+                    >Unbudgeted</span
+                  >
                 } @else {
-                  <span class="text-[10px] font-bold text-budget-surface uppercase tracking-widest opacity-80">Limit</span>
-                  <span class="text-sm font-extrabold text-white">₹{{ budgetAmount() | number: '1.0-0' }}</span>
+                  <span
+                    class="text-[10px] font-bold text-budget-surface uppercase tracking-widest opacity-80"
+                    >Limit</span
+                  >
+                  <span class="text-sm font-extrabold text-white"
+                    >₹{{ budgetAmount() | number: '1.0-0' }}</span
+                  >
                 }
               }
             </div>
@@ -62,7 +85,9 @@ import { SubscriptionService } from '../../../core/services/subscription.service
 
         @if (expenseService.isLoading() || budgetService.isLoading()) {
           @for (i of [1, 2, 3, 4, 5]; track i) {
-            <div class="w-full bg-gray-200 rounded-none p-3 h-20 animate-pulse flex justify-between items-center">
+            <div
+              class="w-full bg-gray-200 rounded-none p-3 h-20 animate-pulse flex justify-between items-center"
+            >
               <div class="flex flex-col gap-2 w-1/2">
                 <div class="h-4 bg-gray-300 w-3/4"></div>
                 <div class="h-3 bg-gray-300 w-1/2"></div>
@@ -80,22 +105,40 @@ import { SubscriptionService } from '../../../core/services/subscription.service
               >
                 <div class="flex flex-col gap-0.5 flex-1 min-w-0 pr-4">
                   <span class="font-extrabold text-lg truncate">{{ expense.title }}</span>
-                  <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest min-w-0 opacity-80">
+                  <div
+                    class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest min-w-0 opacity-80"
+                  >
                     <span class="truncate">{{ expense.category }}</span>
                     <span class="flex-shrink-0">•</span>
-                    <span class="whitespace-nowrap flex-shrink-0">{{ expense.date | date: 'MMM d, h:mm a' }}</span>
+                    <span class="whitespace-nowrap flex-shrink-0">{{
+                      expense.date | date: 'MMM d, h:mm a'
+                    }}</span>
                   </div>
                 </div>
                 <div class="flex flex-col items-end gap-2 flex-shrink-0">
-                  <span class="font-extrabold text-xl">₹{{ expense.amount | number: '1.2-2' }}</span>
+                  <span class="font-extrabold text-xl"
+                    >₹{{ expense.amount | number: '1.2-2' }}</span
+                  >
                 </div>
               </button>
             }
           } @else {
             <div class="flex-1 flex flex-col items-center justify-center p-8 text-center mt-12">
-              <div class="w-32 h-32 bg-gray-200 border-2 border-transparent rounded-full flex items-center justify-center mb-6">
-                <svg class="w-12 h-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              <div
+                class="w-32 h-32 bg-gray-200 border-2 border-transparent rounded-full flex items-center justify-center mb-6"
+              >
+                <svg
+                  class="w-12 h-12 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                  />
                 </svg>
               </div>
               <p class="text-gray-500 font-extrabold text-xl">No expenses</p>
@@ -107,7 +150,7 @@ import { SubscriptionService } from '../../../core/services/subscription.service
         }
       </main>
     </div>
-  `
+  `,
 })
 export class BudgetExpenses implements OnInit {
   route = inject(ActivatedRoute);
@@ -126,7 +169,7 @@ export class BudgetExpenses implements OnInit {
   animateBars = signal(false);
 
   budgetAmount = computed(() => {
-    const budget = this.budgetService.budgets().find(b => b.name === this.budgetName());
+    const budget = this.budgetService.budgets().find((b) => b.name === this.budgetName());
     return budget ? budget.amount + (budget.rollover_amount || 0) : 0;
   });
 
@@ -141,12 +184,17 @@ export class BudgetExpenses implements OnInit {
   budgetExpenses = computed(() => {
     const name = this.budgetName();
     if (!name) return [];
-    
+
     const catLower = name.toLowerCase();
     // Use allExpenses to bypass the 15-item master list pagination limit
-    return this.expenseService['allExpenses']().filter(e => {
+    return this.expenseService['allExpenses']().filter((e) => {
       const eCat = e.category.toLowerCase();
-      return eCat === catLower || eCat === `${catLower} (split)` || eCat === `${catLower} (group split)` || eCat === `${catLower} (subscription)`;
+      return (
+        eCat === catLower ||
+        eCat === `${catLower} (split)` ||
+        eCat === `${catLower} (group split)` ||
+        eCat === `${catLower} (subscription)`
+      );
     });
   });
 
@@ -183,8 +231,10 @@ export class BudgetExpenses implements OnInit {
 
   async editExpense(expense: Expense) {
     if (expense.category === 'virtual-invest') {
-      const goalName = expense.title.startsWith('Goal: ') ? expense.title.replace('Goal: ', '') : expense.title;
-      const goal = this.goalService.goals().find(g => g.name === goalName);
+      const goalName = expense.title.startsWith('Goal: ')
+        ? expense.title.replace('Goal: ', '')
+        : expense.title;
+      const goal = this.goalService.goals().find((g) => g.name === goalName);
       if (goal) {
         this.goalService.openAddFundsSheet(goal, expense);
       } else {
@@ -194,7 +244,7 @@ export class BudgetExpenses implements OnInit {
     }
 
     if (expense.category.includes('(Subscription)')) {
-      const sub = this.subscriptionService.subscriptions().find(s => s.title === expense.title);
+      const sub = this.subscriptionService.subscriptions().find((s) => s.title === expense.title);
       if (sub) {
         this.subscriptionService.openBottomSheet(sub);
       } else {
@@ -205,7 +255,7 @@ export class BudgetExpenses implements OnInit {
 
     if (expense.id.startsWith('split_')) {
       const splitId = expense.id.replace('split_', '');
-      const existingSplit = this.splitService.splits().find(s => s.id === splitId);
+      const existingSplit = this.splitService.splits().find((s) => s.id === splitId);
       if (existingSplit) {
         this.splitService.openAddSplitSheet(existingSplit);
       } else {
@@ -215,7 +265,7 @@ export class BudgetExpenses implements OnInit {
           .select('*')
           .eq('id', splitId)
           .single();
-          
+
         if (!error && data) {
           this.splitService.openAddSplitSheet(data as any);
         } else {
@@ -228,7 +278,8 @@ export class BudgetExpenses implements OnInit {
   }
 
   getCategoryColor(category: string): string {
-    if (!category) return 'border-expense-primary bg-expense-surface hover:bg-expense-light text-expense-dark';
+    if (!category)
+      return 'border-expense-primary bg-expense-surface hover:bg-expense-light text-expense-dark';
     if (category === 'virtual-invest') {
       return 'border-goals-primary bg-goals-surface hover:bg-goals-light text-goals-dark';
     } else if (category.includes('(Group Split)')) {

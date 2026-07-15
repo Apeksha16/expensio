@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthLayoutComponent } from './auth-layout.component';
 import { FormsModule } from '@angular/forms';
@@ -18,6 +18,7 @@ import { KeyboardService } from '../../../../core/services/keyboard.service';
   host: {
     class: 'block w-full h-full',
   },
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <app-auth-layout [isMpinScreen]="false" [showBackButton]="false">
       <div class="w-full">
@@ -124,7 +125,7 @@ export class EnterEmailComponent implements OnInit {
       return;
     }
 
-    // Call openKeyboardSync right before we start awaiting, to satisfy iOS, 
+    // Call openKeyboardSync right before we start awaiting, to satisfy iOS,
     // but only if validation passes
     this.keyboardService.openKeyboardSync();
 
