@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Neobrutalist PIN Input</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Poppins', sans-serif; }
+    /* Hide input default text selectors / autofill indicators */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+  </style>
+</head>
+<body class="bg-[#f8fafc] p-8 text-[#0f172a]">
+  <div class="max-w-md mx-auto space-y-8 bg-white p-8 border-2 border-black">
+    <div class="text-center">
+      <h1 class="text-2xl font-black uppercase tracking-tight">Create 4-Digit MPIN</h1>
+      <p class="text-sm text-gray-500 font-semibold mt-1">Enter a strong numeric PIN to protect your transactions.</p>
+    </div>
+
+    <!-- PIN Container -->
+    <div class="flex justify-center gap-4 py-4" id="pin-input-container">
+      <input
+        type="number"
+        pattern="[0-9]*"
+        inputmode="numeric"
+        maxlength="1"
+        class="pin-box w-12 h-14 bg-gray-50 border-2 border-black text-center text-xl font-bold rounded-none focus:outline-none focus:bg-white focus:border-[#1a2e22] transition-colors"
+      />
+      <input
+        type="number"
+        pattern="[0-9]*"
+        inputmode="numeric"
+        maxlength="1"
+        class="pin-box w-12 h-14 bg-gray-50 border-2 border-black text-center text-xl font-bold rounded-none focus:outline-none focus:bg-white focus:border-[#1a2e22] transition-colors"
+      />
+      <input
+        type="number"
+        pattern="[0-9]*"
+        inputmode="numeric"
+        maxlength="1"
+        class="pin-box w-12 h-14 bg-gray-50 border-2 border-black text-center text-xl font-bold rounded-none focus:outline-none focus:bg-white focus:border-[#1a2e22] transition-colors"
+      />
+      <input
+        type="number"
+        pattern="[0-9]*"
+        inputmode="numeric"
+        maxlength="1"
+        class="pin-box w-12 h-14 bg-gray-50 border-2 border-black text-center text-xl font-bold rounded-none focus:outline-none focus:bg-white focus:border-[#1a2e22] transition-colors"
+      />
+    </div>
+
+    <button onclick="submitPin()" class="font-medium rounded-none flex justify-center items-center px-4 py-3 text-sm min-h-[44px] bg-[#1a2e22] hover:bg-[#2f4d3b] text-white focus:outline-none w-full">
+      Verify PIN
+    </button>
+  </div>
+
+  <script>
+    const pinBoxes = document.querySelectorAll('.pin-box');
+
+    pinBoxes.forEach((box, index) => {
+      // Focus on click
+      box.addEventListener('click', () => box.select());
+
+      // Auto-advance or delete
+      box.addEventListener('input', (e) => {
+        const value = e.target.value;
+        
+        // Take only the last entered digit
+        if (value.length > 1) {
+          e.target.value = value.charAt(value.length - 1);
+        }
+
+        if (e.target.value.length === 1) {
+          // Move focus to next input
+          if (index < pinBoxes.length - 1) {
+            pinBoxes[index + 1].focus();
+          }
+        }
+      });
+
+      // Handle backspace key to go back
+      box.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !box.value) {
+          if (index > 0) {
+            pinBoxes[index - 1].focus();
+            pinBoxes[index - 1].value = '';
+          }
+        }
+      });
+
+      // Handle paste events
+      box.addEventListener('paste', (e) => {
+        const pasteData = (e.clipboardData || window.clipboardData).getData('text');
+        if (/^\d{4}$/.test(pasteData)) {
+          pinBoxes.forEach((b, idx) => {
+            b.value = pasteData.charAt(idx);
+          });
+          pinBoxes[3].focus();
+          e.preventDefault();
+        }
+      });
+    });
+
+    function submitPin() {
+      const pin = Array.from(pinBoxes).map(b => b.value).join('');
+      if (pin.length === 4) {
+        alert('PIN Collected: ' + pin);
+      } else {
+        alert('Please fill out all 4 digits.');
+      }
+    }
+  </script>
+</body>
+</html>

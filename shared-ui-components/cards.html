@@ -3,80 +3,101 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cards Component</title>
+  <title>Neobrutalist Cards</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Poppins', sans-serif; }
+  </style>
 </head>
-<body class="bg-gray-50 p-8 font-sans">
+<body class="bg-[#f8fafc] p-8 text-[#0f172a]">
   <div class="max-w-5xl mx-auto space-y-12">
-    <h1 class="text-2xl font-bold mb-4">Cards Component</h1>
+    <div>
+      <h1 class="text-3xl font-extrabold tracking-tight uppercase">Cards</h1>
+      <p class="text-gray-500 font-semibold mt-1">Expensio Neobrutalist Cards and Widgets</p>
+    </div>
 
     <!-- Stats Cards -->
-    <section>
-      <h2 class="text-lg font-semibold text-gray-900 mb-4">Stats Cards</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    <section class="space-y-6">
+      <h2 class="text-xs font-bold text-gray-700 uppercase tracking-wider">Stat Widgets (With hard black shadow offsets)</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         
-        <!-- Hoverable Stat Card -->
-        <a href="#" class="bg-white p-5 border border-gray-200 hover:border-[#1a2e22] transition-colors relative group cursor-pointer block">
-          <div class="flex justify-between items-start">
-            <div>
-              <p class="text-xs font-semibold text-green-500 uppercase tracking-widest">Total Sales</p>
-              <h3 class="text-2xl font-bold text-green-600 mt-1">₹50,000.00</h3>
-            </div>
-          </div>
+        <!-- Hoverable Clickable Card -->
+        <a href="#" class="bg-white p-6 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all cursor-pointer block">
+          <p class="text-xs font-bold text-[#3b82f6] uppercase tracking-wider">Expenses This Month</p>
+          <h3 class="text-3xl font-black mt-2">₹12,450.00</h3>
+          <p class="text-xs text-gray-400 font-semibold mt-1">▲ 12% vs last month</p>
         </a>
 
-        <!-- Normal Stat Card (Non-clickable) -->
-        <div class="bg-white p-5 border border-gray-200 block">
-          <div class="flex justify-between items-start">
-            <div>
-              <p class="text-xs font-semibold text-gray-400 uppercase tracking-widest">Business Standing</p>
-              <h3 class="text-2xl font-bold mt-1 text-gray-900">₹12,400.00</h3>
-            </div>
+        <!-- Flat Stat Card -->
+        <div class="bg-white p-6 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+          <p class="text-xs font-bold text-[#10b981] uppercase tracking-wider">Remaining Budget</p>
+          <h3 class="text-3xl font-black mt-2 text-gray-900">₹37,550.00</h3>
+          <div class="w-full bg-gray-100 h-2 border border-black rounded-none overflow-hidden mt-3">
+            <div class="bg-[#10b981] h-full" style="width: 75%;"></div>
           </div>
+        </div>
+
+        <!-- Warning Alert Card -->
+        <div class="bg-red-50 p-6 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+          <p class="text-xs font-bold text-red-600 uppercase tracking-wider">Overspent Alerts</p>
+          <h3 class="text-3xl font-black mt-2 text-red-600">3 Categories</h3>
+          <p class="text-xs text-red-500 font-semibold mt-1">Entertainment, Dining, Shopping</p>
         </div>
 
       </div>
     </section>
 
-    <!-- Quick Action Cards -->
-    <section>
-      <h2 class="text-lg font-semibold text-gray-900 mb-4">Quick Action Cards</h2>
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 sm:gap-6">
+    <!-- Quick Action / Module Selection Grid -->
+    <section class="space-y-6">
+      <h2 class="text-xs font-bold text-gray-700 uppercase tracking-wider">Quick Action Buttons (Dashboard & Navigation Grid)</h2>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
         
-        <!-- Normal Action Card -->
-        <a href="#" class="quick-action-card bg-white border border-gray-200 p-4 flex flex-col items-center justify-center gap-3 transition-all group h-full hover:border-[#1a2e22]">
-          <div class="quick-action-card__icon w-10 h-10 bg-gray-50 flex items-center justify-center text-[#1a2e22] transition-colors group-hover:bg-[#1a2e22] group-hover:text-white">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        <!-- Expense Action -->
+        <a href="#" class="bg-white border-2 border-black p-4 flex flex-col items-center justify-center gap-3 transition-all hover:bg-gray-50 active:translate-x-[2px] active:translate-y-[2px]">
+          <div class="w-12 h-12 bg-[#eff6ff] border-2 border-black flex items-center justify-center text-[#3b82f6]">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
             </svg>
           </div>
-          <h3 class="text-sm font-medium text-gray-700 transition-colors text-center leading-tight group-hover:text-[#1a2e22]">Add New</h3>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-black">Expenses</h3>
         </a>
 
-        <!-- Disabled Action Card -->
-        <a href="#" class="opacity-50 pointer-events-none cursor-not-allowed quick-action-card bg-white border border-gray-200 p-4 flex flex-col items-center justify-center gap-3 transition-all group h-full">
-          <div class="quick-action-card__icon w-10 h-10 bg-gray-50 flex items-center justify-center text-[#1a2e22] transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        <!-- Budget Action -->
+        <a href="#" class="bg-white border-2 border-black p-4 flex flex-col items-center justify-center gap-3 transition-all hover:bg-gray-50 active:translate-x-[2px] active:translate-y-[2px]">
+          <div class="w-12 h-12 bg-[#ecfdf5] border-2 border-black flex items-center justify-center text-[#10b981]">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M11 3.055A9.003 9.003 0 1020.945 13H11V3.055z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
             </svg>
           </div>
-          <h3 class="text-sm font-medium text-gray-700 transition-colors text-center leading-tight">Flash Deal</h3>
-          <span class="text-[10px] uppercase font-bold text-gray-400 bg-gray-50 px-1.5 py-0.5 mt-[-4px]">Disabled</span>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-black">Budgets</h3>
+        </a>
+
+        <!-- Splits Action -->
+        <a href="#" class="bg-white border-2 border-black p-4 flex flex-col items-center justify-center gap-3 transition-all hover:bg-gray-50 active:translate-x-[2px] active:translate-y-[2px]">
+          <div class="w-12 h-12 bg-[#f5faea] border-2 border-black flex items-center justify-center text-[#629900]">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+            </svg>
+          </div>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-black">Splits</h3>
+        </a>
+
+        <!-- Friends Action -->
+        <a href="#" class="bg-white border-2 border-black p-4 flex flex-col items-center justify-center gap-3 transition-all hover:bg-gray-50 active:translate-x-[2px] active:translate-y-[2px]">
+          <div class="w-12 h-12 bg-[#fffbeb] border-2 border-black flex items-center justify-center text-[#f59e0b]">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-black">Friends</h3>
         </a>
 
       </div>
     </section>
-
-    <!-- Highlighted Card -->
-    <section>
-      <h2 class="text-lg font-semibold text-gray-900 mb-4">Highlighted Total Card</h2>
-      <div class="max-w-sm bg-green-50 border border-green-100 p-6 rounded-sm flex flex-col items-center text-center shadow-sm">
-        <h1 class="text-lg font-bold text-gray-900 mb-1">Sales</h1>
-        <span class="text-xs font-semibold text-green-600 uppercase tracking-wider mb-2">Total Revenue</span>
-        <span class="text-3xl font-bold text-gray-900">₹1,24,500.00</span>
-      </div>
-    </section>
-
   </div>
 </body>
 </html>

@@ -3,17 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Input Box Component</title>
+  <title>Neobrutalist Input Fields</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    /* Remove number input spin buttons */
+    body { font-family: 'Poppins', sans-serif; }
+    /* Remove default webkit spin buttons on numbers */
     input[type="number"]::-webkit-outer-spin-button,
     input[type="number"]::-webkit-inner-spin-button {
       -webkit-appearance: none;
       margin: 0;
       display: none;
-      opacity: 0;
-      pointer-events: none;
     }
     input[type="number"] {
       -moz-appearance: textfield;
@@ -21,67 +23,64 @@
     }
   </style>
 </head>
-<body class="bg-gray-50 p-8 font-sans">
-  <div class="max-w-md mx-auto space-y-8 bg-white p-8 border border-gray-200">
-    <h1 class="text-2xl font-bold mb-4">Input Box Component</h1>
-
-    <!-- Normal Input -->
-    <div class="flex flex-col gap-1">
-      <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase">First Name</label>
-      <div class="relative group">
-        <input
-          type="text"
-          placeholder="e.g. John"
-          class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-[#1a2e22] block p-2.5 outline-none transition-all placeholder-gray-300 hover:border-gray-300 min-h-[44px] touch-manipulation font-sans"
-        />
-      </div>
-      <p class="text-[10px] text-gray-400">Please enter your legal first name.</p>
+<body class="bg-[#f8fafc] p-8 text-[#0f172a]">
+  <div class="max-w-md mx-auto space-y-8 bg-white p-8 border-2 border-black">
+    <div>
+      <h1 class="text-3xl font-extrabold tracking-tight uppercase">Inputs</h1>
+      <p class="text-gray-500 font-semibold mt-1">Expensio Neobrutalist Input Fields</p>
     </div>
 
-    <!-- Disabled Input -->
-    <div class="flex flex-col gap-1">
-      <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase">Username (Disabled)</label>
-      <div class="relative group">
-        <input
-          type="text"
-          value="johndoe123"
-          disabled
-          class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-[#1a2e22] block p-2.5 outline-none transition-all placeholder-gray-300 hover:border-gray-300 min-h-[44px] touch-manipulation font-sans opacity-50 cursor-not-allowed bg-gray-50"
-        />
-      </div>
+    <!-- Normal Input -->
+    <div class="flex flex-col gap-2">
+      <label class="text-xs font-bold text-gray-700 uppercase tracking-wider">Display Name</label>
+      <input
+        type="text"
+        placeholder="e.g. John Doe"
+        class="w-full bg-gray-50 border-2 border-black text-black font-bold p-3 rounded-none focus:outline-none placeholder-gray-500 min-h-[44px] touch-manipulation text-[16px]"
+      />
     </div>
 
     <!-- Error State Input -->
-    <div class="flex flex-col gap-1">
-      <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase">Email Address</label>
-      <div class="relative group">
-        <input
-          type="email"
-          value="invalid-email"
-          class="w-full bg-white border-2 border-red-500 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-red-500 block p-2.5 outline-none transition-all placeholder-gray-300 hover:border-red-500 min-h-[44px] touch-manipulation font-sans"
-        />
-      </div>
-      <p class="text-xs text-red-500 mt-0.5">Please enter a valid email address.</p>
+    <div class="flex flex-col gap-2 relative pb-6">
+      <label class="text-xs font-bold text-gray-700 uppercase tracking-wider">Email Address</label>
+      <input
+        type="email"
+        value="invalid-email"
+        class="w-full bg-gray-50 border-2 border-red-500 text-black font-bold p-3 rounded-none focus:outline-none placeholder-gray-500 min-h-[44px] touch-manipulation text-[16px]"
+      />
+      <p class="text-red-500 text-xs font-bold absolute bottom-0 left-1 transition-opacity duration-200">
+        Please enter a valid email address.
+      </p>
     </div>
 
-    <!-- Input with Prefix & Suffix -->
-    <div class="flex flex-col gap-1">
-      <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase">Amount</label>
-      <div class="relative group">
+    <!-- Disabled Input -->
+    <div class="flex flex-col gap-2">
+      <label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Username (Disabled)</label>
+      <input
+        type="text"
+        value="apex_coder"
+        disabled
+        class="w-full bg-gray-100 border-2 border-gray-300 text-gray-400 font-bold p-3 rounded-none cursor-not-allowed opacity-60 min-h-[44px] text-[16px]"
+      />
+    </div>
+
+    <!-- Prefix and Suffix Input -->
+    <div class="flex flex-col gap-2">
+      <label class="text-xs font-bold text-gray-700 uppercase tracking-wider">Transaction Amount</label>
+      <div class="relative w-full">
         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <span class="text-gray-500 font-medium">₹</span>
+          <span class="text-gray-500 font-bold text-[16px]">₹</span>
         </div>
         <input
           type="number"
           placeholder="0.00"
-          class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-[#1a2e22] block p-2.5 outline-none transition-all placeholder-gray-300 hover:border-gray-300 min-h-[44px] touch-manipulation font-sans pl-12 pr-12"
+          class="w-full bg-gray-50 border-2 border-black text-black font-bold p-3 pl-8 pr-12 rounded-none focus:outline-none placeholder-gray-500 min-h-[44px] touch-manipulation text-[16px]"
         />
         <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-          <span class="text-gray-400 text-xs">INR</span>
+          <span class="text-gray-400 font-bold text-xs uppercase">INR</span>
         </div>
       </div>
     </div>
-
   </div>
 </body>
 </html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Neobrutalist Toast Notification</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Poppins', sans-serif; }
+    .toast-anim-enter {
+      animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="bg-[#f8fafc] p-8 text-[#0f172a]">
+  <div class="max-w-4xl mx-auto space-y-6">
+    <h1 class="text-3xl font-extrabold uppercase">Toast Alerts</h1>
+    <p class="text-gray-500 font-semibold">Expensio Neobrutalist overlay notifications.</p>
+
+    <div class="flex flex-wrap gap-4">
+      <button onclick="triggerToast('success')" class="font-bold px-4 py-2 bg-[#4ade80] border-2 border-black">Trigger Success</button>
+      <button onclick="triggerToast('error')" class="font-bold px-4 py-2 bg-[#f87171] border-2 border-black">Trigger Error</button>
+      <button onclick="triggerToast('info')" class="font-bold px-4 py-2 bg-white border-2 border-black">Trigger Info</button>
+    </div>
+
+    <!-- Active Toast Notifications Container -->
+    <div id="toast-container" class="fixed top-4 left-0 right-0 z-50 pointer-events-none flex flex-col items-center gap-2 px-4">
+      <!-- Toasts dynamically created here -->
+    </div>
+  </div>
+
+  <script>
+    const container = document.getElementById('toast-container');
+
+    function triggerToast(type) {
+      const toast = document.createElement('div');
+      toast.className = `pointer-events-auto w-full max-w-sm border-2 border-black rounded-none p-4 flex items-start justify-between gap-3 transition-all duration-300 toast-anim-enter`;
+      
+      let typeBg = 'bg-white text-black';
+      let icon = `<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+      let message = 'Info: Something happened.';
+
+      if (type === 'success') {
+        typeBg = 'bg-[#4ade80] text-black';
+        icon = `<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>`;
+        message = 'Success: Operation completed successfully!';
+      } else if (type === 'error') {
+        typeBg = 'bg-[#f87171] text-black';
+        icon = `<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>`;
+        message = 'Error: Something went wrong. Try again.';
+      }
+
+      toast.classList.add(...typeBg.split(' '));
+
+      toast.innerHTML = `
+        <div class="flex items-start gap-3">
+          <div class="mt-0.5 flex-shrink-0">${icon}</div>
+          <div class="text-sm font-bold leading-snug">${message}</div>
+        </div>
+        <button onclick="removeToast(this.parentElement)" class="flex-shrink-0 text-black/60 hover:text-black focus:outline-none">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      `;
+
+      container.appendChild(toast);
+
+      // Auto-dismiss after 3s (or 4s for error)
+      const duration = type === 'error' ? 4000 : 3000;
+      setTimeout(() => {
+        removeToast(toast);
+      }, duration);
+    }
+
+    function removeToast(toastEl) {
+      if (!toastEl) return;
+      toastEl.style.opacity = '0';
+      toastEl.style.transform = 'translateY(-20px)';
+      setTimeout(() => {
+        toastEl.remove();
+      }, 300);
+    }
+  </script>
+</body>
+</html>

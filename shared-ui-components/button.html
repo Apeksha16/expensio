@@ -3,94 +3,90 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Button Component</title>
+  <title>Neobrutalist Buttons</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Poppins', sans-serif; }
+  </style>
 </head>
-<body class="bg-gray-50 p-8 font-sans">
-  <div class="max-w-4xl mx-auto space-y-8 bg-white p-8 border border-gray-200">
-    <h1 class="text-2xl font-bold mb-4">Button Component</h1>
+<body class="bg-[#f8fafc] p-8 text-[#0f172a]">
+  <div class="max-w-4xl mx-auto space-y-12 bg-white p-8 border-2 border-black">
+    <div>
+      <h1 class="text-3xl font-extrabold tracking-tight uppercase">Buttons</h1>
+      <p class="text-gray-500 font-semibold mt-1">Expensio Neobrutalist Button Component System</p>
+    </div>
 
-    <!-- Primary Buttons -->
-    <section>
-      <h2 class="text-sm font-semibold text-gray-500 tracking-widest uppercase mb-4">Primary Variant</h2>
+    <!-- Primary Forest Green Button -->
+    <section class="space-y-4">
+      <h2 class="text-xs font-bold text-gray-700 uppercase tracking-wider">Primary forest green CTA (All main actions)</h2>
       <div class="flex flex-wrap gap-4 items-center">
-        <button class="font-medium rounded-none transition-all flex justify-center items-center gap-2 touch-manipulation focus:outline-none focus:ring-0 font-sans px-4 py-2 text-sm min-h-[44px] bg-[#1a2e22] hover:bg-[#2f4d3b] text-white focus:shadow-[inset_0_0_0_2px_#1a2e22,inset_0_0_0_4px_rgba(255,255,255,0.8)] shadow-sm">
-          Normal
+        <!-- Normal -->
+        <button class="font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation focus:outline-none px-4 py-2 text-sm min-h-[44px] bg-[#1a2e22] hover:bg-[#2f4d3b] text-white focus:shadow-[inset_0_0_0_2px_#1a2e22,inset_0_0_0_4px_rgba(255,255,255,0.8)] border-0">
+          Normal Primary
         </button>
-        <button class="font-medium rounded-none transition-all flex justify-center items-center gap-2 touch-manipulation focus:outline-none focus:ring-0 font-sans px-4 py-2 text-sm min-h-[44px] bg-[#1a2e22] hover:bg-[#2f4d3b] text-white focus:shadow-[inset_0_0_0_2px_#1a2e22,inset_0_0_0_4px_rgba(255,255,255,0.8)] shadow-sm focus:shadow-[inset_0_0_0_2px_#1a2e22,inset_0_0_0_4px_rgba(255,255,255,0.8)]">
-          Focused (Simulated)
-        </button>
-        <button class="font-medium rounded-none transition-all flex justify-center items-center gap-2 touch-manipulation focus:outline-none focus:ring-0 font-sans px-4 py-2 text-sm min-h-[44px] bg-[#1a2e22] hover:bg-[#2f4d3b] text-white focus:shadow-[inset_0_0_0_2px_#1a2e22,inset_0_0_0_4px_rgba(255,255,255,0.8)] shadow-sm opacity-70 cursor-not-allowed" disabled>
-          Disabled
-        </button>
-        <button class="font-medium rounded-none transition-all flex justify-center items-center gap-2 touch-manipulation focus:outline-none focus:ring-0 font-sans px-4 py-2 text-sm min-h-[44px] bg-[#1a2e22] hover:bg-[#2f4d3b] text-white focus:shadow-[inset_0_0_0_2px_#1a2e22,inset_0_0_0_4px_rgba(255,255,255,0.8)] shadow-sm opacity-70 cursor-not-allowed" disabled>
-          <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+
+        <!-- Loading -->
+        <button disabled class="font-medium rounded-none transition-all duration-200 flex justify-center items-center gap-2 touch-manipulation focus:outline-none px-4 py-2 text-sm min-h-[44px] bg-[#1a2e22] text-white opacity-70 cursor-not-allowed border-0">
+          <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
-          Loading
+          Loading...
+        </button>
+
+        <!-- Disabled -->
+        <button disabled class="font-medium rounded-none transition-all duration-200 flex justify-center items-center gap-2 touch-manipulation focus:outline-none px-4 py-2 text-sm min-h-[44px] bg-[#1a2e22] text-white opacity-70 cursor-not-allowed border-0">
+          Disabled State
         </button>
       </div>
     </section>
 
-    <!-- Secondary Buttons -->
-    <section>
-      <h2 class="text-sm font-semibold text-gray-500 tracking-widest uppercase mb-4">Secondary Variant</h2>
+    <!-- Module Context Colored Buttons -->
+    <section class="space-y-4">
+      <h2 class="text-xs font-bold text-gray-700 uppercase tracking-wider">Module Themed Buttons (Used for FABs & specific actions)</h2>
       <div class="flex flex-wrap gap-4 items-center">
-        <button class="font-medium rounded-none transition-all flex justify-center items-center gap-2 touch-manipulation focus:outline-none focus:ring-0 font-sans px-4 py-2 text-sm min-h-[44px] bg-gray-100 hover:bg-gray-200 text-gray-900 focus:shadow-[inset_0_0_0_2px_#f3f4f6,inset_0_0_0_4px_#374151]">
-          Normal
+        <!-- Expense Blue -->
+        <button class="font-bold rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation focus:outline-none px-4 py-2 text-sm min-h-[44px] bg-[#3b82f6] text-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-[#1d4ed8]">
+          Expense Blue
         </button>
-        <button class="font-medium rounded-none transition-all flex justify-center items-center gap-2 touch-manipulation focus:outline-none focus:ring-0 font-sans px-4 py-2 text-sm min-h-[44px] bg-gray-100 hover:bg-gray-200 text-gray-900 focus:shadow-[inset_0_0_0_2px_#f3f4f6,inset_0_0_0_4px_#374151] opacity-70 cursor-not-allowed" disabled>
-          Disabled
+
+        <!-- Budget Emerald -->
+        <button class="font-bold rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation focus:outline-none px-4 py-2 text-sm min-h-[44px] bg-[#10b981] text-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-[#047857]">
+          Budget Emerald
+        </button>
+
+        <!-- Splits Lime -->
+        <button class="font-bold rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation focus:outline-none px-4 py-2 text-sm min-h-[44px] bg-[#629900] text-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-[#3f6200]">
+          Splits Lime
+        </button>
+
+        <!-- Goals Rose -->
+        <button class="font-bold rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation focus:outline-none px-4 py-2 text-sm min-h-[44px] bg-[#f26a8d] text-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-[#c2385c]">
+          Goals Rose
         </button>
       </div>
     </section>
 
-    <!-- Outline Buttons -->
-    <section>
-      <h2 class="text-sm font-semibold text-gray-500 tracking-widest uppercase mb-4">Outline Variant</h2>
+    <!-- Standard Neobrutalist Outline & Secondary Buttons -->
+    <section class="space-y-4">
+      <h2 class="text-xs font-bold text-gray-700 uppercase tracking-wider">Secondary & Outline Variants</h2>
       <div class="flex flex-wrap gap-4 items-center">
-        <button class="font-medium rounded-none transition-all flex justify-center items-center gap-2 touch-manipulation focus:outline-none focus:ring-0 font-sans px-4 py-2 text-sm min-h-[44px] border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 focus:shadow-[inset_0_0_0_1px_#1a2e22,inset_0_0_0_3px_#d1d5db]">
-          Normal
+        <!-- Outline Black -->
+        <button class="font-bold rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation focus:outline-none px-4 py-2 text-sm min-h-[44px] bg-white text-black border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-gray-50">
+          Outline Black
         </button>
-        <button class="font-medium rounded-none transition-all flex justify-center items-center gap-2 touch-manipulation focus:outline-none focus:ring-0 font-sans px-4 py-2 text-sm min-h-[44px] border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 focus:shadow-[inset_0_0_0_1px_#1a2e22,inset_0_0_0_3px_#d1d5db] opacity-70 cursor-not-allowed" disabled>
-          Disabled
-        </button>
-      </div>
-    </section>
 
-    <!-- Ghost Buttons -->
-    <section>
-      <h2 class="text-sm font-semibold text-gray-500 tracking-widest uppercase mb-4">Ghost Variant</h2>
-      <div class="flex flex-wrap gap-4 items-center">
-        <button class="font-medium rounded-none transition-all flex justify-center items-center gap-2 touch-manipulation focus:outline-none focus:ring-0 font-sans px-4 py-2 text-sm min-h-[44px] bg-transparent hover:bg-gray-100 text-gray-700 focus:shadow-[inset_0_0_0_2px_#f9fafb,inset_0_0_0_4px_#374151]">
-          Normal
+        <!-- Simple Flat Button -->
+        <button class="font-bold rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation focus:outline-none px-4 py-2 text-sm min-h-[44px] bg-gray-100 hover:bg-gray-200 text-black border-2 border-black">
+          Flat border
         </button>
-      </div>
-    </section>
 
-    <!-- Danger Buttons -->
-    <section>
-      <h2 class="text-sm font-semibold text-gray-500 tracking-widest uppercase mb-4">Danger Variant</h2>
-      <div class="flex flex-wrap gap-4 items-center">
-        <button class="font-medium rounded-none transition-all flex justify-center items-center gap-2 touch-manipulation focus:outline-none focus:ring-0 font-sans px-4 py-2 text-sm min-h-[44px] bg-red-600 hover:bg-red-700 text-white focus:shadow-[inset_0_0_0_2px_#dc2626,inset_0_0_0_4px_rgba(255,255,255,0.8)]">
-          Danger Action
-        </button>
-      </div>
-    </section>
-
-    <!-- Sizes -->
-    <section>
-      <h2 class="text-sm font-semibold text-gray-500 tracking-widest uppercase mb-4">Sizes</h2>
-      <div class="flex flex-wrap gap-4 items-end">
-        <button class="font-medium rounded-none transition-all flex justify-center items-center gap-2 touch-manipulation focus:outline-none focus:ring-0 font-sans px-3 py-1.5 text-xs min-h-[32px] bg-[#1a2e22] hover:bg-[#2f4d3b] text-white focus:shadow-[inset_0_0_0_2px_#1a2e22,inset_0_0_0_4px_rgba(255,255,255,0.8)] shadow-sm">
-          Small (sm)
-        </button>
-        <button class="font-medium rounded-none transition-all flex justify-center items-center gap-2 touch-manipulation focus:outline-none focus:ring-0 font-sans px-4 py-2 text-sm min-h-[44px] bg-[#1a2e22] hover:bg-[#2f4d3b] text-white focus:shadow-[inset_0_0_0_2px_#1a2e22,inset_0_0_0_4px_rgba(255,255,255,0.8)] shadow-sm">
-          Medium (md)
-        </button>
-        <button class="font-medium rounded-none transition-all flex justify-center items-center gap-2 touch-manipulation focus:outline-none focus:ring-0 font-sans px-6 py-3 text-base min-h-[48px] bg-[#1a2e22] hover:bg-[#2f4d3b] text-white focus:shadow-[inset_0_0_0_2px_#1a2e22,inset_0_0_0_4px_rgba(255,255,255,0.8)] shadow-sm">
-          Large (lg)
+        <!-- Danger Red -->
+        <button class="font-bold rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation focus:outline-none px-4 py-2 text-sm min-h-[44px] bg-red-50 hover:bg-red-600 hover:text-white text-red-600 border-2 border-black transition-colors">
+          Danger Red
         </button>
       </div>
     </section>

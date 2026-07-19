@@ -3,9 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dropdown (Select) Component</title>
+  <title>Neobrutalist Dropdown Select</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
+    body { font-family: 'Poppins', sans-serif; }
     .animate-fade-in-up {
       animation: fadeInUp 0.15s ease-out forwards;
     }
@@ -15,15 +19,18 @@
     }
   </style>
 </head>
-<body class="bg-gray-50 p-8 font-sans h-screen">
-  <div class="max-w-md mx-auto space-y-8 bg-white p-8 border border-gray-200 h-full relative">
-    <h1 class="text-2xl font-bold mb-4">Dropdown Component</h1>
+<body class="bg-[#f8fafc] p-8 text-[#0f172a] h-screen">
+  <div class="max-w-md mx-auto space-y-8 bg-white p-8 border-2 border-black h-full relative">
+    <div>
+      <h1 class="text-3xl font-extrabold tracking-tight uppercase">Select Menu</h1>
+      <p class="text-gray-500 font-semibold mt-1">Expensio Neobrutalist Dropdown Component</p>
+    </div>
 
     <!-- Single Select Dropdown -->
-    <div class="flex flex-col gap-1 relative z-10" id="dropdown-container">
-      <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase">Select Option</label>
+    <div class="flex flex-col gap-2 relative z-10" id="dropdown-container">
+      <label class="text-xs font-bold text-gray-700 uppercase tracking-wider">Select Category</label>
       
-      <!-- Backdrop -->
+      <!-- Backdrop (Invisible click detector) -->
       <div id="backdrop" class="fixed inset-0 z-40 bg-transparent hidden" aria-hidden="true"></div>
       
       <div class="relative">
@@ -31,32 +38,37 @@
         <button
           id="trigger-btn"
           type="button"
-          class="trigger-button w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:outline-none focus:ring-0 focus:border-[#1a2e22] flex items-center justify-between p-2.5 outline-none transition-all hover:border-gray-300 min-h-[44px] touch-manipulation font-sans"
+          class="w-full bg-gray-50 border-2 border-black text-black text-sm rounded-none focus:outline-none flex items-center justify-between p-3 font-bold transition-all hover:bg-gray-100 min-h-[44px]"
         >
-          <span id="selected-text" class="text-gray-400 truncate pr-2">Select...</span>
-          <svg id="chevron-icon" class="w-4 h-4 text-gray-500 transition-transform duration-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          <span id="selected-text" class="text-gray-500 truncate pr-2">Choose category...</span>
+          <svg id="chevron-icon" class="w-4 h-4 text-black transition-transform duration-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
           </svg>
         </button>
 
         <!-- Dropdown Options -->
-        <div id="dropdown-menu" class="hidden absolute left-0 right-0 top-full mt-1 z-50 bg-white shadow-xl border border-gray-200 rounded-none max-h-60 overflow-auto animate-fade-in-up min-w-full">
+        <div id="dropdown-menu" class="hidden absolute left-0 right-0 top-full mt-1.5 z-50 bg-white border-2 border-black rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] max-h-60 overflow-auto animate-fade-in-up">
           <ul class="py-1">
             <li>
-              <button type="button" class="option-btn w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100 flex items-center justify-between group transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#1a2e22] cursor-pointer touch-manipulation text-gray-700">
-                <span class="font-medium truncate">Option 1</span>
+              <button type="button" class="option-btn w-full text-left px-4 py-3 text-xs font-bold uppercase tracking-wider hover:bg-gray-100 flex items-center justify-between group transition-colors focus:outline-none text-gray-700">
+                <span>Food & Dining</span>
               </button>
             </li>
             <li>
-              <button type="button" class="option-btn w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100 flex items-center justify-between group transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#1a2e22] cursor-pointer touch-manipulation text-gray-700">
-                <span class="font-medium truncate">Option 2</span>
+              <button type="button" class="option-btn w-full text-left px-4 py-3 text-xs font-bold uppercase tracking-wider hover:bg-gray-100 flex items-center justify-between group transition-colors focus:outline-none text-gray-700">
+                <span>Entertainment</span>
               </button>
             </li>
             <li>
-              <button type="button" class="option-btn w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100 flex items-center justify-between group transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#1a2e22] cursor-pointer touch-manipulation text-[#1a2e22] bg-gray-50">
-                <span class="font-medium truncate">Option 3 (Selected State)</span>
-                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              <button type="button" class="option-btn w-full text-left px-4 py-3 text-xs font-bold uppercase tracking-wider hover:bg-gray-100 flex items-center justify-between group transition-colors focus:outline-none text-gray-700">
+                <span>Utilities</span>
+              </button>
+            </li>
+            <li>
+              <button type="button" class="option-btn w-full text-left px-4 py-3 text-xs font-bold uppercase tracking-wider hover:bg-gray-100 flex items-center justify-between group transition-colors focus:outline-none text-[#1a2e22] bg-gray-100">
+                <span>Travel & Transport (Active)</span>
+                <svg class="w-4 h-4 text-[#1a2e22] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
                 </svg>
               </button>
             </li>
@@ -65,18 +77,18 @@
       </div>
     </div>
 
-    <!-- Disabled Dropdown -->
-    <div class="flex flex-col gap-1 relative z-0 mt-8">
-      <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase">Disabled Select</label>
+    <!-- Disabled State -->
+    <div class="flex flex-col gap-2 relative z-0">
+      <label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Payment Mode (Disabled)</label>
       <div class="relative">
         <button
           type="button"
           disabled
-          class="trigger-button w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:outline-none focus:ring-0 flex items-center justify-between p-2.5 outline-none transition-all min-h-[44px] touch-manipulation font-sans opacity-60 cursor-not-allowed bg-gray-50"
+          class="w-full bg-gray-100 border-2 border-gray-300 text-gray-400 text-sm rounded-none flex items-center justify-between p-3 font-bold cursor-not-allowed opacity-60 min-h-[44px]"
         >
-          <span class="text-gray-900 truncate pr-2">Disabled Value</span>
-          <svg class="w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          <span class="truncate pr-2">UPI Payment</span>
+          <svg class="w-4 h-4 text-gray-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
           </svg>
         </button>
       </div>
@@ -84,7 +96,6 @@
   </div>
 
   <script>
-    // Simple JS to demonstrate open/close state
     const triggerBtn = document.getElementById('trigger-btn');
     const dropdownMenu = document.getElementById('dropdown-menu');
     const chevronIcon = document.getElementById('chevron-icon');
@@ -100,12 +111,10 @@
         dropdownMenu.classList.remove('hidden');
         backdrop.classList.remove('hidden');
         chevronIcon.classList.add('rotate-180');
-        triggerBtn.classList.add('border-[#1a2e22]');
       } else {
         dropdownMenu.classList.add('hidden');
         backdrop.classList.add('hidden');
         chevronIcon.classList.remove('rotate-180');
-        triggerBtn.classList.remove('border-[#1a2e22]');
       }
     }
 
@@ -114,10 +123,10 @@
 
     optionBtns.forEach(btn => {
       btn.addEventListener('click', (e) => {
-        // Mock selection
-        selectedText.textContent = btn.querySelector('span').textContent;
-        selectedText.classList.remove('text-gray-400');
-        selectedText.classList.add('text-gray-900');
+        const textSpan = btn.querySelector('span');
+        selectedText.textContent = textSpan.textContent.replace(' (Active)', '');
+        selectedText.classList.remove('text-gray-500');
+        selectedText.classList.add('text-black');
         toggleDropdown();
       });
     });
