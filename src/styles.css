@@ -26,65 +26,70 @@
   --color-text-muted: var(--app-text-muted);
 
   /* Expense Module */
-  --color-expense-primary: #3B82F6;
-  --color-expense-dark: #1D4ED8;
-  --color-expense-light: #60A5FA;
-  --color-expense-surface: #EFF6FF;
+  --color-expense-primary: #0f172a;
+  --color-expense-dark: #020617;
+  --color-expense-light: #334155;
+  --color-expense-surface: #f8fafc;
 
   /* Budget Module */
-  --color-budget-primary: #10B981;
-  --color-budget-dark: #047857;
-  --color-budget-light: #6EE7B7;
-  --color-budget-surface: #ECFDF5;
+  --color-budget-primary: #0f172a;
+  --color-budget-dark: #020617;
+  --color-budget-light: #334155;
+  --color-budget-surface: #f8fafc;
 
   /* Friends Module */
-  --color-friends-primary: #F59E0B;
-  --color-friends-dark: #B45309;
-  --color-friends-light: #FCD34D;
-  --color-friends-surface: #FFFBEB;
+  --color-friends-primary: #0f172a;
+  --color-friends-dark: #020617;
+  --color-friends-light: #334155;
+  --color-friends-surface: #f8fafc;
 
   /* Splits Module */
-  --color-splits-primary: #629900;
-  --color-splits-dark: #3f6200;
-  --color-splits-light: #a8e046;
-  --color-splits-surface: #f5faea;
+  --color-splits-primary: #0f172a;
+  --color-splits-dark: #020617;
+  --color-splits-light: #334155;
+  --color-splits-surface: #f8fafc;
 
   /* Subscriptions Module */
-  --color-subscriptions-primary: #8B5CF6;
-  --color-subscriptions-dark: #6D28D9;
-  --color-subscriptions-light: #C4B5FD;
-  --color-subscriptions-surface: #F5F3FF;
+  --color-subscriptions-primary: #0f172a;
+  --color-subscriptions-dark: #020617;
+  --color-subscriptions-light: #334155;
+  --color-subscriptions-surface: #f8fafc;
 
   /* Goals Module */
-  --color-goals-primary: #f26a8d;
-  --color-goals-dark: #c2385c;
-  --color-goals-light: #fc9eb7;
-  --color-goals-surface: #fdf0f4;
+  --color-goals-primary: #0f172a;
+  --color-goals-dark: #020617;
+  --color-goals-light: #334155;
+  --color-goals-surface: #f8fafc;
 
   /* Ledger Module */
-  --color-ledger-primary: #bc4749;
-  --color-ledger-dark: #8c3536;
-  --color-ledger-light: #d6797a;
-  --color-ledger-surface: #faedee;
+  --color-ledger-primary: #0f172a;
+  --color-ledger-dark: #020617;
+  --color-ledger-light: #334155;
+  --color-ledger-surface: #f8fafc;
 
   /* Reports Module */
-  --color-reports-primary: #EC4899;
-  --color-reports-dark: #BE185D;
-  --color-reports-light: #F9A8D4;
-  --color-reports-surface: #FDF2F8;
+  --color-reports-primary: #0f172a;
+  --color-reports-dark: #020617;
+  --color-reports-light: #334155;
+  --color-reports-surface: #f8fafc;
 
   /* Profile Module */
-  --color-profile-primary: #6B7280;
-  --color-profile-dark: #374151;
-  --color-profile-light: #D1D5DB;
-  --color-profile-surface: #F9FAFB;
+  --color-profile-primary: #0f172a;
+  --color-profile-dark: #020617;
+  --color-profile-light: #334155;
+  --color-profile-surface: #f8fafc;
 
-  
+  /* Tracker Module */
+  --color-tracker-primary: #0f172a;
+  --color-tracker-dark: #020617;
+  --color-tracker-light: #334155;
+  --color-tracker-surface: #f8fafc;
+
   --font-sans: 'Poppins', ui-sans-serif, system-ui, sans-serif;
 }
 
 html, body {
-  @apply bg-background text-text antialiased w-full h-[100dvh] overflow-hidden m-0 p-0;
+  @apply bg-background text-text antialiased w-full h-full max-h-screen overflow-hidden m-0 p-0;
   -webkit-tap-highlight-color: transparent;
   -webkit-user-select: none; /* Prevent accidental text selection */
   user-select: none;
@@ -95,7 +100,7 @@ html, body {
 }
 
 app-root {
-  @apply block w-full h-full;
+  @apply block w-full h-full max-h-screen overflow-hidden;
 }
 
 /* Allow selection in inputs and prevent iOS zoom on focus */
@@ -163,4 +168,16 @@ input[type="checkbox"]:checked {
   background: linear-gradient(to right, #10B981, #06B6D4, #F59E0B, #8B5CF6, #EF4444);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+
+/* Hide scrollbars for horizontal carousels & swipe tracks */
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
 }

@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, signal, computed, effect, untracked, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService, UserProfile } from '../../core/services/auth.service';
@@ -7,6 +7,9 @@ import { SafeInputDirective } from '../../shared/ui/safe-input.directive';
 import { ConfirmService } from '../../core/services/confirm.service';
 import { ToastService } from '../../core/services/toast.service';
 import { QuickActionsService } from '../../core/services/quick-actions.service';
+import { AccountTrackerService } from '../../core/services/account-tracker.service';
+import emailjs from '@emailjs/browser';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-profile',
@@ -14,11 +17,11 @@ import { QuickActionsService } from '../../core/services/quick-actions.service';
   imports: [CommonModule, FormsModule, SafeInputDirective],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
-    <div class="bg-gray-50 p-6 flex flex-col gap-8">
+    <div class="bg-gray-50 p-6 flex flex-col gap-8 pb-36">
       <!-- Top Selected Avatar & Selection List -->
       <div class="flex flex-col items-center gap-6 mt-4">
         <div
-          class="w-32 h-32 border-2 border-profile-dark rounded-none bg-gray-200 overflow-hidden"
+          class="w-32 h-32 border-2 border-profile-dark rounded-none bg-gray-200 overflow-hidden shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
         >
           <img
             [src]="getSelectedAvatarUrl()"
@@ -28,7 +31,7 @@ import { QuickActionsService } from '../../core/services/quick-actions.service';
         </div>
 
         <div class="w-full flex flex-col gap-3">
-          <h3 class="text-sm font-extrabold tracking-widest uppercase text-black">Choose Avatar</h3>
+          <h3 class="text-xs font-extrabold tracking-widest uppercase text-black">Choose Avatar</h3>
           <div class="flex overflow-x-auto gap-4 py-2 px-1 no-scrollbar">
             @for (avatar of authService.avatars; track avatar) {
               <button
@@ -36,7 +39,7 @@ import { QuickActionsService } from '../../core/services/quick-actions.service';
                 class="flex-shrink-0 w-20 h-20 border-2 rounded-none flex items-center justify-center transition-transform duration-300 overflow-hidden"
                 [ngClass]="
                   pendingProfile().avatarId === avatar.id
-                    ? 'border-black scale-110 bg-white'
+                    ? 'border-black scale-110 bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'
                     : 'border-transparent hover:scale-105 bg-gray-200'
                 "
               >
@@ -99,107 +102,167 @@ import { QuickActionsService } from '../../core/services/quick-actions.service';
           </div>
         </div>
 
-        <!-- Editable Salary -->
-        <div class="flex flex-col gap-1">
-          <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
-            >Monthly Salary</label
-          >
-          <div class="relative group">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <span class="text-gray-500 font-medium">₹</span>
+        <!-- Section: Account Balances (3 Types) -->
+        <div class="border-t-2 border-black pt-5 flex flex-col gap-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-black tracking-widest uppercase text-sky-600">
+              Account Balances (3 Types)
+            </h3>
+            <span class="text-[10px] font-bold text-gray-400">Set initial balances</span>
+          </div>
+
+          <!-- 1. Salary Account / Monthly Salary -->
+          <div class="flex flex-col gap-1">
+            <label class="text-[11px] font-extrabold text-gray-700 tracking-widest uppercase flex items-center gap-1.5">
+              <span>Salary Account / Monthly Salary</span>
+            </label>
+            <div class="relative group">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span class="text-gray-500 font-bold">₹</span>
+              </div>
+              <input
+                type="text"
+                inputmode="numeric"
+                [ngModel]="formattedSalary"
+                (ngModelChange)="formatSalary($event)"
+                class="w-full bg-white border-2 border-black text-gray-900 text-sm font-bold rounded-none focus:ring-0 focus:border-sky-500 hover:border-gray-400 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans pl-8 pr-12"
+                placeholder="0"
+              />
+              <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                <span class="text-gray-400 text-xs font-bold">INR</span>
+              </div>
             </div>
-            <input
-              type="text"
-              inputmode="numeric"
-              [ngModel]="formattedSalary"
-              (ngModelChange)="formatSalary($event)"
-              class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-black hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans pl-8 pr-12"
-              placeholder="0"
-            />
-            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-              <span class="text-gray-400 text-xs">INR</span>
+          </div>
+
+          <!-- 2. Cash Account Balance -->
+          <div class="flex flex-col gap-1">
+            <label class="text-[11px] font-extrabold text-gray-700 tracking-widest uppercase flex items-center gap-1.5">
+              <span>Cash Account Balance</span>
+            </label>
+            <div class="relative group">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span class="text-gray-500 font-bold">₹</span>
+              </div>
+              <input
+                type="text"
+                inputmode="numeric"
+                [ngModel]="formattedCash"
+                (ngModelChange)="formatCash($event)"
+                class="w-full bg-white border-2 border-black text-gray-900 text-sm font-bold rounded-none focus:ring-0 focus:border-amber-500 hover:border-gray-400 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans pl-8 pr-12"
+                placeholder="0"
+              />
+              <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                <span class="text-gray-400 text-xs font-bold">INR</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Savings Account Balance -->
+          <div class="flex flex-col gap-1">
+            <label class="text-[11px] font-extrabold text-gray-700 tracking-widest uppercase flex items-center gap-1.5">
+              <span>Savings Account Balance</span>
+            </label>
+            <div class="relative group">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span class="text-gray-500 font-bold">₹</span>
+              </div>
+              <input
+                type="text"
+                inputmode="numeric"
+                [ngModel]="formattedSavings"
+                (ngModelChange)="formatSavings($event)"
+                class="w-full bg-white border-2 border-black text-gray-900 text-sm font-bold rounded-none focus:ring-0 focus:border-emerald-500 hover:border-gray-400 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans pl-8 pr-12"
+                placeholder="0"
+              />
+              <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                <span class="text-gray-400 text-xs font-bold">INR</span>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Mask Values Preference -->
-        <div class="flex items-center justify-between mt-4">
-          <div class="flex flex-col">
-            <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
-              >Mask Values</label
+        <!-- Preferences Section -->
+        <div class="border-t-2 border-black pt-4 flex flex-col gap-4">
+          <!-- Mask Values Preference -->
+          <div class="flex items-center justify-between">
+            <div class="flex flex-col">
+              <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
+                >Mask Values</label
+              >
+              <span class="text-[10px] font-semibold text-gray-500 mt-0.5"
+                >Hide dashboard numbers on every visit</span
+              >
+            </div>
+            <button
+              type="button"
+              (click)="toggleMaskValues()"
+              class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-none border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
+              [ngClass]="pendingProfile().maskValues ? 'bg-black' : 'bg-gray-200'"
+              role="switch"
+              [attr.aria-checked]="pendingProfile().maskValues"
             >
-            <span class="text-[10px] font-semibold text-gray-500 mt-0.5"
-              >Hide dashboard numbers on every visit</span
-            >
+              <span
+                aria-hidden="true"
+                class="pointer-events-none inline-block h-5 w-5 transform rounded-none bg-white shadow ring-0 transition duration-200 ease-in-out"
+                [ngClass]="pendingProfile().maskValues ? 'translate-x-5' : 'translate-x-0'"
+              ></span>
+            </button>
           </div>
-          <button
-            type="button"
-            (click)="toggleMaskValues()"
-            class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-none border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
-            [ngClass]="pendingProfile().maskValues ? 'bg-black' : 'bg-gray-200'"
-            role="switch"
-            [attr.aria-checked]="pendingProfile().maskValues"
-          >
-            <span
-              aria-hidden="true"
-              class="pointer-events-none inline-block h-5 w-5 transform rounded-none bg-white shadow ring-0 transition duration-200 ease-in-out"
-              [ngClass]="pendingProfile().maskValues ? 'translate-x-5' : 'translate-x-0'"
-            ></span>
-          </button>
+
+          <!-- Configure Email Reports -->
+          <div class="flex flex-col gap-3">
+            <div class="flex flex-col">
+              <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
+                >Email Reports</label
+              >
+              <span class="text-[10px] font-semibold text-gray-500 mt-0.5"
+                >Receive automated summaries of your expenses</span
+              >
+            </div>
+            <div
+              class="flex border-2 border-black rounded-none overflow-hidden text-[11px] font-bold w-full"
+            >
+              <button
+                (click)="updateField('emailReportFrequency', 'none')"
+                [class.bg-black]="pendingProfile().emailReportFrequency === 'none'"
+                [class.text-white]="pendingProfile().emailReportFrequency === 'none'"
+                [class.text-gray-500]="pendingProfile().emailReportFrequency !== 'none'"
+                [class.bg-white]="pendingProfile().emailReportFrequency !== 'none'"
+                class="px-3 py-2.5 transition-colors text-center"
+              >
+                Off
+              </button>
+              <button
+                (click)="updateField('emailReportFrequency', 'weekly')"
+                [class.bg-black]="pendingProfile().emailReportFrequency === 'weekly'"
+                [class.text-white]="pendingProfile().emailReportFrequency === 'weekly'"
+                [class.text-gray-500]="pendingProfile().emailReportFrequency !== 'weekly'"
+                [class.bg-white]="pendingProfile().emailReportFrequency !== 'weekly'"
+                class="flex-1 py-2.5 border-l-2 border-r-2 border-black transition-colors text-center"
+              >
+                Weekly
+              </button>
+              <button
+                (click)="updateField('emailReportFrequency', 'monthly')"
+                [class.bg-black]="pendingProfile().emailReportFrequency === 'monthly'"
+                [class.text-white]="pendingProfile().emailReportFrequency === 'monthly'"
+                [class.text-gray-500]="pendingProfile().emailReportFrequency !== 'monthly'"
+                [class.bg-white]="pendingProfile().emailReportFrequency !== 'monthly'"
+                class="flex-1 py-2.5 transition-colors text-center"
+              >
+                Monthly
+              </button>
+            </div>
+          </div>
         </div>
 
-        <!-- Configure Email Reports -->
-        <div class="flex flex-col gap-3 mt-4">
-          <div class="flex flex-col">
-            <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
-              >Email Reports</label
-            >
-            <span class="text-[10px] font-semibold text-gray-500 mt-0.5"
-              >Receive automated summaries of your expenses</span
-            >
-          </div>
-          <div
-            class="flex border-2 border-black rounded-none overflow-hidden text-xs font-bold w-full"
-          >
-            <button
-              (click)="updateField('emailReportFrequency', 'none')"
-              [class.bg-black]="pendingProfile().emailReportFrequency === 'none'"
-              [class.text-white]="pendingProfile().emailReportFrequency === 'none'"
-              [class.text-gray-500]="pendingProfile().emailReportFrequency !== 'none'"
-              [class.bg-white]="pendingProfile().emailReportFrequency !== 'none'"
-              class="flex-1 py-2.5 transition-colors"
-            >
-              Off
-            </button>
-            <button
-              (click)="updateField('emailReportFrequency', 'weekly')"
-              [class.bg-black]="pendingProfile().emailReportFrequency === 'weekly'"
-              [class.text-white]="pendingProfile().emailReportFrequency === 'weekly'"
-              [class.text-gray-500]="pendingProfile().emailReportFrequency !== 'weekly'"
-              [class.bg-white]="pendingProfile().emailReportFrequency !== 'weekly'"
-              class="flex-1 py-2.5 border-l-2 border-r-2 border-black transition-colors"
-            >
-              Weekly
-            </button>
-            <button
-              (click)="updateField('emailReportFrequency', 'monthly')"
-              [class.bg-black]="pendingProfile().emailReportFrequency === 'monthly'"
-              [class.text-white]="pendingProfile().emailReportFrequency === 'monthly'"
-              [class.text-gray-500]="pendingProfile().emailReportFrequency !== 'monthly'"
-              [class.bg-white]="pendingProfile().emailReportFrequency !== 'monthly'"
-              class="flex-1 py-2.5 transition-colors"
-            >
-              Monthly
-            </button>
-          </div>
-        </div>
       </div>
 
       <!-- Update Button -->
       <button
         [disabled]="!isDirty() || isUpdating()"
         (click)="handleUpdate()"
-        class="w-full bg-black text-white p-3.5 font-bold text-sm tracking-wide transition-all border-2 border-transparent active:scale-[0.98] mt-4 rounded-none disabled:opacity-50 disabled:bg-gray-800 disabled:active:scale-100 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        class="w-full bg-slate-900 text-white p-4 font-black text-sm tracking-widest uppercase transition-all rounded-2xl shadow-xl hover:bg-slate-800 active:scale-95 mt-2 disabled:opacity-50 disabled:bg-slate-300 disabled:shadow-none disabled:cursor-not-allowed flex items-center justify-center gap-2"
       >
         @if (isUpdating()) {
           <svg
@@ -222,9 +285,9 @@ import { QuickActionsService } from '../../core/services/quick-actions.service';
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
             ></path>
           </svg>
-          Updating...
+          Updating Profile & Accounts...
         } @else {
-          Update Profile
+          Update Profile & Accounts
         }
       </button>
     </div>
@@ -232,23 +295,47 @@ import { QuickActionsService } from '../../core/services/quick-actions.service';
 })
 export class Profile {
   authService = inject(AuthService);
+  accountTrackerService = inject(AccountTrackerService);
   private supabaseService = inject(SupabaseService);
   private confirmService = inject(ConfirmService);
   private toastService = inject(ToastService);
   quickActionsService = inject(QuickActionsService);
 
   pendingProfile = signal<UserProfile>({ ...this.authService.userProfile() });
+  cashVal = signal<number>(this.accountTrackerService.cashBalance());
+  savingsVal = signal<number>(this.accountTrackerService.savingsBalance());
   isUpdating = signal(false);
 
+  constructor() {
+    // Sync account balances when data loads from the service
+    effect(() => {
+      const cb = this.accountTrackerService.cashBalance();
+      const sb = this.accountTrackerService.savingsBalance();
+      const profile = this.authService.userProfile();
+      
+      untracked(() => {
+        this.cashVal.set(cb);
+        this.savingsVal.set(sb);
+        if (profile) {
+          this.pendingProfile.set({ ...profile });
+        }
+      });
+    });
+  }
   isDirty = computed(() => {
     const current = this.authService.userProfile();
     const pending = this.pendingProfile();
+    const currentCash = this.accountTrackerService.cashBalance();
+    const currentSavings = this.accountTrackerService.savingsBalance();
+
     return (
       current.name !== pending.name ||
       current.salary !== pending.salary ||
       current.avatarId !== pending.avatarId ||
       current.maskValues !== pending.maskValues ||
-      current.emailReportFrequency !== pending.emailReportFrequency
+      current.emailReportFrequency !== pending.emailReportFrequency ||
+      currentCash !== this.cashVal() ||
+      currentSavings !== this.savingsVal()
     );
   });
 
@@ -266,36 +353,6 @@ export class Profile {
 
   toggleMaskValues() {
     this.pendingProfile.update((p) => ({ ...p, maskValues: !p.maskValues }));
-  }
-
-  isSendingTestEmail = signal(false);
-
-  async triggerTestEmail() {
-    this.isSendingTestEmail.set(true);
-    try {
-      const { data, error } = await this.supabaseService.client.functions.invoke(
-        'send-email-reports',
-        {
-          body: {
-            type:
-              this.pendingProfile().emailReportFrequency === 'none'
-                ? 'weekly'
-                : this.pendingProfile().emailReportFrequency,
-          },
-        },
-      );
-
-      if (error) {
-        console.error('Error triggering test email:', error);
-        this.toastService.showError('Error triggering test email.');
-      } else {
-        this.toastService.showSuccess('Test email sent successfully!', 3000);
-      }
-    } catch (err) {
-      console.error('Exception triggering test email:', err);
-      this.toastService.showError('Error triggering test email.');
-    }
-    this.isSendingTestEmail.set(false);
   }
 
   get formattedSalary(): string {
@@ -320,45 +377,76 @@ export class Profile {
     this.updateField('salary', parseInt(rawValue));
   }
 
+  get formattedCash(): string {
+    const val = this.cashVal();
+    if (!val) return '';
+    return new Intl.NumberFormat('en-IN').format(val);
+  }
+
+  formatCash(value: string) {
+    if (!value) {
+      this.cashVal.set(0);
+      return;
+    }
+    let rawValue = value.toString().replace(/[^0-9]/g, '');
+    if (!rawValue) {
+      this.cashVal.set(0);
+      return;
+    }
+    if (parseInt(rawValue) > 999999) {
+      rawValue = '999999';
+    }
+    this.cashVal.set(parseInt(rawValue));
+  }
+
+  get formattedSavings(): string {
+    const val = this.savingsVal();
+    if (!val) return '';
+    return new Intl.NumberFormat('en-IN').format(val);
+  }
+
+  formatSavings(value: string) {
+    if (!value) {
+      this.savingsVal.set(0);
+      return;
+    }
+    let rawValue = value.toString().replace(/[^0-9]/g, '');
+    if (!rawValue) {
+      this.savingsVal.set(0);
+      return;
+    }
+    if (parseInt(rawValue) > 999999) {
+      rawValue = '999999';
+    }
+    this.savingsVal.set(parseInt(rawValue));
+  }
+
   async handleUpdate() {
     if (!this.isDirty() || this.isUpdating()) return;
 
     this.isUpdating.set(true);
-    const current = this.authService.userProfile();
-    const pending = this.pendingProfile();
 
     try {
-      if (current.salary !== pending.salary) {
-        this.confirmService.open({
-          title: 'Update Salary',
-          message:
-            'Applying the monthly salary will take effect from the 1st of the upcoming month only.',
-          confirmText: 'Apply Updates',
-          cancelText: 'Cancel',
-          onConfirm: async () => {
-            this.isUpdating.set(true);
-            const success = await this.authService.updateProfile(this.pendingProfile());
-            if (success) {
-              this.toastService.showSuccess('Profile updated successfully.', 2000);
-            } else {
-              this.toastService.showError("Couldn't update profile. Please try again.");
-            }
-            this.isUpdating.set(false);
-          },
-        });
-        this.isUpdating.set(false);
+      // 1. Update User Profile
+      const success = await this.authService.updateProfile(this.pendingProfile());
+
+      // 2. Update Account Balances in AccountTrackerService
+      await this.accountTrackerService.setInitialBalances(
+        this.pendingProfile().salary,
+        this.cashVal(),
+        this.savingsVal()
+      );
+
+      if (success) {
+        this.toastService.showSuccess('Profile & Accounts updated successfully.', 2000);
       } else {
-        const success = await this.authService.updateProfile(this.pendingProfile());
-        if (success) {
-          this.toastService.showSuccess('Profile updated successfully.', 2000);
-        } else {
-          this.toastService.showError("Couldn't update profile. Please try again.");
-        }
-        this.isUpdating.set(false);
+        this.toastService.showError("Couldn't update profile. Please try again.");
       }
     } catch (e) {
-      this.isUpdating.set(false);
+      console.error('Error updating profile & accounts:', e);
       this.toastService.showError("Couldn't update profile. Please try again.");
+    } finally {
+      this.isUpdating.set(false);
     }
   }
 }

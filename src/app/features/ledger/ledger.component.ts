@@ -12,18 +12,16 @@ import { LedgerService, LedgerEntry } from '../../core/services/ledger.service';
   },
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
-    <div class="h-full bg-gray-50 p-4 flex flex-col gap-5">
+    <div class="h-full bg-white p-4 flex flex-col gap-4">
       <!-- Summary Header -->
-      <div class="bg-ledger-primary text-white p-5 rounded-none">
-        <h2 class="text-xs font-bold text-ledger-surface opacity-80 uppercase tracking-widest mb-1">
+      <div class="bg-black text-white p-5 rounded-2xl shadow-[6px_6px_0px_0px_rgba(239,68,68,1)]">
+        <h2 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
           Your Net Balance
         </h2>
-        <p class="text-4xl font-extrabold tracking-tight">
-          {{ ledgerService.netBalance() >= 0 ? '+' : '' }}₹{{
-            ledgerService.netBalance() | number: '1.2-2'
-          }}
+        <p class="text-4xl font-black tracking-tight">
+          {{ ledgerService.netBalance() >= 0 ? '+' : '' }}₹{{ ledgerService.netBalance() | number: '1.2-2' }}
         </p>
-        <p class="text-[11px] font-bold mt-1 text-ledger-surface opacity-90">
+        <p class="text-[11px] font-bold mt-1 text-gray-300">
           @if (ledgerService.netBalance() > 0) {
             Others owe you
           } @else if (ledgerService.netBalance() < 0) {
@@ -32,51 +30,36 @@ import { LedgerService, LedgerEntry } from '../../core/services/ledger.service';
             All settled!
           }
         </p>
-        <div
-          class="flex justify-between items-center mt-4 pt-3 border-t-2 border-ledger-dark text-[10px] font-bold uppercase tracking-widest text-ledger-surface opacity-90"
-        >
+        <div class="flex justify-between items-center mt-5 pt-4 border-t border-gray-700 text-[10px] font-black uppercase tracking-widest text-gray-400">
           <div>
             Money In:
-            <span class="text-white font-extrabold ml-1"
-              >₹{{ ledgerService.totalReceived() | number: '1.0-0' }}</span
-            >
+            <span class="text-emerald-400 ml-1 font-black">₹{{ ledgerService.totalReceived() | number: '1.0-0' }}</span>
           </div>
           <div>
             Money Out:
-            <span class="text-white font-extrabold ml-1"
-              >₹{{ ledgerService.totalGiven() | number: '1.0-0' }}</span
-            >
+            <span class="text-red-400 ml-1 font-black">₹{{ ledgerService.totalGiven() | number: '1.0-0' }}</span>
           </div>
         </div>
       </div>
+      
       <!-- Ledger Entry List -->
-      <div class="flex-1 flex flex-col gap-3 pb-36 mt-1">
+      <div class="flex-1 flex flex-col gap-4 pb-36 mt-1">
         @if (ledgerService.isLoading()) {
           @for (i of [1, 2, 3]; track i) {
-            <div
-              class="w-full bg-ledger-surface rounded-none p-4 flex flex-col gap-4 border-b-2 border-ledger-light/20 relative overflow-hidden animate-pulse"
-            >
-              <!-- Left status bar skeleton -->
-              <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-gray-300"></div>
-
-              <!-- Top Row: Avatar, Name, Amount -->
-              <div class="flex justify-between items-center pl-2">
+            <div class="w-full bg-gray-100 rounded-2xl p-4 flex flex-col gap-4 border-2 border-gray-200 animate-pulse h-[130px]">
+              <div class="flex justify-between items-center">
                 <div class="flex items-center gap-3 w-2/3">
-                  <div class="w-10 h-10 rounded-full bg-gray-300 shrink-0"></div>
+                  <div class="w-10 h-10 rounded-xl bg-gray-200 shrink-0 border-2 border-gray-300"></div>
                   <div class="flex flex-col gap-2 w-full">
-                    <div class="h-4 bg-gray-300 rounded w-1/2"></div>
+                    <div class="h-4 bg-gray-200 rounded w-1/2"></div>
                     <div class="h-2 bg-gray-200 rounded w-1/3"></div>
                   </div>
                 </div>
-                <div class="h-5 bg-gray-300 rounded w-16 shrink-0 ml-3"></div>
+                <div class="h-5 bg-gray-200 rounded w-16 shrink-0 ml-3"></div>
               </div>
-
-              <!-- Bottom Row: Purpose and Status Tag -->
-              <div
-                class="flex justify-between items-center pl-2 pt-2 border-t border-ledger-light/20"
-              >
+              <div class="flex justify-between items-center pt-3 border-t-2 border-gray-200 border-dashed">
                 <div class="h-2.5 bg-gray-200 rounded w-1/3"></div>
-                <div class="h-4 bg-gray-300 rounded w-16 shrink-0"></div>
+                <div class="h-6 bg-gray-200 rounded w-16 shrink-0"></div>
               </div>
             </div>
           }
@@ -85,58 +68,37 @@ import { LedgerService, LedgerEntry } from '../../core/services/ledger.service';
             @for (entry of filteredEntries(); track entry.id) {
               <button
                 (click)="viewDetails(entry.id)"
-                class="w-full bg-ledger-surface rounded-none p-4 flex flex-col gap-4 text-left hover:bg-ledger-light/30 transition-colors border-b-2 border-ledger-light/20 relative overflow-hidden"
+                class="w-full bg-white rounded-2xl p-4 flex flex-col gap-3 text-left shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] transition-all active:scale-[0.99] border-2 border-black relative overflow-hidden"
               >
-                <!-- Left status bar -->
-                <div
-                  class="absolute left-0 top-0 bottom-0 w-1.5"
-                  [class.bg-green-500]="ledgerService.getLedgerBalance(entry) > 0"
-                  [class.bg-red-500]="ledgerService.getLedgerBalance(entry) < 0"
-                  [class.bg-gray-400]="ledgerService.getLedgerBalance(entry) === 0"
-                ></div>
-
                 <!-- Top Row: Avatar, Name, Amount -->
-                <div class="flex justify-between items-center pl-2">
+                <div class="flex justify-between items-center w-full">
                   <div class="flex items-center gap-3 min-w-0">
-                    <div
-                      class="w-10 h-10 rounded-full bg-ledger-primary/20 flex items-center justify-center shrink-0 border border-ledger-primary/30"
-                    >
-                      <span class="text-base font-extrabold text-ledger-dark">{{
-                        entry.person_name.charAt(0).toUpperCase()
-                      }}</span>
+                    <div class="w-10 h-10 rounded-xl bg-ledger-primary text-white flex items-center justify-center shrink-0 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                      <span class="text-base font-black">{{ entry.person_name.charAt(0).toUpperCase() }}</span>
                     </div>
                     <div class="flex flex-col min-w-0">
-                      <span class="font-extrabold text-lg text-ledger-dark truncate">{{
-                        entry.person_name
-                      }}</span>
-                      <span
-                        class="text-[9px] font-bold text-ledger-dark/60 uppercase tracking-widest mt-0.5"
-                        >{{ entry.date | date: 'MMM d, h:mm a' }}</span
-                      >
+                      <span class="font-black text-lg text-black truncate">{{ entry.person_name }}</span>
+                      <span class="text-[9px] font-bold text-gray-500 uppercase tracking-widest mt-0.5">
+                        {{ entry.date | date: 'MMM d, h:mm a' }}
+                      </span>
                     </div>
                   </div>
 
                   <div class="flex flex-col items-end shrink-0 pl-3">
                     <span
-                      class="font-extrabold text-xl"
-                      [class.text-green-600]="ledgerService.getLedgerBalance(entry) > 0"
+                      class="font-black text-xl"
+                      [class.text-emerald-600]="ledgerService.getLedgerBalance(entry) > 0"
                       [class.text-red-600]="ledgerService.getLedgerBalance(entry) < 0"
-                      [class.text-gray-500]="ledgerService.getLedgerBalance(entry) === 0"
+                      [class.text-black]="ledgerService.getLedgerBalance(entry) === 0"
                     >
-                      {{ ledgerService.getLedgerBalance(entry) > 0 ? '+' : '' }}₹{{
-                        ledgerService.getLedgerBalance(entry) | number: '1.0-0'
-                      }}
+                      {{ ledgerService.getLedgerBalance(entry) > 0 ? '+' : '' }}₹{{ ledgerService.getLedgerBalance(entry) | number: '1.0-0' }}
                     </span>
                   </div>
                 </div>
 
                 <!-- Bottom Row: Purpose and Status Tag -->
-                <div
-                  class="flex justify-between items-center pl-2 pt-2 border-t border-ledger-light/20"
-                >
-                  <span
-                    class="text-[10px] font-bold text-ledger-dark/70 uppercase tracking-widest truncate pr-4"
-                  >
+                <div class="flex justify-between items-center w-full pt-3 border-t-2 border-black border-dashed mt-1">
+                  <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest truncate pr-4">
                     {{ entry.purpose || 'No note' }}
                   </span>
 
@@ -144,58 +106,42 @@ import { LedgerService, LedgerEntry } from '../../core/services/ledger.service';
                     @if (ledgerService.getLedgerBalance(entry) < 0) {
                       <button
                         (click)="settleUp($event, entry)"
-                        class="text-[9px] font-extrabold text-green-700 border border-green-700 hover:bg-green-50 px-2 py-1 rounded-none uppercase tracking-widest transition-colors"
+                        class="text-[9px] font-black text-black border-2 border-black bg-white hover:bg-gray-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:scale-[0.95] px-3 py-1.5 rounded-xl uppercase tracking-widest transition-all"
                       >
                         Received back
                       </button>
-                      <span
-                        class="text-[9px] font-extrabold text-green-700 bg-green-100 border border-green-200 px-2.5 py-1 rounded-none uppercase tracking-widest"
-                        >They owe you</span
-                      >
+                      <span class="text-[9px] font-black text-black bg-emerald-300 border-2 border-black px-2 py-1 rounded-lg uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                        They owe you
+                      </span>
                     } @else if (ledgerService.getLedgerBalance(entry) > 0) {
                       <button
                         (click)="settleUp($event, entry)"
-                        class="text-[9px] font-extrabold text-red-700 border border-red-700 hover:bg-red-50 px-2 py-1 rounded-none uppercase tracking-widest transition-colors"
+                        class="text-[9px] font-black text-black border-2 border-black bg-white hover:bg-gray-50 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:scale-[0.95] px-3 py-1.5 rounded-xl uppercase tracking-widest transition-all"
                       >
                         Paid back
                       </button>
-                      <span
-                        class="text-[9px] font-extrabold text-red-700 bg-red-100 border border-red-200 px-2.5 py-1 rounded-none uppercase tracking-widest"
-                        >You owe</span
-                      >
+                      <span class="text-[9px] font-black text-black bg-red-300 border-2 border-black px-2 py-1 rounded-lg uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                        You owe
+                      </span>
                     } @else {
-                      <span
-                        class="text-[9px] font-extrabold text-gray-700 bg-gray-200 border border-gray-300 px-2.5 py-1 rounded-none uppercase tracking-widest"
-                        >Settled</span
-                      >
+                      <span class="text-[9px] font-black text-black bg-gray-200 border-2 border-black px-2 py-1 rounded-lg uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                        Settled
+                      </span>
                     }
                   </div>
                 </div>
               </button>
             }
           } @else {
-            <div class="flex-1 flex flex-col items-center justify-center p-8 text-center mt-8">
-              <div
-                class="w-32 h-32 bg-gray-200 border-2 border-transparent rounded-full flex items-center justify-center mb-6"
-              >
-                <svg
-                  class="w-12 h-12 text-gray-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"
-                  />
+            <div class="flex-1 flex flex-col items-center justify-center p-8 text-center h-[300px]">
+              <div class="w-32 h-32 bg-gray-50 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center mb-6">
+                <svg class="w-12 h-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
                 </svg>
               </div>
-              <p class="text-gray-500 font-extrabold text-xl">No records yet</p>
+              <p class="text-black font-extrabold text-xl">No records yet</p>
               <p class="text-gray-400 font-bold text-sm mt-2 max-w-[250px]">
-                Tap + to track money you've given to or received from someone — like a loan to a
-                friend or cash from family.
+                Tap + to track money you've given to or received from someone.
               </p>
             </div>
           }

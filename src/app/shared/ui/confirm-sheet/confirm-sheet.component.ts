@@ -52,18 +52,18 @@ import { SafeInputDirective } from '../safe-input.directive';
         @slideUp
         appSwipeToClose
         (swipeClose)="close()"
-        class="fixed bottom-0 left-0 right-0 bg-white z-[110] p-6 pb-8 flex flex-col gap-6 shadow-2xl"
+        class="fixed bottom-0 left-0 right-0 bg-white z-[110] p-6 pb-8 flex flex-col gap-6 rounded-t-3xl shadow-2xl border-t border-gray-100"
       >
         <div class="flex flex-col gap-2">
-          <h2 class="text-2xl font-extrabold tracking-tight text-black">
+          <h2 class="text-xl font-bold tracking-tight text-gray-900">
             {{ confirmService.config()?.title }}
           </h2>
-          <p class="text-gray-500 font-bold leading-relaxed">
+          <p class="text-gray-600 font-medium text-sm leading-relaxed">
             {{ confirmService.config()?.message }}
           </p>
           @if (confirmService.config()?.showInput) {
-            <div class="mt-2 flex flex-col gap-1">
-              <label class="text-xs font-bold text-gray-500 uppercase tracking-widest"
+            <div class="mt-2 flex flex-col gap-1.5">
+              <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider"
                 >Amount</label
               >
               <input
@@ -75,7 +75,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                 appAutofocus
                 appSafeInput
                 [max]="confirmService.config()?.inputMax ?? null"
-                class="w-full bg-gray-50 border-2 border-gray-200 p-3 font-extrabold text-black outline-none focus:border-black transition-colors rounded-none"
+                class="w-full bg-gray-50 border border-gray-200 p-3 font-bold text-gray-900 text-sm outline-none transition-all rounded-xl focus:bg-white focus:border-red-500 focus:ring-4 focus:ring-red-500/15 shadow-sm"
               />
             </div>
           }
@@ -83,14 +83,14 @@ import { SafeInputDirective } from '../safe-input.directive';
         <div class="flex gap-3 mt-2">
           <button
             (click)="close()"
-            class="flex-1 bg-white text-gray-900 p-3.5 font-bold text-sm tracking-wide transition-all border-2 border-gray-200 active:scale-[0.98] rounded-none hover:border-gray-300 text-center"
+            class="flex-1 font-bold rounded-xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-3.5 text-sm min-h-[48px] bg-gray-100 text-gray-700 hover:bg-gray-200 text-center"
           >
             {{ confirmService.config()?.cancelText }}
           </button>
           <button
             (click)="confirm()"
             [disabled]="isProcessing()"
-            class="flex-1 bg-red-600 text-white p-3.5 font-bold text-sm tracking-wide transition-all border-2 border-transparent active:scale-[0.98] rounded-none flex items-center justify-center gap-2 disabled:opacity-70"
+            class="flex-1 font-bold rounded-xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-3.5 text-sm min-h-[48px] bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-600/30 disabled:opacity-50 disabled:active:scale-100"
           >
             @if (isProcessing()) {
               <svg

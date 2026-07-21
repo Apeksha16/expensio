@@ -50,13 +50,13 @@ import { HapticService } from '../../../core/services/haptic.service';
         appSwipeToClose
         (swipeClose)="close()"
         class="fixed bottom-0 left-0 right-0 bg-white z-[90] 
-               max-h-[95vh] flex flex-col shadow-2xl"
+               max-h-[95vh] flex flex-col rounded-t-3xl shadow-2xl border-t border-gray-100"
       >
         <div
-          class="p-6 pt-8 pb-6 border-b-2 text-white sticky top-[-2px] z-10"
-          [ngClass]="[theme.bg, theme.border]"
+          class="p-6 pt-6 pb-6 text-white rounded-t-3xl sticky top-0 z-10 shadow-sm"
+          [ngClass]="[theme.bg]"
         >
-          <div class="text-3xl font-extrabold tracking-tight">
+          <div class="text-2xl font-bold tracking-wide">
             {{ selectedDate | date: 'EEE, MMM d, yyyy' }}
           </div>
         </div>
@@ -64,8 +64,7 @@ import { HapticService } from '../../../core/services/haptic.service';
           <div class="flex justify-between items-center mb-4">
             <button
               (click)="prevMonth()"
-              class="p-2 border-2 hover:text-white transition-colors rounded-none"
-              [ngClass]="[theme.border, theme.text, theme.hoverBg]"
+              class="p-2.5 border border-gray-200 rounded-xl hover:bg-gray-50 transition-all text-gray-700 active:scale-95"
             >
               <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path
@@ -76,11 +75,10 @@ import { HapticService } from '../../../core/services/haptic.service';
                 />
               </svg>
             </button>
-            <span class="font-extrabold text-lg">{{ viewDate | date: 'MMMM yyyy' }}</span>
+            <span class="font-bold text-base text-gray-900 tracking-wide">{{ viewDate | date: 'MMMM yyyy' }}</span>
             <button
               (click)="nextMonth()"
-              class="p-2 border-2 hover:text-white transition-colors rounded-none"
-              [ngClass]="[theme.border, theme.text, theme.hoverBg]"
+              class="p-2.5 border border-gray-200 rounded-xl hover:bg-gray-50 transition-all text-gray-700 active:scale-95"
             >
               <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path
@@ -95,7 +93,7 @@ import { HapticService } from '../../../core/services/haptic.service';
           <!-- Calendar Grid -->
           <div class="grid grid-cols-7 gap-1 text-center mb-2">
             @for (d of ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']; track d) {
-              <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest py-2">
+              <div class="text-xs font-bold text-gray-400 uppercase tracking-wider py-2">
                 {{ d }}
               </div>
             }
@@ -104,31 +102,31 @@ import { HapticService } from '../../../core/services/haptic.service';
             @for (day of calendarDays; track day.date.getTime()) {
               <button
                 (click)="selectDate(day.date)"
-                class="h-10 w-full flex items-center justify-center font-bold border-2 rounded-none transition-colors text-sm"
+                class="h-10 w-full flex items-center justify-center font-bold rounded-xl transition-all text-sm"
                 [ngClass]="[
-                  day.isSelected ? theme.border + ' ' + theme.bg + ' text-white' : '',
+                  day.isSelected ? theme.bg + ' text-white shadow-md' : '',
                   !day.isSelected && day.isCurrentMonth
-                    ? 'border-transparent text-gray-900 bg-gray-50 ' + theme.hoverBorder
+                    ? 'text-gray-900 hover:bg-gray-100'
                     : '',
-                  !day.isSelected && !day.isCurrentMonth ? 'border-transparent text-gray-300' : '',
-                  day.isToday && !day.isSelected ? 'border-dashed border-gray-400' : '',
+                  !day.isSelected && !day.isCurrentMonth ? 'text-gray-300' : '',
+                  day.isToday && !day.isSelected ? 'border border-gray-300 font-extrabold' : '',
                 ]"
               >
                 {{ day.date.getDate() }}
               </button>
             }
           </div>
-          <div class="mt-4 mb-2 flex gap-3">
+          <div class="mt-6 mb-2 flex gap-3">
             <button
               (click)="close()"
-              class="flex-1 bg-gray-100 text-gray-700 px-4 py-3 text-[11px] font-extrabold uppercase tracking-widest min-h-[44px] border-2 border-transparent rounded-none hover:bg-gray-200 transition-colors"
+              class="flex-1 bg-gray-100 text-gray-700 px-4 py-3.5 text-sm font-bold min-h-[48px] rounded-xl transition-all active:scale-95 text-center"
             >
               Cancel
             </button>
             <button
               (click)="confirm()"
-              class="flex-1 text-white px-4 py-3 text-[11px] font-extrabold uppercase tracking-widest min-h-[44px] border-2 rounded-none transition-colors"
-              [ngClass]="[theme.bg, theme.border, theme.hoverDarkBg]"
+              class="flex-1 text-white px-4 py-3.5 text-sm font-bold min-h-[48px] rounded-xl transition-all active:scale-95 shadow-lg"
+              [ngClass]="[theme.bg]"
             >
               Confirm Date
             </button>

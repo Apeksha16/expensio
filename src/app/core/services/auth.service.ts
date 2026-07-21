@@ -13,7 +13,7 @@ export interface UserProfile {
   avatarId: number;
   maskValues: boolean;
   quickActions?: string[];
-  emailReportFrequency?: 'none' | 'weekly' | 'monthly';
+  emailReportFrequency?: 'none' | 'twice_daily' | 'weekly' | 'monthly';
 }
 
 @Injectable({

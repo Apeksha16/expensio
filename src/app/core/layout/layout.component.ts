@@ -44,6 +44,8 @@ import { AddFundsSheetComponent } from '../../shared/ui/add-funds-sheet/add-fund
 import { LedgerService } from '../services/ledger.service';
 import { LedgerSheetComponent } from '../../shared/ui/ledger-sheet/ledger-sheet.component';
 import { LedgerSubSheetComponent } from '../../shared/ui/ledger-sub-sheet/ledger-sub-sheet.component';
+import { AccountSheetComponent } from '../../shared/ui/account-sheet/account-sheet.component';
+import { AccountTrackerService } from '../services/account-tracker.service';
 
 @Component({
   selector: 'app-layout',
@@ -65,6 +67,7 @@ import { LedgerSubSheetComponent } from '../../shared/ui/ledger-sub-sheet/ledger
     AddFundsSheetComponent,
     LedgerSheetComponent,
     LedgerSubSheetComponent,
+    AccountSheetComponent,
   ],
   animations: [slideInAnimation],
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -79,8 +82,7 @@ import { LedgerSubSheetComponent } from '../../shared/ui/ledger-sub-sheet/ledger
 
       <!-- Top Header -->
       <header
-        class="fixed top-0 w-full z-30 flex items-center justify-between px-4 h-14 transition-colors duration-300"
-        [ngClass]="getThemeClasses().bg"
+        class="fixed top-0 w-full z-30 flex items-center justify-between px-4 h-14 bg-black text-white"
       >
         @if (
           isProfilePage() ||
@@ -279,21 +281,20 @@ import { LedgerSubSheetComponent } from '../../shared/ui/ledger-sub-sheet/ledger
       <!-- Bottom Navbar -->
       @if (!isProfilePage()) {
         <nav
-          class="fixed left-4 right-4 bg-white border-2 border-black z-30 rounded-none overflow-hidden"
-          style="bottom: 1.5rem;"
+          class="fixed left-4 right-4 bg-white/95 backdrop-blur-md border border-gray-100 shadow-2xl z-30 rounded-2xl overflow-hidden"
+          style="bottom: 1rem;"
         >
-          <div class="flex justify-between items-center h-16 w-full p-1.5 gap-1.5">
+          <div class="flex justify-between items-center h-16 w-full p-2 gap-1.5">
             @for (item of bottomNavItems(); track item.id) {
               <a
                 [routerLink]="item.path"
                 [routerLinkActive]="getActiveClasses(item.id)"
                 [routerLinkActiveOptions]="{ exact: false }"
-                class="flex items-center justify-center w-full h-full text-gray-500 hover:text-black hover:bg-gray-100 transition-colors rounded-none"
+                class="flex items-center justify-center w-full h-full text-gray-400 hover:text-gray-700 transition-all rounded-xl active:scale-95"
               >
                 <span
                   [innerHTML]="item.icon"
-                  class="w-7 h-7"
-                  [ngClass]="{ 'text-current': true }"
+                  class="w-6 h-6 flex items-center justify-center"
                 ></span>
               </a>
             }
@@ -305,15 +306,15 @@ import { LedgerSubSheetComponent } from '../../shared/ui/ledger-sub-sheet/ledger
       @if (!isProfilePage() && !isDashboardPage() && !isReportsPage()) {
         <button
           (click)="handleFabClick()"
-          class="fixed right-4 w-14 h-14 text-white rounded-none flex items-center justify-center z-40 hover:bg-white transition-colors duration-300"
-          [ngClass]="getThemeClasses().bg + ' hover:' + getThemeClasses().text"
-          style="bottom: 6.5rem;"
+          class="fixed right-5 w-14 h-14 text-white rounded-full flex items-center justify-center z-40 shadow-xl transition-all duration-200 active:scale-90 hover:scale-105"
+          [ngClass]="getThemeClasses().bg + ' shadow-' + getThemeClasses().bg + '/30'"
+          style="bottom: 5.5rem;"
         >
-          <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
-              stroke-width="2"
+              stroke-width="2.5"
               d="M12 4.5v15m7.5-7.5h-15"
             />
           </svg>
@@ -334,6 +335,7 @@ import { LedgerSubSheetComponent } from '../../shared/ui/ledger-sub-sheet/ledger
       <app-add-funds-sheet></app-add-funds-sheet>
       <app-ledger-sheet></app-ledger-sheet>
       <app-ledger-sub-sheet></app-ledger-sub-sheet>
+      <app-account-sheet></app-account-sheet>
 
       <!-- Global Toasts -->
       <app-toast></app-toast>
@@ -359,6 +361,7 @@ export class Layout implements AfterViewInit {
   subscriptionService = inject(SubscriptionService);
   goalService = inject(GoalService);
   ledgerService = inject(LedgerService);
+  accountTrackerService = inject(AccountTrackerService);
 
   currentUrl = signal(this.router.url);
 
@@ -438,6 +441,7 @@ export class Layout implements AfterViewInit {
     if (url.includes('/subscriptions')) return 'Subscriptions';
     if (url.includes('/goals')) return 'Goals';
     if (url.includes('/ledger')) return 'Private Ledger';
+    if (url.includes('/tracker')) return 'Accounts Tracker';
     if (url.includes('/reports')) return 'Reports';
     if (url.includes('/profile')) return 'Profile';
     return 'Dashboard';
@@ -571,27 +575,27 @@ export class Layout implements AfterViewInit {
   getActiveClasses(id: string): string {
     switch (id) {
       case 'dashboard':
-        return 'bg-black text-white border-black';
+        return 'bg-black text-white rounded-xl shadow-md font-bold';
       case 'expenses':
-        return 'bg-expense-primary text-white border-expense-primary';
+        return 'bg-teal-600 text-white rounded-xl shadow-md shadow-teal-600/30 font-bold';
       case 'budgets':
-        return 'bg-budget-primary text-white border-budget-primary';
+        return 'bg-emerald-600 text-white rounded-xl shadow-md shadow-emerald-600/30 font-bold';
       case 'friends':
-        return 'bg-friends-primary text-white border-friends-primary';
+        return 'bg-violet-600 text-white rounded-xl shadow-md shadow-violet-600/30 font-bold';
       case 'splits':
-        return 'bg-splits-primary text-white border-splits-primary';
+        return 'bg-lime-600 text-white rounded-xl shadow-md shadow-lime-600/30 font-bold';
       case 'subscriptions':
-        return 'bg-subscriptions-primary text-white border-subscriptions-primary';
+        return 'bg-purple-600 text-white rounded-xl shadow-md shadow-purple-600/30 font-bold';
       case 'goals':
-        return 'bg-goals-primary text-white border-goals-primary';
+        return 'bg-rose-600 text-white rounded-xl shadow-md shadow-rose-600/30 font-bold';
       case 'ledger':
-        return 'bg-ledger-primary text-white border-ledger-primary';
+        return 'bg-red-600 text-white rounded-xl shadow-md shadow-red-600/30 font-bold';
+      case 'tracker':
+        return 'bg-cyan-600 text-white rounded-xl shadow-md shadow-cyan-600/30 font-bold';
       case 'reports':
-        return 'bg-reports-primary text-white border-reports-primary';
-      case 'profile':
-        return 'bg-black text-white border-black';
+        return 'bg-fuchsia-600 text-white rounded-xl shadow-md shadow-fuchsia-600/30 font-bold';
       default:
-        return 'bg-black text-white border-black';
+        return 'bg-black text-white rounded-xl shadow-md font-bold';
     }
   }
 
@@ -599,53 +603,23 @@ export class Layout implements AfterViewInit {
     const route = this.currentUrl().split('/')[1] || 'dashboard';
     switch (route) {
       case 'expenses':
-        return {
-          bg: 'bg-expense-primary',
-          border: 'border-expense-dark',
-          text: 'text-expense-primary',
-        };
+        return { bg: 'bg-teal-600', border: 'border-teal-700', text: 'text-teal-600' };
       case 'budgets':
-        return {
-          bg: 'bg-budget-primary',
-          border: 'border-budget-dark',
-          text: 'text-budget-primary',
-        };
+        return { bg: 'bg-emerald-600', border: 'border-emerald-700', text: 'text-emerald-600' };
       case 'friends':
-        return {
-          bg: 'bg-friends-primary',
-          border: 'border-friends-dark',
-          text: 'text-friends-primary',
-        };
+        return { bg: 'bg-violet-600', border: 'border-violet-700', text: 'text-violet-600' };
       case 'splits':
-        return {
-          bg: 'bg-splits-primary',
-          border: 'border-splits-dark',
-          text: 'text-splits-primary',
-        };
+        return { bg: 'bg-lime-600', border: 'border-lime-700', text: 'text-lime-600' };
       case 'subscriptions':
-        return {
-          bg: 'bg-subscriptions-primary',
-          border: 'border-subscriptions-dark',
-          text: 'text-subscriptions-primary',
-        };
+        return { bg: 'bg-purple-600', border: 'border-purple-700', text: 'text-purple-600' };
       case 'goals':
-        return { bg: 'bg-goals-primary', border: 'border-goals-dark', text: 'text-goals-primary' };
+        return { bg: 'bg-rose-600', border: 'border-rose-700', text: 'text-rose-600' };
       case 'ledger':
-        return {
-          bg: 'bg-ledger-primary',
-          border: 'border-ledger-dark',
-          text: 'text-ledger-primary',
-        };
+        return { bg: 'bg-red-600', border: 'border-red-700', text: 'text-red-600' };
       case 'reports':
-        return {
-          bg: 'bg-reports-primary',
-          border: 'border-reports-dark',
-          text: 'text-reports-primary',
-        };
-      case 'profile':
-        return { bg: 'bg-black', border: 'border-black', text: 'text-black' };
-      case 'dashboard':
-        return { bg: 'bg-black', border: 'border-black', text: 'text-black' };
+        return { bg: 'bg-fuchsia-600', border: 'border-fuchsia-700', text: 'text-fuchsia-600' };
+      case 'tracker':
+        return { bg: 'bg-cyan-600', border: 'border-cyan-700', text: 'text-cyan-600' };
       default:
         return { bg: 'bg-black', border: 'border-black', text: 'text-black' };
     }

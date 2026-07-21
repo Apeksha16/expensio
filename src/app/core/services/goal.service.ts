@@ -32,6 +32,10 @@ export class GoalService {
   readonly isLoading = signal(false);
   readonly goals = signal<Goal[]>([]);
 
+  readonly totalSaved = computed(() => {
+    return this.goals().reduce((acc, goal) => acc + (goal.saved_amount || 0), 0);
+  });
+
   // Global bottom sheet state
   readonly isBottomSheetOpen = signal(false);
   readonly editingGoal = signal<Goal | null>(null);

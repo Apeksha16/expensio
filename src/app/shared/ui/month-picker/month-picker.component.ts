@@ -49,17 +49,17 @@ import { Router } from '@angular/router';
         @slideUp
         appSwipeToClose
         (swipeClose)="close()"
-        class="fixed bottom-0 left-0 right-0 bg-black z-[90] 
-               max-h-[80vh] overflow-y-auto overscroll-none flex flex-col shadow-2xl"
+        class="fixed bottom-0 left-0 right-0 bg-white z-[90] 
+               max-h-[80vh] overflow-y-auto overscroll-none flex flex-col rounded-t-3xl shadow-2xl border-t border-gray-100"
       >
         <div
-          class="flex justify-between items-center py-4 px-6 border-b-2 text-white sticky top-0 z-10 transition-colors duration-300"
-          [ngClass]="getThemeClasses().bg + ' ' + getThemeClasses().border"
+          class="flex justify-between items-center py-4 px-6 rounded-t-3xl text-white sticky top-0 z-10 shadow-sm transition-colors duration-300"
+          [ngClass]="getThemeClasses().bg"
         >
-          <h2 class="text-xl font-extrabold tracking-tight text-white">Select Month</h2>
+          <h2 class="text-lg font-bold tracking-wide text-white">Select Month</h2>
           <button
             (click)="close()"
-            class="w-8 h-8 flex items-center justify-center border-2 border-transparent hover:border-white/20 transition-colors rounded-none text-white hover:bg-black/20"
+            class="w-8 h-8 flex items-center justify-center rounded-full text-white bg-white/20 transition-all active:scale-95"
           >
             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
@@ -72,18 +72,15 @@ import { Router } from '@angular/router';
           </button>
         </div>
         <div class="p-6 bg-white flex-1">
-          <div class="grid grid-cols-2 gap-2">
+          <div class="grid grid-cols-2 gap-2.5">
             @for (m of months; track m) {
               <button
                 (click)="selectMonth(m.value)"
-                class="w-full text-center p-4 border-2 rounded-none font-bold transition-colors"
+                class="w-full text-center p-3.5 border rounded-xl font-bold tracking-wide text-xs transition-all active:scale-95 shadow-sm"
                 [ngClass]="
                   m.value === monthPicker.activeMonth()
-                    ? getThemeClasses().border + ' ' + getThemeClasses().bg + ' text-white'
-                    : 'border-gray-200 bg-white text-gray-500 hover:' +
-                      getThemeClasses().border +
-                      ' hover:' +
-                      getThemeClasses().text
+                    ? getThemeClasses().bg + ' border-transparent text-white shadow-md'
+                    : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
                 "
               >
                 {{ m.label }}

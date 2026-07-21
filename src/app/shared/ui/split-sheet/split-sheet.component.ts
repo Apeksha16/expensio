@@ -72,13 +72,13 @@ import { SafeInputDirective } from '../safe-input.directive';
         @slideUp
         appSwipeToClose
         (swipeClose)="close()"
-        class="fixed bottom-0 left-0 right-0 bg-black z-[70] max-h-[95vh] overflow-y-auto overscroll-none flex flex-col shadow-2xl"
+        class="fixed bottom-0 left-0 right-0 bg-white z-[70] max-h-[95vh] overflow-y-auto overscroll-none flex flex-col rounded-t-3xl shadow-2xl border-t border-gray-100"
       >
         <!-- Header -->
         <div
-          class="flex justify-between items-center py-4 px-6 bg-splits-primary border-b border-splits-dark text-white sticky top-[-2px] z-10"
+          class="flex justify-between items-center py-4 px-6 bg-splits-primary text-white rounded-t-3xl sticky top-0 z-10 shadow-sm"
         >
-          <h2 class="text-xl font-extrabold tracking-tight">
+          <h2 class="text-lg font-bold tracking-wide">
             {{ splitService.editingSplit()?.id ? 'Edit Split Expense' : 'Add Split Expense' }}
           </h2>
           @if (splitService.editingSplit()?.id) {
@@ -86,7 +86,7 @@ import { SafeInputDirective } from '../safe-input.directive';
               type="button"
               (click)="onDelete()"
               [disabled]="isDeleting()"
-              class="w-8 h-8 bg-red-500 flex items-center justify-center border-2 border-transparent hover:border-white transition-colors rounded-none text-white disabled:opacity-70"
+              class="w-9 h-9 bg-white/20 hover:bg-red-600 flex items-center justify-center rounded-full text-white disabled:opacity-50 transition-all active:scale-95"
             >
               @if (isDeleting()) {
                 <svg
@@ -114,7 +114,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                   <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
-                    stroke-width="2"
+                    stroke-width="2.5"
                     d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
                   />
                 </svg>
@@ -126,7 +126,7 @@ import { SafeInputDirective } from '../safe-input.directive';
           @if (splitService.editingSplit()?.id) {
             <div class="flex justify-center mb-5">
               <span
-                class="text-[9px] font-extrabold tracking-widest uppercase text-splits-dark bg-splits-surface px-3 py-1 rounded-none"
+                class="text-[10px] font-bold tracking-wide uppercase text-splits-dark bg-splits-surface px-3 py-1 rounded-full border border-splits-primary/10"
               >
                 @if (isUpdated()) {
                   Updated
@@ -143,8 +143,8 @@ import { SafeInputDirective } from '../safe-input.directive';
           }
           @if (friendService.acceptedFriends().length > 0) {
             <form [formGroup]="splitForm" (ngSubmit)="onSubmit()" class="space-y-4">
-              <div class="flex flex-col gap-1">
-                <label class="text-[11px] font-semibold text-splits-dark tracking-widest uppercase"
+              <div class="flex flex-col gap-1.5">
+                <label class="text-[11px] font-bold text-gray-500 tracking-wider uppercase"
                   >Description</label
                 >
                 <input
@@ -153,16 +153,16 @@ import { SafeInputDirective } from '../safe-input.directive';
                   type="text"
                   formControlName="title"
                   placeholder="e.g. Dinner, Taxi"
-                  class="w-full bg-splits-surface text-splits-dark text-sm rounded-none focus:ring-2 focus:ring-splits-primary focus:outline-none block p-2.5 transition-all placeholder-splits-dark/50 min-h-[44px] touch-manipulation font-sans"
+                  class="w-full bg-gray-50 border border-gray-200 text-gray-900 font-bold text-sm rounded-xl focus:bg-white focus:border-splits-primary focus:ring-4 focus:ring-splits-primary/15 block p-3 outline-none transition-all placeholder-gray-400 min-h-[48px] touch-manipulation shadow-sm"
                 />
               </div>
-              <div class="flex flex-col gap-1">
-                <label class="text-[11px] font-semibold text-splits-dark tracking-widest uppercase"
+              <div class="flex flex-col gap-1.5">
+                <label class="text-[11px] font-bold text-gray-500 tracking-wider uppercase"
                   >Total Amount</label
                 >
                 <div class="relative group">
-                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <span class="text-gray-500 font-medium">₹</span>
+                  <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                    <span class="text-gray-500 font-bold">₹</span>
                   </div>
                   <input
                     type="text"
@@ -172,12 +172,12 @@ import { SafeInputDirective } from '../safe-input.directive';
                     formControlName="totalAmount"
                     placeholder="0"
                     (keydown)="preventE($event)"
-                    class="w-full bg-splits-surface text-splits-dark text-sm rounded-none focus:ring-2 focus:ring-splits-primary focus:outline-none block p-2.5 transition-all placeholder-splits-dark/50 min-h-[44px] touch-manipulation font-sans pl-8"
+                    class="w-full bg-gray-50 border border-gray-200 text-gray-900 font-bold text-base rounded-xl focus:bg-white focus:border-splits-primary focus:ring-4 focus:ring-splits-primary/15 block p-3 outline-none transition-all placeholder-gray-400 min-h-[48px] touch-manipulation pl-8 shadow-sm"
                   />
                 </div>
               </div>
-              <div class="flex flex-col gap-1">
-                <label class="text-[11px] font-semibold text-splits-dark tracking-widest uppercase"
+              <div class="flex flex-col gap-1.5">
+                <label class="text-[11px] font-bold text-gray-500 tracking-wider uppercase"
                   >Category</label
                 >
                 <div class="grid grid-cols-4 gap-2">
@@ -185,11 +185,11 @@ import { SafeInputDirective } from '../safe-input.directive';
                     <button
                       type="button"
                       (click)="selectCategory(cat.name)"
-                      class="flex flex-col items-center justify-center gap-1 p-2 rounded-none transition-all min-h-[60px]"
+                      class="flex flex-col items-center justify-center gap-1.5 p-2.5 rounded-xl transition-all min-h-[64px] border active:scale-95 shadow-sm"
                       [ngClass]="
                         splitForm.get('category')?.value === cat.name
-                          ? 'bg-splits-primary text-white'
-                          : 'bg-splits-surface text-splits-dark hover:bg-splits-light'
+                          ? 'bg-splits-primary text-white border-splits-primary shadow-md shadow-splits-primary/25 font-bold'
+                          : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                       "
                     >
                       <svg
@@ -204,15 +204,15 @@ import { SafeInputDirective } from '../safe-input.directive';
                         <path [attr.d]="cat.path"></path>
                       </svg>
                       <span
-                        class="text-[9px] font-semibold uppercase tracking-wider text-center line-clamp-1 w-full overflow-hidden text-ellipsis"
+                        class="text-[10px] font-semibold tracking-wide text-center line-clamp-1 w-full overflow-hidden text-ellipsis"
                         >{{ cat.name }}</span
                       >
                     </button>
                   }
                 </div>
               </div>
-              <div class="flex flex-col gap-1">
-                <label class="text-[11px] font-semibold text-splits-dark tracking-widest uppercase"
+              <div class="flex flex-col gap-1.5">
+                <label class="text-[11px] font-bold text-gray-500 tracking-wider uppercase"
                   >Paid Via</label
                 >
                 <div class="grid grid-cols-3 gap-2">
@@ -220,34 +220,34 @@ import { SafeInputDirective } from '../safe-input.directive';
                     <button
                       type="button"
                       (click)="splitForm.patchValue({ paid_via: method })"
-                      class="flex flex-col items-center justify-center gap-1 p-2 rounded-none transition-all min-h-[44px]"
+                      class="flex flex-col items-center justify-center gap-1 p-2.5 border rounded-xl transition-all min-h-[44px] active:scale-95 shadow-sm"
                       [ngClass]="
                         splitForm.get('paid_via')?.value === method
-                          ? 'bg-splits-primary text-white'
-                          : 'bg-splits-surface text-splits-dark hover:bg-splits-light'
+                          ? 'bg-splits-primary text-white border-splits-primary shadow-md shadow-splits-primary/25 font-bold'
+                          : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                       "
                     >
                       <span
-                        class="text-[10px] font-semibold uppercase tracking-wider text-center"
+                        class="text-xs font-semibold tracking-wide text-center"
                         >{{ method }}</span
                       >
                     </button>
                   }
                 </div>
               </div>
-              <div class="flex flex-col gap-1">
-                <label class="text-[11px] font-semibold text-splits-dark tracking-widest uppercase"
+              <div class="flex flex-col gap-1.5">
+                <label class="text-[11px] font-bold text-gray-500 tracking-wider uppercase"
                   >Paid By</label
                 >
                 <div class="relative">
                   <button
                     type="button"
                     (click)="isDropdownOpen.set(!isDropdownOpen())"
-                    class="w-full bg-splits-surface text-splits-dark text-sm rounded-none focus:ring-2 focus:ring-splits-primary p-2.5 outline-none transition-all min-h-[44px] touch-manipulation font-sans flex justify-between items-center text-left"
+                    class="w-full bg-gray-50 border border-gray-200 text-gray-900 font-semibold text-sm rounded-xl focus:bg-white focus:border-splits-primary focus:ring-4 focus:ring-splits-primary/15 p-3 outline-none transition-all min-h-[48px] touch-manipulation flex justify-between items-center text-left cursor-pointer shadow-sm"
                   >
-                    <span class="truncate font-semibold">{{ getPayerName() }}</span>
+                    <span class="truncate font-bold">{{ getPayerName() }}</span>
                     <svg
-                      class="w-4 h-4 text-gray-500 shrink-0 transition-transform"
+                      class="w-4 h-4 text-gray-400 shrink-0 transition-transform"
                       [class.rotate-180]="isDropdownOpen()"
                       fill="none"
                       viewBox="0 0 24 24"
@@ -263,18 +263,18 @@ import { SafeInputDirective } from '../safe-input.directive';
                   </button>
                   @if (isDropdownOpen()) {
                     <div
-                      class="absolute top-full left-0 right-0 mt-1 bg-white border-2 border-gray-200 shadow-xl z-50 max-h-60 overflow-y-auto"
+                      class="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto"
                     >
                       <button
                         type="button"
                         (click)="selectPayer(currentUser().id)"
-                        class="w-full text-left p-3 hover:bg-gray-50 text-sm font-semibold transition-colors flex items-center justify-between"
+                        class="w-full text-left p-3 hover:bg-gray-50 text-gray-900 text-sm font-semibold transition-colors flex items-center justify-between border-b border-gray-100 last:border-0"
                         [class.bg-gray-50]="splitForm.get('payerId')?.value === currentUser().id"
                       >
                         <span>Me ({{ currentUser().name }})</span>
                         @if (splitForm.get('payerId')?.value === currentUser().id) {
                           <svg
-                            class="w-4 h-4 text-[#1a2e22]"
+                            class="w-4 h-4 text-splits-primary"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"
@@ -282,7 +282,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                             <path
                               stroke-linecap="round"
                               stroke-linejoin="round"
-                              stroke-width="2"
+                              stroke-width="2.5"
                               d="M5 13l4 4L19 7"
                             />
                           </svg>
@@ -292,13 +292,13 @@ import { SafeInputDirective } from '../safe-input.directive';
                         <button
                           type="button"
                           (click)="selectPayer(friend.profile.id)"
-                          class="w-full text-left p-3 hover:bg-gray-50 text-sm font-semibold transition-colors flex items-center justify-between"
+                          class="w-full text-left p-3 hover:bg-gray-50 text-gray-900 text-sm font-semibold transition-colors flex items-center justify-between border-b border-gray-100 last:border-0"
                           [class.bg-gray-50]="splitForm.get('payerId')?.value === friend.profile.id"
                         >
                           <span>{{ friend.profile.name }}</span>
                           @if (splitForm.get('payerId')?.value === friend.profile.id) {
                             <svg
-                              class="w-4 h-4 text-[#1a2e22]"
+                              class="w-4 h-4 text-splits-primary"
                               fill="none"
                               viewBox="0 0 24 24"
                               stroke="currentColor"
@@ -306,7 +306,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                               <path
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
-                                stroke-width="2"
+                                stroke-width="2.5"
                                 d="M5 13l4 4L19 7"
                               />
                             </svg>
@@ -320,43 +320,53 @@ import { SafeInputDirective } from '../safe-input.directive';
                   <div (click)="isDropdownOpen.set(false)" class="fixed inset-0 z-40"></div>
                 }
               </div>
-              <div class="flex flex-col gap-1">
-                <label class="text-[11px] font-semibold text-splits-dark tracking-widest uppercase"
+              <div class="flex flex-col gap-1.5">
+                <label class="text-[11px] font-bold text-gray-500 tracking-wider uppercase"
                   >Split With (Participants)</label
                 >
                 <div class="flex flex-col gap-2">
                   @for (friend of friendService.acceptedFriends(); track friend.id) {
                     <label
-                      class="flex items-center gap-3 p-3 bg-splits-surface cursor-pointer hover:bg-splits-light transition-colors"
+                      (click)="toggleParticipant(friend.profile.id)"
+                      class="flex items-center justify-between gap-3 p-3.5 border rounded-xl cursor-pointer transition-all shadow-sm active:scale-95"
+                      [ngClass]="
+                        isParticipant(friend.profile.id)
+                          ? 'bg-splits-primary text-white border-splits-primary shadow-md shadow-splits-primary/25'
+                          : 'bg-white text-gray-800 border-gray-200 hover:border-gray-300 hover:bg-gray-50 font-bold'
+                      "
                     >
-                      <input
-                        type="checkbox"
-                        (change)="toggleParticipant(friend.profile.id)"
-                        [checked]="isParticipant(friend.profile.id)"
-                        class="w-5 h-5 text-splits-primary border-0 bg-white rounded-none focus:ring-splits-primary focus:ring-2"
-                      />
-                      <span class="font-bold text-sm text-splits-dark truncate">{{
+                      <span class="text-sm truncate font-bold">{{
                         friend.profile.name.split(' ')[0]
                       }}</span>
+                      <div
+                        class="w-5 h-5 rounded-md flex items-center justify-center transition-colors border bg-white"
+                        [ngClass]="isParticipant(friend.profile.id) ? 'border-white' : 'border-gray-300'"
+                      >
+                        @if (isParticipant(friend.profile.id)) {
+                          <svg class="w-3.5 h-3.5 text-splits-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                          </svg>
+                        }
+                      </div>
                     </label>
                   }
                 </div>
               </div>
               @if (selectedParticipants().length > 0) {
-                <div class="flex flex-col gap-1">
+                <div class="flex flex-col gap-1.5">
                   <label
-                    class="text-[11px] font-semibold text-splits-dark tracking-widest uppercase"
+                    class="text-[11px] font-bold text-gray-500 tracking-wider uppercase"
                     >Split Strategy</label
                   >
                   <div class="flex gap-2">
                     <button
                       type="button"
                       (click)="setStrategy('EQUAL')"
-                      class="flex-1 font-medium rounded-none transition-all duration-200 flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px]"
+                      class="flex-1 font-bold rounded-xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-2.5 text-xs uppercase cursor-pointer border shadow-sm"
                       [ngClass]="
                         splitStrategy() === 'EQUAL'
-                          ? 'bg-splits-primary text-white'
-                          : 'bg-splits-surface text-splits-dark hover:bg-splits-light'
+                          ? 'bg-splits-primary text-white border-splits-primary shadow-md shadow-splits-primary/25'
+                          : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                       "
                     >
                       Equally
@@ -364,11 +374,11 @@ import { SafeInputDirective } from '../safe-input.directive';
                     <button
                       type="button"
                       (click)="setStrategy('CUSTOM')"
-                      class="flex-1 font-medium rounded-none transition-all duration-200 flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px]"
+                      class="flex-1 font-bold rounded-xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-2.5 text-xs uppercase cursor-pointer border shadow-sm"
                       [ngClass]="
                         splitStrategy() === 'CUSTOM'
-                          ? 'bg-splits-primary text-white'
-                          : 'bg-splits-surface text-splits-dark hover:bg-splits-light'
+                          ? 'bg-splits-primary text-white border-splits-primary shadow-md shadow-splits-primary/25'
+                          : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                       "
                     >
                       Custom
@@ -377,14 +387,14 @@ import { SafeInputDirective } from '../safe-input.directive';
                 </div>
               }
               @if (selectedParticipants().length > 0) {
-                <div class="flex flex-col gap-2 bg-splits-surface p-4">
+                <div class="flex flex-col gap-2 bg-splits-surface border border-splits-primary/20 rounded-xl p-4 shadow-sm">
                   @for (p of selectedParticipants(); track p) {
                     <div class="flex justify-between items-center gap-2">
-                      <span class="font-bold text-sm text-splits-dark truncate max-w-[45%]">{{
+                      <span class="font-bold text-xs text-splits-dark truncate max-w-[45%]">{{
                         getFriendName(p)
                       }}</span>
                       @if (splitStrategy() === 'EQUAL') {
-                        <span class="font-extrabold text-sm text-splits-dark"
+                        <span class="font-black text-xs text-splits-dark"
                           >₹{{ getEqualAmount() | number: '1.0-2' }}</span
                         >
                       }
@@ -393,7 +403,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                           <div
                             class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
                           >
-                            <span class="text-gray-500 font-medium text-xs">₹</span>
+                            <span class="text-gray-500 font-bold text-xs">₹</span>
                           </div>
                           <input
                             type="text"
@@ -403,7 +413,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                             [formControl]="getCustomControl(p)"
                             placeholder="0"
                             (keydown)="preventE($event)"
-                            class="w-full bg-white text-splits-dark text-sm rounded-none focus:ring-2 focus:ring-splits-primary border-0 block p-2 outline-none transition-all placeholder-splits-dark/50 pl-7 text-right"
+                            class="w-full bg-white text-gray-900 text-xs font-bold rounded-lg border border-gray-200 block p-2 outline-none transition-all placeholder-gray-400 pl-7 text-right shadow-sm focus:border-splits-primary"
                           />
                         </div>
                       }
@@ -411,14 +421,14 @@ import { SafeInputDirective } from '../safe-input.directive';
                   }
                   @if (splitStrategy() === 'CUSTOM') {
                     <div
-                      class="flex justify-between items-center mt-3 pt-3 border-t-2 border-gray-200"
+                      class="flex justify-between items-center mt-2 pt-2 border-t border-splits-primary/10"
                     >
                       <span
-                        class="text-[10px] font-semibold text-splits-dark/60 tracking-widest uppercase"
+                        class="text-[10px] font-bold text-splits-dark tracking-wider uppercase"
                         >My Share</span
                       >
                       <span
-                        class="font-extrabold text-sm"
+                        class="font-black text-xs"
                         [class.text-red-600]="getLeftToAssign() < 0"
                         [class.text-splits-dark]="getLeftToAssign() >= 0"
                         >₹{{ getLeftToAssign() | number: '1.0-2' }}</span
@@ -427,18 +437,18 @@ import { SafeInputDirective } from '../safe-input.directive';
                   }
                 </div>
               }
-              <div class="mt-4 flex gap-4">
+              <div class="mt-6 flex gap-3">
                 <button
                   type="button"
                   (click)="close()"
-                  class="flex-1 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-splits-surface text-splits-dark hover:bg-splits-light text-center"
+                  class="flex-1 font-bold rounded-xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-3.5 text-sm min-h-[48px] bg-gray-100 text-gray-700 hover:bg-gray-200 text-center"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   [disabled]="!splitForm.valid || isSaving() || isDeleting()"
-                  class="flex-1 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-splits-primary hover:bg-splits-dark text-white disabled:opacity-70 disabled:cursor-not-allowed disabled:active:scale-100"
+                  class="flex-1 font-bold rounded-xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-3.5 text-sm min-h-[48px] bg-splits-primary hover:bg-splits-dark text-white shadow-lg shadow-splits-primary/30 disabled:opacity-50 disabled:active:scale-100"
                 >
                   @if (isSaving()) {
                     <svg
@@ -461,14 +471,15 @@ import { SafeInputDirective } from '../safe-input.directive';
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                       ></path>
                     </svg>
+                  } @else {
+                    <span>{{ splitService.editingSplit()?.id ? 'Update Split' : 'Save Split' }}</span>
                   }
-                  {{ isUpdated() ? 'Update' : 'Save' }}
                 </button>
               </div>
             </form>
           } @else {
             <div class="flex flex-col items-center justify-center py-8 text-center gap-4">
-              <div class="w-16 h-16 rounded-none bg-gray-100 flex items-center justify-center">
+              <div class="w-16 h-16 rounded-none bg-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center">
                 <svg
                   class="w-8 h-8 text-gray-400"
                   fill="none"
@@ -492,7 +503,7 @@ import { SafeInputDirective } from '../safe-input.directive';
               <button
                 type="button"
                 (click)="close()"
-                class="mt-4 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-6 py-2 text-sm min-h-[44px] bg-splits-primary hover:bg-splits-dark text-white"
+                class="mt-4 font-black uppercase tracking-widest rounded-none transition-all duration-200 flex justify-center items-center gap-2 touch-manipulation px-6 py-2 text-sm min-h-[44px] bg-black text-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none"
               >
                 Okay
               </button>

@@ -67,13 +67,13 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
         @slideUp
         appSwipeToClose
         (swipeClose)="close()"
-        class="fixed bottom-0 left-0 right-0 bg-black z-[70] max-h-[95vh] overflow-y-auto overscroll-none flex flex-col shadow-2xl"
+        class="fixed bottom-0 left-0 right-0 bg-white z-[70] max-h-[95vh] overflow-y-auto overscroll-none flex flex-col rounded-t-3xl shadow-2xl border-t border-gray-100"
       >
         <!-- Header -->
         <div
-          class="flex justify-between items-center py-4 px-6 bg-goals-primary border-b border-goals-dark text-white sticky top-[-2px] z-10"
+          class="flex justify-between items-center py-4 px-6 bg-goals-primary text-white rounded-t-3xl sticky top-0 z-10 shadow-sm"
         >
-          <h2 class="text-xl font-extrabold tracking-tight">
+          <h2 class="text-lg font-bold tracking-wide">
             {{ goalService.editingGoal()?.id ? 'Edit Goal' : 'Add Goal' }}
           </h2>
           @if (goalService.editingGoal()?.id) {
@@ -81,7 +81,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
               type="button"
               (click)="onDelete()"
               [disabled]="isDeleting()"
-              class="w-8 h-8 bg-red-500 flex items-center justify-center border-2 border-transparent hover:border-white transition-colors rounded-none text-white disabled:opacity-70"
+              class="w-9 h-9 bg-white/20 hover:bg-red-600 transition-all rounded-full flex items-center justify-center text-white disabled:opacity-50 active:scale-95"
             >
               @if (isDeleting()) {
                 <svg
@@ -121,7 +121,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
           @if (goalService.editingGoal()?.id) {
             <div class="flex justify-center mb-5">
               <span
-                class="text-[9px] font-extrabold tracking-widest uppercase text-goals-dark bg-goals-surface px-3 py-1 rounded-none"
+                class="text-[10px] font-bold tracking-wide uppercase text-goals-dark bg-goals-surface px-3 py-1 rounded-full border border-goals-primary/10"
               >
                 @if (isUpdated()) {
                   Updated
@@ -138,8 +138,8 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
             </div>
           }
           <form [formGroup]="goalForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
-            <div class="flex flex-col gap-1">
-              <label class="text-[11px] font-semibold text-goals-dark tracking-widest uppercase"
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[11px] font-bold text-gray-500 tracking-wider uppercase"
                 >Name</label
               >
               <input
@@ -148,18 +148,18 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
                 type="text"
                 formControlName="name"
                 placeholder="e.g. New Bike, Vacation"
-                class="w-full bg-goals-surface text-goals-dark text-sm rounded-none focus:ring-2 focus:ring-goals-primary focus:outline-none block p-2.5 transition-all placeholder-goals-dark/50 min-h-[44px] touch-manipulation font-sans"
+                class="w-full bg-gray-50 border border-gray-200 text-gray-900 font-bold text-sm rounded-xl focus:bg-white focus:border-goals-primary focus:ring-4 focus:ring-goals-primary/15 block p-3 outline-none transition-all placeholder-gray-400 min-h-[48px] touch-manipulation shadow-sm"
               />
             </div>
 
             <div class="flex gap-4">
-              <div class="flex-1 flex flex-col gap-1">
-                <label class="text-[11px] font-semibold text-goals-dark tracking-widest uppercase"
+              <div class="flex-1 flex flex-col gap-1.5">
+                <label class="text-[11px] font-bold text-gray-500 tracking-wider uppercase"
                   >Total Amount</label
                 >
                 <div class="relative group">
-                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <span class="text-gray-500 font-medium">₹</span>
+                  <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                    <span class="text-gray-500 font-bold">₹</span>
                   </div>
                   <input
                     type="text"
@@ -169,18 +169,18 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
                     formControlName="total_amount"
                     placeholder="0"
                     (keydown)="preventE($event)"
-                    class="w-full bg-goals-surface text-goals-dark text-sm rounded-none focus:ring-2 focus:ring-goals-primary focus:outline-none block p-2.5 transition-all placeholder-goals-dark/50 min-h-[44px] touch-manipulation font-sans pl-8"
+                    class="w-full bg-gray-50 border border-gray-200 text-gray-900 font-bold text-base rounded-xl focus:bg-white focus:border-goals-primary focus:ring-4 focus:ring-goals-primary/15 block p-3 outline-none transition-all placeholder-gray-400 min-h-[48px] touch-manipulation pl-8 shadow-sm"
                   />
                 </div>
               </div>
 
-              <div class="flex-1 flex flex-col gap-1">
-                <label class="text-[11px] font-semibold text-goals-dark tracking-widest uppercase"
+              <div class="flex-1 flex flex-col gap-1.5">
+                <label class="text-[11px] font-bold text-gray-500 tracking-wider uppercase"
                   >Saved Amount</label
                 >
                 <div class="relative group">
-                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <span class="text-gray-500 font-medium">₹</span>
+                  <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                    <span class="text-gray-500 font-bold">₹</span>
                   </div>
                   <input
                     type="text"
@@ -190,27 +190,27 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
                     formControlName="saved_amount"
                     placeholder="0"
                     (keydown)="preventE($event)"
-                    class="w-full bg-goals-surface text-goals-dark text-sm rounded-none focus:ring-2 focus:ring-goals-primary focus:outline-none block p-2.5 transition-all placeholder-goals-dark/50 min-h-[44px] touch-manipulation font-sans pl-8"
+                    class="w-full bg-gray-50 border border-gray-200 text-gray-900 font-bold text-base rounded-xl focus:bg-white focus:border-goals-primary focus:ring-4 focus:ring-goals-primary/15 block p-3 outline-none transition-all placeholder-gray-400 min-h-[48px] touch-manipulation pl-8 shadow-sm"
                   />
                 </div>
               </div>
             </div>
 
             <div class="flex gap-4">
-              <div class="flex-1 flex flex-col gap-1">
-                <label class="text-[11px] font-semibold text-goals-dark tracking-widest uppercase"
+              <div class="flex-1 flex flex-col gap-1.5">
+                <label class="text-[11px] font-bold text-gray-500 tracking-wider uppercase"
                   >Target Date</label
                 >
                 <button
                   type="button"
                   (click)="isDatePickerOpen = true"
-                  class="w-full bg-goals-surface text-goals-dark text-sm rounded-none focus:ring-2 focus:ring-goals-primary focus:outline-none block p-2.5 transition-all min-h-[44px] touch-manipulation font-sans flex justify-between items-center text-left"
+                  class="w-full bg-gray-50 border border-gray-200 text-gray-900 font-semibold text-sm rounded-xl focus:bg-white focus:border-goals-primary focus:ring-4 focus:ring-goals-primary/15 flex justify-between items-center p-3 outline-none transition-all min-h-[48px] touch-manipulation shadow-sm"
                 >
                   <span>{{
                     $safeNavigationMigration(goalForm.get('target_date')?.value) | date: 'MMM d, y'
                   }}</span>
                   <svg
-                    class="w-5 h-5 text-gray-500"
+                    class="w-5 h-5 text-gray-400"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -225,18 +225,18 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
                 </button>
               </div>
 
-              <div class="w-32 flex flex-col gap-1">
-                <label class="text-[11px] font-semibold text-goals-dark tracking-widest uppercase"
+              <div class="w-32 flex flex-col gap-1.5">
+                <label class="text-[11px] font-bold text-gray-500 tracking-wider uppercase"
                   >Installment Day</label
                 >
                 <button
                   type="button"
                   (click)="isDayPickerOpen = true"
-                  class="w-full bg-goals-surface text-goals-dark text-sm rounded-none focus:ring-2 focus:ring-goals-primary flex justify-between items-center p-2.5 outline-none transition-all min-h-[44px] font-sans"
+                  class="w-full bg-gray-50 border border-gray-200 text-gray-900 font-semibold text-sm rounded-xl focus:bg-white focus:border-goals-primary focus:ring-4 focus:ring-goals-primary/15 flex justify-between items-center p-3 outline-none transition-all min-h-[48px] shadow-sm"
                 >
                   <span>{{ goalForm.get('installment_date')?.value || 1 }}</span>
                   <svg
-                    class="fill-current h-4 w-4 text-gray-700"
+                    class="fill-current h-4 w-4 text-gray-400"
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 20 20"
                   >
@@ -248,19 +248,19 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
               </div>
             </div>
 
-            <div class="flex flex-col gap-1">
-              <label class="text-[11px] font-semibold text-goals-dark tracking-widest uppercase"
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[11px] font-bold text-gray-500 tracking-wider uppercase"
                 >Frequency</label
               >
-              <div class="flex bg-goals-surface p-1">
+              <div class="flex gap-2">
                 <button
                   type="button"
                   (click)="goalForm.patchValue({ frequency: 'monthly' })"
-                  class="flex-1 py-2 text-[11px] font-bold uppercase tracking-widest transition-colors duration-200"
+                  class="flex-1 p-2.5 text-xs font-bold uppercase tracking-wide border rounded-xl transition-all active:scale-95 shadow-sm"
                   [ngClass]="
                     goalForm.get('frequency')?.value === 'monthly'
-                      ? 'bg-goals-primary shadow-sm text-white'
-                      : 'text-goals-dark/60 hover:bg-goals-light hover:text-goals-dark'
+                      ? 'bg-goals-primary text-white border-goals-primary shadow-md shadow-goals-primary/25'
+                      : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                   "
                 >
                   Monthly
@@ -268,11 +268,11 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
                 <button
                   type="button"
                   (click)="goalForm.patchValue({ frequency: 'alternate' })"
-                  class="flex-1 py-2 text-[11px] font-bold uppercase tracking-widest transition-colors duration-200"
+                  class="flex-1 p-2.5 text-xs font-bold uppercase tracking-wide border rounded-xl transition-all active:scale-95 shadow-sm"
                   [ngClass]="
                     goalForm.get('frequency')?.value === 'alternate'
-                      ? 'bg-goals-primary shadow-sm text-white'
-                      : 'text-goals-dark/60 hover:bg-goals-light hover:text-goals-dark'
+                      ? 'bg-goals-primary text-white border-goals-primary shadow-md shadow-goals-primary/25'
+                      : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                   "
                 >
                   Alternate
@@ -280,11 +280,11 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
                 <button
                   type="button"
                   (click)="goalForm.patchValue({ frequency: 'quarterly' })"
-                  class="flex-1 py-2 text-[11px] font-bold uppercase tracking-widest transition-colors duration-200"
+                  class="flex-1 p-2.5 text-xs font-bold uppercase tracking-wide border rounded-xl transition-all active:scale-95 shadow-sm"
                   [ngClass]="
                     goalForm.get('frequency')?.value === 'quarterly'
-                      ? 'bg-goals-primary shadow-sm text-white'
-                      : 'text-goals-dark/60 hover:bg-goals-light hover:text-goals-dark'
+                      ? 'bg-goals-primary text-white border-goals-primary shadow-md shadow-goals-primary/25'
+                      : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                   "
                 >
                   Quarterly
@@ -293,34 +293,34 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
             </div>
 
             <!-- Calculated Preview -->
-            <div class="bg-goals-surface p-4 flex justify-between items-center mt-2 gap-4">
+            <div class="bg-goals-surface border border-goals-primary/20 p-4 rounded-xl flex justify-between items-center mt-2 gap-4 shadow-sm">
               <div class="flex-1 min-w-0">
                 <p
-                  class="text-[11px] font-semibold text-goals-dark tracking-widest uppercase truncate"
+                  class="text-[11px] font-bold text-goals-dark tracking-wider uppercase truncate"
                 >
                   Calculated Installment
                 </p>
-                <p class="text-[10px] text-goals-dark/60 leading-tight mt-0.5 pr-2">
+                <p class="text-[10px] text-goals-dark/70 font-medium leading-tight mt-0.5 pr-2">
                   Based on remaining amount & time
                 </p>
               </div>
-              <div class="text-lg font-extrabold text-goals-dark whitespace-nowrap shrink-0">
+              <div class="text-lg font-black text-goals-dark whitespace-nowrap shrink-0">
                 ₹{{ previewInstallment | number: '1.0-0' }}
               </div>
             </div>
 
-            <div class="mt-4 flex gap-4">
+            <div class="mt-6 flex gap-3">
               <button
                 type="button"
                 (click)="close()"
-                class="flex-1 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-goals-surface text-goals-dark hover:bg-goals-light text-center"
+                class="flex-1 font-bold rounded-xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-3.5 text-sm min-h-[48px] bg-gray-100 text-gray-700 hover:bg-gray-200 text-center"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 [disabled]="!goalForm.valid || isSaving() || isDeleting()"
-                class="flex-1 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-goals-primary hover:bg-goals-dark text-white disabled:opacity-70 disabled:cursor-not-allowed disabled:active:scale-100"
+                class="flex-1 font-bold rounded-xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-3.5 text-sm min-h-[48px] bg-goals-primary hover:bg-goals-dark text-white shadow-lg shadow-goals-primary/30 disabled:opacity-50 disabled:active:scale-100"
               >
                 @if (isSaving()) {
                   <svg

@@ -55,14 +55,14 @@ import { SafeInputDirective } from '../safe-input.directive';
         @slideUp
         appSwipeToClose
         (swipeClose)="close()"
-        class="fixed bottom-0 left-0 right-0 bg-black z-[70] max-h-[95vh] overflow-y-auto overscroll-none flex flex-col shadow-2xl"
+        class="fixed bottom-0 left-0 right-0 bg-white z-[70] max-h-[95vh] overflow-y-auto overscroll-none flex flex-col rounded-t-3xl shadow-2xl border-t border-gray-100"
       >
         <!-- Header -->
         <div
-          class="flex justify-between items-center py-4 px-6 bg-splits-primary border-b border-splits-dark text-white sticky top-[-2px] z-10"
+          class="flex justify-between items-center py-4 px-6 bg-splits-primary text-white rounded-t-3xl sticky top-0 z-10 shadow-sm"
         >
-          <h2 class="text-xl font-extrabold tracking-tight">
-            {{ isEditing ? 'Edit group' : 'Create group' }}
+          <h2 class="text-lg font-bold tracking-wide">
+            {{ isEditing ? 'Edit Group' : 'Create Group' }}
           </h2>
           <div class="flex gap-2">
             @if (isEditing) {
@@ -70,7 +70,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                 type="button"
                 (click)="onDelete()"
                 [disabled]="isDeleting()"
-                class="w-8 h-8 bg-red-500 flex items-center justify-center border-2 border-transparent hover:border-white transition-colors rounded-none text-white disabled:opacity-70"
+                class="w-9 h-9 bg-white/20 hover:bg-red-600 transition-all rounded-full flex items-center justify-center text-white disabled:opacity-50 active:scale-95"
               >
                 @if (isDeleting()) {
                   <svg
@@ -111,7 +111,7 @@ import { SafeInputDirective } from '../safe-input.directive';
           @if (isEditing) {
             <div class="flex justify-center mb-5">
               <span
-                class="text-[9px] font-extrabold tracking-widest uppercase text-splits-dark bg-splits-surface px-3 py-1 rounded-none"
+                class="text-[10px] font-bold tracking-wide uppercase text-splits-dark bg-splits-surface px-3 py-1 rounded-full border border-splits-primary/10"
               >
                 Added
                 {{
@@ -122,8 +122,8 @@ import { SafeInputDirective } from '../safe-input.directive';
           }
           @if (friendService.acceptedFriends().length > 0) {
             <form [formGroup]="groupForm" (ngSubmit)="onSubmit()" class="space-y-4">
-              <div class="flex flex-col gap-1">
-                <label class="text-[11px] font-semibold text-splits-dark tracking-widest uppercase"
+              <div class="flex flex-col gap-1.5">
+                <label class="text-[11px] font-bold text-gray-500 tracking-wider uppercase"
                   >Group Name</label
                 >
                 <input
@@ -132,34 +132,34 @@ import { SafeInputDirective } from '../safe-input.directive';
                   type="text"
                   formControlName="name"
                   placeholder="e.g. Goa Trip"
-                  class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-splits-primary hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans"
+                  class="w-full bg-gray-50 border border-gray-200 text-gray-900 font-bold text-sm rounded-xl focus:bg-white focus:border-splits-primary focus:ring-4 focus:ring-splits-primary/15 block p-3 outline-none transition-all placeholder-gray-400 min-h-[48px] touch-manipulation shadow-sm"
                 />
               </div>
-              <div class="flex flex-col gap-1">
-                <label class="text-[11px] font-semibold text-splits-dark tracking-widest uppercase"
+              <div class="flex flex-col gap-1.5">
+                <label class="text-[11px] font-bold text-gray-500 tracking-wider uppercase"
                   >Group Members</label
                 >
                 <div class="flex flex-col gap-2">
                   <label
-                    class="flex items-center gap-3 p-3 bg-white border-2 border-gray-200 cursor-not-allowed"
+                    class="flex items-center gap-3 p-3 bg-gray-100 border border-gray-200 rounded-xl cursor-not-allowed opacity-80"
                   >
                     <input
                       type="checkbox"
                       checked
                       disabled
-                      class="w-5 h-5 accent-splits-primary border-2 border-gray-300 rounded-none focus:ring-0"
+                      class="w-5 h-5 accent-splits-primary border border-gray-300 rounded-md"
                     />
-                    <span class="font-bold text-sm text-gray-400">Me (Admin)</span>
+                    <span class="font-bold text-sm text-gray-600">Me (Admin)</span>
                   </label>
                   @for (friend of friendService.acceptedFriends(); track friend.id) {
                     <label
-                      class="flex items-center gap-3 p-3 bg-white border-2 border-gray-200 cursor-pointer hover:border-[#1a2e22] transition-colors"
+                      class="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-xl cursor-pointer transition-all shadow-sm hover:bg-gray-50 active:scale-95"
                     >
                       <input
                         type="checkbox"
                         (change)="toggleGroupMember(friend.profile.id)"
                         [checked]="isGroupMember(friend.profile.id)"
-                        class="w-5 h-5 accent-splits-primary border-2 border-gray-300 rounded-none focus:ring-0"
+                        class="w-5 h-5 accent-splits-primary border border-gray-300 rounded-md"
                       />
                       <span class="font-bold text-sm text-gray-900 truncate">{{
                         friend.profile.name.split(' ')[0]
@@ -168,18 +168,18 @@ import { SafeInputDirective } from '../safe-input.directive';
                   }
                 </div>
               </div>
-              <div class="mt-4 flex gap-4">
+              <div class="mt-6 flex gap-3">
                 <button
                   type="button"
                   (click)="close()"
-                  class="flex-1 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-white border-2 border-gray-200 text-gray-900 hover:border-gray-300 text-center"
+                  class="flex-1 font-bold rounded-xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-3.5 text-sm min-h-[48px] bg-gray-100 text-gray-700 hover:bg-gray-200 text-center"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   [disabled]="!groupForm.valid || isSaving() || isDeleting()"
-                  class="flex-1 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-splits-primary hover:bg-splits-dark text-white disabled:opacity-70 disabled:cursor-not-allowed disabled:active:scale-100"
+                  class="flex-1 font-bold rounded-xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-3.5 text-sm min-h-[48px] bg-splits-primary hover:bg-splits-dark text-white shadow-lg shadow-splits-primary/30 disabled:opacity-50 disabled:active:scale-100"
                 >
                   @if (isSaving()) {
                     <svg
@@ -209,9 +209,9 @@ import { SafeInputDirective } from '../safe-input.directive';
             </form>
           } @else {
             <div class="flex flex-col items-center justify-center py-8 text-center gap-4">
-              <div class="w-16 h-16 rounded-none bg-gray-100 flex items-center justify-center">
+              <div class="w-16 h-16 rounded-full bg-splits-surface border border-splits-primary/20 flex items-center justify-center shadow-inner">
                 <svg
-                  class="w-8 h-8 text-gray-400"
+                  class="w-8 h-8 text-splits-primary"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -233,7 +233,7 @@ import { SafeInputDirective } from '../safe-input.directive';
               <button
                 type="button"
                 (click)="close()"
-                class="mt-4 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-6 py-2 text-sm min-h-[44px] bg-splits-primary hover:bg-splits-dark text-white"
+                class="mt-4 font-bold rounded-xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-6 py-3.5 text-sm min-h-[48px] bg-splits-primary hover:bg-splits-dark text-white shadow-lg shadow-splits-primary/30"
               >
                 Okay
               </button>

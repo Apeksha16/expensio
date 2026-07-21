@@ -58,17 +58,17 @@ interface SelectableNavItem {
         @slideUp
         appSwipeToClose
         (swipeClose)="closeSheet()"
-        class="fixed bottom-0 left-0 right-0 bg-black z-[70] max-h-[95vh] flex flex-col shadow-2xl"
+        class="fixed bottom-0 left-0 right-0 bg-white z-[70] max-h-[95vh] flex flex-col rounded-t-3xl shadow-2xl border-t border-gray-100"
       >
         <!-- Header -->
         <div
-          class="flex justify-between items-center py-4 px-6 bg-black text-white sticky top-[-2px] z-10 shrink-0"
+          class="flex justify-between items-center py-4 px-6 bg-slate-900 text-white rounded-t-3xl sticky top-0 z-10 shrink-0 shadow-sm"
         >
-          <h2 class="text-xl font-extrabold tracking-tight">Configure Quick Actions</h2>
+          <h2 class="text-lg font-bold tracking-wide">Configure Quick Actions</h2>
         </div>
 
         <div class="p-6 flex flex-col gap-6 overflow-y-auto overscroll-none bg-white flex-1">
-          <p class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase">
+          <p class="text-[11px] font-bold text-gray-500 tracking-wider uppercase">
             Select up to 4 items. Drag to reorder.
           </p>
 
@@ -76,16 +76,16 @@ interface SelectableNavItem {
             @for (item of items(); track item.navItem.id) {
               <div
                 cdkDrag
-                class="flex items-center gap-3 p-3 bg-white border-2 border-gray-200 cursor-grab hover:border-[#1a2e22] transition-colors rounded-none select-none touch-manipulation active:cursor-grabbing"
+                class="flex items-center gap-3 p-3 bg-white border border-gray-200 cursor-grab shadow-sm transition-all rounded-xl select-none touch-manipulation active:cursor-grabbing hover:border-gray-300"
                 [class.opacity-50]="!item.selected && selectedCount() >= 4"
               >
                 <!-- Custom Drag Preview (shown while dragging) -->
                 <div
                   *cdkDragPreview
-                  class="flex items-center gap-3 p-3 bg-white border-2 border-[#1a2e22] shadow-2xl rounded-none select-none touch-manipulation box-border min-w-[300px]"
+                  class="flex items-center gap-3 p-3 bg-white border border-gray-300 shadow-2xl rounded-xl select-none touch-manipulation box-border min-w-[300px]"
                 >
                   <div class="text-gray-400 p-1">
-                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path
                         stroke-linecap="round"
                         stroke-linejoin="round"
@@ -95,7 +95,7 @@ interface SelectableNavItem {
                     </svg>
                   </div>
                   <div
-                    class="w-8 h-8 rounded-none border-2 border-black bg-gray-200 flex items-center justify-center text-black shrink-0"
+                    class="w-8 h-8 rounded-lg border border-gray-200 bg-gray-100 flex items-center justify-center text-gray-800 shrink-0"
                   >
                     <span
                       [innerHTML]="item.navItem.icon"
@@ -108,14 +108,14 @@ interface SelectableNavItem {
                   <input
                     type="checkbox"
                     [checked]="item.selected"
-                    class="w-5 h-5 accent-[#1a2e22] border-2 border-gray-300 rounded-none focus:ring-0 mr-2"
+                    class="w-5 h-5 accent-slate-900 border border-gray-300 rounded-md focus:ring-0 mr-2"
                     readonly
                   />
                 </div>
 
                 <!-- Drag Handle SVG for Visual Indicator -->
                 <div class="text-gray-400 p-1">
-                  <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path
                       stroke-linecap="round"
                       stroke-linejoin="round"
@@ -127,7 +127,7 @@ interface SelectableNavItem {
 
                 <!-- Icon -->
                 <div
-                  class="w-8 h-8 rounded-none border-2 border-black bg-gray-200 flex items-center justify-center text-black shrink-0"
+                  class="w-9 h-9 rounded-xl border border-amber-200 bg-amber-50 flex items-center justify-center text-amber-600 shrink-0 shadow-sm"
                 >
                   <span
                     [innerHTML]="item.navItem.icon"
@@ -136,7 +136,7 @@ interface SelectableNavItem {
                 </div>
 
                 <!-- Name -->
-                <div class="flex-1 font-bold text-sm text-gray-900 truncate">
+                <div class="flex-1 font-bold text-sm text-gray-900 tracking-wide truncate">
                   {{ item.navItem.name }}
                 </div>
 
@@ -146,24 +146,24 @@ interface SelectableNavItem {
                   [checked]="item.selected"
                   [disabled]="!item.selected && selectedCount() >= 4"
                   (change)="toggleSelection(item)"
-                  class="w-5 h-5 accent-[#1a2e22] border-2 border-gray-300 rounded-none focus:ring-0 mr-2"
+                  class="w-5 h-5 accent-slate-900 border border-gray-300 rounded-md focus:ring-0 mr-2 cursor-pointer"
                 />
               </div>
             }
           </div>
 
-          <div class="mt-4 flex gap-4 shrink-0">
+          <div class="mt-6 flex gap-3 shrink-0">
             <button
               type="button"
               (click)="closeSheet()"
-              class="flex-1 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-white border-2 border-gray-200 text-gray-900 hover:border-gray-300 text-center"
+              class="flex-1 font-bold rounded-xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-3.5 text-sm min-h-[48px] bg-gray-100 text-gray-700 hover:bg-gray-200 text-center"
             >
               Cancel
             </button>
             <button
               type="button"
               (click)="save()"
-              class="flex-1 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-[#1a2e22] hover:bg-[#2f4d3b] text-white disabled:opacity-70 disabled:cursor-not-allowed disabled:active:scale-100"
+              class="flex-1 font-bold rounded-xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-3.5 text-sm min-h-[48px] bg-slate-900 hover:bg-slate-800 text-white shadow-lg shadow-slate-900/30"
             >
               Save
             </button>

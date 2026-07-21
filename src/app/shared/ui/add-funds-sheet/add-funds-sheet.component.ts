@@ -53,13 +53,13 @@ import { AutofocusDirective } from '../autofocus.directive';
         @slideUp
         appSwipeToClose
         (swipeClose)="close()"
-        class="fixed bottom-0 left-0 right-0 bg-goals-primary z-[70] max-h-[95vh] overflow-y-auto overscroll-none flex flex-col shadow-2xl"
+        class="fixed bottom-0 left-0 right-0 bg-white z-[70] max-h-[95vh] overflow-y-auto overscroll-none flex flex-col rounded-t-3xl shadow-2xl border-t border-gray-100"
       >
         <!-- Header -->
         <div
-          class="flex justify-between items-center py-4 px-6 bg-goals-primary border-b border-goals-dark text-white sticky top-[-2px] z-10"
+          class="flex justify-between items-center py-4 px-6 bg-goals-primary text-white rounded-t-3xl sticky top-0 z-10 shadow-sm"
         >
-          <h2 class="text-xl font-extrabold tracking-tight">
+          <h2 class="text-lg font-bold tracking-wide">
             {{ goalService.editingFund() ? 'Edit Fund' : 'Add Funds' }}
           </h2>
           <div class="flex gap-2">
@@ -68,7 +68,7 @@ import { AutofocusDirective } from '../autofocus.directive';
                 type="button"
                 (click)="deleteFund()"
                 [disabled]="isDeleting() || isSaving()"
-                class="w-8 h-8 bg-red-500 flex items-center justify-center border-2 border-transparent hover:border-white transition-colors rounded-none text-white disabled:opacity-50"
+                class="w-9 h-9 bg-white/20 hover:bg-red-600 transition-all rounded-full flex items-center justify-center text-white disabled:opacity-50 active:scale-95"
               >
                 @if (!isDeleting()) {
                   <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -109,10 +109,10 @@ import { AutofocusDirective } from '../autofocus.directive';
 
         <div class="p-6 bg-white flex-1">
           <div class="mb-5 text-center">
-            <h3 class="text-xl font-extrabold tracking-tight text-goals-dark">
+            <h3 class="text-xl font-black tracking-tight text-goals-dark">
               {{ goalService.activeGoalForFunds()?.name }}
             </h3>
-            <p class="text-[11px] font-semibold text-goals-dark/70 tracking-widest uppercase mt-1">
+            <p class="text-[11px] font-bold text-goals-dark/70 tracking-wider uppercase mt-1">
               ₹{{
                 $safeNavigationMigration(goalService.activeGoalForFunds()?.saved_amount)
                   | number: '1.0-0'
@@ -126,15 +126,15 @@ import { AutofocusDirective } from '../autofocus.directive';
           </div>
 
           <div class="flex flex-col gap-6">
-            <div class="flex bg-goals-surface p-1">
+            <div class="flex gap-2">
               <button
                 type="button"
                 (click)="setMode('installment')"
-                class="flex-1 py-2 text-[11px] font-bold uppercase tracking-widest transition-colors duration-200"
+                class="flex-1 p-2.5 text-xs font-bold uppercase tracking-wide border rounded-xl transition-all active:scale-95 shadow-sm"
                 [ngClass]="
                   fundMode() === 'installment'
-                    ? 'bg-goals-primary shadow-sm text-white'
-                    : 'text-goals-dark hover:bg-goals-light'
+                    ? 'bg-goals-primary text-white border-goals-primary shadow-md shadow-goals-primary/25'
+                    : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                 "
               >
                 Installment
@@ -142,11 +142,11 @@ import { AutofocusDirective } from '../autofocus.directive';
               <button
                 type="button"
                 (click)="setMode('custom')"
-                class="flex-1 py-2 text-[11px] font-bold uppercase tracking-widest transition-colors duration-200"
+                class="flex-1 p-2.5 text-xs font-bold uppercase tracking-wide border rounded-xl transition-all active:scale-95 shadow-sm"
                 [ngClass]="
                   fundMode() === 'custom'
-                    ? 'bg-goals-primary shadow-sm text-white'
-                    : 'text-goals-dark hover:bg-goals-light'
+                    ? 'bg-goals-primary text-white border-goals-primary shadow-md shadow-goals-primary/25'
+                    : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                 "
               >
                 Custom
@@ -156,27 +156,27 @@ import { AutofocusDirective } from '../autofocus.directive';
             <div class="h-[120px] flex flex-col justify-center">
               @if (fundMode() === 'installment') {
                 <div
-                  class="text-center py-6 border-2 border-dashed border-goals-primary/30 bg-goals-surface w-full"
+                  class="text-center py-6 border border-goals-primary/20 bg-goals-surface rounded-xl w-full shadow-sm"
                 >
-                  <p class="text-4xl font-extrabold tracking-tight text-goals-dark">
+                  <p class="text-4xl font-black tracking-tight text-goals-dark">
                     ₹{{ getRemainingInstallment() | number: '1.0-0' }}
                   </p>
                   <p
-                    class="text-[10px] font-bold text-goals-dark/70 tracking-widest uppercase mt-2"
+                    class="text-[10px] font-bold text-goals-dark/70 tracking-wider uppercase mt-2"
                   >
                     Recommended Installment
                   </p>
                 </div>
               } @else {
-                <div class="flex flex-col gap-1 w-full">
-                  <label class="text-[11px] font-semibold text-goals-dark tracking-widest uppercase"
+                <div class="flex flex-col gap-1.5 w-full">
+                  <label class="text-[11px] font-bold text-gray-500 tracking-wider uppercase"
                     >Amount</label
                   >
                   <div class="relative group">
                     <div
-                      class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+                      class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none"
                     >
-                      <span class="text-goals-dark/70 font-medium">₹</span>
+                      <span class="text-gray-500 font-bold">₹</span>
                     </div>
                     <input
                       [formControl]="customAmount"
@@ -186,18 +186,18 @@ import { AutofocusDirective } from '../autofocus.directive';
                       inputmode="numeric"
                       placeholder="0"
                       (keydown)="preventE($event)"
-                      class="w-full bg-goals-surface text-goals-dark text-sm rounded-none focus:ring-2 focus:ring-goals-primary focus:outline-none block p-2.5 transition-all placeholder-goals-dark/50 min-h-[44px] touch-manipulation font-sans pl-8"
+                      class="w-full bg-gray-50 border border-gray-200 text-gray-900 font-bold text-base rounded-xl focus:bg-white focus:border-goals-primary focus:ring-4 focus:ring-goals-primary/15 block p-3 outline-none transition-all placeholder-gray-400 min-h-[48px] touch-manipulation pl-8 shadow-sm"
                     />
                   </div>
                 </div>
               }
             </div>
 
-            <div class="flex gap-4 mt-2">
+            <div class="flex gap-3 mt-2">
               <button
                 type="button"
                 (click)="close()"
-                class="flex-1 font-medium rounded-none transition-all duration-200 flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-goals-surface text-goals-dark hover:bg-goals-light text-center"
+                class="flex-1 font-bold rounded-xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-3.5 text-sm min-h-[48px] bg-gray-100 text-gray-700 hover:bg-gray-200 text-center"
               >
                 Cancel
               </button>
@@ -207,7 +207,7 @@ import { AutofocusDirective } from '../autofocus.directive';
                 [disabled]="
                   isSaving() || isDeleting() || (fundMode() === 'custom' && customAmount.invalid)
                 "
-                class="flex-1 font-medium rounded-none transition-all duration-200 flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-goals-primary hover:bg-goals-dark text-white disabled:opacity-70 disabled:cursor-not-allowed"
+                class="flex-1 font-bold rounded-xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-3.5 text-sm min-h-[48px] bg-goals-primary hover:bg-goals-dark text-white shadow-lg shadow-goals-primary/30 disabled:opacity-50 disabled:active:scale-100"
               >
                 @if (isSaving()) {
                   <svg

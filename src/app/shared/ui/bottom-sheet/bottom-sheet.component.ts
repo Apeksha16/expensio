@@ -68,15 +68,15 @@ import { SafeInputDirective } from '../safe-input.directive';
         appSwipeToClose
         (swipeClose)="close()"
         @slideUp
-        class="fixed bottom-0 left-0 right-0 bg-black z-[70] 
-               max-h-[95vh] overflow-y-auto overscroll-none flex flex-col shadow-2xl"
+        class="fixed bottom-0 left-0 right-0 bg-white z-[70] 
+               max-h-[95vh] overflow-y-auto overscroll-none flex flex-col rounded-t-3xl shadow-2xl border-t border-gray-100"
       >
         <!-- Header -->
         <div
-          class="flex justify-between items-center py-4 px-6 bg-expense-primary border-b border-expense-dark text-white sticky top-[-2px] z-10"
+          class="flex justify-between items-center py-4 px-6 bg-expense-primary text-white rounded-t-3xl sticky top-0 z-10 shadow-sm"
         >
-          <h2 class="text-xl font-extrabold tracking-tight">
-            {{ isEditing ? 'Edit expense' : 'Add expense' }}
+          <h2 class="text-lg font-bold tracking-wide">
+            {{ isEditing ? 'Edit Expense' : 'Add Expense' }}
           </h2>
           <div class="flex gap-2">
             @if (isEditing) {
@@ -84,7 +84,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                 type="button"
                 (click)="delete()"
                 [disabled]="isDeleting() || isSaving()"
-                class="w-8 h-8 bg-red-500 flex items-center justify-center border-2 border-transparent hover:border-white transition-colors rounded-none text-white disabled:opacity-50"
+                class="w-9 h-9 bg-white/20 hover:bg-red-600 transition-all rounded-full flex items-center justify-center text-white disabled:opacity-50 active:scale-95"
               >
                 @if (!isDeleting()) {
                   <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -126,7 +126,7 @@ import { SafeInputDirective } from '../safe-input.directive';
           @if (isEditing) {
             <div class="flex justify-center mb-5">
               <span
-                class="text-[9px] font-extrabold tracking-widest uppercase text-expense-dark bg-expense-surface px-3 py-1 rounded-none"
+                class="text-[10px] font-bold tracking-wide uppercase text-expense-dark bg-expense-surface px-3 py-1 rounded-full border border-expense-primary/10"
               >
                 Added
                 {{
@@ -138,13 +138,13 @@ import { SafeInputDirective } from '../safe-input.directive';
           }
           <form [formGroup]="expenseForm" (ngSubmit)="onSubmit()" class="space-y-4">
             <!-- Amount -->
-            <div class="flex flex-col gap-1">
-              <label class="text-[11px] font-semibold text-expense-dark tracking-widest uppercase"
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[11px] font-bold text-gray-500 tracking-wider uppercase"
                 >Amount</label
               >
               <div class="relative group">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <span class="text-gray-500 font-medium">₹</span>
+                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                  <span class="text-gray-500 font-bold">₹</span>
                 </div>
                 <input
                   appAutofocus
@@ -155,13 +155,13 @@ import { SafeInputDirective } from '../safe-input.directive';
                   formControlName="amount"
                   placeholder="0"
                   (keydown)="preventE($event)"
-                  class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-expense-primary hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans pl-8"
+                  class="w-full bg-gray-50 border border-gray-200 text-gray-900 font-bold text-base rounded-xl focus:bg-white focus:border-expense-primary focus:ring-4 focus:ring-expense-primary/15 block p-3 outline-none transition-all placeholder-gray-400 min-h-[48px] touch-manipulation pl-8 shadow-sm"
                 />
               </div>
             </div>
             <!-- Name -->
-            <div class="flex flex-col gap-1">
-              <label class="text-[11px] font-semibold text-expense-dark tracking-widest uppercase"
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[11px] font-bold text-gray-500 tracking-wider uppercase"
                 >Expense Name</label
               >
               <div class="relative group">
@@ -170,30 +170,30 @@ import { SafeInputDirective } from '../safe-input.directive';
                   formControlName="title"
                   appSafeInput
                   placeholder="What was this for?"
-                  class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-expense-primary hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans"
+                  class="w-full bg-gray-50 border border-gray-200 text-gray-900 font-bold text-sm rounded-xl focus:bg-white focus:border-expense-primary focus:ring-4 focus:ring-expense-primary/15 block p-3 outline-none transition-all placeholder-gray-400 min-h-[48px] touch-manipulation shadow-sm"
                 />
               </div>
             </div>
             <!-- Budgets -->
             @if (isBudgetsLoading()) {
-              <div class="flex flex-col gap-1">
-                <label class="text-[11px] font-semibold text-expense-dark tracking-widest uppercase"
+              <div class="flex flex-col gap-1.5">
+                <label class="text-[11px] font-bold text-gray-500 tracking-wider uppercase"
                   >Budget</label
                 >
                 <div class="grid grid-cols-4 gap-2">
                   @for (i of [1, 2, 3, 4, 5, 6, 7, 8]; track i) {
                     <div
-                      class="flex flex-col items-center justify-center gap-1 p-2 border-2 border-gray-100 bg-gray-50 rounded-none min-h-[60px] animate-pulse"
+                      class="flex flex-col items-center justify-center gap-1 p-2 border border-gray-100 bg-gray-50 rounded-xl min-h-[64px] animate-pulse"
                     >
-                      <div class="w-5 h-5 bg-gray-200 rounded-none"></div>
+                      <div class="w-5 h-5 bg-gray-200 rounded-full"></div>
                       <div class="h-2 bg-gray-200 w-10 mt-1 rounded"></div>
                     </div>
                   }
                 </div>
               </div>
             } @else if (localBudgets().length > 0) {
-              <div class="flex flex-col gap-1">
-                <label class="text-[11px] font-semibold text-expense-dark tracking-widest uppercase"
+              <div class="flex flex-col gap-1.5">
+                <label class="text-[11px] font-bold text-gray-500 tracking-wider uppercase"
                   >Budget</label
                 >
                 <div class="grid grid-cols-4 gap-2">
@@ -201,11 +201,11 @@ import { SafeInputDirective } from '../safe-input.directive';
                     <button
                       type="button"
                       (click)="selectBudget(cat)"
-                      class="flex flex-col items-center justify-center gap-1 p-2 border-2 rounded-none transition-all min-h-[60px]"
+                      class="flex flex-col items-center justify-center gap-1.5 p-2.5 border rounded-xl transition-all min-h-[64px] active:scale-95 shadow-sm"
                       [ngClass]="
                         expenseForm.get('category')?.value === cat.name
-                          ? 'border-expense-primary bg-expense-primary text-white'
-                          : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
+                          ? 'bg-expense-primary text-white border-expense-primary shadow-md shadow-expense-primary/25 font-bold'
+                          : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                       "
                     >
                       <svg
@@ -220,7 +220,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                         <path [attr.d]="cat.path"></path>
                       </svg>
                       <span
-                        class="text-[9px] font-semibold uppercase tracking-wider text-center line-clamp-1 w-full overflow-hidden text-ellipsis"
+                        class="text-[10px] font-semibold tracking-wide text-center line-clamp-1 w-full overflow-hidden text-ellipsis"
                         >{{ cat.name }}</span
                       >
                     </button>
@@ -229,8 +229,8 @@ import { SafeInputDirective } from '../safe-input.directive';
               </div>
             }
             <!-- Paid Via -->
-            <div class="flex flex-col gap-1">
-              <label class="text-[11px] font-semibold text-expense-dark tracking-widest uppercase"
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[11px] font-bold text-gray-500 tracking-wider uppercase"
                 >Paid Via</label
               >
               <div class="grid grid-cols-3 gap-2">
@@ -238,14 +238,14 @@ import { SafeInputDirective } from '../safe-input.directive';
                   <button
                     type="button"
                     (click)="expenseForm.patchValue({ paid_via: method })"
-                    class="flex flex-col items-center justify-center gap-1 p-2 border-2 rounded-none transition-all min-h-[44px]"
+                    class="flex flex-col items-center justify-center gap-1 p-2.5 border rounded-xl transition-all min-h-[44px] active:scale-95 shadow-sm"
                     [ngClass]="
                       expenseForm.get('paid_via')?.value === method
-                        ? 'border-expense-primary bg-expense-primary text-white'
-                        : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
+                        ? 'bg-expense-primary text-white border-expense-primary shadow-md shadow-expense-primary/25 font-bold'
+                        : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                     "
                   >
-                    <span class="text-[10px] font-semibold uppercase tracking-wider text-center">{{
+                    <span class="text-xs font-semibold tracking-wide text-center">{{
                       method
                     }}</span>
                   </button>
@@ -253,21 +253,21 @@ import { SafeInputDirective } from '../safe-input.directive';
               </div>
             </div>
             <!-- Date -->
-            <div class="flex flex-col gap-1">
-              <label class="text-[11px] font-semibold text-expense-dark tracking-widest uppercase"
+            <div class="flex flex-col gap-1.5">
+              <label class="text-[11px] font-bold text-gray-500 tracking-wider uppercase"
                 >Date</label
               >
               <button
                 type="button"
                 (click)="isDatePickerOpen = true"
-                class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-expense-primary hover:border-gray-300 block p-2.5 outline-none transition-all min-h-[44px] touch-manipulation font-sans flex justify-between items-center text-left"
+                class="w-full bg-gray-50 border border-gray-200 text-gray-900 font-semibold text-sm rounded-xl focus:bg-white focus:border-expense-primary focus:ring-4 focus:ring-expense-primary/15 flex justify-between items-center p-3 outline-none transition-all min-h-[48px] touch-manipulation shadow-sm"
               >
                 <span>{{
                   $safeNavigationMigration(expenseForm.get('date')?.value)
                     | date: 'MMM d, y, h:mm a'
                 }}</span>
                 <svg
-                  class="w-5 h-5 text-gray-500"
+                  class="w-5 h-5 text-gray-400"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -282,18 +282,18 @@ import { SafeInputDirective } from '../safe-input.directive';
               </button>
             </div>
             <!-- Bottom Buttons -->
-            <div class="mt-4 flex gap-4">
+            <div class="mt-6 flex gap-3">
               <button
                 type="button"
                 (click)="close()"
-                class="flex-1 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-white border-2 border-gray-200 text-gray-900 hover:border-gray-300 text-center"
+                class="flex-1 font-bold rounded-xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-3.5 text-sm min-h-[48px] bg-gray-100 text-gray-700 hover:bg-gray-200 text-center"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 [disabled]="!expenseForm.valid || isSaving() || isDeleting()"
-                class="flex-1 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-expense-primary hover:bg-expense-dark text-white disabled:opacity-70 disabled:cursor-not-allowed disabled:active:scale-100"
+                class="flex-1 font-bold rounded-xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-3.5 text-sm min-h-[48px] bg-expense-primary hover:bg-expense-dark text-white shadow-lg shadow-expense-primary/30 disabled:opacity-50 disabled:active:scale-100"
               >
                 @if (isSaving()) {
                   <svg

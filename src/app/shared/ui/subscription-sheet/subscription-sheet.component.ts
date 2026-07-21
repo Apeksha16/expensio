@@ -72,13 +72,13 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
         @slideUp
         appSwipeToClose
         (swipeClose)="close()"
-        class="fixed bottom-0 left-0 right-0 bg-black z-[70] max-h-[95vh] overflow-y-auto overscroll-none flex flex-col shadow-2xl"
+        class="fixed bottom-0 left-0 right-0 bg-white z-[70] max-h-[95vh] overflow-y-auto overscroll-none flex flex-col rounded-t-3xl shadow-2xl border-t border-gray-100"
       >
         <!-- Header -->
         <div
-          class="flex justify-between items-center py-4 px-6 bg-subscriptions-primary border-b border-subscriptions-dark text-white sticky top-[-2px] z-10"
+          class="flex justify-between items-center py-4 px-6 bg-subscriptions-primary text-white rounded-t-3xl sticky top-0 z-10 shadow-sm"
         >
-          <h2 class="text-xl font-extrabold tracking-tight">
+          <h2 class="text-lg font-bold tracking-wide">
             {{
               subscriptionService.editingSubscription()?.id
                 ? 'Edit Subscription'
@@ -90,7 +90,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
               type="button"
               (click)="onDelete()"
               [disabled]="isDeleting()"
-              class="w-8 h-8 bg-red-500 flex items-center justify-center border-2 border-transparent hover:border-white transition-colors rounded-none text-white disabled:opacity-70"
+              class="w-9 h-9 bg-white/20 hover:bg-red-600 transition-all rounded-full flex items-center justify-center text-white disabled:opacity-50 active:scale-95"
             >
               @if (isDeleting()) {
                 <svg
@@ -130,7 +130,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
           @if (subscriptionService.editingSubscription()?.id) {
             <div class="flex justify-center mb-5">
               <span
-                class="text-[9px] font-extrabold tracking-widest uppercase text-subscriptions-dark bg-subscriptions-surface px-3 py-1 rounded-none"
+                class="text-[10px] font-bold tracking-wide uppercase text-subscriptions-dark bg-subscriptions-surface px-3 py-1 rounded-full border border-subscriptions-primary/10"
               >
                 @if (isUpdated()) {
                   Updated
@@ -149,9 +149,9 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
             </div>
           }
           <form [formGroup]="subForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
-            <div class="flex flex-col gap-1">
+            <div class="flex flex-col gap-1.5">
               <label
-                class="text-[11px] font-semibold text-subscriptions-dark tracking-widest uppercase"
+                class="text-[11px] font-bold text-gray-500 tracking-wider uppercase"
                 >Name</label
               >
               <input
@@ -160,19 +160,19 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
                 type="text"
                 formControlName="title"
                 placeholder="e.g. Netflix, Gym"
-                class="w-full bg-subscriptions-surface text-subscriptions-dark text-sm rounded-none focus:ring-2 focus:ring-subscriptions-primary focus:outline-none block p-2.5 transition-all placeholder-subscriptions-dark/50 min-h-[44px] touch-manipulation font-sans"
+                class="w-full bg-gray-50 border border-gray-200 text-gray-900 font-bold text-sm rounded-xl focus:bg-white focus:border-subscriptions-primary focus:ring-4 focus:ring-subscriptions-primary/15 block p-3 outline-none transition-all placeholder-gray-400 min-h-[48px] touch-manipulation shadow-sm"
               />
             </div>
 
             <div class="flex gap-4">
-              <div class="flex-1 flex flex-col gap-1">
+              <div class="flex-1 flex flex-col gap-1.5">
                 <label
-                  class="text-[11px] font-semibold text-subscriptions-dark tracking-widest uppercase"
+                  class="text-[11px] font-bold text-gray-500 tracking-wider uppercase"
                   >Amount</label
                 >
                 <div class="relative group">
-                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <span class="text-gray-500 font-medium">₹</span>
+                  <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                    <span class="text-gray-500 font-bold">₹</span>
                   </div>
                   <input
                     type="text"
@@ -182,24 +182,24 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
                     formControlName="amount"
                     placeholder="0"
                     (keydown)="preventE($event)"
-                    class="w-full bg-subscriptions-surface text-subscriptions-dark text-sm rounded-none focus:ring-2 focus:ring-subscriptions-primary focus:outline-none block p-2.5 transition-all placeholder-subscriptions-dark/50 min-h-[44px] touch-manipulation font-sans pl-8"
+                    class="w-full bg-gray-50 border border-gray-200 text-gray-900 font-bold text-base rounded-xl focus:bg-white focus:border-subscriptions-primary focus:ring-4 focus:ring-subscriptions-primary/15 block p-3 outline-none transition-all placeholder-gray-400 min-h-[48px] touch-manipulation pl-8 shadow-sm"
                   />
                 </div>
               </div>
 
-              <div class="w-32 flex flex-col gap-1">
+              <div class="w-32 flex flex-col gap-1.5">
                 <label
-                  class="text-[11px] font-semibold text-subscriptions-dark tracking-widest uppercase"
+                  class="text-[11px] font-bold text-gray-500 tracking-wider uppercase"
                   >Billing Day</label
                 >
                 <button
                   type="button"
                   (click)="isDayPickerOpen = true"
-                  class="w-full bg-subscriptions-surface text-subscriptions-dark text-sm rounded-none focus:ring-2 focus:ring-subscriptions-primary flex justify-between items-center p-2.5 outline-none transition-all min-h-[44px] font-sans"
+                  class="w-full bg-gray-50 border border-gray-200 text-gray-900 font-semibold text-sm rounded-xl focus:bg-white focus:border-subscriptions-primary focus:ring-4 focus:ring-subscriptions-primary/15 flex justify-between items-center p-3 outline-none transition-all min-h-[48px] shadow-sm"
                 >
                   <span>{{ subForm.get('billing_day')?.value || 1 }}</span>
                   <svg
-                    class="fill-current h-4 w-4 text-gray-700"
+                    class="fill-current h-4 w-4 text-gray-400"
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 20 20"
                   >
@@ -211,9 +211,9 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
               </div>
             </div>
 
-            <div class="flex flex-col gap-1">
+            <div class="flex flex-col gap-1.5">
               <label
-                class="text-[11px] font-semibold text-subscriptions-dark tracking-widest uppercase"
+                class="text-[11px] font-bold text-gray-500 tracking-wider uppercase"
                 >Category</label
               >
               <div class="grid grid-cols-4 gap-2">
@@ -221,11 +221,11 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
                   <button
                     type="button"
                     (click)="selectCategory(cat.name)"
-                    class="flex flex-col items-center justify-center gap-1 p-2 rounded-none transition-all min-h-[60px]"
+                    class="flex flex-col items-center justify-center gap-1.5 p-2.5 rounded-xl transition-all min-h-[64px] border active:scale-95 shadow-sm"
                     [ngClass]="
                       subForm.get('category')?.value === cat.name
-                        ? 'bg-subscriptions-primary text-white'
-                        : 'bg-subscriptions-surface text-subscriptions-dark hover:bg-subscriptions-light'
+                        ? 'bg-subscriptions-primary text-white border-subscriptions-primary shadow-md shadow-subscriptions-primary/25 font-bold'
+                        : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                     "
                   >
                     <svg
@@ -240,7 +240,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
                       <path [attr.d]="cat.path"></path>
                     </svg>
                     <span
-                      class="text-[9px] font-semibold uppercase tracking-wider text-center line-clamp-1 w-full overflow-hidden text-ellipsis"
+                      class="text-[10px] font-semibold tracking-wide text-center line-clamp-1 w-full overflow-hidden text-ellipsis"
                       >{{ cat.name }}</span
                     >
                   </button>
@@ -248,22 +248,22 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
               </div>
             </div>
 
-            <div class="flex flex-col gap-1">
+            <div class="flex flex-col gap-1.5">
               <label
-                class="text-[11px] font-semibold text-subscriptions-dark tracking-widest uppercase"
+                class="text-[11px] font-bold text-gray-500 tracking-wider uppercase"
                 >Date added</label
               >
               <button
                 type="button"
                 (click)="isDatePickerOpen = true"
-                class="w-full bg-subscriptions-surface text-subscriptions-dark text-sm rounded-none focus:ring-2 focus:ring-subscriptions-primary p-2.5 outline-none transition-all min-h-[44px] touch-manipulation font-sans flex justify-between items-center text-left"
+                class="w-full bg-gray-50 border border-gray-200 text-gray-900 font-semibold text-sm rounded-xl focus:bg-white focus:border-subscriptions-primary focus:ring-4 focus:ring-subscriptions-primary/15 p-3 outline-none transition-all min-h-[48px] touch-manipulation flex justify-between items-center text-left shadow-sm"
               >
                 <span>{{
                   $safeNavigationMigration(subForm.get('created_at')?.value)
                     | date: 'MMM d, y, h:mm a'
                 }}</span>
                 <svg
-                  class="w-5 h-5 text-gray-500"
+                  class="w-5 h-5 text-gray-400"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -278,18 +278,18 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
               </button>
             </div>
 
-            <div class="mt-4 flex gap-4">
+            <div class="mt-6 flex gap-3">
               <button
                 type="button"
                 (click)="close()"
-                class="flex-1 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-subscriptions-surface text-subscriptions-dark hover:bg-subscriptions-light text-center"
+                class="flex-1 font-bold rounded-xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-3.5 text-sm min-h-[48px] bg-gray-100 text-gray-700 hover:bg-gray-200 text-center"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 [disabled]="!subForm.valid || isSaving() || isDeleting()"
-                class="flex-1 font-medium rounded-none transition-all duration-200 active:scale-[0.98] flex justify-center items-center gap-2 touch-manipulation font-sans px-4 py-2 text-sm min-h-[44px] bg-subscriptions-primary hover:bg-subscriptions-dark text-white disabled:opacity-70 disabled:cursor-not-allowed disabled:active:scale-100"
+                class="flex-1 font-bold rounded-xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-3.5 text-sm min-h-[48px] bg-subscriptions-primary hover:bg-subscriptions-dark text-white shadow-lg shadow-subscriptions-primary/30 disabled:opacity-50 disabled:active:scale-100"
               >
                 @if (isSaving()) {
                   <svg

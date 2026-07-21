@@ -24,54 +24,41 @@ import { Router } from '@angular/router';
   },
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
-    <div class="flex-1 bg-gray-50 p-4 flex flex-col gap-4 pb-36">
+    <div class="flex-1 bg-white p-4 flex flex-col gap-4 pb-36">
       <!-- Top Summary Box -->
-      <div
-        class="shrink-0 bg-budget-primary text-white p-5 rounded-none flex flex-col gap-4 relative overflow-hidden"
-      >
+      <div class="shrink-0 bg-black text-white p-5 rounded-2xl flex flex-col gap-4 relative overflow-hidden shadow-[6px_6px_0px_0px_rgba(16,185,129,1)]">
         <div class="flex justify-between items-end relative z-10">
           <div class="flex flex-col">
-            <span
-              class="text-xs font-bold text-budget-surface uppercase tracking-widest mb-1 opacity-80"
-              >Total Allocation</span
-            >
+            <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
+              Total Allocation
+            </span>
             @if (budgetService.isLoading()) {
-              <div class="h-10 w-32 bg-white/20 animate-pulse rounded-none mt-1"></div>
+              <div class="h-10 w-32 bg-gray-800 animate-pulse rounded mt-1"></div>
             } @else {
-              <span class="text-4xl font-extrabold tracking-tight">
+              <span class="text-4xl font-black tracking-tight">
                 ₹{{ totalAllocated() | number: '1.0-0' }}
               </span>
             }
           </div>
-          <div
-            class="text-right flex flex-col cursor-pointer"
-            (click)="showSalaryLimit.update((v) => !v)"
-          >
-            <span
-              class="text-[10px] font-bold text-budget-surface uppercase tracking-widest opacity-80"
-              >Salary Limit</span
-            >
+          <div class="text-right flex flex-col cursor-pointer" (click)="showSalaryLimit.update((v) => !v)">
+            <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+              Salary Limit
+            </span>
             @if (budgetService.isLoading()) {
-              <div class="h-5 w-16 bg-white/20 animate-pulse rounded-none mt-1 self-end"></div>
+              <div class="h-5 w-16 bg-gray-800 animate-pulse rounded mt-1 self-end"></div>
             } @else {
-              <span class="text-sm font-extrabold text-white transition-all select-none mt-1">
-                {{
-                  isMasked() && !showSalaryLimit()
-                    ? '••••'
-                    : '₹' + (monthlySalary() | number: '1.0-0')
-                }}
+              <span class="text-sm font-black text-white transition-all select-none mt-1">
+                {{ isMasked() && !showSalaryLimit() ? '••••' : '₹' + (monthlySalary() | number: '1.0-0') }}
               </span>
             }
           </div>
         </div>
 
         <!-- Global Progress Bar -->
-        <div class="h-2 w-full bg-budget-dark rounded-none overflow-hidden flex relative z-10">
+        <div class="h-2 w-full bg-gray-800 rounded-full overflow-hidden flex relative z-10 border border-gray-700">
           <div
-            class="h-full bg-white transition-all duration-1000 ease-out"
-            [style.width.%]="
-              !budgetService.isLoading() && animateBars() ? globalProgressPercent() : 0
-            "
+            class="h-full bg-white transition-all duration-1000 ease-out rounded-full"
+            [style.width.%]="!budgetService.isLoading() && animateBars() ? globalProgressPercent() : 0"
           ></div>
         </div>
       </div>
@@ -80,36 +67,30 @@ import { Router } from '@angular/router';
       <div class="flex justify-between items-center mt-2">
         <button
           (click)="openMonthPicker()"
-          class="flex items-center gap-2 px-3 py-1.5 bg-budget-surface text-budget-dark border-2 border-budget-primary rounded-none font-bold text-sm hover:bg-budget-primary hover:text-white transition-colors"
+          class="flex items-center gap-2 px-4 py-2 bg-white text-black border-2 border-black rounded-xl font-black text-sm hover:bg-gray-50 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all active:scale-[0.98]"
         >
           <span>{{ getActiveMonthLabel() }}</span>
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="3"
-              d="M19 9l-7 7-7-7"
-            />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7" />
           </svg>
         </button>
       </div>
 
       <!-- Goals List -->
-      <div class="flex-1 flex flex-col gap-1.5 mt-2">
+      <div class="flex-1 flex flex-col gap-3 mt-2">
         @if (budgetService.isLoading()) {
           @for (i of [1, 2, 3, 4, 5]; track i) {
-            <div class="w-full bg-gray-200 rounded-none p-3 flex flex-col gap-2">
+            <div class="w-full bg-gray-100 rounded-2xl p-4 flex flex-col gap-3 h-[88px] animate-pulse border-2 border-gray-200">
               <div class="flex justify-between items-center w-full">
                 <div class="flex flex-col gap-2 w-1/2">
-                  <div class="h-5 bg-gray-300 w-2/3 animate-pulse"></div>
-                  <div class="h-3 bg-gray-300 w-1/2 animate-pulse"></div>
+                  <div class="h-5 bg-gray-200 w-2/3"></div>
+                  <div class="h-3 bg-gray-200 w-1/2"></div>
                 </div>
                 <div class="flex flex-col items-end gap-1">
-                  <div class="h-6 bg-gray-300 w-16 animate-pulse"></div>
-                  <div class="h-2 bg-gray-300 w-20 animate-pulse"></div>
+                  <div class="h-6 bg-gray-200 w-16"></div>
+                  <div class="h-2 bg-gray-200 w-20"></div>
                 </div>
               </div>
-              <div class="h-1.5 w-full bg-gray-300 mt-2"></div>
             </div>
           }
         } @else {
@@ -117,48 +98,37 @@ import { Router } from '@angular/router';
             @for (budget of budgetService.budgets(); track budget) {
               <button
                 (click)="openBudget(budget)"
-                class="w-full bg-budget-surface border-l-4 border-budget-primary text-budget-dark rounded-none p-3 flex flex-col gap-2 text-left hover:bg-budget-light transition-colors active:scale-[0.98]"
+                class="w-full bg-white border-2 border-black text-black rounded-2xl p-4 flex flex-col gap-3 text-left hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all active:scale-[0.99]"
               >
                 <div class="flex justify-between items-center w-full">
                   <div class="flex flex-col gap-0.5">
-                    <span class="font-extrabold text-lg">{{ budget.name }}</span>
-                    <div
-                      class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest opacity-80"
-                    >
+                    <span class="font-black text-lg">{{ budget.name }}</span>
+                    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-500">
                       <span>Consumed: ₹{{ getConsumed(budget.name) | number: '1.0-0' }}</span>
                     </div>
                   </div>
-                  <div class="flex flex-col items-end gap-2">
+                  <div class="flex flex-col items-end gap-1">
                     @if (budget.id === 'virtual-others') {
                       <div class="flex flex-col items-end">
-                        <span class="font-extrabold text-xl"
-                          >₹{{ monthlySalary() - totalAllocated() | number: '1.0-0' }}</span
-                        >
-                        <span class="text-[9px] font-bold uppercase tracking-widest opacity-60"
-                          >Unallocated Limit</span
-                        >
+                        <span class="font-black text-xl">₹{{ monthlySalary() - totalAllocated() | number: '1.0-0' }}</span>
+                        <span class="text-[9px] font-bold uppercase tracking-widest text-gray-400">Unallocated Limit</span>
                       </div>
                     } @else {
                       <div class="flex flex-col items-end">
-                        <span class="font-extrabold text-xl"
-                          >₹{{
-                            budget.amount + (budget.rollover_amount || 0) | number: '1.0-0'
-                          }}</span
-                        >
+                        <span class="font-black text-xl">₹{{ budget.amount + (budget.rollover_amount || 0) | number: '1.0-0' }}</span>
                         @if (budget.rollover_amount) {
-                          <span
-                            class="text-[9px] font-bold text-green-600 tracking-widest uppercase"
-                            >+ ₹{{ budget.rollover_amount | number: '1.0-0' }} Rolled Over</span
-                          >
+                          <span class="text-[9px] font-black text-emerald-600 tracking-widest uppercase border border-emerald-200 bg-emerald-50 px-1 rounded">
+                            + ₹{{ budget.rollover_amount | number: '1.0-0' }} Rolled Over
+                          </span>
                         }
                       </div>
                     }
                   </div>
                 </div>
                 <!-- Progress Bar -->
-                <div class="h-1.5 w-full bg-gray-300 rounded-none overflow-hidden mt-2">
+                <div class="h-2 w-full bg-gray-100 rounded-full overflow-hidden mt-1 border border-gray-200">
                   <div
-                    class="h-full transition-all duration-1000 ease-out"
+                    class="h-full transition-all duration-1000 ease-out rounded-full"
                     [style.width.%]="
                       !budgetService.isLoading() && animateBars()
                         ? getPercent(
@@ -182,25 +152,13 @@ import { Router } from '@angular/router';
               </button>
             }
           } @else {
-            <div class="flex-1 flex flex-col items-center justify-center p-8 text-center">
-              <div
-                class="w-32 h-32 bg-gray-200 border-2 border-transparent rounded-full flex items-center justify-center mb-6"
-              >
-                <svg
-                  class="w-12 h-12 text-gray-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
+            <div class="flex-1 flex flex-col items-center justify-center p-8 text-center h-[300px]">
+              <div class="w-32 h-32 bg-gray-50 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center mb-6">
+                <svg class="w-12 h-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <p class="text-gray-500 font-extrabold text-xl">No budgets yet</p>
+              <p class="text-black font-extrabold text-xl">No budgets yet</p>
               <p class="text-gray-400 font-bold text-sm mt-2 max-w-[250px]">
                 Tap the + button below to create your first budget.
               </p>

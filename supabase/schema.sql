@@ -715,3 +715,98 @@ SELECT
         WHERE s.user_id = m.user_id AND s.month = m.month
     ) as breakdown_by_source
 FROM month_totals m;
+
+-- ==========================================
+-- ACCOUNTS TRACKER MODULE TABLES & POLICIES
+-- ==========================================
+
+-- 1. Create user_accounts table
+create table if not exists public.user_accounts (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users on delete cascade not null,
+  account_type text not null check (account_type in ('Salary', 'Cash', 'Savings')),
+  balance numeric not null default 0,
+  updated_at timestamp with time zone default timezone('utc'::text, now()),
+  unique(user_id, account_type)
+);
+
+alter table public.user_accounts enable row level security;
+
+create policy "Users can view own accounts."
+  on public.user_accounts for select
+  using ( auth.uid() = user_id );
+
+create policy "Users can insert own accounts."
+  on public.user_accounts for insert
+  with check ( auth.uid() = user_id );
+
+create policy "Users can update own accounts."
+  on public.user_accounts for update
+  using ( auth.uid() = user_id );
+
+create policy "Users can delete own accounts."
+  on public.user_accounts for delete
+  using ( auth.uid() = user_id );
+
+-- 2. Create account_transactions table
+create table if not exists public.account_transactions (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users on delete cascade not null,
+  account_type text not null check (account_type in ('Salary', 'Cash', 'Savings')),
+  transaction_type text not null check (transaction_type in ('Income', 'Expense', 'Transfer', 'Rollover')),
+  amount numeric not null,
+  month text not null, -- 'YYYY-MM'
+  description text,
+  target_account_type text check (target_account_type in ('Salary', 'Cash', 'Savings')),
+  date timestamp with time zone not null default timezone('utc'::text, now()),
+  created_at timestamp with time zone default timezone('utc'::text, now())
+);
+
+alter table public.account_transactions enable row level security;
+
+create policy "Users can view own account transactions."
+  on public.account_transactions for select
+  using ( auth.uid() = user_id );
+
+create policy "Users can insert own account transactions."
+  on public.account_transactions for insert
+  with check ( auth.uid() = user_id );
+
+create policy "Users can update own account transactions."
+  on public.account_transactions for update
+  using ( auth.uid() = user_id );
+
+create policy "Users can delete own account transactions."
+  on public.account_transactions for delete
+  using ( auth.uid() = user_id );
+
+-- 3. Create account_rollovers table
+create table if not exists public.account_rollovers (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references auth.users on delete cascade not null,
+  month text not null, -- 'YYYY-MM'
+  salary_remaining numeric not null default 0,
+  rolled_over_amount numeric not null default 0,
+  created_at timestamp with time zone default timezone('utc'::text, now()),
+  unique(user_id, month)
+);
+
+alter table public.account_rollovers enable row level security;
+
+create policy "Users can view own account rollovers."
+  on public.account_rollovers for select
+  using ( auth.uid() = user_id );
+
+create policy "Users can insert own account rollovers."
+  on public.account_rollovers for insert
+  with check ( auth.uid() = user_id );
+
+create policy "Users can update own account rollovers."
+  on public.account_rollovers for update
+  using ( auth.uid() = user_id );
+
+-- Enable Realtime
+alter publication supabase_realtime add table public.user_accounts;
+alter publication supabase_realtime add table public.account_transactions;
+alter publication supabase_realtime add table public.account_rollovers;
+

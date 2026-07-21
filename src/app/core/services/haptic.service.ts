@@ -26,11 +26,23 @@ export class HapticService {
     if (this.hasVibration) navigator.vibrate(15);
   }
 
+  light() {
+    this.impactLight();
+  }
+
   impactMedium() {
     if (this.hasVibration) navigator.vibrate(30);
   }
 
+  medium() {
+    this.impactMedium();
+  }
+
   impactHeavy() {
     if (this.hasVibration) navigator.vibrate(50);
+  }
+
+  heavy() {
+    this.impactHeavy();
   }
 }

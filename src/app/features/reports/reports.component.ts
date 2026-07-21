@@ -22,22 +22,18 @@ import Chart from 'chart.js/auto';
   standalone: true,
   imports: [CommonModule, CurrencyPipe, DecimalPipe],
   template: `
-    <div class="h-full flex flex-col relative w-full bg-gray-50 overflow-y-auto">
+    <div class="h-full flex flex-col relative w-full bg-white overflow-y-auto">
       <!-- Filters Header -->
-      <div
-        class="bg-white p-4 border-b-2 border-reports-primary sticky top-0 z-10 shadow-sm flex flex-col gap-4"
-      >
+      <div class="bg-white p-4 border-b-2 border-black sticky top-0 z-10 flex flex-col gap-4">
         <!-- Date Presets Scrollable -->
-        <div class="flex overflow-x-auto gap-2 pb-2 hide-scrollbar">
+        <div class="flex overflow-x-auto gap-3 pb-2 no-scrollbar">
           @for (preset of presets; track preset) {
             <button
               (click)="reportService.fetchReports(preset)"
-              class="whitespace-nowrap px-4 py-2 text-sm font-bold border-2 rounded-none transition-colors"
+              class="whitespace-nowrap px-4 py-2 text-sm font-black border-2 border-black rounded-xl transition-all active:scale-[0.98]"
               [ngClass]="{
-                'bg-reports-primary text-white border-reports-primary':
-                  reportService.activePreset() === preset,
-                'bg-white text-gray-700 border-gray-300 hover:border-reports-primary':
-                  reportService.activePreset() !== preset,
+                'bg-black text-white shadow-[3px_3px_0px_0px_rgba(236,72,153,1)]': reportService.activePreset() === preset,
+                'bg-white text-black hover:bg-gray-50 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]': reportService.activePreset() !== preset,
               }"
             >
               {{ preset }}
@@ -46,31 +42,31 @@ import Chart from 'chart.js/auto';
         </div>
 
         <!-- Type Toggles -->
-        <div class="flex flex-wrap gap-3">
-          <label class="flex items-center gap-2 text-xs font-bold text-reports-dark cursor-pointer">
+        <div class="flex flex-wrap gap-4">
+          <label class="flex items-center gap-2 text-xs font-black text-black cursor-pointer">
             <input
               type="checkbox"
               [checked]="reportService.showGoals()"
               (change)="reportService.toggleGoalFilter()"
-              class="text-reports-primary bg-reports-surface border-reports-primary/50 focus:ring-reports-primary focus:ring-offset-0 w-4 h-4 rounded-none"
+              class="text-black bg-white border-2 border-black focus:ring-black focus:ring-offset-0 w-4 h-4 rounded"
             />
             Include Goals
           </label>
-          <label class="flex items-center gap-2 text-xs font-bold text-reports-dark cursor-pointer">
+          <label class="flex items-center gap-2 text-xs font-black text-black cursor-pointer">
             <input
               type="checkbox"
               [checked]="reportService.showSubscriptions()"
               (change)="reportService.toggleSubscriptionFilter()"
-              class="text-reports-primary bg-reports-surface border-reports-primary/50 focus:ring-reports-primary focus:ring-offset-0 w-4 h-4 rounded-none"
+              class="text-black bg-white border-2 border-black focus:ring-black focus:ring-offset-0 w-4 h-4 rounded"
             />
             Include Subs
           </label>
-          <label class="flex items-center gap-2 text-xs font-bold text-reports-dark cursor-pointer">
+          <label class="flex items-center gap-2 text-xs font-black text-black cursor-pointer">
             <input
               type="checkbox"
               [checked]="reportService.showSplits()"
               (change)="reportService.toggleSplitFilter()"
-              class="text-reports-primary bg-reports-surface border-reports-primary/50 focus:ring-reports-primary focus:ring-offset-0 w-4 h-4 rounded-none"
+              class="text-black bg-white border-2 border-black focus:ring-black focus:ring-offset-0 w-4 h-4 rounded"
             />
             Include Splits
           </label>
@@ -80,91 +76,50 @@ import Chart from 'chart.js/auto';
       <div class="p-4 flex flex-col gap-6 pb-24">
         <!-- Summary Cards -->
         <div class="grid grid-cols-2 gap-4">
-          <div class="bg-reports-surface p-4 rounded-none flex flex-col gap-1">
-            <span
-              class="text-xs font-extrabold text-reports-dark opacity-80 uppercase tracking-wider"
-              >Total Spent</span
-            >
-            <span class="text-xl font-black text-reports-dark">{{
-              totalSpent | currency: 'INR' : 'symbol' : '1.0-0'
-            }}</span>
+          <div class="bg-white border-2 border-black p-4 rounded-2xl flex flex-col gap-1 shadow-[4px_4px_0px_0px_rgba(244,63,94,1)]">
+            <span class="text-[10px] font-black text-gray-500 uppercase tracking-widest">Total Spent</span>
+            <span class="text-xl font-black text-black">{{ totalSpent | currency: 'INR' : 'symbol' : '1.0-0' }}</span>
           </div>
-          <div class="bg-reports-surface p-4 rounded-none flex flex-col gap-1">
-            <span
-              class="text-xs font-extrabold text-reports-dark opacity-80 uppercase tracking-wider"
-              >Daily Avg</span
-            >
-            <span class="text-xl font-black text-reports-dark">{{
-              dailyAverage | currency: 'INR' : 'symbol' : '1.0-0'
-            }}</span>
+          <div class="bg-white border-2 border-black p-4 rounded-2xl flex flex-col gap-1 shadow-[4px_4px_0px_0px_rgba(59,130,246,1)]">
+            <span class="text-[10px] font-black text-gray-500 uppercase tracking-widest">Daily Avg</span>
+            <span class="text-xl font-black text-black">{{ dailyAverage | currency: 'INR' : 'symbol' : '1.0-0' }}</span>
           </div>
         </div>
 
         @if (reportService.isLoading()) {
           <div class="flex flex-col gap-6">
-            <div
-              class="bg-gray-200 h-64 w-full animate-pulse rounded-none p-4 flex flex-col items-center justify-center"
-            >
-              <div class="w-40 h-40 rounded-full border-8 border-gray-300"></div>
+            <div class="bg-gray-100 h-64 w-full animate-pulse rounded-2xl p-4 flex flex-col items-center justify-center border-2 border-gray-200">
+              <div class="w-40 h-40 rounded-full border-8 border-gray-200"></div>
             </div>
-            <div
-              class="bg-gray-200 h-64 w-full animate-pulse rounded-none p-4 flex flex-col justify-end gap-2"
-            >
+            <div class="bg-gray-100 h-64 w-full animate-pulse rounded-2xl p-4 flex flex-col justify-end gap-2 border-2 border-gray-200">
               <div class="flex justify-between items-end h-32 w-full px-4">
-                <div class="w-8 bg-gray-300 h-24"></div>
-                <div class="w-8 bg-gray-300 h-16"></div>
-                <div class="w-8 bg-gray-300 h-32"></div>
-                <div class="w-8 bg-gray-300 h-12"></div>
-                <div class="w-8 bg-gray-300 h-20"></div>
+                <div class="w-8 bg-gray-200 h-24 rounded-t"></div>
+                <div class="w-8 bg-gray-200 h-16 rounded-t"></div>
+                <div class="w-8 bg-gray-200 h-32 rounded-t"></div>
+                <div class="w-8 bg-gray-200 h-12 rounded-t"></div>
+                <div class="w-8 bg-gray-200 h-20 rounded-t"></div>
               </div>
-            </div>
-            <div class="flex flex-col gap-1.5 mt-2">
-              @for (i of [1, 2, 3]; track i) {
-                <div
-                  class="w-full bg-gray-200 rounded-none p-3 h-20 animate-pulse flex justify-between items-center"
-                >
-                  <div class="flex flex-col gap-2 w-1/2">
-                    <div class="h-4 bg-gray-300 w-3/4"></div>
-                    <div class="h-3 bg-gray-300 w-1/2"></div>
-                  </div>
-                  <div class="h-6 bg-gray-300 w-16"></div>
-                </div>
-              }
             </div>
           </div>
         } @else if (
           reportService.expenses().length === 0 &&
           (!reportService.isLongTerm() || reportService.monthlySummaries().length === 0)
         ) {
-          <div class="flex-1 flex flex-col items-center justify-center p-8 text-center mt-8">
-            <div
-              class="w-32 h-32 bg-reports-surface border-2 border-reports-light rounded-full flex items-center justify-center mb-6"
-            >
-              <svg
-                class="w-12 h-12 text-reports-primary"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                />
+          <div class="flex-1 flex flex-col items-center justify-center p-8 text-center mt-8 h-[300px]">
+            <div class="w-32 h-32 bg-gray-50 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center mb-6">
+              <svg class="w-12 h-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
             </div>
-            <p class="text-reports-dark font-extrabold text-xl">No data available</p>
-            <p class="text-reports-dark opacity-70 font-bold text-sm mt-2 max-w-[250px]">
+            <p class="text-black font-extrabold text-xl">No data available</p>
+            <p class="text-gray-400 font-bold text-sm mt-2 max-w-[250px]">
               Try changing the date range or toggling filters to see your reports.
             </p>
           </div>
         } @else {
           <!-- Category Doughnut Chart -->
-          <div class="bg-reports-surface p-4 rounded-none">
-            <h2
-              class="text-sm font-extrabold text-reports-dark uppercase tracking-wider mb-4 pb-2 border-b-2 border-reports-light/50"
-            >
+          <div class="bg-white border-2 border-black p-4 rounded-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+            <h2 class="text-sm font-black text-black uppercase tracking-widest mb-4 pb-2 border-b-2 border-black">
               Category Breakdown
             </h2>
             <div class="relative h-64 w-full">
@@ -173,10 +128,8 @@ import Chart from 'chart.js/auto';
           </div>
 
           <!-- Trend Bar Chart -->
-          <div class="bg-reports-surface p-4 rounded-none mt-4">
-            <h2
-              class="text-sm font-extrabold text-reports-dark uppercase tracking-wider mb-4 pb-2 border-b-2 border-reports-light/50"
-            >
+          <div class="bg-white border-2 border-black p-4 rounded-2xl mt-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+            <h2 class="text-sm font-black text-black uppercase tracking-widest mb-4 pb-2 border-b-2 border-black">
               Spending Trend
             </h2>
             <div class="relative h-64 w-full">
@@ -185,36 +138,25 @@ import Chart from 'chart.js/auto';
           </div>
 
           <!-- Top Spends List -->
-          <div class="mt-4">
-            <h2
-              class="text-xs font-bold text-reports-dark opacity-70 uppercase tracking-widest mb-2 px-1"
-            >
+          <div class="mt-6">
+            <h2 class="text-xs font-black text-black uppercase tracking-widest mb-3 px-1">
               Top Transactions
             </h2>
-            <div class="flex flex-col gap-1.5">
+            <div class="flex flex-col gap-3">
               @for (expense of topExpenses; track expense.id) {
-                <div
-                  class="w-full bg-reports-surface rounded-none p-3 flex justify-between items-center text-left border-l-4"
-                  [ngClass]="getCategoryColor(expense.category)"
-                >
-                  <div class="flex flex-col gap-0.5 flex-1 min-w-0 pr-4">
-                    <span class="font-extrabold text-lg text-reports-dark truncate">{{
-                      expense.title
-                    }}</span>
-                    <div
-                      class="flex items-center gap-2 text-xs font-bold text-reports-dark opacity-70 uppercase tracking-widest min-w-0"
-                    >
+                <div class="w-full bg-white border-2 border-black rounded-2xl p-4 flex justify-between items-center text-left shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all">
+                  <div class="flex flex-col gap-1 flex-1 min-w-0 pr-4">
+                    <span class="font-extrabold text-base text-gray-900 truncate">{{ expense.title }}</span>
+                    <div class="flex items-center gap-2 text-[10px] font-bold text-gray-500 uppercase tracking-widest min-w-0">
                       <span class="truncate">{{ expense.category }}</span>
-                      <span class="flex-shrink-0">•</span>
-                      <span class="whitespace-nowrap flex-shrink-0">{{
-                        expense.date | date: 'MMM d, h:mm a'
-                      }}</span>
+                      <span class="flex-shrink-0 border-l-2 border-gray-300 h-3"></span>
+                      <span class="whitespace-nowrap flex-shrink-0">{{ expense.date | date: 'MMM d' }}</span>
                     </div>
                   </div>
                   <div class="flex flex-col items-end gap-2 flex-shrink-0">
-                    <span class="font-extrabold text-xl"
-                      >₹{{ expense.amount | number: '1.2-2' }}</span
-                    >
+                    <span class="font-black text-lg text-black">
+                      ₹{{ expense.amount | number: '1.0-0' }}
+                    </span>
                   </div>
                 </div>
               }

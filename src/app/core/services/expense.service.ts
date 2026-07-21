@@ -5,6 +5,7 @@ import { AuthService } from './auth.service';
 import { ToastService } from './toast.service';
 import { GoalService } from './goal.service';
 import { BudgetService } from './budget.service';
+import { AccountTrackerService } from './account-tracker.service';
 
 export interface Expense {
   id: string;
@@ -66,7 +67,21 @@ export class ExpenseService {
 
   // The displayed expenses
   readonly expenses = signal<Expense[]>([]);
-  readonly monthlyTotalSpend = signal<number>(0);
+  readonly monthlyTotalSpend = computed(() => {
+    return this.allExpenses().reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+  });
+
+  readonly salaryTotalSpend = computed(() => {
+    return this.allExpenses()
+      .filter((e) => (e.paid_via || 'UPI') !== 'Cash')
+      .reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+  });
+
+  readonly cashTotalSpend = computed(() => {
+    return this.allExpenses()
+      .filter((e) => e.paid_via === 'Cash')
+      .reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+  });
   
   // Global bottom sheet state
   readonly isBottomSheetOpen = signal(false);
@@ -120,12 +135,6 @@ export class ExpenseService {
           p_month: month
         })
     ]);
-
-    if (!spendError && spendData !== null) {
-      this.monthlyTotalSpend.set(Number(spendData));
-    } else {
-      this.monthlyTotalSpend.set(0);
-    }
 
     let all: Expense[] = [];
 
@@ -238,6 +247,16 @@ export class ExpenseService {
         return updated.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       });
       this.applyFilterAndPagination();
+      
+      // Deduct from Cash / Salary Account in AccountTrackerService
+      const trackerService = this.injector.get(AccountTrackerService);
+      trackerService.recordExpensePayment(
+        expense.paid_via || 'UPI',
+        expense.amount,
+        expense.title,
+        expense.date
+      );
+
       if (!silent) {
         this.toastService.showSuccess('Expense added successfully.');
       }
@@ -298,6 +317,18 @@ export class ExpenseService {
           goalService.recalculateSavedAmount(titleToSync);
         }
       }
+
+      // Sync with AccountTrackerService
+      const trackerService = this.injector.get(AccountTrackerService);
+      if (oldExpense) {
+        trackerService.revertExpensePayment(oldExpense.paid_via || 'UPI', oldExpense.amount, oldExpense.title);
+      }
+      trackerService.recordExpensePayment(
+        data.paid_via || 'UPI',
+        data.amount,
+        data.title,
+        data.date
+      );
 
       if (!silent) {
         this.toastService.showSuccess('Expense updated successfully.');
@@ -380,6 +411,10 @@ export class ExpenseService {
             .update({ last_paid_month: null })
             .eq('id', expense.subscription_id);
         }
+
+        // Revert deduction in AccountTrackerService
+        const trackerService = this.injector.get(AccountTrackerService);
+        trackerService.revertExpensePayment(expense.paid_via || 'UPI', expense.amount, expense.title);
       }
 
       this.toastService.showSuccess('Expense deleted successfully.');
