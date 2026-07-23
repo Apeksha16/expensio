@@ -43,7 +43,7 @@ import { LedgerService, LedgerEntry } from '../../core/services/ledger.service';
       </div>
       
       <!-- Ledger Entry List -->
-      <div class="flex-1 flex flex-col gap-4 pb-36 mt-1">
+      <div class="flex-1 flex flex-col gap-4 pb-28 mt-1">
         @if (ledgerService.isLoading()) {
           @for (i of [1, 2, 3]; track i) {
             <div class="w-full bg-gray-100 rounded-2xl p-4 flex flex-col gap-4 border-2 border-gray-200 animate-pulse h-[130px]">

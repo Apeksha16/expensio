@@ -272,7 +272,7 @@ import { AccountTrackerService } from '../services/account-tracker.service';
       </aside>
 
       <!-- Main Content Area -->
-      <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 relative pt-14 pb-16">
+      <main class="flex-1 overflow-hidden bg-gray-50 relative pt-14">
         <div [@routeAnimations]="getAnimationData()" class="h-full w-full">
           <router-outlet #outlet="outlet"></router-outlet>
         </div>

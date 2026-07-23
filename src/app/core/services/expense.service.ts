@@ -145,7 +145,7 @@ export class ExpenseService {
     if (!splitsError && splitsData) {
       const currentUserId = this.authService.currentUser()?.id;
       const mappedSplits: Expense[] = splitsData
-        .filter((s: any) => s.title !== 'Settlement')
+        .filter((s: any) => s.category !== 'Settlement' && s.category !== 'Pending Settlement')
         .map((s: any) => {
           const myParticipant = s.participants?.find((p: any) => p.userId === currentUserId);
           if (myParticipant && myParticipant.amountOwed > 0) {
@@ -181,6 +181,11 @@ export class ExpenseService {
     this.applyFilterAndPagination();
     this.hasInitiallyLoaded.set(true);
     this.isLoading.set(false);
+  }
+
+  async refreshExpenses(monthStr?: string) {
+    this.monthlyCache.clear();
+    await this.fetchExpenses(monthStr);
   }
 
   setMonthFilter(monthStr: string) {

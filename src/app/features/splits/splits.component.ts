@@ -29,7 +29,7 @@ import { ToastService } from '../../core/services/toast.service';
       <div class="px-4 pt-4 shrink-0 flex flex-col gap-4">
         @if (isInitialLoading()) {
           <!-- Top Summary Box Shimmer -->
-          <div class="bg-gray-100 rounded-2xl h-[124px] animate-pulse"></div>
+          <div class="bg-gray-100 border-2 border-gray-200 rounded-2xl h-[124px] animate-pulse"></div>
         } @else {
           <!-- Top Summary Box -->
           <div class="bg-black text-white p-5 rounded-2xl flex flex-col gap-4 relative overflow-hidden shadow-[6px_6px_0px_0px_rgba(132,204,22,1)]">
@@ -50,24 +50,26 @@ import { ToastService } from '../../core/services/toast.service';
           </div>
 
           <!-- Tabs -->
-          <div class="flex bg-gray-100 p-0.5 rounded-xl border border-gray-200 shadow-inner">
+          <div class="shrink-0 flex gap-2 mt-2">
             <button
               (click)="splitService.activeTab.set('expenses')"
-              [class.bg-white]="splitService.activeTab() === 'expenses'"
-              [class.text-black]="splitService.activeTab() === 'expenses'"
-              [class.shadow-sm]="splitService.activeTab() === 'expenses'"
-              [class.text-gray-500]="splitService.activeTab() !== 'expenses'"
-              class="flex-1 py-2 font-black text-[10px] tracking-widest uppercase transition-all rounded-lg"
+              [class.bg-black]="splitService.activeTab() === 'expenses'"
+              [class.text-white]="splitService.activeTab() === 'expenses'"
+              [class.bg-white]="splitService.activeTab() !== 'expenses'"
+              [class.text-black]="splitService.activeTab() !== 'expenses'"
+              class="flex-1 py-3 font-black tracking-widest uppercase transition-all rounded-xl border-2 border-black"
+              [class.shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]]="splitService.activeTab() !== 'expenses'"
             >
               Expenses
             </button>
             <button
               (click)="splitService.activeTab.set('groups')"
-              [class.bg-white]="splitService.activeTab() === 'groups'"
-              [class.text-black]="splitService.activeTab() === 'groups'"
-              [class.shadow-sm]="splitService.activeTab() === 'groups'"
-              [class.text-gray-500]="splitService.activeTab() !== 'groups'"
-              class="flex-1 py-2 font-black text-[10px] tracking-widest uppercase transition-all rounded-lg"
+              [class.bg-black]="splitService.activeTab() === 'groups'"
+              [class.text-white]="splitService.activeTab() === 'groups'"
+              [class.bg-white]="splitService.activeTab() !== 'groups'"
+              [class.text-black]="splitService.activeTab() !== 'groups'"
+              class="flex-1 py-3 font-black tracking-widest uppercase transition-all rounded-xl border-2 border-black"
+              [class.shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]]="splitService.activeTab() !== 'groups'"
             >
               Groups
             </button>
@@ -76,11 +78,11 @@ import { ToastService } from '../../core/services/toast.service';
       </div>
 
       <!-- Scrollable Area -->
-      <div class="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar px-4 pb-36 mt-4">
+      <div class="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar px-4 pb-28 mt-4">
         @if (isInitialLoading()) {
           <div class="flex flex-col gap-3">
             @for (i of [1, 2, 3]; track i) {
-              <div class="w-full bg-gray-100 rounded-2xl h-[76px] animate-pulse"></div>
+              <div class="w-full bg-gray-100 border-2 border-gray-200 rounded-2xl h-[76px] animate-pulse"></div>
             }
           </div>
         } @else {
@@ -314,13 +316,23 @@ export class Splits implements OnInit {
           const iAmOwed = p.amountOwed - pSettled - pPending;
           const hasPending = p.status === 'pending' || pPending > 0;
 
-          if (iAmOwed > 0 || hasPending) {
+          if (iAmOwed > 0 && p.status !== 'pending') {
             balances.push({
               participantId: p.userId,
               name: this.getFriendName(p.userId),
               type: 'owed',
-              amount: iAmOwed > 0 ? iAmOwed : p.amountOwed,
-              pending: hasPending,
+              amount: iAmOwed,
+              pending: false,
+              status: p.status,
+            });
+          }
+          if (p.status === 'pending' || pPending > 0) {
+            balances.push({
+              participantId: p.userId,
+              name: this.getFriendName(p.userId),
+              type: 'owed',
+              amount: p.status === 'pending' ? p.amountOwed : pPending,
+              pending: true,
               status: p.status,
             });
           }
@@ -338,13 +350,23 @@ export class Splits implements OnInit {
         const iOwe = myParticipant.amountOwed - mySettled - myPending;
         const isPending = myParticipant.status === 'pending' || myPending > 0;
 
-        if (iOwe > 0 || isPending) {
+        if (iOwe > 0 && myParticipant.status !== 'pending') {
           balances.push({
             participantId: split.payer_id,
             name: this.getFriendName(split.payer_id),
             type: 'owe',
-            amount: iOwe > 0 ? iOwe : myParticipant.amountOwed,
-            pending: isPending,
+            amount: iOwe,
+            pending: false,
+            status: myParticipant.status,
+          });
+        }
+        if (myParticipant.status === 'pending' || myPending > 0) {
+          balances.push({
+            participantId: split.payer_id,
+            name: this.getFriendName(split.payer_id),
+            type: 'owe',
+            amount: myParticipant.status === 'pending' ? myParticipant.amountOwed : myPending,
+            pending: true,
             status: myParticipant.status,
           });
         }
@@ -475,7 +497,7 @@ export class Splits implements OnInit {
           }
 
           const newSplit: Omit<SplitExpense, 'id' | 'created_at'> = {
-            title: 'Partial Settlement',
+            title: 'Settlement',
             total_amount: settleAmount,
             payer_id: payerId,
             participants: [
@@ -512,12 +534,10 @@ export class Splits implements OnInit {
         this.processingIds.set(current);
 
         try {
-          const updatedSplit = { ...split };
-          updatedSplit.participants = updatedSplit.participants.map((p: any) =>
-            p.userId === participantId && p.status === 'pending' ? { ...p, status: 'settled' } : p,
-          );
-          const success = await this.splitService.updateSplit(updatedSplit as any, true);
-          if (success) this.toastService.showSuccess('Settlement confirmed successfully.');
+          const success = await this.splitService.handleConfirmSettlement(splitId, participantId);
+          if (success) {
+            this.toastService.showSuccess('Settlement confirmed successfully.');
+          }
         } finally {
           const after = new Set(this.processingIds());
           after.delete(key);
@@ -537,7 +557,10 @@ export class Splits implements OnInit {
       confirmText: 'Yes, Cancel',
       cancelText: 'Keep',
       onConfirm: async () => {
-        await this.splitService.cancelSettlement(splitId, myId);
+        const success = await this.splitService.handleCancelOrDisputeSettlement(splitId, myId);
+        if (success) {
+          this.toastService.showSuccess('Settlement request cancelled.');
+        }
       },
     });
   }
@@ -554,12 +577,10 @@ export class Splits implements OnInit {
       confirmText: 'Dispute',
       cancelText: 'Cancel',
       onConfirm: async () => {
-        const updatedSplit = { ...split };
-        updatedSplit.participants = updatedSplit.participants.map((p: any) =>
-          p.userId === participantId && p.status === 'pending' ? { ...p, status: undefined } : p,
-        );
-        const success = await this.splitService.updateSplit(updatedSplit as any, true);
-        if (success) this.toastService.showSuccess('Settlement disputed successfully.');
+        const success = await this.splitService.handleCancelOrDisputeSettlement(splitId, participantId);
+        if (success) {
+          this.toastService.showSuccess('Settlement disputed successfully.');
+        }
       },
     });
   }

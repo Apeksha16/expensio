@@ -11,10 +11,10 @@ import { AmountInputDirective } from '../../shared/ui/amount-input.directive';
   standalone: true,
   imports: [CommonModule, FormsModule, AmountInputDirective],
   template: `
-    <div class="space-y-6 pb-20 px-4 pt-4">
+    <div class="h-full overflow-y-auto space-y-6 pb-28 px-4 pt-4">
 
       <!-- Top Summary Header & Action Buttons -->
-      <div class="bg-black text-white p-5 border-2 border-black shadow-[4px_4px_0px_0px_rgba(14,165,233,1)]">
+      <div class="bg-black text-white p-5 rounded-2xl shadow-[6px_6px_0px_0px_rgba(14,165,233,1)] flex flex-col relative overflow-hidden">
         <div class="flex justify-between items-center mb-3">
           <span class="text-xs font-extrabold uppercase tracking-widest text-sky-400">Total Net Worth</span>
           <div class="flex items-center gap-2">

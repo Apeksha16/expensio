@@ -17,7 +17,7 @@ import { environment } from '../../../environments/environment';
   imports: [CommonModule, FormsModule, SafeInputDirective],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
-    <div class="bg-gray-50 p-6 flex flex-col gap-8 pb-36">
+    <div class="h-full overflow-y-auto bg-gray-50 px-4 pt-4 flex flex-col gap-8 pb-28">
       <!-- Top Selected Avatar & Selection List -->
       <div class="flex flex-col items-center gap-6 mt-4">
         <div

@@ -19,7 +19,7 @@ import { UserProfile } from '../../core/services/auth.service';
       <div class="px-4 pt-4 shrink-0 flex flex-col gap-4">
         @if (isInitialLoading()) {
           <!-- Top Summary Box Shimmer -->
-          <div class="bg-gray-100 rounded-2xl h-[124px] animate-pulse"></div>
+          <div class="bg-gray-100 border-2 border-gray-200 rounded-2xl h-[124px] animate-pulse"></div>
         } @else {
           @if (
             friendService.acceptedFriends().length > 0 ||
@@ -42,12 +42,12 @@ import { UserProfile } from '../../core/services/auth.service';
       </div>
 
       <!-- Scrollable Area -->
-      <div class="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar px-4 pb-36 mt-4">
+      <div class="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar px-4 pb-28 mt-4">
         @if (isInitialLoading()) {
           <!-- Friends List Shimmer -->
           <div class="flex flex-col gap-3">
             @for (i of [1, 2, 3]; track i) {
-              <div class="w-full bg-gray-100 rounded-2xl h-[76px] animate-pulse"></div>
+              <div class="w-full bg-gray-100 border-2 border-gray-200 rounded-2xl h-[76px] animate-pulse"></div>
             }
           </div>
         } @else {

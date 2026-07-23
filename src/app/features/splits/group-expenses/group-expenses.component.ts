@@ -57,7 +57,7 @@ import { ConfirmService } from '../../../core/services/confirm.service';
       </div>
 
       <!-- Content Area -->
-      <main class="flex-1 overflow-y-auto no-scrollbar px-4 pb-36 mt-4">
+      <main class="flex-1 overflow-y-auto no-scrollbar px-4 pb-28 mt-4">
         <div class="flex flex-col gap-3">
           @if (groupExpenses().length > 0) {
             @for (split of groupExpenses(); track split.id) {
@@ -247,13 +247,23 @@ export class GroupExpenses implements OnInit, OnDestroy {
           const iAmOwed = p.amountOwed - pSettled - pPending;
           const hasPending = p.status === 'pending' || pPending > 0;
 
-          if (iAmOwed > 0 || hasPending) {
+          if (iAmOwed > 0 && p.status !== 'pending') {
             balances.push({
               participantId: p.userId,
               name: this.getFriendName(p.userId),
               type: 'owed',
-              amount: iAmOwed > 0 ? iAmOwed : p.amountOwed,
-              pending: hasPending,
+              amount: iAmOwed,
+              pending: false,
+              status: p.status,
+            });
+          }
+          if (p.status === 'pending' || pPending > 0) {
+            balances.push({
+              participantId: p.userId,
+              name: this.getFriendName(p.userId),
+              type: 'owed',
+              amount: p.status === 'pending' ? p.amountOwed : pPending,
+              pending: true,
               status: p.status,
             });
           }
@@ -271,13 +281,23 @@ export class GroupExpenses implements OnInit, OnDestroy {
         const iOwe = myParticipant.amountOwed - mySettled - myPending;
         const isPending = myParticipant.status === 'pending' || myPending > 0;
 
-        if (iOwe > 0 || isPending) {
+        if (iOwe > 0 && myParticipant.status !== 'pending') {
           balances.push({
             participantId: split.payer_id,
             name: this.getFriendName(split.payer_id),
             type: 'owe',
-            amount: iOwe > 0 ? iOwe : myParticipant.amountOwed,
-            pending: isPending,
+            amount: iOwe,
+            pending: false,
+            status: myParticipant.status,
+          });
+        }
+        if (myParticipant.status === 'pending' || myPending > 0) {
+          balances.push({
+            participantId: split.payer_id,
+            name: this.getFriendName(split.payer_id),
+            type: 'owe',
+            amount: myParticipant.status === 'pending' ? myParticipant.amountOwed : myPending,
+            pending: true,
             status: myParticipant.status,
           });
         }
@@ -406,7 +426,7 @@ export class GroupExpenses implements OnInit, OnDestroy {
           }
 
           const newSplit: Omit<SplitExpense, 'id' | 'created_at'> = {
-            title: 'Partial Settlement',
+            title: 'Settlement',
             total_amount: settleAmount,
             payer_id: payerId,
             participants: [
@@ -448,12 +468,10 @@ export class GroupExpenses implements OnInit, OnDestroy {
         this.processingIds.set(current);
 
         try {
-          const updatedSplit = { ...split };
-          updatedSplit.participants = updatedSplit.participants.map((p: any) =>
-            p.userId === participantId && p.status === 'pending' ? { ...p, status: 'settled' } : p,
-          );
-          await this.splitService.updateSplit(updatedSplit as any, true);
-          this.toastService.showSuccess('Settlement confirmed successfully.');
+          const success = await this.splitService.handleConfirmSettlement(splitId, participantId);
+          if (success) {
+            this.toastService.showSuccess('Settlement confirmed successfully.');
+          }
         } finally {
           const after = new Set(this.processingIds());
           after.delete(key);
@@ -473,7 +491,10 @@ export class GroupExpenses implements OnInit, OnDestroy {
       confirmText: 'Yes, Cancel',
       cancelText: 'Keep',
       onConfirm: async () => {
-        await this.splitService.cancelSettlement(splitId, myId);
+        const success = await this.splitService.handleCancelOrDisputeSettlement(splitId, myId);
+        if (success) {
+          this.toastService.showSuccess('Settlement request cancelled.');
+        }
       },
     });
   }
@@ -489,12 +510,10 @@ export class GroupExpenses implements OnInit, OnDestroy {
       confirmText: 'Dispute',
       cancelText: 'Cancel',
       onConfirm: async () => {
-        const updatedSplit = { ...split };
-        updatedSplit.participants = updatedSplit.participants.map((p: any) =>
-          p.userId === participantId && p.status === 'pending' ? { ...p, status: undefined } : p,
-        );
-        const success = await this.splitService.updateSplit(updatedSplit as any, true);
-        if (success) this.toastService.showSuccess('Settlement disputed successfully.');
+        const success = await this.splitService.handleCancelOrDisputeSettlement(splitId, participantId);
+        if (success) {
+          this.toastService.showSuccess('Settlement disputed successfully.');
+        }
       },
     });
   }

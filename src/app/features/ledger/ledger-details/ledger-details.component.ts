@@ -18,7 +18,7 @@ import {
   template: `
     <div class="flex flex-col h-full relative bg-white">
       <!-- Content -->
-      <div class="flex-1 overflow-y-auto p-4 pb-36">
+      <div class="flex-1 overflow-y-auto p-4 pb-28">
         @if (ledgerService.isLoading()) {
           <div class="flex flex-col gap-3">
             @for (i of [1, 2, 3]; track i) {
@@ -139,8 +139,8 @@ import {
                 }
               } @else {
                 <div class="flex-1 flex flex-col items-center justify-center p-8 text-center mt-4 h-[200px]">
-                  <div class="w-24 h-24 bg-gray-50 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center mb-6">
-                    <svg class="w-10 h-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div class="w-32 h-32 bg-gray-50 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center mb-6">
+                    <svg class="w-12 h-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
                   </div>

@@ -28,7 +28,7 @@ import { SubscriptionService } from '../../../core/services/subscription.service
   template: `
     <div class="h-full bg-white flex flex-col relative w-full overflow-hidden">
       <!-- Content Area -->
-      <main class="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar px-4 pb-20 pt-4 flex flex-col gap-3">
+      <main class="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar px-4 pb-28 pt-4 flex flex-col gap-3">
         <div class="bg-black text-white p-5 rounded-2xl flex flex-col gap-4 relative overflow-hidden shrink-0 shadow-[6px_6px_0px_0px_rgba(16,185,129,1)] mb-2">
           <!-- Abstract Decoration -->
           <div class="flex justify-between items-end relative z-10">

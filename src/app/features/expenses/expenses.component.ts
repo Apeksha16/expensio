@@ -55,11 +55,11 @@ import { SubscriptionService } from '../../core/services/subscription.service';
       </div>
 
       <!-- Expense List (Scrollable Area) -->
-      <div class="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar px-4 pb-36">
+      <div class="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar px-4 pb-28">
         @if (expenseService.isLoading()) {
           <div class="flex flex-col gap-3 mt-2">
             @for (i of [1, 2, 3, 4, 5]; track i) {
-              <div class="w-full bg-gray-100 rounded-2xl h-[76px] animate-pulse"></div>
+              <div class="w-full bg-gray-100 border-2 border-gray-200 rounded-2xl h-[76px] animate-pulse"></div>
             }
           </div>
         } @else {

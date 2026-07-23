@@ -15,7 +15,7 @@ import { ExpenseService } from '../../../core/services/expense.service';
   template: `
     <div class="flex flex-col h-full relative bg-white">
       <!-- Content -->
-      <div class="flex-1 overflow-y-auto p-4 pb-36">
+      <div class="flex-1 overflow-y-auto p-4 pb-28">
         @if (goalService.isLoading() || expenseService.isLoading()) {
           <div class="flex flex-col gap-3">
             @for (i of [1, 2, 3]; track i) {

@@ -35,7 +35,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
   },
   template: `
     <div
-      class="flex-1 bg-gray-50 flex flex-col pb-36 select-none"
+      class="h-full bg-gray-50 flex flex-col overflow-y-auto pb-28 select-none"
       (touchstart)="onTouchStart($event)"
       (touchmove)="onTouchMove($event)"
       (touchend)="onTouchEnd($event)"

@@ -73,7 +73,7 @@ import Chart from 'chart.js/auto';
         </div>
       </div>
 
-      <div class="p-4 flex flex-col gap-6 pb-24">
+      <div class="p-4 flex flex-col gap-6 pb-28">
         <!-- Summary Cards -->
         <div class="grid grid-cols-2 gap-4">
           <div class="bg-white border-2 border-black p-4 rounded-2xl flex flex-col gap-1 shadow-[4px_4px_0px_0px_rgba(244,63,94,1)]">

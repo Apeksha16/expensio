@@ -15,7 +15,7 @@ import { ConfirmService } from '../../core/services/confirm.service';
     <div class="h-full bg-white p-4 flex flex-col gap-4">
       @if (subscriptionService.isLoading()) {
         <!-- Shimmer -->
-        <div class="flex flex-col gap-3 pb-36 mt-2">
+        <div class="flex flex-col gap-3 pb-28 mt-2">
           @for (i of [1, 2, 3]; track i) {
             <div class="w-full bg-gray-100 border-2 border-gray-200 rounded-2xl p-4 flex items-center gap-4 h-[76px] animate-pulse">
               <div class="flex flex-col gap-2 flex-1">
@@ -65,7 +65,7 @@ import { ConfirmService } from '../../core/services/confirm.service';
 
         <!-- Upcoming Tab -->
         @if (activeTab() === 'upcoming') {
-          <div class="flex-1 flex flex-col gap-6 pb-36 mt-2">
+          <div class="flex-1 flex flex-col gap-6 pb-28 mt-2">
             <!-- This Month Section -->
             <div class="flex flex-col gap-3">
               <h3 class="font-black text-xs text-black uppercase tracking-widest px-1">
@@ -152,7 +152,7 @@ import { ConfirmService } from '../../core/services/confirm.service';
 
         <!-- Paid Tab -->
         @if (activeTab() === 'paid') {
-          <div class="flex-1 flex flex-col gap-3 pb-36 mt-2">
+          <div class="flex-1 flex flex-col gap-3 pb-28 mt-2">
             @if (subscriptionService.paidSubscriptions().length > 0) {
               @for (sub of subscriptionService.paidSubscriptions(); track sub.id) {
                 <button
@@ -180,8 +180,8 @@ import { ConfirmService } from '../../core/services/confirm.service';
               }
             } @else {
               <div class="flex-1 flex flex-col items-center justify-center p-8 text-center h-[300px]">
-                <div class="w-24 h-24 bg-gray-50 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center mb-6">
-                  <svg class="w-10 h-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div class="w-32 h-32 bg-gray-50 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center mb-6">
+                  <svg class="w-12 h-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>

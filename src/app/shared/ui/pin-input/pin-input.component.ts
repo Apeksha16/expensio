@@ -47,7 +47,7 @@ import { HapticService } from '../../../core/services/haptic.service';
           (paste)="onPaste($event)"
           (focus)="onFocus($index)"
           [attr.autofocus]="autofocus() && $index === 0 ? '' : null"
-          class="pin-input w-14 h-16 text-center text-3xl font-extrabold bg-gray-50 border-2 border-black focus:outline-none focus:bg-white text-black placeholder-gray-400 rounded-none transition-colors"
+          class="pin-input w-14 h-16 text-center text-3xl font-extrabold bg-gray-50 border-2 border-black focus:outline-none focus:bg-white text-black placeholder-gray-400 rounded-xl transition-all focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:-translate-y-1"
         />
       }
     </div>

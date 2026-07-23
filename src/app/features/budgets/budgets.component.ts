@@ -24,7 +24,7 @@ import { Router } from '@angular/router';
   },
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
-    <div class="flex-1 bg-white p-4 flex flex-col gap-4 pb-36">
+    <div class="flex-1 bg-white p-4 flex flex-col gap-4 pb-28">
       <!-- Top Summary Box -->
       <div class="shrink-0 bg-black text-white p-5 rounded-2xl flex flex-col gap-4 relative overflow-hidden shadow-[6px_6px_0px_0px_rgba(16,185,129,1)]">
         <div class="flex justify-between items-end relative z-10">

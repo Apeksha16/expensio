@@ -18,7 +18,7 @@ import { AddFundsSheetComponent } from '../../shared/ui/add-funds-sheet/add-fund
     <div class="h-full bg-white p-4 flex flex-col gap-4">
       @if (goalService.isLoading()) {
         <!-- Shimmer -->
-        <div class="flex flex-col gap-3 pb-36 mt-2">
+        <div class="flex flex-col gap-3 pb-28 mt-2">
           @for (i of [1, 2, 3]; track i) {
             <div class="w-full bg-gray-100 border-2 border-gray-200 rounded-2xl p-4 flex items-center gap-4 h-[100px] animate-pulse">
               <div class="h-10 w-10 bg-gray-200 rounded-xl shrink-0 border-2 border-gray-300"></div>
@@ -41,7 +41,7 @@ import { AddFundsSheetComponent } from '../../shared/ui/add-funds-sheet/add-fund
           </span>
         </div>
 
-        <div class="flex-1 flex flex-col gap-4 pb-36 mt-2">
+        <div class="flex-1 flex flex-col gap-4 pb-28 mt-2">
           @if (activeGoals().length > 0) {
             @for (goal of activeGoals(); track goal.id) {
               <button

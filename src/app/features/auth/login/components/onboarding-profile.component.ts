@@ -30,7 +30,7 @@ import { LoginStateService } from '../login-state.service';
             >
             <div class="relative w-full pb-6">
               <div
-                class="w-full relative flex items-center bg-gray-50 border-2 border-black transition-colors"
+                class="w-full relative flex items-center bg-gray-50 border-2 border-black rounded-xl focus-within:bg-white focus-within:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus-within:-translate-y-1 transition-all"
                 [class.border-red-500]="nameError()"
               >
                 <input
@@ -61,7 +61,7 @@ import { LoginStateService } from '../login-state.service';
             >
             <div class="relative w-full pb-6">
               <div
-                class="w-full relative flex items-center bg-gray-50 border-2 border-black transition-colors"
+                class="w-full relative flex items-center bg-gray-50 border-2 border-black rounded-xl focus-within:bg-white focus-within:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus-within:-translate-y-1 transition-all"
                 [class.border-red-500]="salaryError()"
               >
                 <input

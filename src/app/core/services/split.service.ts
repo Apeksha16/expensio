@@ -150,7 +150,7 @@ export class SplitService {
 
     // Sync expense service so splits show up immediately in expenses list
     if (syncExpenses) {
-      this.expenseService.fetchExpenses();
+      this.expenseService.refreshExpenses();
     }
   }
 
@@ -206,64 +206,68 @@ export class SplitService {
     }
   }
 
-  async approveSettlement(splitId: string) {
-    const { data, error } = await this.supabase.client
-      .from('split_expenses')
-      .update({ category: 'Settlement' })
-      .eq('id', splitId)
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Error approving settlement:', error);
-      this.toastService.showError("Couldn't confirm settlement.");
-    } else if (data) {
-      this.toastService.showSuccess('Settlement confirmed successfully.');
-      this.loadData(true);
+  async handleConfirmSettlement(originalSplitId: string, participantId: string): Promise<boolean> {
+    const promises: any[] = [];
+    
+    const pendingPartials = this.splits().filter(
+       (s) => s.parent_expense_id === originalSplitId && s.payer_id === participantId && s.category === 'Pending Settlement'
+    );
+    for (const partial of pendingPartials) {
+       promises.push(this.supabase.client.from('split_expenses').update({ category: 'Settlement' }).eq('id', partial.id));
     }
+
+    const split = this.splits().find(s => s.id === originalSplitId);
+    if (split) {
+       const participant = split.participants.find(p => p.userId === participantId);
+       if (participant && participant.status === 'pending') {
+          const updatedParticipants = split.participants.map((p: SplitParticipant) =>
+             p.userId === participantId ? { ...p, status: 'settled' } : p
+          );
+          promises.push(this.supabase.client.from('split_expenses').update({ participants: updatedParticipants }).eq('id', originalSplitId));
+       }
+    }
+
+    if (promises.length > 0) {
+       const results = await Promise.all(promises);
+       if (results.some(r => r.error)) {
+           return false;
+       }
+       this.loadData(true);
+       return true;
+    }
+    return false;
   }
 
-  async cancelSettlement(splitId: string, userId: string) {
-    const split = this.splits().find(s => s.id === splitId);
-    if (!split) return;
-
-    const updatedParticipants = split.participants.map((p: SplitParticipant) =>
-      p.userId === userId && p.status === 'pending' ? { ...p, status: undefined } : p
+  async handleCancelOrDisputeSettlement(originalSplitId: string, participantId: string): Promise<boolean> {
+    const promises: any[] = [];
+    
+    const pendingPartials = this.splits().filter(
+       (s) => s.parent_expense_id === originalSplitId && s.payer_id === participantId && s.category === 'Pending Settlement'
     );
-
-    const { error } = await this.supabase.client
-      .from('split_expenses')
-      .update({ participants: updatedParticipants })
-      .eq('id', splitId);
-
-    if (error) {
-      this.toastService.showError("Couldn't cancel settlement request.");
-    } else {
-      this.toastService.showSuccess('Settlement request cancelled.');
-      this.loadData(true);
+    for (const partial of pendingPartials) {
+       promises.push(this.supabase.client.from('split_expenses').delete().eq('id', partial.id));
     }
-  }
 
-  async disputeSettlement(splitId: string) {
-    const split = this.splits().find(s => s.id === splitId);
-    if (!split) return;
-
-    // Revert all pending participants back to unsettled
-    const updatedParticipants = split.participants.map((p: SplitParticipant) =>
-      p.status === 'pending' ? { ...p, status: undefined } : p
-    );
-
-    const { error } = await this.supabase.client
-      .from('split_expenses')
-      .update({ participants: updatedParticipants })
-      .eq('id', splitId);
-
-    if (error) {
-      this.toastService.showError("Couldn't dispute settlement request.");
-    } else {
-      this.toastService.showSuccess('Settlement request disputed successfully.');
-      this.loadData(true);
+    const split = this.splits().find(s => s.id === originalSplitId);
+    if (split) {
+       const participant = split.participants.find(p => p.userId === participantId);
+       if (participant && participant.status === 'pending') {
+          const updatedParticipants = split.participants.map((p: SplitParticipant) =>
+             p.userId === participantId ? { ...p, status: undefined } : p
+          );
+          promises.push(this.supabase.client.from('split_expenses').update({ participants: updatedParticipants }).eq('id', originalSplitId));
+       }
     }
+
+    if (promises.length > 0) {
+       const results = await Promise.all(promises);
+       if (results.some(r => r.error)) {
+           return false;
+       }
+       this.loadData(true);
+       return true;
+    }
+    return false;
   }
 
   async updateSplit(split: SplitExpense, silent: boolean = false, skipValidation: boolean = false) {

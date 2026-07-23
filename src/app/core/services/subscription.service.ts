@@ -31,6 +31,10 @@ export class SubscriptionService {
   // Computed: What is the current month string 'YYYY-MM'
   readonly currentMonthStr = signal<string>(this.getCurrentMonthString());
 
+  readonly totalMonthlyAmount = computed(() => {
+    return this.subscriptions().reduce((total, sub) => total + sub.amount, 0);
+  });
+
   readonly upcomingSubscriptions = computed(() => {
     const monthStr = this.currentMonthStr();
     return [...this.subscriptions()]

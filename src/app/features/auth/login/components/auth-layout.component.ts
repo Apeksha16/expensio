@@ -16,7 +16,7 @@ import { Location } from '@angular/common';
       @if (isMpinScreen()) {
         <!-- Top Box for MPIN Screens -->
         <div
-          class="max-w-md w-full bg-white p-6 pt-10 rounded-none border-2 border-black relative flex flex-col items-center justify-center mb-4"
+          class="max-w-md w-full bg-white p-6 pt-10 rounded-2xl border-2 border-black relative flex flex-col items-center justify-center mb-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]"
         >
           <button
             (click)="goBack()"
@@ -47,7 +47,7 @@ import { Location } from '@angular/common';
 
       <!-- Bottom/Main Box -->
       <div
-        class="max-w-md w-full bg-white p-8 rounded-none border-2 border-black relative overflow-hidden flex flex-col"
+        class="max-w-md w-full bg-white p-8 rounded-2xl border-2 border-black relative overflow-hidden flex flex-col shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]"
       >
         @if (!isMpinScreen()) {
           <!-- Back button for non-initial, non-MPIN screens -->

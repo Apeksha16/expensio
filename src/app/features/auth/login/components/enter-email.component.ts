@@ -41,7 +41,7 @@ import { KeyboardService } from '../../../../core/services/keyboard.service';
           <div class="flex flex-col gap-2">
             <div class="relative w-full pb-6">
               <div
-                class="w-full relative flex items-center bg-gray-50 border-2 border-black transition-colors"
+                class="flex items-center bg-gray-50 border-2 border-black rounded-xl focus-within:bg-white focus-within:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus-within:-translate-y-1 transition-all relative"
                 [class.border-red-500]="emailError()"
               >
                 <input
