@@ -118,7 +118,7 @@ import { ToastService } from '../../core/services/toast.service';
                         ₹{{ split.total_amount % 1 === 0 ? (split.total_amount | number: '1.0-0') : (split.total_amount | number: '1.2-2') }}
                       </span>
                     </div>
-                    <div class="flex flex-col mt-1 w-full gap-2 border-t border-gray-100 pt-2">
+                    <div class="flex flex-col mt-1 w-full gap-2 pt-2">
                       @for (bal of getExpenseBalances(split); track bal.participantId) {
                         <div class="flex justify-between items-center w-full gap-2">
                           <span class="text-[9px] font-extrabold text-gray-500 uppercase tracking-widest truncate min-w-0">
@@ -198,7 +198,7 @@ import { ToastService } from '../../core/services/toast.service';
                       {{ group.members.length }} members
                     </span>
                     
-                    <div class="border-t border-gray-100 pt-2 mt-1 w-full flex items-center">
+                    <div class=" pt-2 mt-1 w-full flex items-center">
                       @if (getGroupBalance(group.id).net > 0) {
                         <span class="text-[10px] font-black text-emerald-500 uppercase tracking-widest">
                           You are owed ₹{{ getGroupBalance(group.id).net | number: '1.0-2' }}

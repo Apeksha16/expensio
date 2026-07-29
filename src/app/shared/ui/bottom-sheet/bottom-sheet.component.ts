@@ -68,8 +68,8 @@ import { SafeInputDirective } from '../safe-input.directive';
         appSwipeToClose
         (swipeClose)="close()"
         @slideUp
-        class="fixed bottom-0 left-0 right-0 bg-white z-[70] 
-               max-h-[95vh] overflow-y-auto overscroll-none flex flex-col rounded-t-3xl shadow-2xl border-t border-gray-100"
+        class="fixed bottom-0 left-0 right-0 z-[70] 
+               max-h-[95vh] overflow-y-auto overscroll-none flex flex-col rounded-t-3xl shadow-2xl"
       >
         <!-- Header -->
         <div
@@ -84,7 +84,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                 type="button"
                 (click)="delete()"
                 [disabled]="isDeleting() || isSaving()"
-                class="w-9 h-9 bg-white/20 hover:bg-red-600 transition-all rounded-full flex items-center justify-center text-white disabled:opacity-50 active:scale-95"
+                class="w-9 h-9 text-white/80 hover:text-white hover:bg-white/10 hover:bg-red-600 transition-all rounded-full flex items-center justify-center text-white disabled:opacity-50 active:scale-95"
               >
                 @if (!isDeleting()) {
                   <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -191,7 +191,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                   }
                 </div>
               </div>
-            } @else if (localBudgets().length > 0) {
+            } @else {
               <div class="flex flex-col gap-1.5">
                 <label class="text-[11px] font-bold text-gray-500 tracking-wider uppercase"
                   >Budget</label
@@ -382,14 +382,18 @@ export class BottomSheetComponent implements OnInit {
       },
     ];
     if (this.localBudgets().length === 0) return defaultCats;
-    return this.localBudgets()
-      .filter((b) => b.id !== 'virtual-others')
-      .map((b) => ({
+    return this.localBudgets().map((b) => {
+      let iconPath = b.icon_path;
+      if (b.id === 'virtual-others') {
+        iconPath = 'M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4';
+      }
+      return {
         name: b.name,
         path:
-          b.icon_path ||
+          iconPath ||
           'M20 12v10H4V12 M2 7h20v5H2z M12 22V7 M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z',
-      }));
+      };
+    });
   });
 
   constructor() {

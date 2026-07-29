@@ -76,7 +76,7 @@ import { ConfirmService } from '../../../core/services/confirm.service';
                     ₹{{ split.total_amount | number: '1.0-2' }}
                   </span>
                 </div>
-                <div class="flex flex-col mt-1 w-full gap-2 border-t border-gray-100 pt-2">
+                <div class="flex flex-col mt-1 w-full gap-2 pt-2">
                   @for (bal of getExpenseBalances(split); track bal.participantId) {
                     <div class="flex justify-between items-center w-full gap-2">
                       <span class="text-[9px] font-extrabold text-gray-500 uppercase tracking-widest truncate min-w-0">

@@ -49,8 +49,8 @@ import { Router } from '@angular/router';
         @slideUp
         appSwipeToClose
         (swipeClose)="close()"
-        class="fixed bottom-0 left-0 right-0 bg-white z-[90] 
-               max-h-[80vh] overflow-y-auto overscroll-none flex flex-col rounded-t-3xl shadow-2xl border-t border-gray-100"
+        class="fixed bottom-0 left-0 right-0 z-[90] 
+               max-h-[80vh] overflow-y-auto overscroll-none flex flex-col rounded-t-3xl shadow-2xl"
       >
         <div
           class="flex justify-between items-center py-4 px-6 rounded-t-3xl text-white sticky top-0 z-10 shadow-sm transition-colors duration-300"
@@ -59,7 +59,7 @@ import { Router } from '@angular/router';
           <h2 class="text-lg font-bold tracking-wide text-white">Select Month</h2>
           <button
             (click)="close()"
-            class="w-8 h-8 flex items-center justify-center rounded-full text-white bg-white/20 transition-all active:scale-95"
+            class="w-8 h-8 flex items-center justify-center rounded-full text-white text-white/80 hover:text-white hover:bg-white/10 transition-all active:scale-95"
           >
             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path

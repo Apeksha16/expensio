@@ -60,7 +60,7 @@ import { HapticService } from '../../../core/services/haptic.service';
           <div
             appSwipeToClose
             (closeSwipe)="close()"
-            class="pointer-events-auto bg-white rounded-t-3xl p-6 shadow-2xl flex flex-col max-h-[90vh] overflow-y-auto border-t border-gray-100"
+            class="pointer-events-auto bg-white rounded-t-3xl p-6 shadow-2xl flex flex-col max-h-[90vh] overflow-y-auto"
           >
             <!-- Handle bar -->
             <div class="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-4 flex-shrink-0"></div>

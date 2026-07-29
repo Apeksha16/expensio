@@ -6,6 +6,7 @@ import {
   LedgerEntry,
   LedgerSubTransaction,
 } from '../../../core/services/ledger.service';
+import { ConfirmService } from '../../../core/services/confirm.service';
 
 @Component({
   selector: 'app-ledger-details',
@@ -84,7 +85,7 @@ import {
 
             @if (ledgerBalance() !== 0) {
               <div class="mb-6 flex gap-3">
-                @if (ledgerBalance() > 0) {
+                @if (ledgerBalance() < 0) {
                   <button
                     (click)="settleBalance('in')"
                     class="flex-1 bg-white hover:bg-emerald-50 text-black p-3 font-black text-xs uppercase tracking-widest transition-all rounded-xl flex items-center justify-center gap-2 border-2 border-black active:scale-[0.98] shadow-[4px_4px_0px_0px_rgba(16,185,129,1)]"
@@ -116,8 +117,10 @@ import {
 
               @if (transactions().length > 0) {
                 @for (tx of transactions(); track tx.id) {
-                  <button
+                  <div
                     (click)="editTransaction(tx)"
+                    role="button"
+                    tabindex="0"
                     class="w-full bg-white rounded-2xl p-4 flex items-center justify-between gap-4 text-left shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:scale-[0.99] transition-all border-2 border-black"
                   >
                     <div class="flex flex-col gap-1 flex-1 min-w-0 pr-4">
@@ -135,7 +138,7 @@ import {
                         {{ tx.type === 'in' ? '+' : '-' }}₹{{ tx.amount | number: '1.0-0' }}
                       </span>
                     </div>
-                  </button>
+                  </div>
                 }
               } @else {
                 <div class="flex-1 flex flex-col items-center justify-center p-8 text-center mt-4 h-[200px]">
@@ -173,6 +176,7 @@ export class LedgerDetailsComponent {
   route = inject(ActivatedRoute);
   router = inject(Router);
   ledgerService = inject(LedgerService);
+  confirmService = inject(ConfirmService);
 
   ledgerId = computed(() => this.route.snapshot.paramMap.get('id'));
 
@@ -198,12 +202,24 @@ export class LedgerDetailsComponent {
     const balance = Math.abs(this.ledgerBalance());
     if (balance === 0) return;
 
-    await this.ledgerService.addSubEntry({
-      ledger_id: parent.id,
-      amount: balance,
-      type: type,
-      purpose: 'Settlement',
-      date: new Date().toISOString(),
+    this.confirmService.open({
+      title: 'Settle Balance',
+      message: `How much are you settling now?`,
+      confirmText: 'Settle',
+      cancelText: 'Cancel',
+      showInput: true,
+      inputValue: balance,
+      inputMax: balance,
+      onConfirm: async (amount?: number) => {
+        const finalAmount = amount && amount > 0 ? amount : balance;
+        await this.ledgerService.addSubEntry({
+          ledger_id: parent.id,
+          amount: finalAmount,
+          type: type,
+          purpose: 'Settled',
+          date: new Date().toISOString(),
+        });
+      }
     });
   }
 

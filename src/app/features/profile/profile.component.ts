@@ -17,279 +17,183 @@ import { environment } from '../../../environments/environment';
   imports: [CommonModule, FormsModule, SafeInputDirective],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
-    <div class="h-full overflow-y-auto bg-gray-50 px-4 pt-4 flex flex-col gap-8 pb-28">
-      <!-- Top Selected Avatar & Selection List -->
-      <div class="flex flex-col items-center gap-6 mt-4">
-        <div
-          class="w-32 h-32 border-2 border-profile-dark rounded-none bg-gray-200 overflow-hidden shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
-        >
-          <img
-            [src]="getSelectedAvatarUrl()"
-            alt="Active Avatar"
-            class="w-full h-full object-cover"
-          />
+    <div class="h-full overflow-y-auto bg-white px-4 pt-4 flex flex-col gap-6 pb-28">
+      
+      <!-- Card 1: Avatar & Info -->
+      <div class="bg-white border-2 border-black rounded-2xl p-5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col gap-6">
+        <!-- Avatar Selection -->
+        <div class="flex flex-col items-center gap-4">
+          <div class="w-24 h-24 border-2 border-black rounded-2xl bg-gray-100 overflow-hidden shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+            <img [src]="getSelectedAvatarUrl()" alt="Active Avatar" class="w-full h-full object-cover" />
+          </div>
+          <div class="w-full">
+            <h3 class="text-[10px] font-black tracking-widest uppercase text-black mb-2">Choose Avatar</h3>
+            <div class="flex overflow-x-auto gap-3 pb-2 no-scrollbar">
+              @for (avatar of authService.avatars; track avatar) {
+                <button
+                  (click)="selectAvatar(avatar.id)"
+                  class="flex-shrink-0 w-16 h-16 border-2 rounded-xl flex items-center justify-center transition-all overflow-hidden"
+                  [ngClass]="
+                    pendingProfile().avatarId === avatar.id
+                      ? 'border-black scale-105 bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'
+                      : 'border-black bg-gray-100 opacity-70 hover:opacity-100'
+                  "
+                >
+                  <img [src]="avatar.url" alt="Avatar" class="w-full h-full object-cover" />
+                </button>
+              }
+            </div>
+          </div>
         </div>
 
-        <div class="w-full flex flex-col gap-3">
-          <h3 class="text-xs font-extrabold tracking-widest uppercase text-black">Choose Avatar</h3>
-          <div class="flex overflow-x-auto gap-4 py-2 px-1 no-scrollbar">
-            @for (avatar of authService.avatars; track avatar) {
-              <button
-                (click)="selectAvatar(avatar.id)"
-                class="flex-shrink-0 w-20 h-20 border-2 rounded-none flex items-center justify-center transition-transform duration-300 overflow-hidden"
-                [ngClass]="
-                  pendingProfile().avatarId === avatar.id
-                    ? 'border-black scale-110 bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]'
-                    : 'border-transparent hover:scale-105 bg-gray-200'
-                "
-              >
-                <img [src]="avatar.url" alt="Avatar" class="w-full h-full object-cover" />
-              </button>
-            }
+        <!-- Inputs -->
+        <div class="flex flex-col gap-4 mt-2">
+          <div class="flex flex-col gap-1">
+            <label class="text-[10px] font-black text-black tracking-widest uppercase">Full Name</label>
+            <input type="text" [ngModel]="pendingProfile().name" (ngModelChange)="updateField('name', $event)"
+              class="w-full bg-white border-2 border-black text-black font-bold text-sm rounded-xl focus:ring-0 focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] block p-3 outline-none transition-all placeholder-gray-400"
+              placeholder="e.g. Jane Doe" appSafeInput />
+          </div>
+          
+          <div class="flex flex-col gap-1">
+            <label class="text-[10px] font-black text-gray-500 tracking-widest uppercase">Username</label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span class="text-gray-400 font-bold">@</span>
+              </div>
+              <input type="text" [value]="pendingProfile().username" disabled
+                class="w-full bg-gray-100 border-2 border-gray-300 text-gray-500 font-bold text-sm rounded-xl block p-3 pl-8 outline-none opacity-80 cursor-not-allowed" />
+            </div>
+          </div>
+          
+          <div class="flex flex-col gap-1">
+            <label class="text-[10px] font-black text-gray-500 tracking-widest uppercase">Email</label>
+            <input type="text" [value]="pendingProfile().email" disabled
+              class="w-full bg-gray-100 border-2 border-gray-300 text-gray-500 font-bold text-sm rounded-xl block p-3 outline-none opacity-80 cursor-not-allowed" />
           </div>
         </div>
       </div>
 
-      <!-- Form Elements -->
-      <div class="flex flex-col gap-6">
-        <!-- Editable Name -->
-        <div class="flex flex-col gap-1">
-          <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
-            >Full Name</label
-          >
-          <div class="relative group">
-            <input
-              type="text"
-              [ngModel]="pendingProfile().name"
-              (ngModelChange)="updateField('name', $event)"
-              class="w-full bg-white border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 focus:border-black hover:border-gray-300 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans"
-              placeholder="e.g. Jane Doe"
-              appSafeInput
-            />
-          </div>
+      <!-- Card 2: Account Balances -->
+      <div class="bg-blue-50 border-2 border-black rounded-2xl p-5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col gap-4">
+        <div class="flex items-center justify-between mb-1">
+          <h3 class="text-xs font-black tracking-widest uppercase text-blue-900">Account Balances</h3>
+          <span class="text-[9px] font-bold text-blue-700 bg-blue-200 border-2 border-blue-900 px-2 py-1 rounded-md uppercase shadow-[2px_2px_0px_0px_rgba(30,58,138,1)]">3 Types</span>
         </div>
 
-        <!-- Non-editable Username -->
         <div class="flex flex-col gap-1">
-          <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
-            >Username</label
-          >
-          <div class="relative group">
+          <label class="text-[10px] font-black text-blue-900 tracking-widest uppercase">Salary / Monthly</label>
+          <div class="relative">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <span class="text-gray-500 font-medium">@</span>
+              <span class="text-blue-900 font-bold">₹</span>
             </div>
-            <input
-              type="text"
-              [value]="pendingProfile().username"
-              disabled
-              class="w-full bg-gray-50 border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans pl-8 opacity-50 cursor-not-allowed"
-            />
+            <input type="text" inputmode="numeric" [ngModel]="formattedSalary" (ngModelChange)="formatSalary($event)"
+              class="w-full bg-white border-2 border-black text-black font-black text-sm rounded-xl focus:ring-0 focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] block p-3 pl-8 pr-12 outline-none transition-all placeholder-gray-400"
+              placeholder="0" />
+            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+              <span class="text-gray-400 text-[10px] font-bold">INR</span>
+            </div>
           </div>
         </div>
-
-        <!-- Non-editable Email -->
+        
         <div class="flex flex-col gap-1">
-          <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
-            >Email</label
-          >
-          <div class="relative group">
-            <input
-              type="text"
-              [value]="pendingProfile().email"
-              disabled
-              class="w-full bg-gray-50 border-2 border-gray-200 text-gray-900 text-sm rounded-none focus:ring-0 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans opacity-50 cursor-not-allowed"
-            />
-          </div>
-        </div>
-
-        <!-- Section: Account Balances (3 Types) -->
-        <div class="border-t-2 border-black pt-5 flex flex-col gap-4">
-          <div class="flex items-center justify-between">
-            <h3 class="text-xs font-black tracking-widest uppercase text-sky-600">
-              Account Balances (3 Types)
-            </h3>
-            <span class="text-[10px] font-bold text-gray-400">Set initial balances</span>
-          </div>
-
-          <!-- 1. Salary Account / Monthly Salary -->
-          <div class="flex flex-col gap-1">
-            <label class="text-[11px] font-extrabold text-gray-700 tracking-widest uppercase flex items-center gap-1.5">
-              <span>Salary Account / Monthly Salary</span>
-            </label>
-            <div class="relative group">
-              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <span class="text-gray-500 font-bold">₹</span>
-              </div>
-              <input
-                type="text"
-                inputmode="numeric"
-                [ngModel]="formattedSalary"
-                (ngModelChange)="formatSalary($event)"
-                class="w-full bg-white border-2 border-black text-gray-900 text-sm font-bold rounded-none focus:ring-0 focus:border-sky-500 hover:border-gray-400 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans pl-8 pr-12"
-                placeholder="0"
-              />
-              <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                <span class="text-gray-400 text-xs font-bold">INR</span>
-              </div>
+          <label class="text-[10px] font-black text-blue-900 tracking-widest uppercase">Cash Account</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <span class="text-blue-900 font-bold">₹</span>
             </div>
-          </div>
-
-          <!-- 2. Cash Account Balance -->
-          <div class="flex flex-col gap-1">
-            <label class="text-[11px] font-extrabold text-gray-700 tracking-widest uppercase flex items-center gap-1.5">
-              <span>Cash Account Balance</span>
-            </label>
-            <div class="relative group">
-              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <span class="text-gray-500 font-bold">₹</span>
-              </div>
-              <input
-                type="text"
-                inputmode="numeric"
-                [ngModel]="formattedCash"
-                (ngModelChange)="formatCash($event)"
-                class="w-full bg-white border-2 border-black text-gray-900 text-sm font-bold rounded-none focus:ring-0 focus:border-amber-500 hover:border-gray-400 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans pl-8 pr-12"
-                placeholder="0"
-              />
-              <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                <span class="text-gray-400 text-xs font-bold">INR</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- 3. Savings Account Balance -->
-          <div class="flex flex-col gap-1">
-            <label class="text-[11px] font-extrabold text-gray-700 tracking-widest uppercase flex items-center gap-1.5">
-              <span>Savings Account Balance</span>
-            </label>
-            <div class="relative group">
-              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <span class="text-gray-500 font-bold">₹</span>
-              </div>
-              <input
-                type="text"
-                inputmode="numeric"
-                [ngModel]="formattedSavings"
-                (ngModelChange)="formatSavings($event)"
-                class="w-full bg-white border-2 border-black text-gray-900 text-sm font-bold rounded-none focus:ring-0 focus:border-emerald-500 hover:border-gray-400 block p-2.5 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation font-sans pl-8 pr-12"
-                placeholder="0"
-              />
-              <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                <span class="text-gray-400 text-xs font-bold">INR</span>
-              </div>
+            <input type="text" inputmode="numeric" [ngModel]="formattedCash" (ngModelChange)="formatCash($event)"
+              class="w-full bg-white border-2 border-black text-black font-black text-sm rounded-xl focus:ring-0 focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] block p-3 pl-8 pr-12 outline-none transition-all placeholder-gray-400"
+              placeholder="0" />
+            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+              <span class="text-gray-400 text-[10px] font-bold">INR</span>
             </div>
           </div>
         </div>
-
-        <!-- Preferences Section -->
-        <div class="border-t-2 border-black pt-4 flex flex-col gap-4">
-          <!-- Mask Values Preference -->
-          <div class="flex items-center justify-between">
-            <div class="flex flex-col">
-              <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
-                >Mask Values</label
-              >
-              <span class="text-[10px] font-semibold text-gray-500 mt-0.5"
-                >Hide dashboard numbers on every visit</span
-              >
+        
+        <div class="flex flex-col gap-1">
+          <label class="text-[10px] font-black text-blue-900 tracking-widest uppercase">Savings Account</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <span class="text-blue-900 font-bold">₹</span>
             </div>
-            <button
-              type="button"
-              (click)="toggleMaskValues()"
-              class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-none border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
-              [ngClass]="pendingProfile().maskValues ? 'bg-black' : 'bg-gray-200'"
-              role="switch"
-              [attr.aria-checked]="pendingProfile().maskValues"
-            >
-              <span
-                aria-hidden="true"
-                class="pointer-events-none inline-block h-5 w-5 transform rounded-none bg-white shadow ring-0 transition duration-200 ease-in-out"
-                [ngClass]="pendingProfile().maskValues ? 'translate-x-5' : 'translate-x-0'"
-              ></span>
+            <input type="text" inputmode="numeric" [ngModel]="formattedSavings" (ngModelChange)="formatSavings($event)"
+              class="w-full bg-white border-2 border-black text-black font-black text-sm rounded-xl focus:ring-0 focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] block p-3 pl-8 pr-12 outline-none transition-all placeholder-gray-400"
+              placeholder="0" />
+            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+              <span class="text-gray-400 text-[10px] font-bold">INR</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3: Preferences -->
+      <div class="bg-violet-50 border-2 border-black rounded-2xl p-5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col gap-5">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xs font-black tracking-widest uppercase text-violet-900">Preferences</h3>
+        </div>
+
+        <div class="flex items-center justify-between bg-white border-2 border-black p-3 rounded-xl shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+          <div class="flex flex-col">
+            <label class="text-[10px] font-black text-black tracking-widest uppercase">Mask Values</label>
+            <span class="text-[9px] font-bold text-gray-500 mt-0.5">Hide dashboard numbers</span>
+          </div>
+          <button type="button" (click)="toggleMaskValues()"
+            class="relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full border-2 border-black transition-colors duration-200 ease-in-out focus:outline-none"
+            [ngClass]="pendingProfile().maskValues ? 'bg-emerald-400' : 'bg-gray-200'" role="switch"
+            [attr.aria-checked]="pendingProfile().maskValues">
+            <span aria-hidden="true"
+              class="pointer-events-none inline-block h-5 w-5 mt-0.5 ml-0.5 transform rounded-full border-2 border-black bg-white transition duration-200 ease-in-out"
+              [ngClass]="pendingProfile().maskValues ? 'translate-x-5' : 'translate-x-0'"></span>
+          </button>
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <div class="flex flex-col">
+            <label class="text-[10px] font-black text-black tracking-widest uppercase">Email Reports</label>
+            <span class="text-[9px] font-bold text-gray-500 mt-0.5">Automated expense summaries</span>
+          </div>
+          <div class="flex border-2 border-black rounded-xl overflow-hidden bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+            <button (click)="updateField('emailReportFrequency', 'none')"
+              [class.bg-black]="pendingProfile().emailReportFrequency === 'none'"
+              [class.text-white]="pendingProfile().emailReportFrequency === 'none'"
+              [class.text-black]="pendingProfile().emailReportFrequency !== 'none'"
+              class="flex-1 px-2 py-2.5 text-[10px] font-black uppercase tracking-widest transition-colors text-center border-r-2 border-black">
+              Off
+            </button>
+            <button (click)="updateField('emailReportFrequency', 'weekly')"
+              [class.bg-black]="pendingProfile().emailReportFrequency === 'weekly'"
+              [class.text-white]="pendingProfile().emailReportFrequency === 'weekly'"
+              [class.text-black]="pendingProfile().emailReportFrequency !== 'weekly'"
+              class="flex-1 px-2 py-2.5 text-[10px] font-black uppercase tracking-widest transition-colors text-center border-r-2 border-black">
+              Weekly
+            </button>
+            <button (click)="updateField('emailReportFrequency', 'monthly')"
+              [class.bg-black]="pendingProfile().emailReportFrequency === 'monthly'"
+              [class.text-white]="pendingProfile().emailReportFrequency === 'monthly'"
+              [class.text-black]="pendingProfile().emailReportFrequency !== 'monthly'"
+              class="flex-1 px-2 py-2.5 text-[10px] font-black uppercase tracking-widest transition-colors text-center">
+              Monthly
             </button>
           </div>
-
-          <!-- Configure Email Reports -->
-          <div class="flex flex-col gap-3">
-            <div class="flex flex-col">
-              <label class="text-[11px] font-semibold text-gray-500 tracking-widest uppercase"
-                >Email Reports</label
-              >
-              <span class="text-[10px] font-semibold text-gray-500 mt-0.5"
-                >Receive automated summaries of your expenses</span
-              >
-            </div>
-            <div
-              class="flex border-2 border-black rounded-none overflow-hidden text-[11px] font-bold w-full"
-            >
-              <button
-                (click)="updateField('emailReportFrequency', 'none')"
-                [class.bg-black]="pendingProfile().emailReportFrequency === 'none'"
-                [class.text-white]="pendingProfile().emailReportFrequency === 'none'"
-                [class.text-gray-500]="pendingProfile().emailReportFrequency !== 'none'"
-                [class.bg-white]="pendingProfile().emailReportFrequency !== 'none'"
-                class="px-3 py-2.5 transition-colors text-center"
-              >
-                Off
-              </button>
-              <button
-                (click)="updateField('emailReportFrequency', 'weekly')"
-                [class.bg-black]="pendingProfile().emailReportFrequency === 'weekly'"
-                [class.text-white]="pendingProfile().emailReportFrequency === 'weekly'"
-                [class.text-gray-500]="pendingProfile().emailReportFrequency !== 'weekly'"
-                [class.bg-white]="pendingProfile().emailReportFrequency !== 'weekly'"
-                class="flex-1 py-2.5 border-l-2 border-r-2 border-black transition-colors text-center"
-              >
-                Weekly
-              </button>
-              <button
-                (click)="updateField('emailReportFrequency', 'monthly')"
-                [class.bg-black]="pendingProfile().emailReportFrequency === 'monthly'"
-                [class.text-white]="pendingProfile().emailReportFrequency === 'monthly'"
-                [class.text-gray-500]="pendingProfile().emailReportFrequency !== 'monthly'"
-                [class.bg-white]="pendingProfile().emailReportFrequency !== 'monthly'"
-                class="flex-1 py-2.5 transition-colors text-center"
-              >
-                Monthly
-              </button>
-            </div>
-          </div>
         </div>
-
       </div>
 
       <!-- Update Button -->
-      <button
-        [disabled]="!isDirty() || isUpdating()"
-        (click)="handleUpdate()"
-        class="w-full bg-slate-900 text-white p-4 font-black text-sm tracking-widest uppercase transition-all rounded-2xl shadow-xl hover:bg-slate-800 active:scale-95 mt-2 disabled:opacity-50 disabled:bg-slate-300 disabled:shadow-none disabled:cursor-not-allowed flex items-center justify-center gap-2"
-      >
-        @if (isUpdating()) {
-          <svg
-            class="animate-spin h-5 w-5 text-white"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              class="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              stroke-width="4"
-            ></circle>
-            <path
-              class="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            ></path>
-          </svg>
-          Updating Profile & Accounts...
-        } @else {
-          Update Profile & Accounts
-        }
-      </button>
+      <div class="mt-2">
+        <button [disabled]="!isDirty() || isUpdating()" (click)="handleUpdate()"
+          class="w-full bg-emerald-400 text-black border-2 border-black p-4 font-black text-sm tracking-widest uppercase transition-all rounded-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-emerald-300 active:shadow-none active:translate-y-[4px] active:translate-x-[4px] disabled:opacity-50 disabled:bg-gray-200 disabled:shadow-none disabled:translate-y-0 disabled:translate-x-0 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+          @if (isUpdating()) {
+            <svg class="animate-spin h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Saving...
+          } @else {
+            Save Changes
+          }
+        </button>
+      </div>
     </div>
   `,
 })

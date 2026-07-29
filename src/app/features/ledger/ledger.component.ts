@@ -2,6 +2,7 @@ import { Component, inject, signal, computed, ChangeDetectionStrategy } from '@a
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { LedgerService, LedgerEntry } from '../../core/services/ledger.service';
+import { ConfirmService } from '../../core/services/confirm.service';
 
 @Component({
   selector: 'app-ledger',
@@ -43,7 +44,7 @@ import { LedgerService, LedgerEntry } from '../../core/services/ledger.service';
       </div>
       
       <!-- Ledger Entry List -->
-      <div class="flex-1 flex flex-col gap-4 pb-28 mt-1">
+      <div class="flex-1 flex flex-col gap-4 pb-28 mt-1 overflow-y-auto overflow-x-hidden no-scrollbar">
         @if (ledgerService.isLoading()) {
           @for (i of [1, 2, 3]; track i) {
             <div class="w-full bg-gray-100 rounded-2xl p-4 flex flex-col gap-4 border-2 border-gray-200 animate-pulse h-[130px]">
@@ -66,8 +67,10 @@ import { LedgerService, LedgerEntry } from '../../core/services/ledger.service';
         } @else {
           @if (filteredEntries().length > 0) {
             @for (entry of filteredEntries(); track entry.id) {
-              <button
+              <div
                 (click)="viewDetails(entry.id)"
+                role="button"
+                tabindex="0"
                 class="w-full bg-white rounded-2xl p-4 flex flex-col gap-3 text-left shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] transition-all active:scale-[0.99] border-2 border-black relative overflow-hidden"
               >
                 <!-- Top Row: Avatar, Name, Amount -->
@@ -130,7 +133,7 @@ import { LedgerService, LedgerEntry } from '../../core/services/ledger.service';
                     }
                   </div>
                 </div>
-              </button>
+              </div>
             }
           } @else {
             <div class="flex-1 flex flex-col items-center justify-center p-8 text-center h-[300px]">
@@ -153,6 +156,7 @@ import { LedgerService, LedgerEntry } from '../../core/services/ledger.service';
 export class LedgerComponent {
   ledgerService = inject(LedgerService);
   router = inject(Router);
+  confirmService = inject(ConfirmService);
 
   searchQuery = signal('');
   activeFilter = signal<'all' | 'in' | 'out'>('all');
@@ -200,12 +204,24 @@ export class LedgerComponent {
     const amountToSettle = Math.abs(balance);
     const type = balance < 0 ? 'in' : 'out';
 
-    await this.ledgerService.addSubEntry({
-      ledger_id: entry.id,
-      amount: amountToSettle,
-      type: type,
-      purpose: 'Settled',
-      date: new Date().toISOString(),
+    this.confirmService.open({
+      title: 'Settle Balance',
+      message: `How much are you settling now?`,
+      confirmText: 'Settle',
+      cancelText: 'Cancel',
+      showInput: true,
+      inputValue: amountToSettle,
+      inputMax: amountToSettle,
+      onConfirm: async (amount?: number) => {
+        const finalAmount = amount && amount > 0 ? amount : amountToSettle;
+        await this.ledgerService.addSubEntry({
+          ledger_id: entry.id,
+          amount: finalAmount,
+          type: type,
+          purpose: 'Settled',
+          date: new Date().toISOString(),
+        });
+      }
     });
   }
 }

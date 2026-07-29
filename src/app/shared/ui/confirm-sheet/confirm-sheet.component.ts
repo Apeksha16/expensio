@@ -1,4 +1,4 @@
-import { Component, inject, signal, effect, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, signal, effect, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { animate, style, transition, trigger } from '@angular/animations';
@@ -38,7 +38,7 @@ import { SafeInputDirective } from '../safe-input.directive';
       transition(':leave', [animate('300ms ease-in', style({ opacity: 0 }))]),
     ]),
   ],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (confirmService.isOpen()) {
       <!-- Backdrop -->
@@ -52,7 +52,7 @@ import { SafeInputDirective } from '../safe-input.directive';
         @slideUp
         appSwipeToClose
         (swipeClose)="close()"
-        class="fixed bottom-0 left-0 right-0 bg-white z-[110] p-6 pb-8 flex flex-col gap-6 rounded-t-3xl shadow-2xl border-t border-gray-100"
+        class="fixed bottom-0 left-0 right-0 z-[110] bg-white p-6 pb-8 flex flex-col gap-6 rounded-t-3xl shadow-2xl"
       >
         <div class="flex flex-col gap-2">
           <h2 class="text-xl font-bold tracking-tight text-gray-900">
@@ -126,6 +126,7 @@ export class ConfirmSheetComponent {
   confirmService = inject(ConfirmService);
   isProcessing = signal(false);
   currentAmount?: number;
+  cdr = inject(ChangeDetectorRef);
 
   constructor() {
     effect(() => {
@@ -136,6 +137,7 @@ export class ConfirmSheetComponent {
           // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
           setTimeout(() => {
             this.currentAmount = config.inputValue;
+            this.cdr.markForCheck();
           });
         } else {
           this.currentAmount = undefined;

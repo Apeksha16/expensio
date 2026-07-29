@@ -63,7 +63,7 @@ import { SafeInputDirective } from '../safe-input.directive';
         appSwipeToClose
         (swipeClose)="close()"
         @slideUp
-        class="fixed bottom-0 left-0 right-0 bg-white z-[70] max-h-[95vh] overflow-y-auto overscroll-none flex flex-col rounded-t-3xl shadow-2xl border-t border-gray-100"
+        class="fixed bottom-0 left-0 right-0 z-[70] max-h-[95vh] overflow-y-auto overscroll-none flex flex-col rounded-t-3xl shadow-2xl"
       >
         <!-- Header -->
         <div
@@ -78,7 +78,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                 type="button"
                 (click)="onDelete()"
                 [disabled]="isDeleting() || isSaving()"
-                class="w-9 h-9 bg-white/20 hover:bg-red-600 transition-all rounded-full flex items-center justify-center text-white disabled:opacity-50 active:scale-95"
+                class="w-9 h-9 text-white/80 hover:text-white hover:bg-white/10 hover:bg-red-600 transition-all rounded-full flex items-center justify-center text-white disabled:opacity-50 active:scale-95"
               >
                 @if (!isDeleting()) {
                   <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -150,6 +150,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                 <button
                   type="button"
                   (click)="setType('in')"
+                  [class.opacity-60]="!!ledgerService.editingEntry()?.id"
                   class="flex-1 font-bold uppercase tracking-wide rounded-xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-3 text-xs min-h-[48px] border shadow-sm"
                   [ngClass]="
                     ledgerForm.get('type')?.value === 'in'
@@ -162,6 +163,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                 <button
                   type="button"
                   (click)="setType('out')"
+                  [class.opacity-60]="!!ledgerService.editingEntry()?.id"
                   class="flex-1 font-bold uppercase tracking-wide rounded-xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-3 text-xs min-h-[48px] border shadow-sm"
                   [ngClass]="
                     ledgerForm.get('type')?.value === 'out'
@@ -206,6 +208,8 @@ import { SafeInputDirective } from '../safe-input.directive';
                   formControlName="amount"
                   placeholder="0"
                   (keydown)="preventE($event)"
+                  [readonly]="!!ledgerService.editingEntry()?.id"
+                  [class.opacity-60]="!!ledgerService.editingEntry()?.id"
                   class="w-full bg-gray-50 border border-gray-200 text-gray-900 font-bold text-base rounded-xl focus:bg-white focus:border-ledger-primary focus:ring-4 focus:ring-ledger-primary/15 block p-3 outline-none transition-all placeholder-gray-400 min-h-[48px] touch-manipulation pl-8 shadow-sm"
                 />
               </div>
@@ -363,6 +367,7 @@ export class LedgerSheetComponent implements OnInit {
   }
 
   setType(type: 'in' | 'out') {
+    if (this.ledgerService.editingEntry()?.id) return;
     this.haptic.impactLight();
     this.ledgerForm.patchValue({ type });
   }

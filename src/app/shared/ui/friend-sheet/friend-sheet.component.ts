@@ -75,8 +75,8 @@ import { SafeInputDirective } from '../safe-input.directive';
         @slideUp
         appSwipeToClose
         (swipeClose)="close()"
-        class="fixed bottom-0 left-0 right-0 bg-white z-[70] 
-             max-h-[95vh] flex flex-col rounded-t-3xl shadow-2xl border-t border-gray-100"
+        class="fixed bottom-0 left-0 right-0 z-[70] 
+             max-h-[95vh] flex flex-col rounded-t-3xl shadow-2xl"
       >
         <!-- Header -->
         <div

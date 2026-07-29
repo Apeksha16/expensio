@@ -540,10 +540,15 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
               @for (expense of recentExpenses(); track expense.id) {
                 <button
                   (click)="editExpense(expense)"
-                  class="w-full bg-white border-2 border-black rounded-2xl p-3.5 flex justify-between items-center text-left transition-all active:scale-[0.99] cursor-pointer shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                  class="w-full bg-white border-2 border-black rounded-2xl p-3.5 flex items-center gap-3 text-left transition-all active:scale-[0.99] cursor-pointer shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
                 >
+                  <!-- Icon -->
+                  <div class="w-10 h-10 rounded-xl border-2 border-black flex items-center justify-center shrink-0 bg-gray-100">
+                    <span class="text-base font-black text-black">{{ expense.title.charAt(0).toUpperCase() }}</span>
+                  </div>
+
                   <!-- Details -->
-                  <div class="flex flex-col gap-1 min-w-0 pr-2">
+                  <div class="flex flex-col gap-1 min-w-0 flex-1">
                     <span class="font-extrabold text-sm text-gray-900 truncate">{{ expense.title }}</span>
                     <div class="flex items-center gap-2 flex-wrap">
                       <span class="text-[9px] font-extrabold uppercase px-2 py-0.5 bg-gray-100 text-gray-700 rounded-md border border-gray-200 truncate max-w-[130px]">
