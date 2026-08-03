@@ -19,6 +19,8 @@ import { SplitService } from '../../core/services/split.service';
 import { SupabaseService } from '../../core/services/supabase.service';
 import { GoalService } from '../../core/services/goal.service';
 import { SubscriptionService } from '../../core/services/subscription.service';
+import { BudgetService } from '../../core/services/budget.service';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-expenses',
@@ -27,100 +29,191 @@ import { SubscriptionService } from '../../core/services/subscription.service';
   host: {
     class: 'block h-full',
   },
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.Default,
   template: `
-    <div class="h-full bg-white flex flex-col relative">
-      <!-- Fixed Header Container (keeps padding consistent) -->
-      <div class="px-4 pt-4 shrink-0">
-        <!-- Header Area -->
-        <div class="bg-black text-white p-5 rounded-2xl shadow-[6px_6px_0px_0px_rgba(13,148,136,1)] flex flex-col gap-1 relative overflow-hidden">
-          <h2 class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0 opacity-80">
-            Total Expenses
-          </h2>
-          <p class="text-4xl font-extrabold tracking-tight">₹{{ getTotal() % 1 === 0 ? (getTotal() | number: '1.0-0') : (getTotal() | number: '1.2-2') }}</p>
-        </div>
-
-        <!-- Filter Row -->
-        <div class="flex justify-between items-center mt-5 mb-2">
-          <button
-            (click)="openMonthPicker()"
-            class="flex items-center gap-2 px-4 py-2 bg-white text-black border-2 border-black rounded-xl font-black text-xs uppercase tracking-widest hover:bg-gray-100 transition-colors shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:scale-[0.98]"
+    <div
+      class="h-full bg-[#FAFAFA] flex flex-col overflow-y-auto select-none font-sans"
+      (touchstart)="onTouchStart($event)"
+      (touchmove)="onTouchMove($event)"
+      (touchend)="onTouchEnd($event)"
+    >
+      <!-- Pull to Refresh Indicator -->
+      <div
+        class="w-full flex justify-center items-center overflow-hidden transition-all duration-200 ease-out"
+        [style.height.px]="refreshing() ? 60 : pullDistance()"
+      >
+        @if (refreshing()) {
+          <svg
+            class="animate-spin h-6 w-6 text-slate-800"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
           >
-            <span>{{ getActiveMonthLabel() }}</span>
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7" />
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+        } @else if (pullDistance() > 0) {
+          <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex flex-col items-center gap-1">
+            <svg
+              class="w-5 h-5 transition-transform"
+              [class.rotate-180]="pullDistance() > 60"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
             </svg>
-          </button>
-        </div>
+            {{ pullDistance() > 60 ? 'Release to refresh' : 'Pull to refresh' }}
+          </div>
+        }
       </div>
 
-      <!-- Expense List (Scrollable Area) -->
-      <div class="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar px-4 pb-28">
+      <div class="p-5 flex flex-col gap-6 pb-32">
         @if (expenseService.isLoading()) {
-          <div class="flex flex-col gap-3 mt-2">
-            @for (i of [1, 2, 3, 4, 5]; track i) {
-              <div class="w-full bg-gray-100 border-2 border-gray-200 rounded-2xl h-[76px] animate-pulse"></div>
+          <!-- Skeleton Loader -->
+          <div class="bg-white p-6 rounded-[24px] shadow-sm border border-gray-100 mb-6 relative overflow-hidden">
+            <div class="flex flex-col gap-1">
+              <div class="h-[14px] bg-slate-100 w-24 animate-pulse rounded-full"></div>
+              <div class="h-8 bg-slate-100 w-32 animate-pulse rounded-lg mt-0.5"></div>
+            </div>
+          </div>
+          
+          <div class="flex flex-col gap-3">
+            @for (i of [1,2,3,4,5]; track i) {
+              <div class="bg-white border border-gray-100 rounded-[20px] p-4 flex items-center gap-3 shadow-[0_2px_12px_rgb(0,0,0,0.03)]">
+                <div class="w-12 h-12 rounded-full bg-slate-100 animate-pulse shrink-0"></div>
+                <div class="flex flex-col gap-1.5 flex-1 min-w-0">
+                  <div class="h-4 bg-slate-100 w-32 animate-pulse rounded-full"></div>
+                  <div class="h-3 bg-slate-100 w-24 animate-pulse rounded-full"></div>
+                </div>
+                <div class="flex flex-col items-end gap-1.5 shrink-0">
+                  <div class="h-4 bg-slate-100 w-16 animate-pulse rounded-full"></div>
+                  <div class="h-2.5 bg-slate-100 w-10 animate-pulse rounded-full"></div>
+                </div>
+              </div>
             }
           </div>
         } @else {
-          @if (expenseService.expenses().length > 0) {
-            <div class="flex flex-col gap-3 mt-2">
+          <!-- Total Spend Summary Card -->
+          <div class="bg-[#5421E6] p-6 rounded-[24px] shadow-[0_8px_30px_rgb(84,33,230,0.3)] relative overflow-hidden">
+            <div class="relative z-10 flex flex-col gap-4">
+              <!-- Header & Amount -->
+              <div class="flex flex-col gap-1">
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] font-bold uppercase tracking-widest text-white/70">Total Spend</span>
+                  <span class="text-[10px] font-bold text-white bg-white/20 px-2.5 py-1 rounded-full border border-white/10 backdrop-blur-sm">
+                    {{ getActiveMonthLabel() }}
+                  </span>
+                </div>
+                <div class="flex items-baseline gap-1 mt-1">
+                  <span class="text-[36px] leading-none font-black text-white tracking-tight">
+                    {{ getTotal() | currency:'INR':'symbol':'1.0-0' }}
+                  </span>
+                  @if (monthlySalary() > 0) {
+                    <span class="text-sm font-bold text-white/60">
+                      / {{ monthlySalary() | currency:'INR':'symbol':'1.0-0' }}
+                    </span>
+                  }
+                </div>
+              </div>
+
+              <!-- Progress Bar -->
+              @if (monthlySalary() > 0) {
+                <div class="flex flex-col gap-2 mt-2">
+                  <div class="h-2 w-full bg-black/20 rounded-full overflow-hidden flex relative z-10 border border-black/10">
+                    <div
+                      class="h-full bg-emerald-400 transition-all duration-1000 ease-out"
+                      [style.width.%]="animateBars() ? progressWidths().upi : 0"
+                    ></div>
+                    <div
+                      class="h-full bg-blue-400 transition-all duration-1000 ease-out"
+                      [style.width.%]="animateBars() ? progressWidths().credit : 0"
+                    ></div>
+                    <div
+                      class="h-full bg-amber-400 transition-all duration-1000 ease-out"
+                      [style.width.%]="animateBars() ? progressWidths().cash : 0"
+                    ></div>
+                  </div>
+                  <div class="flex justify-between items-center text-[10.5px] font-semibold mt-1">
+                    <div class="flex gap-3">
+                      <span class="flex items-center gap-1.5 text-white/80"><div class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]"></div> UPI</span>
+                      <span class="flex items-center gap-1.5 text-white/80"><div class="w-2 h-2 rounded-full bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.5)]"></div> Card</span>
+                      <span class="flex items-center gap-1.5 text-white/80"><div class="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.5)]"></div> Cash</span>
+                    </div>
+                    <span class="text-white/80">
+                      {{ (progressWidths().upi + progressWidths().credit + progressWidths().cash) | number:'1.0-0' }}%
+                    </span>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Expense List -->
+          @if (expenseService.expenses().length === 0) {
+            <div class="w-full bg-[#FCFCFD] border border-dashed border-gray-200 rounded-[24px] p-10 flex flex-col items-center justify-center text-center mt-4">
+              <div class="w-16 h-16 bg-indigo-50 rounded-[16px] flex items-center justify-center mb-4">
+                <svg class="w-8 h-8 text-[#5421E6]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+              </div>
+              <h4 class="text-base font-bold text-slate-800 mb-2">No expenses found</h4>
+              <p class="text-sm text-slate-500">You haven't added any expenses for this month yet.</p>
+            </div>
+          } @else {
+            <div class="flex flex-col gap-3">
               @for (expense of expenseService.expenses(); track trackById($index, expense)) {
                 <button
                   (click)="editExpense(expense)"
-                  class="w-full bg-white border-2 border-black rounded-2xl p-3.5 flex items-center gap-3 text-left transition-all active:scale-[0.99] cursor-pointer shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                  class="w-full bg-white border border-gray-100 rounded-[20px] p-4 flex items-center gap-3 text-left transition-all active:scale-[0.99] cursor-pointer shadow-[0_2px_12px_rgb(0,0,0,0.03)] hover:shadow-md"
                 >
                   <!-- Icon -->
-                  <div class="w-10 h-10 rounded-xl border-2 border-black flex items-center justify-center shrink-0 bg-gray-100">
-                    <span class="text-base font-black text-black">{{ expense.title.charAt(0).toUpperCase() }}</span>
+                  <div class="flex items-center gap-3 shrink-0">
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center" [ngClass]="budgetService.getCategoryTheme(expense.category).bg + ' ' + budgetService.getCategoryTheme(expense.category).text">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path [attr.d]="budgetService.getCategoryIconPath(expense.category)"></path>
+                      </svg>
+                    </div>
                   </div>
 
                   <!-- Details -->
-                  <div class="flex flex-col gap-1 min-w-0 flex-1">
-                    <span class="font-extrabold text-sm text-gray-900 truncate">{{ expense.title }}</span>
-                    <div class="flex items-center gap-2 flex-wrap">
-                      <span class="text-[9px] font-extrabold uppercase px-2 py-0.5 bg-gray-100 text-gray-700 rounded-md border border-gray-200 truncate max-w-[130px]">
-                        {{ expense.category }}
-                      </span>
-                      <span class="text-[10px] font-semibold text-gray-400">
-                        {{ expense.date | date: 'MMM d, h:mm a' }}
-                      </span>
+                  <div class="flex flex-col gap-2 min-w-0 flex-1 ml-1">
+                    <span class="font-bold text-[17px] text-slate-900 truncate leading-none mt-1">{{ expense.title }}</span>
+                    <div class="flex flex-col gap-1.5">
+                      <div class="flex items-center gap-1.5 text-slate-400">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <line x1="16" y1="2" x2="16" y2="6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <line x1="8" y1="2" x2="8" y2="6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <line x1="3" y1="10" x2="21" y2="10" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span class="text-[11px] font-medium">{{ expense.date | date: 'MMM d, yyyy • hh:mm a' }}</span>
+                      </div>
                     </div>
                   </div>
 
                   <!-- Amount & Payment Tag -->
-                  <div class="flex flex-col items-end gap-0.5 shrink-0">
-                    <span class="font-black text-base text-gray-900">
+                  <div class="flex flex-col items-end gap-2 shrink-0">
+                    <span class="font-extrabold text-[20px] text-slate-900 leading-none mt-1">
                       ₹{{ expense.amount % 1 === 0 ? (expense.amount | number: '1.0-0') : (expense.amount | number: '1.2-2') }}
                     </span>
-                    <span class="text-[9px] font-extrabold uppercase text-gray-400 tracking-wider">
-                      {{ expense.paid_via || 'UPI' }}
+                    <span class="text-[10.5px] font-bold uppercase text-slate-500 tracking-wide">
+                      {{ formatPaymentMode(expense.paid_via) }}
                     </span>
                   </div>
                 </button>
               }
-            </div>
-            
-            <!-- Infinite Scroll Trigger -->
-            <div #scrollTrigger class="h-10 flex items-center justify-center border-b border-transparent mt-4">
-              @if (expenseService.hasMore()) {
-                <svg class="animate-spin h-6 w-6 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
+              
+              <!-- Infinite Scroll Trigger -->
+              <div #scrollTrigger class="h-4 mt-2"></div>
+              @if (expenseService.hasMore() && expenseService.expenses().length > 0) {
+                <div class="flex justify-center py-4">
+                  <svg class="animate-spin h-5 w-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                </div>
               }
-            </div>
-          } @else {
-            <div class="flex-1 flex flex-col items-center justify-center p-8 text-center h-full min-h-[300px]">
-              <div class="w-32 h-32 bg-gray-50 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center mb-6">
-                <svg class="w-12 h-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                </svg>
-              </div>
-              <p class="text-black font-extrabold text-xl">No expenses yet</p>
-              <p class="text-gray-400 font-bold text-sm mt-2 max-w-[250px]">
-                Tap the + button below to add your first expense.
-              </p>
             </div>
           }
         }
@@ -137,11 +230,61 @@ export class Expenses implements OnInit, AfterViewInit, OnDestroy {
   supabaseService = inject(SupabaseService);
   goalService = inject(GoalService);
   subscriptionService = inject(SubscriptionService);
+  budgetService = inject(BudgetService);
+  authService = inject(AuthService);
   private monthSub: any;
+
+  animateBars = signal(false);
+
+  monthlySalary = computed(() => this.authService.userProfile().salary || 0);
+
+  spendByMode = computed(() => {
+    const expenses = this.expenseService.expenses();
+    const totals = { cash: 0, credit: 0, upi: 0 };
+    for (const exp of expenses) {
+      if (exp.category === 'virtual-invest') continue; // Optional: Exclude internal transfers/investments if needed
+      
+      const mode = exp.paid_via?.toLowerCase() || 'cash';
+      if (mode.includes('credit') || mode.includes('card')) totals.credit += exp.amount;
+      else if (mode.includes('upi')) totals.upi += exp.amount;
+      else totals.cash += exp.amount;
+    }
+    return totals;
+  });
+
+  progressWidths = computed(() => {
+    const salary = this.monthlySalary();
+    const totals = this.spendByMode();
+    if (!salary || salary === 0) {
+      return { cash: 0, credit: 0, upi: 0 };
+    }
+    // Calculate widths as percentage of total salary
+    const cashPct = (totals.cash / salary) * 100;
+    const creditPct = (totals.credit / salary) * 100;
+    const upiPct = (totals.upi / salary) * 100;
+    
+    return { 
+      cash: Math.max(0, Math.min(cashPct, 100)), 
+      credit: Math.max(0, Math.min(creditPct, 100 - cashPct)), 
+      upi: Math.max(0, Math.min(upiPct, 100 - cashPct - creditPct)) 
+    };
+  });
 
   private observer: IntersectionObserver | null = null;
   private isObserving = false;
   private scrollTriggerEl: ElementRef | undefined;
+
+  // Pull to refresh state
+  pullStartY = 0;
+  pullMoveY = 0;
+  isPulling = signal(false);
+  refreshing = signal(false);
+
+  pullDistance = computed(() => {
+    if (!this.isPulling()) return 0;
+    const dist = this.pullMoveY - this.pullStartY;
+    return dist > 0 ? Math.min(dist * 0.4, 100) : 0;
+  });
 
   @ViewChild('scrollTrigger') set scrollTrigger(el: ElementRef | undefined) {
     this.scrollTriggerEl = el;
@@ -163,6 +306,7 @@ export class Expenses implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit() {
     this.tryObserve();
+    setTimeout(() => this.animateBars.set(true), 100);
   }
 
   private tryObserve() {
@@ -178,12 +322,57 @@ export class Expenses implements OnInit, AfterViewInit, OnDestroy {
     this.expenseService.setMonthFilter(this.expenseService.getCurrentMonthString());
   }
 
+  onTouchStart(event: TouchEvent) {
+    const container = event.currentTarget as HTMLElement;
+    if (container && container.scrollTop <= 0) {
+      this.pullStartY = event.touches[0].clientY;
+      this.isPulling.set(true);
+    }
+  }
+
+  onTouchMove(event: TouchEvent) {
+    if (!this.isPulling()) return;
+    const currentY = event.touches[0].clientY;
+    if (currentY > this.pullStartY) {
+      this.pullMoveY = currentY;
+    } else {
+      this.isPulling.set(false);
+    }
+  }
+
+  onTouchEnd(event: TouchEvent) {
+    if (!this.isPulling()) return;
+    if (this.pullDistance() >= 60 && !this.refreshing()) {
+      this.refreshing.set(true);
+      this.refreshData();
+    }
+    this.isPulling.set(false);
+    this.pullStartY = 0;
+    this.pullMoveY = 0;
+  }
+
+  async refreshData() {
+    await this.expenseService.refreshExpenses();
+    setTimeout(() => {
+      this.refreshing.set(false);
+    }, 500);
+  }
+
   trackById(index: number, expense: Expense): string {
     return expense.id;
   }
 
   getTotal() {
     return this.expenseService.monthlyTotalSpend();
+  }
+
+
+
+  formatPaymentMode(mode?: string): string {
+    const m = (mode || 'UPI').toUpperCase();
+    if (m.includes('CREDIT')) return 'CREDIT';
+    if (m.includes('DEBIT')) return 'DEBIT';
+    return m;
   }
 
   getActiveMonthLabel() {
@@ -198,9 +387,7 @@ export class Expenses implements OnInit, AfterViewInit, OnDestroy {
     this.expenseService.setMonthFilter(month);
   }
 
-  openMonthPicker() {
-    this.monthPicker.open(this.expenseService.activeMonth());
-  }
+
 
   async editExpense(expense: Expense) {
     if (expense.category === 'virtual-invest') {

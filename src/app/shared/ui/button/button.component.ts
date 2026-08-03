@@ -61,7 +61,7 @@ import { NgClass } from '@angular/common';
       }
     </button>
   `,
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.Default,
   styles: ``,
 })
 export class Button {

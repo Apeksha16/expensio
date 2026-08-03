@@ -15,7 +15,7 @@ import { environment } from '../../../environments/environment';
   selector: 'app-profile',
   standalone: true,
   imports: [CommonModule, FormsModule, SafeInputDirective],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.Default,
   template: `
     <div class="h-full overflow-y-auto bg-white px-4 pt-4 flex flex-col gap-6 pb-28">
       

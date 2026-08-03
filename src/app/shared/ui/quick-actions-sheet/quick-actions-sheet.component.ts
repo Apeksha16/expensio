@@ -43,7 +43,7 @@ interface SelectableNavItem {
       transition(':leave', [animate('200ms ease-in', style({ opacity: 0 }))]),
     ]),
   ],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.Default,
   template: `
     @if (quickActionsService.isSheetOpen()) {
       <!-- Backdrop -->

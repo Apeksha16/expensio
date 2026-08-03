@@ -26,7 +26,7 @@ import { HapticService } from '../../../core/services/haptic.service';
       transition(':leave', [animate('300ms ease-in', style({ opacity: 0 }))]),
     ]),
   ],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.Default,
   template: `
     @if (isOpen()) {
       <!-- Backdrop -->

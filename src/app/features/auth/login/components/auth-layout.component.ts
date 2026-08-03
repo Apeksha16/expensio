@@ -1,88 +1,31 @@
 import { Component, input, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Location } from '@angular/common';
+import { AppIconComponent } from '../../../../shared/ui/icon/app-icon.component';
+import { ArrowLeft01Icon } from '@hugeicons/core-free-icons';
 
 @Component({
   selector: 'app-auth-layout',
   standalone: true,
-  imports: [],
+  imports: [AppIconComponent],
   host: {
-    class: 'block w-full h-full',
+    class: 'block w-full h-full bg-white',
   },
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.Default,
   template: `
     <div
-      class="min-h-[100dvh] flex flex-col items-center justify-end p-4 bg-black relative overflow-hidden"
+      class="min-h-[100dvh] flex flex-col px-6 py-8 bg-white relative w-full h-full"
     >
-      @if (isMpinScreen()) {
-        <!-- Top Box for MPIN Screens -->
-        <div
-          class="max-w-md w-full bg-white p-6 pt-10 rounded-2xl border-2 border-black relative flex flex-col items-center justify-center mb-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]"
+      @if (showBackButton()) {
+        <button
+          (click)="goBack()"
+          class="absolute top-10 left-6 text-black font-medium flex items-center hover:opacity-70 z-10 p-2 -ml-2"
         >
-          <button
-            (click)="goBack()"
-            class="absolute top-4 left-4 text-black font-bold flex items-center hover:underline z-10"
-          >
-            <svg
-              class="w-4 h-4 mr-1"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              stroke-width="3"
-            >
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-            </svg>
-            Back
-          </button>
-
-          <img
-            src="logo.png"
-            alt="Expensio Logo"
-            class="w-16 h-16 mb-4 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] object-contain bg-white"
-          />
-          <p class="text-sm text-gray-500 font-semibold text-center leading-relaxed">
-            {{ quoteMessage() }}
-          </p>
-        </div>
+          <app-icon [icon]="ArrowLeft01Icon" size="20"></app-icon>
+        </button>
       }
 
-      <!-- Bottom/Main Box -->
-      <div
-        class="max-w-md w-full bg-white p-8 rounded-2xl border-2 border-black relative overflow-hidden flex flex-col shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]"
-      >
-        @if (!isMpinScreen()) {
-          <!-- Back button for non-initial, non-MPIN screens -->
-          @if (showBackButton()) {
-            <button
-              (click)="goBack()"
-              class="absolute top-4 left-4 text-black font-bold flex items-center hover:underline z-10"
-            >
-              <svg
-                class="w-4 h-4 mr-1"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="3"
-              >
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-              </svg>
-              Back
-            </button>
-          }
-
-          <!-- Standard Logo for single box layout -->
-          <div class="text-center mb-6 flex flex-col items-center mt-4">
-            <img
-              src="logo.png"
-              alt="Expensio Logo"
-              class="w-16 h-16 mb-4 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] object-contain bg-white"
-            />
-            <h2 class="text-3xl font-extrabold text-black tracking-tight">Expensio</h2>
-          </div>
-        }
-
-        <div class="w-full relative flex-1">
-          <ng-content></ng-content>
-        </div>
+      <div class="w-full relative flex-1 flex flex-col mt-12 h-full">
+        <ng-content></ng-content>
       </div>
     </div>
   `,
@@ -93,6 +36,8 @@ export class AuthLayoutComponent {
   isMpinScreen = input<boolean>(false);
   quoteMessage = input<string>('Control your expenses, before they control you.');
   showBackButton = input<boolean>(true);
+
+  ArrowLeft01Icon = ArrowLeft01Icon;
 
   goBack() {
     this.location.back();

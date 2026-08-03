@@ -35,7 +35,7 @@ import { Router } from '@angular/router';
       transition(':leave', [animate('300ms ease-in', style({ opacity: 0 }))]),
     ]),
   ],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.Default,
   template: `
     @if (monthPicker.isOpen()) {
       <!-- Backdrop -->
@@ -50,37 +50,24 @@ import { Router } from '@angular/router';
         appSwipeToClose
         (swipeClose)="close()"
         class="fixed bottom-0 left-0 right-0 z-[90] 
-               max-h-[80vh] overflow-y-auto overscroll-none flex flex-col rounded-t-3xl shadow-2xl"
+               max-h-[80vh] flex flex-col rounded-t-[32px] shadow-2xl bg-white overflow-hidden"
       >
-        <div
-          class="flex justify-between items-center py-4 px-6 rounded-t-3xl text-white sticky top-0 z-10 shadow-sm transition-colors duration-300"
-          [ngClass]="getThemeClasses().bg"
-        >
-          <h2 class="text-lg font-bold tracking-wide text-white">Select Month</h2>
-          <button
-            (click)="close()"
-            class="w-8 h-8 flex items-center justify-center rounded-full text-white text-white/80 hover:text-white hover:bg-white/10 transition-all active:scale-95"
-          >
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
+        <div class="flex flex-col items-center pt-3 pb-4 px-6 bg-white shrink-0 z-10 border-b border-gray-50">
+          <div class="w-12 h-1.5 bg-gray-200 rounded-full mb-4"></div>
+          <div class="w-full flex justify-center items-center">
+            <h2 class="text-[22px] font-extrabold text-slate-900 tracking-tight text-center">Select Month</h2>
+          </div>
         </div>
-        <div class="p-6 bg-white flex-1">
+        <div class="p-6 bg-white overflow-y-auto overscroll-none flex-1 pb-10" style="scrollbar-width: none;">
           <div class="grid grid-cols-2 gap-2.5">
             @for (m of months; track m) {
               <button
                 (click)="selectMonth(m.value)"
-                class="w-full text-center p-3.5 border rounded-xl font-bold tracking-wide text-xs transition-all active:scale-95 shadow-sm"
+                class="w-full text-center p-4 border rounded-2xl font-bold tracking-wide text-sm transition-all active:scale-95 shadow-sm"
                 [ngClass]="
                   m.value === monthPicker.activeMonth()
                     ? getThemeClasses().bg + ' border-transparent text-white shadow-md'
-                    : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+                    : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'
                 "
               >
                 {{ m.label }}

@@ -12,7 +12,7 @@ import { UserProfile } from '../../core/services/auth.service';
   host: {
     class: 'block h-full',
   },
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.Default,
   template: `
     <div class="h-full bg-white flex flex-col relative w-full overflow-hidden">
       <!-- Fixed Header Container -->

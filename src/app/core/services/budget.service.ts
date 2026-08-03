@@ -16,6 +16,17 @@ export interface Budget {
   created_at?: string;
 }
 
+export const DEFAULT_CATEGORIES = [
+  { name: 'Food', path: 'M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2 M7 2v20 M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7' },
+  { name: 'Transport', path: 'M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2 M7 17a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm10 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z' },
+  { name: 'Shopping', path: 'M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z M3 6h18 M16 10a4 4 0 0 1-8 0' },
+  { name: 'Utilities', path: 'M13 2L3 14h9l-1 8 10-12h-9l1-8z' },
+  { name: 'Entertain', path: 'M2 10h20 M8 2v4 M16 2v4 M2 14h20 M2 18h20 M2 6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6z' },
+  { name: 'Health', path: 'M22 12h-4l-3 9L9 3l-3 9H2' },
+  { name: 'Travel', path: 'M22 2 11 13 M22 2l-7 20-4-9-9-4Z' },
+  { name: 'Other', path: 'M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0-2 0 M19 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0-2 0 M5 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0-2 0' },
+];
+
 @Injectable({
   providedIn: 'root'
 })
@@ -26,10 +37,13 @@ export class BudgetService {
   private expenseService = inject(ExpenseService);
   private toastService = inject(ToastService);
 
-  private _budgets = signal<Budget[]>([]);
+  private _budgetsCache = signal<Record<string, Budget[]>>({});
+  readonly budgetsCache = this._budgetsCache.asReadonly();
   
   readonly budgets = computed(() => {
-    const list = this._budgets();
+    const month = this.expenseService.activeMonth();
+    const cache = this._budgetsCache();
+    const list = cache[month] || [];
     const hasOthers = list.some(b => b.name.toLowerCase() === 'others' || b.name.toLowerCase() === 'other');
     if (hasOthers) return list;
     
@@ -38,7 +52,7 @@ export class BudgetService {
       name: 'Others',
       amount: 0,
       icon_path: 'M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4',
-      month: this.expenseService.activeMonth(),
+      month: month,
       auto_rollover: false
     };
     
@@ -59,7 +73,7 @@ export class BudgetService {
           this.setupRealtime(month);
         });
       } else {
-        this._budgets.set([]);
+        this._budgetsCache.set({});
         if (this.realtimeChannel) {
           this.supabaseService.client.removeChannel(this.realtimeChannel);
           this.realtimeChannel = null;
@@ -100,10 +114,37 @@ export class BudgetService {
 
   private getMonthDateRange(monthStr: string) {
     const [year, m] = monthStr.split('-');
-    const startDate = `${year}-${m}-01T00:00:00.000Z`;
-    const nextMDate = new Date(parseInt(year), parseInt(m), 1);
-    const nextMonthStr = `${nextMDate.getFullYear()}-${(nextMDate.getMonth() + 1).toString().padStart(2, '0')}-01T00:00:00.000Z`;
-    return { startDate, endDate: nextMonthStr };
+    const localStart = new Date(parseInt(year), parseInt(m) - 1, 1);
+    const localEnd = new Date(parseInt(year), parseInt(m), 1);
+    return { startDate: localStart.toISOString(), endDate: localEnd.toISOString() };
+  }
+
+  getCategoryIconPath(categoryName: string): string {
+    const defaultPath = 'M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0-2 0 M19 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0-2 0 M5 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0-2 0';
+    if (!categoryName) return defaultPath;
+
+    // Check if budget exists with this name (if loaded)
+    const matchingBudget = untracked(() => this.budgets()).find(b => b.name.toUpperCase() === categoryName.toUpperCase());
+    if (matchingBudget && matchingBudget.icon_path) {
+      return matchingBudget.icon_path;
+    }
+
+    const matchingDefault = DEFAULT_CATEGORIES.find(c => c.name.toUpperCase() === categoryName.toUpperCase());
+    if (matchingDefault) return matchingDefault.path;
+    
+    return defaultPath;
+  }
+
+  getCategoryTheme(categoryName: string) {
+    const cat = (categoryName || '').toUpperCase();
+    if (cat.includes('SHOPPING')) return { bg: 'bg-orange-50', text: 'text-orange-600', tagBg: 'bg-orange-100' };
+    if (cat.includes('FOOD') || cat.includes('DINING')) return { bg: 'bg-blue-50', text: 'text-blue-600', tagBg: 'bg-blue-100' };
+    if (cat.includes('TRAVEL')) return { bg: 'bg-rose-50', text: 'text-rose-600', tagBg: 'bg-rose-100' };
+    if (cat.includes('UTILITIES') || cat.includes('BILLS')) return { bg: 'bg-emerald-50', text: 'text-emerald-600', tagBg: 'bg-emerald-100' };
+    if (cat.includes('ENTERTAIN')) return { bg: 'bg-pink-50', text: 'text-pink-600', tagBg: 'bg-pink-100' };
+    if (cat.includes('TRANSPORT')) return { bg: 'bg-indigo-50', text: 'text-indigo-600', tagBg: 'bg-indigo-100' };
+    if (cat.includes('HEALTH')) return { bg: 'bg-red-50', text: 'text-red-600', tagBg: 'bg-red-100' };
+    return { bg: 'bg-purple-50', text: 'text-purple-600', tagBg: 'bg-purple-100' };
   }
 
   private activeFetchMonth = '';
@@ -129,7 +170,10 @@ export class BudgetService {
     }, 100);
   }
 
-  async fetchBudgets(monthStr: string) {
+  async fetchBudgets(monthStr: string, force = false) {
+    const currentCache = untracked(() => this._budgetsCache());
+    if (!force && currentCache[monthStr]) return;
+
     if (untracked(() => this.isLoading()) && this.activeFetchMonth === monthStr) return;
     this.activeFetchMonth = monthStr;
     this.isLoading.set(true);
@@ -178,20 +222,22 @@ export class BudgetService {
               .select();
               
             if (!insertError && insertedData) {
-              this._budgets.set(insertedData as Budget[]);
+              this._budgetsCache.update(c => ({...c, [monthStr]: insertedData as Budget[]}));
               this.isLoading.set(false);
               return;
             } else {
               // Rollover failed — show error and fall back to displaying last month's budgets
               this.toastService.showError("Couldn't load budget.");
-              this._budgets.set(prevData as Budget[]);
+              this._budgetsCache.update(c => ({...c, [monthStr]: prevData as Budget[]}));
               this.isLoading.set(false);
               return;
             }
           }
         }
       }
-      this._budgets.set(data as Budget[]);
+      this._budgetsCache.update(c => ({...c, [monthStr]: data as Budget[]}));
+    } else {
+      this._budgetsCache.update(c => ({...c, [monthStr]: []}));
     }
     this.isLoading.set(false);
   }
@@ -206,7 +252,8 @@ export class BudgetService {
     if (!user || !month) return false;
 
     // Prevent duplicate budget names for the same month
-    const duplicate = this._budgets().find(
+    const list = this._budgetsCache()[month] || [];
+    const duplicate = list.find(
       b => b.name.toLowerCase() === budget.name.toLowerCase()
     );
     if (duplicate) {
@@ -229,7 +276,10 @@ export class BudgetService {
       .single();
 
     if (!error && data) {
-      this._budgets.update(bs => [...bs, data as Budget]);
+      this._budgetsCache.update(c => {
+        const mList = c[month] || [];
+        return { ...c, [month]: [...mList, data as Budget] };
+      });
       this.toastService.showSuccess('Budget created successfully.');
     } else {
       this.toastService.showError("Couldn't create budget. Please try again.");
@@ -251,13 +301,21 @@ export class BudgetService {
       .eq('id', id);
 
     if (!error) {
+      // Find the budget's month
+      let targetMonth = this.expenseService.activeMonth();
+      const currentCache = this._budgetsCache();
+      for (const [m, list] of Object.entries(currentCache)) {
+        if (list.find(b => b.id === id)) {
+          targetMonth = m;
+          break;
+        }
+      }
+
       // If the name changed, cascade the update to expenses ONLY in the budget's month
       if (oldName && oldName !== data.name) {
         const user = this.authService.currentUser();
         if (user) {
-          const budget = this._budgets().find(b => b.id === id);
-          const monthToUpdate = budget ? budget.month : this.expenseService.activeMonth();
-          const { startDate, endDate } = this.getMonthDateRange(monthToUpdate);
+          const { startDate, endDate } = this.getMonthDateRange(targetMonth);
           
           await this.supabaseService.client
             .from('expenses')
@@ -269,7 +327,15 @@ export class BudgetService {
         }
       }
 
-      this._budgets.update(bs => bs.map(b => b.id === id ? { ...b, ...data } : b));
+      this._budgetsCache.update(c => {
+        const next = { ...c };
+        for (const [m, list] of Object.entries(next)) {
+          if (list.find(b => b.id === id)) {
+            next[m] = list.map(b => b.id === id ? { ...b, ...data } : b);
+          }
+        }
+        return next;
+      });
       this.toastService.showSuccess('Budget updated successfully.');
     } else {
       this.toastService.showError("Couldn't update budget. Please try again.");
@@ -286,11 +352,20 @@ export class BudgetService {
       .eq('id', id);
 
     if (!error) {
+      // Find the budget's month
+      let targetMonth = this.expenseService.activeMonth();
+      const currentCache = this._budgetsCache();
+      for (const [m, list] of Object.entries(currentCache)) {
+        if (list.find(b => b.id === id)) {
+          targetMonth = m;
+          break;
+        }
+      }
+
       // Cascade the update to the expenses table for this month only
       const user = this.authService.currentUser();
-      const month = this.expenseService.activeMonth();
-      if (user && month) {
-        const { startDate, endDate } = this.getMonthDateRange(month);
+      if (user) {
+        const { startDate, endDate } = this.getMonthDateRange(targetMonth);
         await this.supabaseService.client
           .from('expenses')
           .update({ category: 'Others' })
@@ -299,7 +374,13 @@ export class BudgetService {
           .gte('date', startDate)
           .lt('date', endDate);
       }
-      this._budgets.update(bs => bs.filter(b => b.id !== id));
+      this._budgetsCache.update(c => {
+        const next = { ...c };
+        for (const [m, list] of Object.entries(next)) {
+          next[m] = list.filter(b => b.id !== id);
+        }
+        return next;
+      });
       this.toastService.showSuccess('Budget deleted successfully.');
     } else {
       this.toastService.showError("Couldn't delete budget. Please try again.");

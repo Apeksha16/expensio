@@ -166,7 +166,7 @@ import Chart from 'chart.js/auto';
       </div>
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.Default,
   styles: [
     `
       .hide-scrollbar::-webkit-scrollbar {

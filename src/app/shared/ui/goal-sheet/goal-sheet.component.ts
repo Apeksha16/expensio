@@ -53,7 +53,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
       transition(':leave', [animate('300ms ease-in', style({ opacity: 0 }))]),
     ]),
   ],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.Default,
   template: `
     @if (goalService.isBottomSheetOpen()) {
       <!-- Backdrop -->

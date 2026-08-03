@@ -10,7 +10,7 @@ import { ConfirmService } from '../../core/services/confirm.service';
   host: {
     class: 'block h-full',
   },
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.Default,
   template: `
     <div class="h-full bg-white p-4 flex flex-col gap-4">
       @if (subscriptionService.isLoading()) {

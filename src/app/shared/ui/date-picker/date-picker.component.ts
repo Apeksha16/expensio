@@ -35,7 +35,7 @@ import { HapticService } from '../../../core/services/haptic.service';
       transition(':leave', [animate('300ms ease-in', style({ opacity: 0 }))]),
     ]),
   ],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.Default,
   template: `
     @if (isOpen()) {
       <!-- Backdrop -->
@@ -50,50 +50,35 @@ import { HapticService } from '../../../core/services/haptic.service';
         appSwipeToClose
         (swipeClose)="close()"
         class="fixed bottom-0 left-0 right-0 z-[90] 
-               max-h-[95vh] flex flex-col rounded-t-3xl shadow-2xl"
+               max-h-[95vh] flex flex-col rounded-t-[32px] shadow-2xl bg-white overflow-hidden"
       >
-        <div
-          class="p-6 pt-6 pb-6 text-white rounded-t-3xl sticky top-0 z-10 shadow-sm"
-          [ngClass]="[theme.bg]"
-        >
-          <div class="text-2xl font-bold tracking-wide">
+        <!-- Header -->
+        <div class="flex flex-col items-center pt-3 pb-4 px-6 bg-white shrink-0 z-10 rounded-t-[32px]">
+          <div class="w-12 h-1.5 bg-gray-200 rounded-full mb-6"></div>
+          <h2 class="text-[22px] font-extrabold text-slate-900 tracking-tight text-center">
             {{ selectedDate | date: 'EEE, MMM d, yyyy' }}
-          </div>
+          </h2>
         </div>
         <div class="p-6 bg-white flex-1">
-          <div class="flex justify-between items-center mb-4">
+          <div class="flex justify-between items-center mb-6">
             <button
               (click)="prevMonth()"
-              class="p-2.5 border border-gray-200 rounded-xl hover:bg-gray-50 transition-all text-gray-700 active:scale-95"
+              class="p-2.5 border border-gray-200 rounded-2xl hover:bg-gray-50 transition-all text-slate-500 active:scale-95"
             >
-              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="m15 18-6-6 6-6"/></svg>
             </button>
-            <span class="font-bold text-base text-gray-900 tracking-wide">{{ viewDate | date: 'MMMM yyyy' }}</span>
+            <span class="font-bold text-sm text-slate-900 tracking-wide">{{ viewDate | date: 'MMMM yyyy' }}</span>
             <button
               (click)="nextMonth()"
-              class="p-2.5 border border-gray-200 rounded-xl hover:bg-gray-50 transition-all text-gray-700 active:scale-95"
+              class="p-2.5 border border-gray-200 rounded-2xl hover:bg-gray-50 transition-all text-slate-500 active:scale-95"
             >
-              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="m9 18 6-6-6-6"/></svg>
             </button>
           </div>
           <!-- Calendar Grid -->
           <div class="grid grid-cols-7 gap-1 text-center mb-2">
             @for (d of ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']; track d) {
-              <div class="text-xs font-bold text-gray-400 uppercase tracking-wider py-2">
+              <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest py-2">
                 {{ d }}
               </div>
             }
@@ -102,30 +87,30 @@ import { HapticService } from '../../../core/services/haptic.service';
             @for (day of calendarDays; track day.date.getTime()) {
               <button
                 (click)="selectDate(day.date)"
-                class="h-10 w-full flex items-center justify-center font-bold rounded-xl transition-all text-sm"
+                class="h-11 w-11 mx-auto flex items-center justify-center font-bold rounded-full transition-all text-[15px]"
                 [ngClass]="[
                   day.isSelected ? theme.bg + ' text-white shadow-md' : '',
                   !day.isSelected && day.isCurrentMonth
-                    ? 'text-gray-900 hover:bg-gray-100'
+                    ? 'text-slate-900 hover:bg-slate-100'
                     : '',
-                  !day.isSelected && !day.isCurrentMonth ? 'text-gray-300' : '',
-                  day.isToday && !day.isSelected ? 'border border-gray-300 font-extrabold' : '',
+                  !day.isSelected && !day.isCurrentMonth ? 'text-slate-300' : '',
+                  day.isToday && !day.isSelected ? 'border border-slate-300' : '',
                 ]"
               >
                 {{ day.date.getDate() }}
               </button>
             }
           </div>
-          <div class="mt-6 mb-2 flex gap-3">
+          <div class="mt-8 mb-4 flex gap-3">
             <button
               (click)="close()"
-              class="flex-1 bg-gray-100 text-gray-700 px-4 py-3.5 text-sm font-bold min-h-[48px] rounded-xl transition-all active:scale-95 text-center"
+              class="flex-1 bg-slate-50 text-slate-700 px-4 py-4 text-sm font-bold rounded-2xl transition-all active:scale-95 text-center hover:bg-slate-100"
             >
               Cancel
             </button>
             <button
               (click)="confirm()"
-              class="flex-1 text-white px-4 py-3.5 text-sm font-bold min-h-[48px] rounded-xl transition-all active:scale-95 shadow-lg"
+              class="flex-1 text-white px-4 py-4 text-sm font-bold rounded-2xl transition-all active:scale-95"
               [ngClass]="[theme.bg]"
             >
               Confirm Date

@@ -22,7 +22,7 @@ import { Router } from '@angular/router';
   host: {
     class: 'flex flex-col h-full',
   },
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.Default,
   template: `
     <div class="flex-1 bg-white p-4 flex flex-col gap-4 pb-28">
       <!-- Top Summary Box -->
@@ -63,18 +63,6 @@ import { Router } from '@angular/router';
         </div>
       </div>
 
-      <!-- Filter Row -->
-      <div class="flex justify-between items-center mt-2">
-        <button
-          (click)="openMonthPicker()"
-          class="flex items-center gap-2 px-4 py-2 bg-white text-black border-2 border-black rounded-xl font-black text-sm hover:bg-gray-50 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all active:scale-[0.98]"
-        >
-          <span>{{ getActiveMonthLabel() }}</span>
-          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
-      </div>
 
       <!-- Goals List -->
       <div class="flex-1 flex flex-col gap-3 mt-2">
@@ -211,9 +199,7 @@ export class Budgets implements OnInit, AfterViewInit {
     this.expenseService.setMonthFilter(month);
   }
 
-  openMonthPicker() {
-    this.monthPicker.open(this.expenseService.activeMonth());
-  }
+
 
   monthlySalary = computed(() => this.authService.userProfile().salary);
 

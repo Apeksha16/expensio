@@ -32,7 +32,6 @@ import { BudgetService } from '../services/budget.service';
 import { ConfirmService } from '../services/confirm.service';
 import { FriendService } from '../services/friend.service';
 import { SplitService } from '../services/split.service';
-import { ToastComponent } from '../../shared/ui/toast/toast.component';
 import { MonthPickerComponent } from '../../shared/ui/month-picker/month-picker.component';
 import { QuickActionsService } from '../services/quick-actions.service';
 import { QuickActionsSheetComponent } from '../../shared/ui/quick-actions-sheet/quick-actions-sheet.component';
@@ -46,6 +45,7 @@ import { LedgerSheetComponent } from '../../shared/ui/ledger-sheet/ledger-sheet.
 import { LedgerSubSheetComponent } from '../../shared/ui/ledger-sub-sheet/ledger-sub-sheet.component';
 import { AccountSheetComponent } from '../../shared/ui/account-sheet/account-sheet.component';
 import { AccountTrackerService } from '../services/account-tracker.service';
+import { MonthPickerService } from '../services/month-picker.service';
 
 @Component({
   selector: 'app-layout',
@@ -59,7 +59,6 @@ import { AccountTrackerService } from '../services/account-tracker.service';
     FriendSheetComponent,
     SplitSheetComponent,
     GroupSheetComponent,
-    ToastComponent,
     MonthPickerComponent,
     QuickActionsSheetComponent,
     SubscriptionSheetComponent,
@@ -70,7 +69,7 @@ import { AccountTrackerService } from '../services/account-tracker.service';
     AccountSheetComponent,
   ],
   animations: [slideInAnimation],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.Default,
   template: `
     <div class="h-full bg-gray-50 flex flex-col relative w-full overflow-hidden">
       <!-- Global hidden input for iOS keyboard hack -->
@@ -82,8 +81,12 @@ import { AccountTrackerService } from '../services/account-tracker.service';
 
       <!-- Top Header -->
       <header
-        class="fixed top-0 w-full z-30 flex items-center justify-between px-4 h-14 bg-black text-white"
+        class="fixed top-0 w-full z-30 flex items-center justify-between px-4 h-14 transition-colors duration-300"
+        [ngClass]="getThemeClasses().bg + ' ' + (getThemeClasses().bg === 'bg-white' || getThemeClasses().bg === 'bg-gray-50' ? 'text-black' : 'text-white')"
       >
+        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <span class="text-lg font-extrabold tracking-tight text-white truncate max-w-[200px] text-center">{{ pageTitle() }}</span>
+        </div>
         @if (
           isProfilePage() ||
           isGroupExpensesPage() ||
@@ -93,7 +96,7 @@ import { AccountTrackerService } from '../services/account-tracker.service';
         ) {
           <button
             (click)="goBack()"
-            class="p-2 -ml-2 text-white/80 hover:text-white focus:outline-none transition-colors"
+            class="p-2 -ml-2 text-white/80 relative z-10 hover:text-white focus:outline-none transition-colors"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -107,7 +110,7 @@ import { AccountTrackerService } from '../services/account-tracker.service';
         } @else {
           <button
             (click)="toggleSidebar(true)"
-            class="p-2 -ml-2 text-white/80 hover:text-white focus:outline-none transition-colors"
+            class="p-2 -ml-2 text-white/80 relative z-10 hover:text-white focus:outline-none transition-colors"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -119,15 +122,12 @@ import { AccountTrackerService } from '../services/account-tracker.service';
             </svg>
           </button>
         }
-        <span
-          class="text-lg font-extrabold tracking-tight text-white truncate max-w-[200px] text-center"
-          >{{ pageTitle() }}</span
-        >
+        
 
         @if (isGroupExpensesPage()) {
           <button
             (click)="editGroup()"
-            class="p-2 -mr-2 text-white/80 hover:text-white focus:outline-none transition-colors"
+            class="p-2 -mr-2 text-white/80 relative z-10 hover:text-white focus:outline-none transition-colors"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -141,7 +141,7 @@ import { AccountTrackerService } from '../services/account-tracker.service';
         } @else if (isBudgetExpensesPage() && !isVirtualOthersBudget()) {
           <button
             (click)="editBudget()"
-            class="p-2 -mr-2 text-white/80 hover:text-white focus:outline-none transition-colors"
+            class="p-2 -mr-2 text-white/80 relative z-10 hover:text-white focus:outline-none transition-colors"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -155,7 +155,7 @@ import { AccountTrackerService } from '../services/account-tracker.service';
         } @else if (isGoalTransactionsPage()) {
           <button
             (click)="editGoal()"
-            class="p-2 -mr-2 text-white/80 hover:text-white focus:outline-none transition-colors"
+            class="p-2 -mr-2 text-white/80 relative z-10 hover:text-white focus:outline-none transition-colors"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -169,7 +169,7 @@ import { AccountTrackerService } from '../services/account-tracker.service';
         } @else if (isLedgerDetailsPage()) {
           <button
             (click)="editLedger()"
-            class="p-2 -mr-2 text-white/80 hover:text-white focus:outline-none transition-colors"
+            class="p-2 -mr-2 text-white/80 relative z-10 hover:text-white focus:outline-none transition-colors"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -178,6 +178,15 @@ import { AccountTrackerService } from '../services/account-tracker.service';
                 stroke-width="2"
                 d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5z"
               />
+            </svg>
+          </button>
+        } @else if (isExpensesPage() || isBudgetsPage()) {
+          <button
+            (click)="openMonthPicker()"
+            class="p-2 -mr-2 text-white/80 relative z-10 hover:text-white focus:outline-none transition-colors"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
             </svg>
           </button>
         } @else {
@@ -281,16 +290,18 @@ import { AccountTrackerService } from '../services/account-tracker.service';
       <!-- Bottom Navbar -->
       @if (!isProfilePage()) {
         <nav
-          class="fixed left-4 right-4 bg-white/95 backdrop-blur-md border border-gray-100 shadow-2xl z-30 rounded-2xl overflow-hidden"
-          style="bottom: 1rem;"
+          class="fixed left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.12)] z-30 rounded-full px-2 py-2 border border-gray-100"
+          style="bottom: 1.5rem; width: max-content; min-width: 250px;"
         >
-          <div class="flex justify-between items-center h-16 w-full p-2 gap-1.5">
+          <div class="flex justify-center items-center gap-2">
             @for (item of bottomNavItems(); track item.id) {
               <a
                 [routerLink]="item.path"
-                [routerLinkActive]="getActiveClasses(item.id)"
+                routerLinkActive="is-active"
+                #rla="routerLinkActive"
                 [routerLinkActiveOptions]="{ exact: false }"
-                class="flex items-center justify-center w-full h-full text-gray-400 hover:text-gray-700 transition-all rounded-xl active:scale-95"
+                class="flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 active:scale-95"
+                [ngClass]="rla.isActive ? 'bg-[#5421E6] text-white shadow-md' : 'bg-transparent text-slate-600 hover:text-black'"
               >
                 <span
                   [innerHTML]="item.icon"
@@ -336,9 +347,6 @@ import { AccountTrackerService } from '../services/account-tracker.service';
       <app-ledger-sheet></app-ledger-sheet>
       <app-ledger-sub-sheet></app-ledger-sub-sheet>
       <app-account-sheet></app-account-sheet>
-
-      <!-- Global Toasts -->
-      <app-toast></app-toast>
     </div>
   `,
 })
@@ -362,6 +370,7 @@ export class Layout implements AfterViewInit {
   goalService = inject(GoalService);
   ledgerService = inject(LedgerService);
   accountTrackerService = inject(AccountTrackerService);
+  monthPicker = inject(MonthPickerService);
 
   currentUrl = signal(this.router.url);
 
@@ -374,6 +383,8 @@ export class Layout implements AfterViewInit {
   isGoalTransactionsPage = computed(() => this.currentUrl().match(/\/goals\/.+/) !== null);
   isLedgerDetailsPage = computed(() => this.currentUrl().match(/\/ledger\/.+/) !== null);
   isReportsPage = computed(() => this.currentUrl().includes('/reports'));
+  isExpensesPage = computed(() => this.currentUrl().includes('/expenses'));
+  isBudgetsPage = computed(() => this.currentUrl().includes('/budgets') && !this.isBudgetExpensesPage());
 
   activeLedger = computed(() => {
     if (this.isLedgerDetailsPage()) {
@@ -547,6 +558,10 @@ export class Layout implements AfterViewInit {
     }
   }
 
+  openMonthPicker() {
+    this.monthPicker.open(this.expenseService.activeMonth());
+  }
+
   editGoal() {
     const goal = this.activeGoal();
     if (goal) {
@@ -577,7 +592,7 @@ export class Layout implements AfterViewInit {
       case 'dashboard':
         return 'bg-black text-white rounded-xl shadow-md font-bold';
       case 'expenses':
-        return 'bg-teal-600 text-white rounded-xl shadow-md shadow-teal-600/30 font-bold';
+        return 'bg-[#5421E6] text-white rounded-xl shadow-md shadow-[#5421E6]/30 font-bold';
       case 'budgets':
         return 'bg-emerald-600 text-white rounded-xl shadow-md shadow-emerald-600/30 font-bold';
       case 'friends':
@@ -603,7 +618,7 @@ export class Layout implements AfterViewInit {
     const route = this.currentUrl().split('/')[1] || 'dashboard';
     switch (route) {
       case 'expenses':
-        return { bg: 'bg-teal-600', border: 'border-teal-700', text: 'text-teal-600' };
+        return { bg: 'bg-[#5421E6]', border: 'border-[#5421E6]', text: 'text-[#5421E6]' };
       case 'budgets':
         return { bg: 'bg-emerald-600', border: 'border-emerald-700', text: 'text-emerald-600' };
       case 'friends':
@@ -621,7 +636,7 @@ export class Layout implements AfterViewInit {
       case 'tracker':
         return { bg: 'bg-cyan-600', border: 'border-cyan-700', text: 'text-cyan-600' };
       default:
-        return { bg: 'bg-black', border: 'border-black', text: 'text-black' };
+        return { bg: 'bg-[#18181B]', border: 'border-[#18181B]', text: 'text-black' };
     }
   }
 

@@ -18,60 +18,56 @@ import { ToastService } from '../../../../core/services/toast.service';
 import { LoginStateService } from '../login-state.service';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { KeyboardService } from '../../../../core/services/keyboard.service';
+import { AppIconComponent } from '../../../../shared/ui/icon/app-icon.component';
+import { LockPasswordIcon } from '@hugeicons/core-free-icons';
+
+import { NumericKeypadComponent } from '../../../../shared/ui/numeric-keypad/numeric-keypad.component';
 
 export type MpinStep = 'login' | 'forgot' | 'reset' | 'set-mpin' | 'confirm-mpin';
 
 @Component({
   selector: 'app-mpin-flow',
-  imports: [Button, PinInputComponent, FormsModule, AuthLayoutComponent],
+  imports: [PinInputComponent, NumericKeypadComponent, FormsModule, AuthLayoutComponent, AppIconComponent],
   host: {
     class: 'block w-full h-full',
   },
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.Default,
   template: `
-    <app-auth-layout [isMpinScreen]="true" [quoteMessage]="quoteMessage()">
-      <div class="w-full">
-        <div class="mb-6 flex flex-col items-center">
-          <h3 class="text-black font-extrabold text-center text-xl mb-1">{{ heading() }}</h3>
-          <p
-            class="text-gray-500 text-center font-semibold text-sm leading-relaxed"
-            [innerHTML]="subheading()"
-          ></p>
+    <app-auth-layout [isMpinScreen]="true" [showBackButton]="true">
+      <div class="w-full flex flex-col h-full items-center mt-4">
+        <div class="w-20 h-20 rounded-full bg-indigo-50 flex items-center justify-center mb-6">
+          <app-icon [icon]="LockPasswordIcon" size="40" class="text-indigo-600"></app-icon>
         </div>
 
-        <div class="flex flex-col gap-2">
-          <div class="relative w-full pb-8">
-            <app-pin-input
-              [(ngModel)]="pin1"
-              (ngModelChange)="clearError()"
-              [autofocus]="true"
-            ></app-pin-input>
-            @if (step() === 'reset') {
-              <div class="mt-4">
-                <app-pin-input [(ngModel)]="pin2" (ngModelChange)="clearError()"></app-pin-input>
-              </div>
-            }
+        <div class="flex flex-col items-center">
+          <h3 class="text-black font-semibold text-center text-2xl mb-3" [innerHTML]="heading()"></h3>
+          <p class="text-gray-500 text-center font-medium text-sm leading-relaxed max-w-[280px]" [innerHTML]="subheading()"></p>
+        </div>
 
-            <p
-              class="text-red-500 text-xs font-bold absolute bottom-1 left-1 transition-opacity duration-200"
-              [class.opacity-0]="!mpinError()"
-            >
-              {{ mpinError() || 'Error' }}
-            </p>
+        <div class="flex flex-col w-full items-center mt-8">
+          <div class="relative w-full pb-8 flex flex-col items-center">
+            <app-pin-input
+              [ngModel]="step() === 'reset' && resetStage() === 'confirm' ? pin2() : pin1()"
+              (ngModelChange)="onPinChange()"
+            ></app-pin-input>
+            
+            @if (mpinError()) {
+              <p
+                class="text-red-500 text-xs font-bold absolute bottom-1 text-center"
+              >
+                {{ mpinError() }}
+              </p>
+            }
           </div>
 
-          <app-button
-            [text]="buttonText()"
-            [isLoading]="isLoading()"
-            (clicked)="onSubmit()"
-          ></app-button>
+          <app-numeric-keypad (keyPress)="onKeypadPress($event)"></app-numeric-keypad>
 
           @if (step() === 'login') {
             <button
               (click)="startForgotMpin()"
-              class="mt-2 text-sm font-bold text-gray-500 hover:text-black block w-full text-center"
+              class="mt-4 text-sm font-semibold text-indigo-600 hover:text-indigo-800 block w-full text-center"
             >
-              Forgot MPIN?
+              Forgot mPIN?
             </button>
           }
         </div>
@@ -80,12 +76,14 @@ export type MpinStep = 'login' | 'forgot' | 'reset' | 'set-mpin' | 'confirm-mpin
   `,
 })
 export class MpinFlowComponent implements OnInit {
-  router = inject(Router);
-  route = inject(ActivatedRoute);
-  supabaseService = inject(SupabaseService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private supabaseService = inject(SupabaseService);
   private toastService = inject(ToastService);
   private state = inject(LoginStateService);
   private keyboardService = inject(KeyboardService);
+
+  LockPasswordIcon = LockPasswordIcon;
 
   step = computed<MpinStep>(() => {
     const url = this.router.url;
@@ -97,6 +95,7 @@ export class MpinFlowComponent implements OnInit {
   });
   isLoading = signal(false);
   email = signal('');
+  resetStage = signal<'new' | 'confirm'>('new');
 
   pin1 = signal('');
   pin2 = signal('');
@@ -104,6 +103,22 @@ export class MpinFlowComponent implements OnInit {
 
   clearError() {
     this.mpinError.set('');
+  }
+
+  onPinChange() {
+    this.clearError();
+    // Auto-submit if PIN length is 4 to match the design interaction
+    if (this.step() === 'reset') {
+      if (this.resetStage() === 'new' && this.pin1().length === 4) {
+        setTimeout(() => this.resetStage.set('confirm'), 100);
+      } else if (this.resetStage() === 'confirm' && this.pin2().length === 4) {
+        this.onSubmit();
+      }
+    } else {
+      if (this.pin1().length === 4) {
+        this.onSubmit();
+      }
+    }
   }
 
   buttonText = computed(() => {
@@ -125,43 +140,71 @@ export class MpinFlowComponent implements OnInit {
   heading = computed(() => {
     switch (this.step()) {
       case 'login':
-        return 'Welcome Back';
+        return 'Enter your <span class="text-indigo-600">mPIN</span>';
       case 'forgot':
         return 'Check your Email';
       case 'reset':
-        return 'Set New MPIN';
+        return this.resetStage() === 'confirm' ? 'Confirm your mPIN' : 'Set New mPIN';
       case 'set-mpin':
-        return 'Create 4-Digit MPIN';
+        return 'Create your <span class="text-indigo-600">mPIN</span>';
       case 'confirm-mpin':
-        return 'Confirm MPIN';
+        return 'Confirm your <span class="text-indigo-600">mPIN</span>';
       default:
         return '';
     }
   });
 
   subheading = computed(() => {
-    const boldEmail = `<span class="text-black font-bold">${this.email()}</span>`;
     switch (this.step()) {
       case 'login':
-        return `Enter your 4-digit MPIN for <br/>${boldEmail}`;
+        return 'Welcome back! Enter your mPIN<br/>to continue.';
       case 'forgot':
-        return `We sent a 4-digit code to <br/>${boldEmail}`;
+        return 'Enter the code sent to your email address.';
       case 'reset':
-        return 'Enter a strong 4-digit PIN for your account.';
+        return 'Your new mPIN must be 4 digits.';
       case 'set-mpin':
-        return 'You will use this PIN to log in quickly.';
       case 'confirm-mpin':
-        return 'Re-enter your PIN to ensure it is correct.';
+        return 'This 4-digit code will keep your account secure.';
       default:
         return '';
     }
   });
 
+  onKeypadPress(key: string) {
+    if (this.isLoading()) return;
+
+    const currentPin = this.step() === 'reset' && this.resetStage() === 'confirm' ? this.pin2 : this.pin1;
+
+    // If there's an error displayed, any keypress restarts the entry
+    if (this.mpinError()) {
+      this.clearError();
+      if (key === 'backspace') {
+        currentPin.set('');
+      } else {
+        currentPin.set(key);
+      }
+      return;
+    }
+
+    if (key === 'backspace') {
+      if (currentPin().length > 0) {
+        currentPin.update((p) => p.slice(0, -1));
+        this.onPinChange();
+      } else if (this.step() === 'reset' && this.resetStage() === 'confirm') {
+        // If backspacing on empty confirm screen, go back to new PIN stage
+        this.resetStage.set('new');
+        this.pin2.set('');
+      }
+    } else if (currentPin().length < 4) {
+      currentPin.update((p) => p + key);
+      this.onPinChange();
+    }
+  }
+
   constructor() {
     effect(() => {
       // Reactively clear pins when step changes
       const currentStep = this.step();
-      // Wait for next tick to avoid setting signal during computation if needed,
       // but in an effect setting a signal is technically allowed via allowSignalWrites,
       // or we can just use untracked. Actually, since setting pin1/pin2 triggers no
       // other synchronous computations here, it's fine. Wait, Angular 16+ requires
@@ -288,7 +331,7 @@ export class MpinFlowComponent implements OnInit {
     try {
       await this.supabaseService.updateMpin(this.pin1(), this.email(), this.state.otpCode());
       await this.supabaseService.client.rpc('reset_failed_login', { p_email: this.email() });
-      this.toastService.showSuccess("MPIN reset successfully. You're now logged in.");
+      this.toastService.showSuccess('MPIN Reset', "You're now logged in.");
       this.state.clearAll();
       this.router.navigate(['/dashboard']);
     } catch (e) {
@@ -304,7 +347,7 @@ export class MpinFlowComponent implements OnInit {
     this.isLoading.set(true);
     try {
       await this.supabaseService.sendMpinResetOtp(this.email());
-      this.toastService.showSuccess('Recovery code sent to your email.');
+      this.toastService.showSuccess('Email Sent', 'Recovery code sent to your email.');
       this.router.navigate(['/forgot']);
     } catch (e) {
       this.mpinError.set('Failed to send recovery code.');

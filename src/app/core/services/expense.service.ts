@@ -100,11 +100,11 @@ export class ExpenseService {
     const month = monthStr || this.activeMonth();
 
     const [year, m] = month.split('-');
-    const startDate = `${year}-${m}-01T00:00:00.000Z`;
+    const localStart = new Date(parseInt(year), parseInt(m) - 1, 1);
+    const localEnd = new Date(parseInt(year), parseInt(m), 1);
     
-    // Calculate the start of the next month
-    const nextMDate = new Date(parseInt(year), parseInt(m), 1);
-    const nextMonthStr = `${nextMDate.getFullYear()}-${(nextMDate.getMonth() + 1).toString().padStart(2, '0')}-01T00:00:00.000Z`;
+    const startDate = localStart.toISOString();
+    const nextMonthStr = localEnd.toISOString();
 
     if (this.monthlyCache.has(month)) {
       this.allExpenses.set(this.monthlyCache.get(month)!);
@@ -202,7 +202,11 @@ export class ExpenseService {
 
   private applyFilterAndPagination() {
     const month = this.activeMonth();
-    const filtered = this.allExpenses().filter(e => e.date.startsWith(month));
+    const filtered = this.allExpenses().filter(e => {
+      const d = new Date(e.date);
+      const mStr = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}`;
+      return mStr === month;
+    });
     
     const limit = this.currentPage() * this.pageSize;
     this.hasMore.set(filtered.length > limit);
@@ -434,7 +438,9 @@ export class ExpenseService {
     const catLower = category.toLowerCase();
     return this.allExpenses()
       .filter(e => {
-        if (!e.date.startsWith(month)) return false;
+        const d = new Date(e.date);
+        const mStr = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}`;
+        if (mStr !== month) return false;
         const eCat = e.category.toLowerCase();
         return eCat === catLower || eCat === `${catLower} (split)` || eCat === `${catLower} (group split)` || eCat === `${catLower} (subscription)`;
       })

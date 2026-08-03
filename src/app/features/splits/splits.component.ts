@@ -22,7 +22,7 @@ import { ToastService } from '../../core/services/toast.service';
   host: {
     class: 'block h-full',
   },
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.Default,
   template: `
     <div class="h-full bg-white flex flex-col relative">
       <!-- Fixed Header Container -->

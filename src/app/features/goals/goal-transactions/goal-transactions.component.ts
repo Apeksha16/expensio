@@ -11,7 +11,7 @@ import { ExpenseService } from '../../../core/services/expense.service';
   host: {
     class: 'block h-full bg-gray-50',
   },
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.Default,
   template: `
     <div class="flex flex-col h-full relative bg-white">
       <!-- Content -->

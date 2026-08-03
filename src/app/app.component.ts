@@ -23,14 +23,15 @@ import { PwaService } from './core/services/pwa.service';
 import { KeyboardService } from './core/services/keyboard.service';
 import { AuthService } from './core/services/auth.service';
 import { AppInitService } from './core/services/app-init.service';
+import { ToastComponent } from './shared/ui/toast/toast.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, ToastComponent],
   templateUrl: './app.html',
   styleUrl: './app.css',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.Default,
   animations: [
     slideInAnimation,
     trigger('fadeOut', [transition(':leave', [animate('300ms ease-out', style({ opacity: 0 }))])]),

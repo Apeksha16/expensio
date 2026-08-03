@@ -363,6 +363,9 @@ returns trigger
 language plpgsql
 security definer set search_path = public
 as $$
+declare
+  cash_balance numeric;
+  savings_balance numeric;
 begin
   insert into public.profiles (id, username, name, salary, avatar_id)
   values (
@@ -372,6 +375,16 @@ begin
     coalesce((new.raw_user_meta_data->>'salary')::numeric, 0),
     1
   );
+
+  cash_balance := coalesce((new.raw_user_meta_data->>'cash_balance')::numeric, 0);
+  savings_balance := coalesce((new.raw_user_meta_data->>'savings_balance')::numeric, 0);
+
+  insert into public.user_accounts (user_id, account_type, balance)
+  values 
+    (new.id, 'Salary', coalesce((new.raw_user_meta_data->>'salary')::numeric, 0)),
+    (new.id, 'Cash', cash_balance),
+    (new.id, 'Savings', savings_balance);
+
   return new;
 end;
 $$;
