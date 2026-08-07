@@ -112,8 +112,8 @@ import { AddFundsSheetComponent } from '../../shared/ui/add-funds-sheet/add-fund
             }
           } @else {
             <div class="mt-4 w-full bg-[#FCFCFD] border border-dashed border-gray-200 rounded-[24px] p-8 flex flex-col items-center justify-center text-center">
-              <div class="w-12 h-12 bg-indigo-50 rounded-[14px] flex items-center justify-center mb-3">
-                <svg class="w-6 h-6 text-[#5421E6]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div class="w-12 h-12 bg-goals-primary/10 rounded-[14px] flex items-center justify-center mb-3">
+                <svg class="w-6 h-6 text-goals-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
               </div>

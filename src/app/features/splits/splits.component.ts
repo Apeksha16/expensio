@@ -187,8 +187,7 @@ import { ToastService } from '../../core/services/toast.service';
                 <div class="mt-8 flex flex-col items-center justify-center text-center px-4">
                   <!-- Custom illustration placeholder for empty state -->
                   <div class="w-40 h-40 bg-gray-50 rounded-full flex items-center justify-center mb-6 border-8 border-white shadow-sm overflow-hidden">
-                    <img src="assets/images/empty-splits.png" alt="Empty Splits" class="w-full h-full object-cover opacity-80" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
-                    <svg style="display:none;" class="w-16 h-16 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg class="w-16 h-16 text-splits-primary/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4" />
                     </svg>
                   </div>
@@ -196,15 +195,6 @@ import { ToastService } from '../../core/services/toast.service';
                   <p class="text-[13px] font-medium text-slate-500 max-w-[240px] mb-8 leading-relaxed">
                     Keep track of shared expenses, balances, and who owes who.
                   </p>
-                  <button
-                    (click)="splitService.openAddSplitSheet()"
-                    class="w-[200px] bg-splits-primary hover:bg-splits-dark text-white py-4 rounded-[20px] font-bold text-[14px] tracking-wide shadow-lg shadow-splits-primary/30 active:scale-95 transition-all flex items-center justify-center gap-2"
-                  >
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
-                    </svg>
-                    New Split
-                  </button>
                 </div>
               }
             </div>
@@ -259,8 +249,7 @@ import { ToastService } from '../../core/services/toast.service';
                 <div class="mt-8 flex flex-col items-center justify-center text-center px-4">
                   <!-- Custom illustration placeholder for empty state -->
                   <div class="w-40 h-40 bg-gray-50 rounded-full flex items-center justify-center mb-6 border-8 border-white shadow-sm overflow-hidden">
-                    <img src="assets/images/empty-splits.png" alt="Empty Groups" class="w-full h-full object-cover opacity-80" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
-                    <svg style="display:none;" class="w-16 h-16 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg class="w-16 h-16 text-splits-primary/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                   </div>
@@ -268,15 +257,6 @@ import { ToastService } from '../../core/services/toast.service';
                   <p class="text-[13px] font-medium text-slate-500 max-w-[240px] mb-8 leading-relaxed">
                     Create groups to easily split expenses with trips, roommates, or friends.
                   </p>
-                  <button
-                    (click)="splitService.openGroupSheet()"
-                    class="w-[200px] bg-splits-primary hover:bg-splits-dark text-white py-4 rounded-[20px] font-bold text-[14px] tracking-wide shadow-lg shadow-splits-primary/30 active:scale-95 transition-all flex items-center justify-center gap-2"
-                  >
-                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
-                    </svg>
-                    New Group
-                  </button>
                 </div>
               }
 

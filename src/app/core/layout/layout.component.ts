@@ -85,7 +85,7 @@ import { MonthPickerService } from '../services/month-picker.service';
         [ngClass]="getThemeClasses().bg + ' ' + (getThemeClasses().bg === 'bg-white' || getThemeClasses().bg === 'bg-gray-50' ? 'text-black' : 'text-white')"
       >
         <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <span class="text-lg font-extrabold tracking-tight text-white truncate max-w-[200px] text-center">{{ pageTitle() }}</span>
+          <span class="text-lg font-extrabold tracking-tight truncate max-w-[200px] text-center">{{ pageTitle() }}</span>
         </div>
         @if (
           isGroupExpensesPage() ||
@@ -95,7 +95,7 @@ import { MonthPickerService } from '../services/month-picker.service';
         ) {
           <button
             (click)="goBack()"
-            class="p-2 -ml-2 text-white/80 relative z-10 hover:text-white focus:outline-none transition-colors"
+            class="p-2 -ml-2 opacity-80 relative z-10 hover:opacity-100 focus:outline-none transition-opacity"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -109,7 +109,7 @@ import { MonthPickerService } from '../services/month-picker.service';
         } @else {
           <button
             (click)="toggleSidebar(true)"
-            class="p-2 -ml-2 text-white/80 relative z-10 hover:text-white focus:outline-none transition-colors"
+            class="p-2 -ml-2 opacity-80 relative z-10 hover:opacity-100 focus:outline-none transition-opacity"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -126,7 +126,7 @@ import { MonthPickerService } from '../services/month-picker.service';
         @if (isGroupExpensesPage()) {
           <button
             (click)="editGroup()"
-            class="p-2 -mr-2 text-white/80 relative z-10 hover:text-white focus:outline-none transition-colors"
+            class="p-2 -mr-2 opacity-80 relative z-10 hover:opacity-100 focus:outline-none transition-opacity"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -140,7 +140,7 @@ import { MonthPickerService } from '../services/month-picker.service';
         } @else if (isBudgetExpensesPage() && !isVirtualOthersBudget()) {
           <button
             (click)="editBudget()"
-            class="p-2 -mr-2 text-white/80 relative z-10 hover:text-white focus:outline-none transition-colors"
+            class="p-2 -mr-2 opacity-80 relative z-10 hover:opacity-100 focus:outline-none transition-opacity"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -154,7 +154,7 @@ import { MonthPickerService } from '../services/month-picker.service';
         } @else if (isGoalTransactionsPage()) {
           <button
             (click)="editGoal()"
-            class="p-2 -mr-2 text-white/80 relative z-10 hover:text-white focus:outline-none transition-colors"
+            class="p-2 -mr-2 opacity-80 relative z-10 hover:opacity-100 focus:outline-none transition-opacity"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -168,7 +168,7 @@ import { MonthPickerService } from '../services/month-picker.service';
         } @else if (isLedgerDetailsPage()) {
           <button
             (click)="editLedger()"
-            class="p-2 -mr-2 text-white/80 relative z-10 hover:text-white focus:outline-none transition-colors"
+            class="p-2 -mr-2 opacity-80 relative z-10 hover:opacity-100 focus:outline-none transition-opacity"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -182,7 +182,7 @@ import { MonthPickerService } from '../services/month-picker.service';
         } @else if (isExpensesPage() || isBudgetsPage()) {
           <button
             (click)="openMonthPicker()"
-            class="p-2 -mr-2 text-white/80 relative z-10 hover:text-white focus:outline-none transition-colors"
+            class="p-2 -mr-2 relative z-10 hover:opacity-80 focus:outline-none transition-opacity"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />

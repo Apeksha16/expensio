@@ -75,7 +75,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
       <div class="p-5 flex flex-col gap-6">
         @if (isInitialLoading()) {
           <!-- Total Expenses Shimmer -->
-          <div class="bg-indigo-50/30 p-6 rounded-[24px] shadow-sm border border-indigo-100/50 relative overflow-hidden">
+          <div class="bg-slate-50/50 p-6 rounded-[24px] shadow-sm border border-slate-100 relative overflow-hidden">
             <div class="flex flex-col items-center justify-center relative mt-2">
               <div class="w-full max-w-[220px] aspect-[100/55] bg-slate-50 rounded-t-full animate-pulse"></div>
               <div class="absolute bottom-0 flex flex-col items-center translate-y-1">
@@ -102,7 +102,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
               <div class="flex items-center gap-1 bg-slate-50 border border-slate-100 rounded-full p-1">
                 <button
                   (click)="scrollToCard(0)"
-                  [class.bg-[#5421E6]]="activeGaugeIndex() === 0"
+                  [class.bg-goals-primary]="activeGaugeIndex() === 0"
                   [class.text-white]="activeGaugeIndex() === 0"
                   [class.text-slate-700]="activeGaugeIndex() !== 0"
                   [class.bg-transparent]="activeGaugeIndex() !== 0"
@@ -112,7 +112,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
                 </button>
                 <button
                   (click)="scrollToCard(1)"
-                  [class.bg-[#5421E6]]="activeGaugeIndex() === 1"
+                  [class.bg-budget-primary]="activeGaugeIndex() === 1"
                   [class.text-white]="activeGaugeIndex() === 1"
                   [class.text-slate-700]="activeGaugeIndex() !== 1"
                   [class.bg-transparent]="activeGaugeIndex() !== 1"
@@ -122,7 +122,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
                 </button>
                 <button
                   (click)="scrollToCard(2)"
-                  [class.bg-[#5421E6]]="activeGaugeIndex() === 2"
+                  [class.bg-profile-primary]="activeGaugeIndex() === 2"
                   [class.text-white]="activeGaugeIndex() === 2"
                   [class.text-slate-700]="activeGaugeIndex() !== 2"
                   [class.bg-transparent]="activeGaugeIndex() !== 2"
@@ -143,7 +143,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
               <!-- CARD 1: SALARY ACCOUNT GAUGE -->
               <div
                 (click)="scrollToCard(0)"
-                class="snap-center shrink-0 w-[85vw] max-w-[340px] bg-indigo-50/30 text-slate-800 p-6 rounded-[24px] transition-all duration-300 transform relative cursor-pointer shadow-sm border border-indigo-100/50"
+                class="snap-center shrink-0 w-[85vw] max-w-[340px] bg-goals-primary/5 text-slate-800 p-6 rounded-[24px] transition-all duration-300 transform relative cursor-pointer shadow-sm border border-goals-primary/20"
                 [class.scale-100]="activeGaugeIndex() === 0"
                 [class.scale-95]="activeGaugeIndex() !== 0"
                 [class.opacity-50]="activeGaugeIndex() !== 0"
@@ -168,7 +168,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
                     />
                   </svg>
                   <div class="absolute inset-0 flex flex-col items-center justify-end pb-2" (click)="toggleMask(); $event.stopPropagation()">
-                    <span class="text-[10px] font-bold tracking-widest uppercase mb-1" [class.text-red-500]="isOverBudget()" [class.text-indigo-600]="!isOverBudget()">
+                    <span class="text-[10px] font-bold tracking-widest uppercase mb-1" [class.text-red-500]="isOverBudget()" [class.text-goals-primary]="!isOverBudget()">
                       {{ isOverBudget() ? 'OVER BUDGET' : 'REMAINING' }}
                     </span>
                     <div class="w-[65%] flex justify-center overflow-hidden">
@@ -199,7 +199,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
               <!-- CARD 2: CASH ACCOUNT GAUGE -->
               <div
                 (click)="scrollToCard(1)"
-                class="snap-center shrink-0 w-[85vw] max-w-[340px] bg-indigo-50/30 text-slate-800 p-6 rounded-[24px] transition-all duration-300 transform relative cursor-pointer shadow-sm border border-indigo-100/50"
+                class="snap-center shrink-0 w-[85vw] max-w-[340px] bg-budget-primary/5 text-slate-800 p-6 rounded-[24px] transition-all duration-300 transform relative cursor-pointer shadow-sm border border-budget-primary/20"
                 [class.scale-100]="activeGaugeIndex() === 1"
                 [class.scale-95]="activeGaugeIndex() !== 1"
                 [class.opacity-50]="activeGaugeIndex() !== 1"
@@ -253,14 +253,14 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
               <!-- CARD 3: SAVINGS ACCOUNT GAUGE -->
               <div
                 (click)="scrollToCard(2)"
-                class="snap-center shrink-0 w-[85vw] max-w-[340px] bg-indigo-50/30 text-slate-800 p-6 rounded-[24px] transition-all duration-300 transform relative cursor-pointer shadow-sm border border-indigo-100/50"
+                class="snap-center shrink-0 w-[85vw] max-w-[340px] bg-profile-primary/5 text-slate-800 p-6 rounded-[24px] transition-all duration-300 transform relative cursor-pointer shadow-sm border border-profile-primary/20"
                 [class.scale-100]="activeGaugeIndex() === 2"
                 [class.scale-95]="activeGaugeIndex() !== 2"
                 [class.opacity-50]="activeGaugeIndex() !== 2"
               >
                 <div class="flex items-center justify-between mb-4">
                   <span class="font-bold text-base text-slate-800">Savings Account</span>
-                  <span class="text-[10px] font-bold uppercase px-3 py-1 bg-indigo-50 text-[#5421E6] rounded-full">Savings</span>
+                  <span class="text-[10px] font-bold uppercase px-3 py-1 bg-profile-primary/10 text-profile-primary rounded-full">Savings</span>
                 </div>
 
                 <div class="flex flex-col items-center justify-center relative mt-3">
@@ -268,7 +268,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
                     <path
                       d="M 10 50 A 40 40 0 0 1 90 50"
                       fill="none"
-                      stroke="#5833E2"
+                      stroke="#0891b2"
                       stroke-width="10"
                       stroke-linecap="round"
                       stroke-dasharray="125.66"
@@ -277,7 +277,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
                     />
                   </svg>
                   <div class="absolute inset-0 flex flex-col items-center justify-end pb-2" (click)="toggleMask(); $event.stopPropagation()">
-                    <span class="text-[10px] font-bold tracking-widest text-[#5421E6] uppercase mb-1">Total Savings</span>
+                    <span class="text-[10px] font-bold tracking-widest text-profile-primary uppercase mb-1">Total Savings</span>
                     <div class="w-[65%] flex justify-center overflow-hidden">
                       <p class="font-extrabold tracking-tight text-[#111111] leading-none text-center truncate"
                          [style.font-size]="getFontSizeForAmount(isMasked() ? '••••' : (savingsBalance() | currency:'INR':'symbol':'1.0-0'))">
@@ -313,7 +313,9 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
                 <button
                   (click)="scrollToCard(idx)"
                   [class.w-5]="activeGaugeIndex() === idx"
-                  [class.bg-[#5421E6]]="activeGaugeIndex() === idx"
+                  [class.bg-goals-primary]="activeGaugeIndex() === 0 && idx === 0"
+                  [class.bg-budget-primary]="activeGaugeIndex() === 1 && idx === 1"
+                  [class.bg-profile-primary]="activeGaugeIndex() === 2 && idx === 2"
                   [class.w-2]="activeGaugeIndex() !== idx"
                   [class.bg-[#D1D5DB]]="activeGaugeIndex() !== idx"
                   class="h-2 rounded-full transition-all duration-300"
@@ -326,7 +328,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
           <div class="flex flex-col gap-3 mt-4">
             <div class="flex justify-between items-end px-1">
               <h3 class="text-[11px] font-bold uppercase tracking-widest text-slate-700">Upcoming Payments</h3>
-              <button class="text-[11px] font-semibold text-[#5421E6] hover:underline cursor-pointer flex items-center">
+              <button class="text-[11px] font-semibold text-slate-800 hover:underline cursor-pointer flex items-center">
                 View All
                 <svg class="w-3 h-3 ml-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -338,11 +340,11 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
               <div class="flex gap-3 overflow-x-auto pb-2 pt-1 px-1 snap-x snap-mandatory no-scrollbar">
                 @for (payment of combinedUpcomingPayments(); track payment.id; let i = $index) {
                   <div
-                    class="snap-start shrink-0 w-[240px] bg-indigo-50/30 border border-indigo-100/50 rounded-[20px] p-3 flex items-center gap-3 transition-transform active:scale-95 cursor-pointer shadow-sm hover:shadow-md"
+                    class="snap-start shrink-0 w-[240px] bg-slate-50/50 border border-slate-100 rounded-[20px] p-3 flex items-center gap-3 transition-transform active:scale-95 cursor-pointer shadow-sm hover:shadow-md"
                     (click)="payUpcoming(payment)"
                   >
                     <!-- Icon -->
-                    <div class="bg-indigo-50 text-[#5421E6] flex items-center justify-center w-10 h-10 rounded-[14px] shrink-0">
+                    <div class="flex items-center justify-center w-10 h-10 rounded-[14px] shrink-0" [ngClass]="payment.type === 'sub' ? 'bg-subscriptions-primary/10 text-subscriptions-primary' : 'bg-goals-primary/10 text-goals-primary'">
                       @if (payment.type === 'sub') {
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
@@ -374,8 +376,8 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
               </div>
             } @else {
               <div class="w-full bg-[#FCFCFD] border border-dashed border-gray-200 rounded-[24px] p-8 flex flex-col items-center justify-center text-center">
-                <div class="w-12 h-12 bg-indigo-50 rounded-[14px] flex items-center justify-center mb-3">
-                  <svg class="w-6 h-6 text-[#5421E6]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="w-12 h-12 bg-slate-100 rounded-[14px] flex items-center justify-center mb-3">
+                  <svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                   </svg>
                 </div>
@@ -389,7 +391,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
           <div class="flex flex-col gap-3 mt-4">
             <div class="flex justify-between items-end px-1">
               <h3 class="text-[11px] font-bold uppercase tracking-widest text-slate-700">Split Summary</h3>
-              <button class="text-[11px] font-semibold text-[#5421E6] hover:underline cursor-pointer flex items-center">
+              <button class="text-[11px] font-semibold text-splits-primary hover:underline cursor-pointer flex items-center">
                 View Details
                 <svg class="w-3 h-3 ml-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -397,7 +399,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
               </button>
             </div>
 
-            <div class="bg-indigo-50/30 p-6 rounded-[24px] border border-indigo-100/50 shadow-[0_2px_10px_rgba(0,0,0,0.02)] flex flex-col gap-6 relative">
+            <div class="bg-splits-primary/5 p-6 rounded-[24px] border border-splits-primary/20 shadow-[0_2px_10px_rgba(0,0,0,0.02)] flex flex-col gap-6 relative">
               <!-- Totals Header -->
               <div class="flex justify-between items-center relative">
                 <!-- Left Column -->
@@ -446,7 +448,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
               <!-- Top Balances List or Settle Button -->
               @if (topSplitFriends().length === 0) {
                 <div class="pt-4 border-t border-gray-100 flex justify-center">
-                  <button class="text-xs font-bold text-[#5421E6] uppercase tracking-widest flex items-center gap-1 hover:underline">
+                  <button class="text-xs font-bold text-splits-primary uppercase tracking-widest flex items-center gap-1 hover:underline">
                     ALL SETTLED UP
                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -482,7 +484,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
           <div class="flex flex-col gap-3 mt-4">
             <div class="flex justify-between items-end px-1">
               <h3 class="text-[11px] font-bold uppercase tracking-widest text-slate-700">Recent Transactions</h3>
-              <button routerLink="/expenses" class="text-[11px] font-semibold text-[#5421E6] hover:underline cursor-pointer flex items-center">
+              <button routerLink="/expenses" class="text-[11px] font-semibold text-ledger-primary hover:underline cursor-pointer flex items-center">
                 View All
                 <svg class="w-3 h-3 ml-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -494,7 +496,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
               @for (expense of recentExpenses(); track expense.id) {
                 <button
                   (click)="editExpense(expense)"
-                  class="w-full bg-indigo-50/30 border border-indigo-100/50 rounded-[20px] p-4 flex items-center gap-3 text-left transition-all active:scale-[0.99] cursor-pointer shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:shadow-md"
+                  class="w-full bg-ledger-primary/5 border border-ledger-primary/20 rounded-[20px] p-4 flex items-center gap-3 text-left transition-all active:scale-[0.99] cursor-pointer shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:shadow-md"
                 >
                   <!-- Left side: Icon -->
                   <div class="flex items-center gap-3 shrink-0">
@@ -551,8 +553,8 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
               }
               @if (recentExpenses().length === 0) {
                 <div class="w-full bg-[#FCFCFD] border border-dashed border-gray-200 rounded-[24px] p-8 flex flex-col items-center justify-center text-center">
-                  <div class="w-12 h-12 bg-indigo-50 rounded-[14px] flex items-center justify-center mb-3">
-                    <svg class="w-6 h-6 text-[#5421E6]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div class="w-12 h-12 bg-ledger-primary/10 rounded-[14px] flex items-center justify-center mb-3">
+                    <svg class="w-6 h-6 text-ledger-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
                   </div>

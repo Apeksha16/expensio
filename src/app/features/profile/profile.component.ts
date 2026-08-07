@@ -19,14 +19,14 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
   <div class="p-4 flex flex-col gap-4 pb-32">
     
     <!-- Top Profile Card (Avatar + Info) -->
-    <div class="bg-indigo-50/30 rounded-[24px] p-5 border border-indigo-100/50 shadow-sm flex items-center gap-4 relative overflow-hidden">
+    <div class="bg-profile-primary/10 rounded-[24px] p-5 border border-profile-primary/20 shadow-sm flex items-center gap-4 relative overflow-hidden">
       <!-- Background decorative shape -->
       <div class="absolute -top-16 -left-16 w-48 h-48 bg-[#F4F2FF] rounded-full blur-[40px] pointer-events-none"></div>
 
       <!-- Avatar -->
       <div class="relative shrink-0 z-10">
         <div class="w-[84px] h-[84px] rounded-full p-[3px] bg-white shadow-sm border border-gray-100">
-          <div class="w-full h-full rounded-full overflow-hidden bg-indigo-50">
+          <div class="w-full h-full rounded-full overflow-hidden bg-profile-primary/10">
             <img [src]="getSelectedAvatarUrl()" alt="Avatar" class="w-full h-full object-cover" />
           </div>
         </div>
@@ -50,7 +50,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
     </div>
       
     <!-- User Info Box -->
-    <div class="bg-indigo-50/30 rounded-[24px] p-5 border border-indigo-100/50 flex flex-col gap-4 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+    <div class="bg-profile-primary/10 rounded-[24px] p-5 border border-profile-primary/20 flex flex-col gap-4 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
       
       <!-- Email -->
       <div class="flex items-center gap-4">
@@ -82,7 +82,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
         <h3 class="text-profile-primary font-extrabold text-[11px] tracking-wider uppercase ml-1">Account Balances</h3>
         
         <!-- Salary -->
-        <div class="bg-indigo-50/30 rounded-[24px] p-4 border border-indigo-100/50 flex items-center justify-between shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+        <div class="bg-profile-primary/10 rounded-[24px] p-4 border border-profile-primary/20 flex items-center justify-between shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
           <div class="flex items-center gap-3">
             <div class="w-[42px] h-[42px] rounded-2xl bg-[#F4F2FF] flex items-center justify-center text-profile-primary">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
@@ -90,7 +90,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
             <span class="text-gray-800 font-bold text-[13px]">Salary / Monthly</span>
           </div>
           <div class="flex items-center gap-2">
-            <div class="flex items-center bg-indigo-50/40 border border-indigo-100/50 shadow-[0_1px_3px_rgba(0,0,0,0.04)] rounded-[14px] px-3 py-2 w-[110px] focus-within:border-profile-primary focus-within:ring-1 focus-within:ring-profile-primary transition-all">
+            <div class="flex items-center bg-profile-primary/10 border border-profile-primary/20 shadow-[0_1px_3px_rgba(0,0,0,0.04)] rounded-[14px] px-3 py-2 w-[110px] focus-within:border-profile-primary focus-within:ring-1 focus-within:ring-profile-primary transition-all">
               <span class="text-profile-primary font-bold text-sm mr-1.5">₹</span>
               <input #salaryInput type="text" inputmode="decimal" [ngModel]="formattedSalary" (ngModelChange)="formatSalary($event); salaryInput.value = formattedSalary" class="w-full bg-transparent text-gray-900 font-bold text-[13px] focus:outline-none" />
             </div>
@@ -98,7 +98,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
         </div>
 
         <!-- Cash Account -->
-        <div class="bg-indigo-50/30 rounded-[24px] p-4 border border-indigo-100/50 flex items-center justify-between shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+        <div class="bg-profile-primary/10 rounded-[24px] p-4 border border-profile-primary/20 flex items-center justify-between shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
           <div class="flex items-center gap-3">
             <div class="w-[42px] h-[42px] rounded-2xl bg-green-50 flex items-center justify-center text-green-600">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>
@@ -106,7 +106,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
             <span class="text-gray-800 font-bold text-[13px]">Cash Account</span>
           </div>
           <div class="flex items-center gap-2">
-            <div class="flex items-center bg-indigo-50/40 border border-indigo-100/50 shadow-[0_1px_3px_rgba(0,0,0,0.04)] rounded-[14px] px-3 py-2 w-[110px] focus-within:border-green-500 focus-within:ring-1 focus-within:ring-green-500 transition-all">
+            <div class="flex items-center bg-profile-primary/10 border border-profile-primary/20 shadow-[0_1px_3px_rgba(0,0,0,0.04)] rounded-[14px] px-3 py-2 w-[110px] focus-within:border-green-500 focus-within:ring-1 focus-within:ring-green-500 transition-all">
               <span class="text-green-600 font-bold text-sm mr-1.5">₹</span>
               <input #cashInput type="text" inputmode="decimal" [ngModel]="formattedCash" (ngModelChange)="formatCash($event); cashInput.value = formattedCash" class="w-full bg-transparent text-gray-900 font-bold text-[13px] focus:outline-none" />
             </div>
@@ -114,7 +114,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
         </div>
 
         <!-- Savings Account -->
-        <div class="bg-indigo-50/30 rounded-[24px] p-4 border border-indigo-100/50 flex items-center justify-between shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
+        <div class="bg-profile-primary/10 rounded-[24px] p-4 border border-profile-primary/20 flex items-center justify-between shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
           <div class="flex items-center gap-3">
             <div class="w-[42px] h-[42px] rounded-2xl bg-orange-50 flex items-center justify-center text-orange-500">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.5-1 2-1.5 2-2 2-4 0-6-1.5-1.5-3-1.5-3-1.5Z"/><path d="M2 9v1c0 1.1.9 2 2 2h1"/><path d="M16 11h.01"/></svg>
@@ -122,7 +122,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
             <span class="text-gray-800 font-bold text-[13px]">Savings Account</span>
           </div>
           <div class="flex items-center gap-2">
-            <div class="flex items-center bg-indigo-50/40 border border-indigo-100/50 shadow-[0_1px_3px_rgba(0,0,0,0.04)] rounded-[14px] px-3 py-2 w-[110px] focus-within:border-orange-500 focus-within:ring-1 focus-within:ring-orange-500 transition-all">
+            <div class="flex items-center bg-profile-primary/10 border border-profile-primary/20 shadow-[0_1px_3px_rgba(0,0,0,0.04)] rounded-[14px] px-3 py-2 w-[110px] focus-within:border-orange-500 focus-within:ring-1 focus-within:ring-orange-500 transition-all">
               <span class="text-orange-500 font-bold text-sm mr-1.5">₹</span>
               <input #savingsInput type="text" inputmode="decimal" [ngModel]="formattedSavings" (ngModelChange)="formatSavings($event); savingsInput.value = formattedSavings" class="w-full bg-transparent text-gray-900 font-bold text-[13px] focus:outline-none" />
             </div>
@@ -138,10 +138,10 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
       <div class="flex flex-col gap-3">
         <h3 class="text-profile-primary font-extrabold text-[11px] tracking-wider uppercase ml-1">Preferences</h3>
 
-        <div class="bg-indigo-50/30 rounded-[24px] border border-indigo-100/50 flex flex-col shadow-[0_2px_10px_rgba(0,0,0,0.03)] overflow-hidden">
+        <div class="bg-profile-primary/10 rounded-[24px] border border-profile-primary/20 flex flex-col shadow-[0_2px_10px_rgba(0,0,0,0.03)] overflow-hidden">
           
           <!-- Mask Values -->
-          <div class="flex items-center justify-between p-4 border-b border-indigo-100/50">
+          <div class="flex items-center justify-between p-4 border-b border-profile-primary/20">
             <div class="flex flex-col">
               <span class="text-gray-900 font-bold text-[13px]">Mask Values</span>
               <span class="text-gray-400 font-medium text-[11px] mt-0.5">Hide balances on dashboard</span>
@@ -161,7 +161,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
               <span class="text-gray-900 font-bold text-[13px]">Email Reports</span>
               <span class="text-gray-400 font-medium text-[11px] mt-0.5">Automated expense summaries</span>
             </div>
-            <div class="flex bg-indigo-50/40 rounded-[10px] p-1 border border-indigo-100/50">
+            <div class="flex bg-profile-primary/10 rounded-[10px] p-1 border border-profile-primary/20">
               <button (click)="updateField('emailReportFrequency', 'none')"
                 [class.bg-profile-primary]="pendingProfile().emailReportFrequency === 'none'"
                 [class.text-white]="pendingProfile().emailReportFrequency === 'none'"
@@ -232,7 +232,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
               class="relative aspect-square rounded-[20px] flex items-center justify-center transition-all border-2"
               [ngClass]="
                 pendingProfile().avatarId === avatar.id
-                  ? 'border-profile-primary bg-indigo-50 shadow-[0_0_0_2px_rgba(79,57,246,0.1)]'
+                  ? 'border-profile-primary bg-profile-primary/10 shadow-[0_0_0_2px_rgba(8,145,178,0.1)]'
                   : 'border-transparent bg-[#FAFAFA] hover:bg-gray-50'
               "
             >

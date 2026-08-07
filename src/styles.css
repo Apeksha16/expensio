@@ -37,53 +37,53 @@
   --color-budget-light: #10b981; /* emerald-500 */
   --color-budget-surface: #ecfdf5; /* emerald-50 */
 
-  /* Friends Module */
-  --color-friends-primary: #8b5cf6;
-  --color-friends-dark: #020617;
-  --color-friends-light: #334155;
-  --color-friends-surface: #f8fafc;
+  /* Friends Module - Teal */
+  --color-friends-primary: #0d9488;
+  --color-friends-dark: #0f766e;
+  --color-friends-light: #14b8a6;
+  --color-friends-surface: #f0fdfa;
 
-  /* Splits Module */
-  --color-splits-primary: #5421E6;
-  --color-splits-dark: #3b17a1;
-  --color-splits-light: #7b52f0;
-  --color-splits-surface: #f4f0ff;
+  /* Splits Module - Orange */
+  --color-splits-primary: #ea580c;
+  --color-splits-dark: #c2410c;
+  --color-splits-light: #f97316;
+  --color-splits-surface: #fff7ed;
 
-  /* Subscriptions Module */
-  --color-subscriptions-primary: #0f172a;
-  --color-subscriptions-dark: #020617;
-  --color-subscriptions-light: #334155;
-  --color-subscriptions-surface: #f8fafc;
+  /* Subscriptions Module - Fuchsia */
+  --color-subscriptions-primary: #d946ef;
+  --color-subscriptions-dark: #a21caf;
+  --color-subscriptions-light: #e879f9;
+  --color-subscriptions-surface: #fdf4ff;
 
-  /* Goals Module */
-  --color-goals-primary: #0f172a;
-  --color-goals-dark: #020617;
-  --color-goals-light: #334155;
-  --color-goals-surface: #f8fafc;
+  /* Goals Module - Blue */
+  --color-goals-primary: #2563eb;
+  --color-goals-dark: #1d4ed8;
+  --color-goals-light: #3b82f6;
+  --color-goals-surface: #eff6ff;
 
-  /* Ledger Module */
-  --color-ledger-primary: #0f172a;
-  --color-ledger-dark: #020617;
-  --color-ledger-light: #334155;
+  /* Ledger Module - Slate/Navy */
+  --color-ledger-primary: #475569;
+  --color-ledger-dark: #334155;
+  --color-ledger-light: #64748b;
   --color-ledger-surface: #f8fafc;
 
-  /* Reports Module */
-  --color-reports-primary: #0f172a;
-  --color-reports-dark: #020617;
-  --color-reports-light: #334155;
-  --color-reports-surface: #f8fafc;
+  /* Reports Module - Rose */
+  --color-reports-primary: #e11d48;
+  --color-reports-dark: #be123c;
+  --color-reports-light: #f43f5e;
+  --color-reports-surface: #fff1f2;
 
-  /* Profile Module */
-  --color-profile-primary: #4F39F6;
-  --color-profile-dark: #3b17a1;
-  --color-profile-light: #7b52f0;
-  --color-profile-surface: #f4f0ff;
+  /* Profile Module - Cyan */
+  --color-profile-primary: #0891b2;
+  --color-profile-dark: #0e7490;
+  --color-profile-light: #06b6d4;
+  --color-profile-surface: #ecfeff;
 
-  /* Tracker Module */
-  --color-tracker-primary: #0f172a;
-  --color-tracker-dark: #020617;
-  --color-tracker-light: #334155;
-  --color-tracker-surface: #f8fafc;
+  /* Tracker Module - Amber */
+  --color-tracker-primary: #d97706;
+  --color-tracker-dark: #b45309;
+  --color-tracker-light: #f59e0b;
+  --color-tracker-surface: #fffbeb;
 
   /* Toast Module */
   --color-toast-success: #10b981;

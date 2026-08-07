@@ -39,10 +39,10 @@ import { AmountInputDirective } from '../../shared/ui/amount-input.directive';
       </div>
 
       <!-- End of Month Salary Rollover Banner -->
-      <div class="bg-gradient-to-br from-indigo-50 to-blue-50 p-5 border border-indigo-100 rounded-[24px] shadow-sm relative overflow-hidden">
+      <div class="bg-gradient-to-br from-tracker-surface to-tracker-primary/10 p-5 border border-tracker-primary/20 rounded-[24px] shadow-sm relative overflow-hidden">
         <div class="flex items-start justify-between gap-3 mb-3">
           <div>
-            <div class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-indigo-500 text-white font-black text-[10px] uppercase tracking-wider rounded-full mb-2">
+            <div class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-tracker-primary text-white font-black text-[10px] uppercase tracking-wider rounded-full mb-2">
               <span>⚡ Month-End Savings Auto-Rollover</span>
             </div>
             <h3 class="text-lg font-black text-gray-900 leading-tight">
@@ -52,7 +52,7 @@ import { AmountInputDirective } from '../../shared/ui/amount-input.directive';
               At the end of the month, any amount remaining in your Salary Account automatically moves into Savings!
             </p>
           </div>
-          <div class="w-12 h-12 rounded-2xl bg-indigo-100 flex items-center justify-center text-2xl flex-shrink-0">
+          <div class="w-12 h-12 rounded-2xl bg-tracker-primary/20 flex items-center justify-center text-2xl flex-shrink-0">
             🏦
           </div>
         </div>
@@ -65,10 +65,10 @@ import { AmountInputDirective } from '../../shared/ui/amount-input.directive';
             </span>
           </div>
         } @else {
-          <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-3 mt-1 border-t border-indigo-100/50">
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-3 mt-1 border-t border-tracker-primary/20/50">
             <div>
               <span class="text-xs font-bold text-gray-500 block">Current Salary Surplus</span>
-              <span class="text-xl font-black text-indigo-700">
+              <span class="text-xl font-black text-tracker-dark">
                 ₹{{ trackerService.salarySurplusForActiveMonth().toLocaleString() }}
               </span>
             </div>
@@ -90,7 +90,7 @@ import { AmountInputDirective } from '../../shared/ui/amount-input.directive';
           <h3 class="text-xs font-extrabold uppercase tracking-widest text-gray-500">
             Your Accounts (3 Types)
           </h3>
-          <span class="text-[11px] font-bold text-indigo-600">Cash expenses deduct from Cash Account</span>
+          <span class="text-[11px] font-bold text-tracker-primary">Cash expenses deduct from Cash Account</span>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -211,7 +211,7 @@ import { AmountInputDirective } from '../../shared/ui/amount-input.directive';
         <button
           (click)="triggerRollover()"
           [disabled]="trackerService.salarySurplusForActiveMonth() <= 0"
-          class="py-3 bg-indigo-50 hover:bg-indigo-100 disabled:opacity-50 disabled:bg-gray-50 disabled:text-gray-400 text-indigo-700 rounded-[20px] font-extrabold text-xs shadow-sm active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
+          class="py-3 bg-tracker-surface hover:bg-tracker-primary/20 disabled:opacity-50 disabled:bg-gray-50 disabled:text-gray-400 text-tracker-dark rounded-[20px] font-extrabold text-xs shadow-sm active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
         >
           <span>⚡ Month Rollover</span>
         </button>
@@ -305,10 +305,10 @@ import { AmountInputDirective } from '../../shared/ui/amount-input.directive';
 
           <!-- Step Indicator -->
           <div class="flex items-center justify-between mb-6 pr-10">
-            <span class="text-xs font-black uppercase tracking-widest text-indigo-600">
+            <span class="text-xs font-black uppercase tracking-widest text-tracker-primary">
               Account Setup Wizard
             </span>
-            <span class="px-2.5 py-1 bg-indigo-50 rounded-full font-extrabold text-[10px] text-indigo-700 uppercase tracking-widest">
+            <span class="px-2.5 py-1 bg-tracker-surface rounded-full font-extrabold text-[10px] text-tracker-dark uppercase tracking-widest">
               Step {{ wizardStep() }} of 3
             </span>
           </div>
@@ -335,7 +335,7 @@ import { AmountInputDirective } from '../../shared/ui/amount-input.directive';
                     appAmountInput
                     [(ngModel)]="salaryVal"
                     placeholder="e.g. 50000"
-                    class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl text-xl font-black focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none transition-all"
+                    class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl text-xl font-black focus:bg-white focus:border-tracker-primary focus:ring-2 focus:ring-tracker-primary/20 focus:outline-none transition-all"
                   />
                 </div>
               </div>
@@ -349,7 +349,7 @@ import { AmountInputDirective } from '../../shared/ui/amount-input.directive';
                 </button>
                 <button
                   (click)="nextWizardStep()"
-                  class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs uppercase tracking-wider rounded-full shadow-lg shadow-indigo-600/30 active:scale-95 transition-all"
+                  class="px-6 py-3 bg-tracker-primary hover:bg-tracker-dark text-white font-black text-xs uppercase tracking-wider rounded-full shadow-lg shadow-tracker-primary/30 active:scale-95 transition-all"
                 >
                   Next ➔
                 </button>
@@ -379,7 +379,7 @@ import { AmountInputDirective } from '../../shared/ui/amount-input.directive';
                     appAmountInput
                     [(ngModel)]="cashVal"
                     placeholder="e.g. 5000"
-                    class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl text-xl font-black focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none transition-all"
+                    class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl text-xl font-black focus:bg-white focus:border-tracker-primary focus:ring-2 focus:ring-tracker-primary/20 focus:outline-none transition-all"
                   />
                 </div>
               </div>
@@ -393,7 +393,7 @@ import { AmountInputDirective } from '../../shared/ui/amount-input.directive';
                 </button>
                 <button
                   (click)="nextWizardStep()"
-                  class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs uppercase tracking-wider rounded-full shadow-lg shadow-indigo-600/30 active:scale-95 transition-all"
+                  class="px-6 py-3 bg-tracker-primary hover:bg-tracker-dark text-white font-black text-xs uppercase tracking-wider rounded-full shadow-lg shadow-tracker-primary/30 active:scale-95 transition-all"
                 >
                   Next ➔
                 </button>
@@ -423,7 +423,7 @@ import { AmountInputDirective } from '../../shared/ui/amount-input.directive';
                     appAmountInput
                     [(ngModel)]="savingsVal"
                     placeholder="e.g. 25000"
-                    class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl text-xl font-black focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none transition-all"
+                    class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl text-xl font-black focus:bg-white focus:border-tracker-primary focus:ring-2 focus:ring-tracker-primary/20 focus:outline-none transition-all"
                   />
                 </div>
               </div>

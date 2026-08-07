@@ -9,6 +9,7 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { ExpenseService } from '../../../core/services/expense.service';
@@ -113,7 +114,7 @@ import { SafeInputDirective } from '../safe-input.directive';
               <label class="text-[11px] font-bold text-slate-500 tracking-widest uppercase">Amount</label>
               <div class="relative group">
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-expense-primary"><path d="M6 3h12"/><path d="M6 8h12"/><path d="m6 13 8.5 8"/><path d="M6 13h3"/><path d="M9 13c6.667 0 6.667-10 0-10"/></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" [ngClass]="theme.text"><path d="M6 3h12"/><path d="M6 8h12"/><path d="m6 13 8.5 8"/><path d="M6 13h3"/><path d="M9 13c6.667 0 6.667-10 0-10"/></svg>
                 </div>
                 <input
                   type="text"
@@ -123,7 +124,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                   formControlName="amount"
                   placeholder="0.00"
                   (keydown)="preventE($event)"
-                  class="w-full bg-white border-2 border-gray-100 text-slate-900 font-bold text-2xl rounded-2xl focus:border-expense-primary focus:ring-4 focus:ring-expense-primary/10 pl-11 pr-4 py-4 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-300"
+                  class="w-full bg-white border-2 border-gray-100 text-slate-900 font-bold text-2xl rounded-2xl pl-11 pr-4 py-4 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-300" [ngClass]="[theme.focusBorder, theme.focusRing]"
                 />
               </div>
             </div>
@@ -139,7 +140,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                   formControlName="title"
                   appSafeInput
                   placeholder="What was this for?"
-                  class="w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl focus:border-expense-primary focus:ring-4 focus:ring-expense-primary/10 pl-11 pr-4 py-4 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-400"
+                  class="w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl pl-11 pr-4 py-4 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-400" [ngClass]="[theme.focusBorder, theme.focusRing]"
                 />
               </div>
             </div>
@@ -167,7 +168,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                       class="flex flex-col items-center justify-center gap-1.5 p-2.5 border-2 rounded-2xl transition-all min-h-[64px] active:scale-95"
                       [ngClass]="
                         (expenseForm.get('category')?.value || '').toLowerCase() === cat.name.toLowerCase()
-                          ? 'bg-expense-primary text-white border-expense-primary shadow-md shadow-expense-primary/20'
+                          ? theme.activeBg
                           : 'bg-white text-slate-600 border-gray-100 shadow-sm hover:bg-slate-50'
                       "
                     >
@@ -191,7 +192,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                     class="flex flex-col items-center justify-center gap-1 p-3 border-2 rounded-2xl transition-all h-[48px] active:scale-95"
                     [ngClass]="
                       expenseForm.get('paid_via')?.value === method
-                        ? 'bg-expense-primary text-white border-expense-primary shadow-md shadow-expense-primary/20'
+                        ? theme.activeBg
                         : 'bg-white text-slate-600 border-gray-100 shadow-sm hover:bg-slate-50'
                     "
                   >
@@ -206,7 +207,7 @@ import { SafeInputDirective } from '../safe-input.directive';
               <button
                 type="button"
                 (click)="isDatePickerOpen = true"
-                class="w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-sm rounded-2xl focus:border-expense-primary focus:ring-4 focus:ring-expense-primary/10 flex justify-between items-center p-4 outline-none transition-all touch-manipulation shadow-sm"
+                class="w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-sm rounded-2xl flex justify-between items-center p-4 outline-none transition-all touch-manipulation shadow-sm" [ngClass]="[theme.focusBorder, theme.focusRing]"
               >
                 <div class="flex items-center gap-3">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-slate-400"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
@@ -229,7 +230,7 @@ import { SafeInputDirective } from '../safe-input.directive';
               <button
                 type="submit"
                 [disabled]="!expenseForm.valid || isSaving() || isDeleting()"
-                class="flex-1 font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-expense-primary text-white shadow-md disabled:opacity-50 disabled:active:scale-100"
+                class="flex-1 font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm text-white shadow-md disabled:opacity-50 disabled:active:scale-100" [ngClass]="theme.bg"
               >
                 @if (isSaving()) {
                   <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
@@ -253,6 +254,28 @@ import { SafeInputDirective } from '../safe-input.directive';
   `,
 })
 export class BottomSheetComponent implements OnInit {
+
+  router = inject(Router);
+
+  get theme() {
+    const route = this.router.url.split('/')[1] || 'dashboard';
+    switch (route) {
+      case 'expenses': return { text: 'text-expense-primary', bg: 'bg-expense-primary', border: 'border-expense-primary', focusBorder: 'focus:border-expense-primary', focusRing: 'focus:ring-expense-primary/10', shadow: 'shadow-expense-primary/20', activeBg: 'bg-expense-primary text-white border-expense-primary shadow-md shadow-expense-primary/20' };
+      case 'budgets': return { text: 'text-budget-primary', bg: 'bg-budget-primary', border: 'border-budget-primary', focusBorder: 'focus:border-budget-primary', focusRing: 'focus:ring-budget-primary/10', shadow: 'shadow-budget-primary/20', activeBg: 'bg-budget-primary text-white border-budget-primary shadow-md shadow-budget-primary/20' };
+      case 'friends': return { text: 'text-friends-primary', bg: 'bg-friends-primary', border: 'border-friends-primary', focusBorder: 'focus:border-friends-primary', focusRing: 'focus:ring-friends-primary/10', shadow: 'shadow-friends-primary/20', activeBg: 'bg-friends-primary text-white border-friends-primary shadow-md shadow-friends-primary/20' };
+      case 'splits': return { text: 'text-splits-primary', bg: 'bg-splits-primary', border: 'border-splits-primary', focusBorder: 'focus:border-splits-primary', focusRing: 'focus:ring-splits-primary/10', shadow: 'shadow-splits-primary/20', activeBg: 'bg-splits-primary text-white border-splits-primary shadow-md shadow-splits-primary/20' };
+      case 'subscriptions': return { text: 'text-subscriptions-primary', bg: 'bg-subscriptions-primary', border: 'border-subscriptions-primary', focusBorder: 'focus:border-subscriptions-primary', focusRing: 'focus:ring-subscriptions-primary/10', shadow: 'shadow-subscriptions-primary/20', activeBg: 'bg-subscriptions-primary text-white border-subscriptions-primary shadow-md shadow-subscriptions-primary/20' };
+      case 'goals': 
+      case 'goal-transactions': return { text: 'text-goals-primary', bg: 'bg-goals-primary', border: 'border-goals-primary', focusBorder: 'focus:border-goals-primary', focusRing: 'focus:ring-goals-primary/10', shadow: 'shadow-goals-primary/20', activeBg: 'bg-goals-primary text-white border-goals-primary shadow-md shadow-goals-primary/20' };
+      case 'ledger': 
+      case 'ledger-details': return { text: 'text-ledger-primary', bg: 'bg-ledger-primary', border: 'border-ledger-primary', focusBorder: 'focus:border-ledger-primary', focusRing: 'focus:ring-ledger-primary/10', shadow: 'shadow-ledger-primary/20', activeBg: 'bg-ledger-primary text-white border-ledger-primary shadow-md shadow-ledger-primary/20' };
+      case 'tracker': return { text: 'text-tracker-primary', bg: 'bg-tracker-primary', border: 'border-tracker-primary', focusBorder: 'focus:border-tracker-primary', focusRing: 'focus:ring-tracker-primary/10', shadow: 'shadow-tracker-primary/20', activeBg: 'bg-tracker-primary text-white border-tracker-primary shadow-md shadow-tracker-primary/20' };
+      case 'profile': return { text: 'text-profile-primary', bg: 'bg-profile-primary', border: 'border-profile-primary', focusBorder: 'focus:border-profile-primary', focusRing: 'focus:ring-profile-primary/10', shadow: 'shadow-profile-primary/20', activeBg: 'bg-profile-primary text-white border-profile-primary shadow-md shadow-profile-primary/20' };
+      case 'reports': return { text: 'text-reports-primary', bg: 'bg-reports-primary', border: 'border-reports-primary', focusBorder: 'focus:border-reports-primary', focusRing: 'focus:ring-reports-primary/10', shadow: 'shadow-reports-primary/20', activeBg: 'bg-reports-primary text-white border-reports-primary shadow-md shadow-reports-primary/20' };
+      default: return { text: 'text-expense-primary', bg: 'bg-expense-primary', border: 'border-expense-primary', focusBorder: 'focus:border-expense-primary', focusRing: 'focus:ring-expense-primary/10', shadow: 'shadow-expense-primary/20', activeBg: 'bg-expense-primary text-white border-expense-primary shadow-md shadow-expense-primary/20' };
+    }
+  }
+
   expenseService = inject(ExpenseService);
   budgetService = inject(BudgetService);
   goalService = inject(GoalService);
