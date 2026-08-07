@@ -148,7 +148,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
                 type="text"
                 formControlName="name"
                 placeholder="e.g. New Bike, Vacation"
-                class="w-full bg-gray-50 border border-gray-200 text-gray-900 font-bold text-sm rounded-xl focus:bg-white focus:border-goals-primary focus:ring-4 focus:ring-goals-primary/15 block p-3 outline-none transition-all placeholder-gray-400 min-h-[48px] touch-manipulation shadow-sm"
+                class="w-full bg-white border-2 border-gray-100 text-gray-900 font-bold text-sm rounded-xl focus:bg-white focus:border-goals-primary focus:ring-4 focus:ring-goals-primary/15 block p-3 outline-none transition-all placeholder-gray-400 min-h-[48px] touch-manipulation shadow-sm"
               />
             </div>
 
@@ -169,7 +169,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
                     formControlName="total_amount"
                     placeholder="0"
                     (keydown)="preventE($event)"
-                    class="w-full bg-gray-50 border border-gray-200 text-gray-900 font-bold text-base rounded-xl focus:bg-white focus:border-goals-primary focus:ring-4 focus:ring-goals-primary/15 block p-3 outline-none transition-all placeholder-gray-400 min-h-[48px] touch-manipulation pl-8 shadow-sm"
+                    class="w-full bg-white border-2 border-gray-100 text-gray-900 font-bold text-base rounded-xl focus:bg-white focus:border-goals-primary focus:ring-4 focus:ring-goals-primary/15 block p-3 outline-none transition-all placeholder-gray-400 min-h-[48px] touch-manipulation pl-8 shadow-sm"
                   />
                 </div>
               </div>
@@ -190,7 +190,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
                     formControlName="saved_amount"
                     placeholder="0"
                     (keydown)="preventE($event)"
-                    class="w-full bg-gray-50 border border-gray-200 text-gray-900 font-bold text-base rounded-xl focus:bg-white focus:border-goals-primary focus:ring-4 focus:ring-goals-primary/15 block p-3 outline-none transition-all placeholder-gray-400 min-h-[48px] touch-manipulation pl-8 shadow-sm"
+                    class="w-full bg-white border-2 border-gray-100 text-gray-900 font-bold text-base rounded-xl focus:bg-white focus:border-goals-primary focus:ring-4 focus:ring-goals-primary/15 block p-3 outline-none transition-all placeholder-gray-400 min-h-[48px] touch-manipulation pl-8 shadow-sm"
                   />
                 </div>
               </div>
@@ -204,7 +204,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
                 <button
                   type="button"
                   (click)="isDatePickerOpen = true"
-                  class="w-full bg-gray-50 border border-gray-200 text-gray-900 font-semibold text-sm rounded-xl focus:bg-white focus:border-goals-primary focus:ring-4 focus:ring-goals-primary/15 flex justify-between items-center p-3 outline-none transition-all min-h-[48px] touch-manipulation shadow-sm"
+                  class="w-full bg-white border-2 border-gray-100 text-gray-900 font-semibold text-sm rounded-xl focus:bg-white focus:border-goals-primary focus:ring-4 focus:ring-goals-primary/15 flex justify-between items-center p-3 outline-none transition-all min-h-[48px] touch-manipulation shadow-sm"
                 >
                   <span>{{
                     $safeNavigationMigration(goalForm.get('target_date')?.value) | date: 'MMM d, y'
@@ -232,7 +232,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
                 <button
                   type="button"
                   (click)="isDayPickerOpen = true"
-                  class="w-full bg-gray-50 border border-gray-200 text-gray-900 font-semibold text-sm rounded-xl focus:bg-white focus:border-goals-primary focus:ring-4 focus:ring-goals-primary/15 flex justify-between items-center p-3 outline-none transition-all min-h-[48px] shadow-sm"
+                  class="w-full bg-white border-2 border-gray-100 text-gray-900 font-semibold text-sm rounded-xl focus:bg-white focus:border-goals-primary focus:ring-4 focus:ring-goals-primary/15 flex justify-between items-center p-3 outline-none transition-all min-h-[48px] shadow-sm"
                 >
                   <span>{{ goalForm.get('installment_date')?.value || 1 }}</span>
                   <svg
@@ -256,11 +256,11 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
                 <button
                   type="button"
                   (click)="goalForm.patchValue({ frequency: 'monthly' })"
-                  class="flex-1 p-2.5 text-xs font-bold uppercase tracking-wide border rounded-xl transition-all active:scale-95 shadow-sm"
+                  class="flex-1 p-2.5 text-xs font-bold uppercase tracking-wide border-2 rounded-xl transition-all active:scale-95 shadow-sm"
                   [ngClass]="
                     goalForm.get('frequency')?.value === 'monthly'
                       ? 'bg-goals-primary text-white border-goals-primary shadow-md shadow-goals-primary/25'
-                      : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                      : 'bg-white text-gray-700 border-gray-100 hover:border-gray-200 hover:bg-gray-50'
                   "
                 >
                   Monthly
@@ -268,11 +268,11 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
                 <button
                   type="button"
                   (click)="goalForm.patchValue({ frequency: 'alternate' })"
-                  class="flex-1 p-2.5 text-xs font-bold uppercase tracking-wide border rounded-xl transition-all active:scale-95 shadow-sm"
+                  class="flex-1 p-2.5 text-xs font-bold uppercase tracking-wide border-2 rounded-xl transition-all active:scale-95 shadow-sm"
                   [ngClass]="
                     goalForm.get('frequency')?.value === 'alternate'
                       ? 'bg-goals-primary text-white border-goals-primary shadow-md shadow-goals-primary/25'
-                      : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                      : 'bg-white text-gray-700 border-gray-100 hover:border-gray-200 hover:bg-gray-50'
                   "
                 >
                   Alternate
@@ -280,11 +280,11 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
                 <button
                   type="button"
                   (click)="goalForm.patchValue({ frequency: 'quarterly' })"
-                  class="flex-1 p-2.5 text-xs font-bold uppercase tracking-wide border rounded-xl transition-all active:scale-95 shadow-sm"
+                  class="flex-1 p-2.5 text-xs font-bold uppercase tracking-wide border-2 rounded-xl transition-all active:scale-95 shadow-sm"
                   [ngClass]="
                     goalForm.get('frequency')?.value === 'quarterly'
                       ? 'bg-goals-primary text-white border-goals-primary shadow-md shadow-goals-primary/25'
-                      : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                      : 'bg-white text-gray-700 border-gray-100 hover:border-gray-200 hover:bg-gray-50'
                   "
                 >
                   Quarterly

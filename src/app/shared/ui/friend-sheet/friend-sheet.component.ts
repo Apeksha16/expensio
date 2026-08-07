@@ -117,7 +117,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                     name="query"
                     [(ngModel)]="searchQuery"
                     (ngModelChange)="onSearchChange($event)"
-                    class="w-full bg-gray-50 border border-gray-200 text-gray-900 font-semibold text-sm rounded-xl focus:bg-white focus:border-friends-primary focus:ring-4 focus:ring-friends-primary/15 block p-3 outline-none transition-all placeholder-gray-400 min-h-[48px] touch-manipulation pl-10 shadow-sm"
+                    class="w-full bg-white border-2 border-gray-100 text-gray-900 font-bold text-sm rounded-xl focus:bg-white focus:border-friends-primary focus:ring-4 focus:ring-friends-primary/15 block p-3 outline-none transition-all placeholder-gray-400 min-h-[48px] touch-manipulation pl-10 shadow-sm"
                     placeholder="Username or email..."
                   />
                 </div>
@@ -169,7 +169,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                       [ngClass]="
                         selectedUser?.username === user.username
                           ? 'bg-white text-friends-primary border-transparent'
-                          : 'bg-gray-100 text-gray-800 border-gray-200'
+                          : 'bg-gray-100 text-gray-800 border-gray-100'
                       "
                     >
                       {{ user.name.charAt(0) }}
@@ -228,7 +228,7 @@ import { SafeInputDirective } from '../safe-input.directive';
           @if (!isAddMode && targetFriend) {
             <div class="flex flex-col items-center py-6 gap-4">
               <div
-                class="w-20 h-20 rounded-full border-2 border-friends-primary bg-friends-surface flex items-center justify-center font-black text-4xl text-friends-primary shrink-0 shadow-md"
+                class="w-20 h-20 rounded-full bg-friends-primary/10 flex items-center justify-center font-black text-4xl text-friends-primary shrink-0 shadow-sm"
               >
                 {{ targetFriend.profile.name.charAt(0) }}
               </div>

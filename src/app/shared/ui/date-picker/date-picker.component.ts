@@ -200,13 +200,13 @@ export class DatePickerComponent {
         };
       default:
         return {
-          bg: 'bg-black',
-          border: 'border-black',
-          hoverBg: 'hover:bg-black',
-          hoverBorder: 'hover:border-black',
-          text: 'text-black',
-          hoverDarkBg: 'hover:bg-gray-900',
-          darkBg: 'bg-gray-900',
+          bg: 'bg-tracker-primary',
+          border: 'border-tracker-primary',
+          hoverBg: 'hover:bg-tracker-primary',
+          hoverBorder: 'hover:border-tracker-primary',
+          text: 'text-tracker-primary',
+          hoverDarkBg: 'hover:bg-tracker-dark',
+          darkBg: 'bg-tracker-dark',
         };
     }
   }

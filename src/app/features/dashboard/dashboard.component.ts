@@ -75,7 +75,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
       <div class="p-5 flex flex-col gap-6">
         @if (isInitialLoading()) {
           <!-- Total Expenses Shimmer -->
-          <div class="bg-white p-6 rounded-[24px] shadow-sm border border-gray-100 relative overflow-hidden">
+          <div class="bg-indigo-50/30 p-6 rounded-[24px] shadow-sm border border-indigo-100/50 relative overflow-hidden">
             <div class="flex flex-col items-center justify-center relative mt-2">
               <div class="w-full max-w-[220px] aspect-[100/55] bg-slate-50 rounded-t-full animate-pulse"></div>
               <div class="absolute bottom-0 flex flex-col items-center translate-y-1">
@@ -143,7 +143,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
               <!-- CARD 1: SALARY ACCOUNT GAUGE -->
               <div
                 (click)="scrollToCard(0)"
-                class="snap-center shrink-0 w-[85vw] max-w-[340px] bg-white text-slate-800 p-6 rounded-[24px] transition-all duration-300 transform relative cursor-pointer shadow-sm border border-gray-100"
+                class="snap-center shrink-0 w-[85vw] max-w-[340px] bg-indigo-50/30 text-slate-800 p-6 rounded-[24px] transition-all duration-300 transform relative cursor-pointer shadow-sm border border-indigo-100/50"
                 [class.scale-100]="activeGaugeIndex() === 0"
                 [class.scale-95]="activeGaugeIndex() !== 0"
                 [class.opacity-50]="activeGaugeIndex() !== 0"
@@ -199,7 +199,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
               <!-- CARD 2: CASH ACCOUNT GAUGE -->
               <div
                 (click)="scrollToCard(1)"
-                class="snap-center shrink-0 w-[85vw] max-w-[340px] bg-white text-slate-800 p-6 rounded-[24px] transition-all duration-300 transform relative cursor-pointer shadow-sm border border-gray-100"
+                class="snap-center shrink-0 w-[85vw] max-w-[340px] bg-indigo-50/30 text-slate-800 p-6 rounded-[24px] transition-all duration-300 transform relative cursor-pointer shadow-sm border border-indigo-100/50"
                 [class.scale-100]="activeGaugeIndex() === 1"
                 [class.scale-95]="activeGaugeIndex() !== 1"
                 [class.opacity-50]="activeGaugeIndex() !== 1"
@@ -253,7 +253,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
               <!-- CARD 3: SAVINGS ACCOUNT GAUGE -->
               <div
                 (click)="scrollToCard(2)"
-                class="snap-center shrink-0 w-[85vw] max-w-[340px] bg-white text-slate-800 p-6 rounded-[24px] transition-all duration-300 transform relative cursor-pointer shadow-sm border border-gray-100"
+                class="snap-center shrink-0 w-[85vw] max-w-[340px] bg-indigo-50/30 text-slate-800 p-6 rounded-[24px] transition-all duration-300 transform relative cursor-pointer shadow-sm border border-indigo-100/50"
                 [class.scale-100]="activeGaugeIndex() === 2"
                 [class.scale-95]="activeGaugeIndex() !== 2"
                 [class.opacity-50]="activeGaugeIndex() !== 2"
@@ -338,7 +338,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
               <div class="flex gap-3 overflow-x-auto pb-2 pt-1 px-1 snap-x snap-mandatory no-scrollbar">
                 @for (payment of combinedUpcomingPayments(); track payment.id; let i = $index) {
                   <div
-                    class="snap-start shrink-0 w-[240px] bg-white border border-gray-100 rounded-[20px] p-3 flex items-center gap-3 transition-transform active:scale-95 cursor-pointer shadow-sm hover:shadow-md"
+                    class="snap-start shrink-0 w-[240px] bg-indigo-50/30 border border-indigo-100/50 rounded-[20px] p-3 flex items-center gap-3 transition-transform active:scale-95 cursor-pointer shadow-sm hover:shadow-md"
                     (click)="payUpcoming(payment)"
                   >
                     <!-- Icon -->
@@ -397,7 +397,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
               </button>
             </div>
 
-            <div class="bg-white p-6 rounded-[24px] border border-gray-100 shadow-sm flex flex-col gap-6 relative">
+            <div class="bg-indigo-50/30 p-6 rounded-[24px] border border-indigo-100/50 shadow-[0_2px_10px_rgba(0,0,0,0.02)] flex flex-col gap-6 relative">
               <!-- Totals Header -->
               <div class="flex justify-between items-center relative">
                 <!-- Left Column -->
@@ -494,7 +494,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
               @for (expense of recentExpenses(); track expense.id) {
                 <button
                   (click)="editExpense(expense)"
-                  class="w-full bg-white border border-gray-100 rounded-[20px] p-4 flex items-center gap-3 text-left transition-all active:scale-[0.99] cursor-pointer shadow-[0_2px_12px_rgb(0,0,0,0.03)] hover:shadow-md"
+                  class="w-full bg-indigo-50/30 border border-indigo-100/50 rounded-[20px] p-4 flex items-center gap-3 text-left transition-all active:scale-[0.99] cursor-pointer shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:shadow-md"
                 >
                   <!-- Left side: Icon -->
                   <div class="flex items-center gap-3 shrink-0">

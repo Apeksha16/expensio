@@ -32,14 +32,14 @@ import { AuthService } from '../../core/services/auth.service';
   changeDetection: ChangeDetectionStrategy.Default,
   template: `
     <div
-      class="h-full bg-[#FAFAFA] flex flex-col overflow-y-auto select-none font-sans"
+      class="h-full bg-[#FAFAFA] flex flex-col overflow-hidden select-none font-sans"
       (touchstart)="onTouchStart($event)"
       (touchmove)="onTouchMove($event)"
       (touchend)="onTouchEnd($event)"
     >
       <!-- Pull to Refresh Indicator -->
       <div
-        class="w-full flex justify-center items-center overflow-hidden transition-all duration-200 ease-out"
+        class="w-full shrink-0 flex justify-center items-center overflow-hidden transition-all duration-200 ease-out"
         [style.height.px]="refreshing() ? 60 : pullDistance()"
       >
         @if (refreshing()) {
@@ -68,30 +68,14 @@ import { AuthService } from '../../core/services/auth.service';
         }
       </div>
 
-      <div class="p-5 flex flex-col gap-6 pb-32">
+      <div class="px-5 pt-5 pb-2 shrink-0">
         @if (expenseService.isLoading()) {
           <!-- Skeleton Loader -->
-          <div class="bg-white p-6 rounded-[24px] shadow-sm border border-gray-100 mb-6 relative overflow-hidden">
+          <div class="bg-white p-6 rounded-[24px] shadow-sm border border-gray-100 relative overflow-hidden">
             <div class="flex flex-col gap-1">
               <div class="h-[14px] bg-slate-100 w-24 animate-pulse rounded-full"></div>
               <div class="h-8 bg-slate-100 w-32 animate-pulse rounded-lg mt-0.5"></div>
             </div>
-          </div>
-          
-          <div class="flex flex-col gap-3">
-            @for (i of [1,2,3,4,5]; track i) {
-              <div class="bg-white border border-gray-100 rounded-[20px] p-4 flex items-center gap-3 shadow-[0_2px_12px_rgb(0,0,0,0.03)]">
-                <div class="w-12 h-12 rounded-full bg-slate-100 animate-pulse shrink-0"></div>
-                <div class="flex flex-col gap-1.5 flex-1 min-w-0">
-                  <div class="h-4 bg-slate-100 w-32 animate-pulse rounded-full"></div>
-                  <div class="h-3 bg-slate-100 w-24 animate-pulse rounded-full"></div>
-                </div>
-                <div class="flex flex-col items-end gap-1.5 shrink-0">
-                  <div class="h-4 bg-slate-100 w-16 animate-pulse rounded-full"></div>
-                  <div class="h-2.5 bg-slate-100 w-10 animate-pulse rounded-full"></div>
-                </div>
-              </div>
-            }
           </div>
         } @else {
           <!-- Total Spend Summary Card -->
@@ -126,19 +110,19 @@ import { AuthService } from '../../core/services/auth.service';
                       [style.width.%]="animateBars() ? progressWidths().upi : 0"
                     ></div>
                     <div
-                      class="h-full bg-blue-400 transition-all duration-1000 ease-out"
+                      class="h-full bg-yellow-400 transition-all duration-1000 ease-out"
                       [style.width.%]="animateBars() ? progressWidths().credit : 0"
                     ></div>
                     <div
-                      class="h-full bg-amber-400 transition-all duration-1000 ease-out"
+                      class="h-full bg-pink-400 transition-all duration-1000 ease-out"
                       [style.width.%]="animateBars() ? progressWidths().cash : 0"
                     ></div>
                   </div>
                   <div class="flex justify-between items-center text-[10.5px] font-semibold mt-1">
                     <div class="flex gap-3">
                       <span class="flex items-center gap-1.5 text-white/80"><div class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]"></div> UPI</span>
-                      <span class="flex items-center gap-1.5 text-white/80"><div class="w-2 h-2 rounded-full bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.5)]"></div> Card</span>
-                      <span class="flex items-center gap-1.5 text-white/80"><div class="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.5)]"></div> Cash</span>
+                      <span class="flex items-center gap-1.5 text-white/80"><div class="w-2 h-2 rounded-full bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.5)]"></div> Card</span>
+                      <span class="flex items-center gap-1.5 text-white/80"><div class="w-2 h-2 rounded-full bg-pink-400 shadow-[0_0_8px_rgba(244,114,182,0.5)]"></div> Cash</span>
                     </div>
                     <span class="text-white/80">
                       {{ (progressWidths().upi + progressWidths().credit + progressWidths().cash) | number:'1.0-0' }}%
@@ -148,7 +132,27 @@ import { AuthService } from '../../core/services/auth.service';
               }
             </div>
           </div>
+        }
+      </div>
 
+      <div #scrollContainer class="flex-1 overflow-y-auto px-5 pb-32">
+        @if (expenseService.isLoading()) {
+          <div class="flex flex-col gap-3">
+            @for (i of [1,2,3,4,5]; track i) {
+              <div class="bg-white border border-gray-100 rounded-[20px] p-4 flex items-center gap-3 shadow-[0_2px_12px_rgb(0,0,0,0.03)]">
+                <div class="w-12 h-12 rounded-full bg-slate-100 animate-pulse shrink-0"></div>
+                <div class="flex flex-col gap-1.5 flex-1 min-w-0">
+                  <div class="h-4 bg-slate-100 w-32 animate-pulse rounded-full"></div>
+                  <div class="h-3 bg-slate-100 w-24 animate-pulse rounded-full"></div>
+                </div>
+                <div class="flex flex-col items-end gap-1.5 shrink-0">
+                  <div class="h-4 bg-slate-100 w-16 animate-pulse rounded-full"></div>
+                  <div class="h-2.5 bg-slate-100 w-10 animate-pulse rounded-full"></div>
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
           <!-- Expense List -->
           @if (expenseService.expenses().length === 0) {
             <div class="w-full bg-[#FCFCFD] border border-dashed border-gray-200 rounded-[24px] p-10 flex flex-col items-center justify-center text-center mt-4">
@@ -239,7 +243,9 @@ export class Expenses implements OnInit, AfterViewInit, OnDestroy {
   monthlySalary = computed(() => this.authService.userProfile().salary || 0);
 
   spendByMode = computed(() => {
-    const expenses = this.expenseService.expenses();
+    // We use allExpenses() so the progress bar reflects every transaction in the month,
+    // not just the paginated subset currently visible on screen.
+    const expenses = this.expenseService.allExpenses();
     const totals = { cash: 0, credit: 0, upi: 0 };
     for (const exp of expenses) {
       if (exp.category === 'virtual-invest') continue; // Optional: Exclude internal transfers/investments if needed
@@ -273,6 +279,8 @@ export class Expenses implements OnInit, AfterViewInit, OnDestroy {
   private observer: IntersectionObserver | null = null;
   private isObserving = false;
   private scrollTriggerEl: ElementRef | undefined;
+  
+  @ViewChild('scrollContainer') scrollContainerEl?: ElementRef<HTMLElement>;
 
   // Pull to refresh state
   pullStartY = 0;
@@ -323,8 +331,9 @@ export class Expenses implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onTouchStart(event: TouchEvent) {
-    const container = event.currentTarget as HTMLElement;
-    if (container && container.scrollTop <= 0) {
+    const el = this.scrollContainerEl?.nativeElement;
+    const scrollTop = el ? el.scrollTop : 0;
+    if (scrollTop <= 0) {
       this.pullStartY = event.touches[0].clientY;
       this.isPulling.set(true);
     }

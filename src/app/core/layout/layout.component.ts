@@ -88,7 +88,6 @@ import { MonthPickerService } from '../services/month-picker.service';
           <span class="text-lg font-extrabold tracking-tight text-white truncate max-w-[200px] text-center">{{ pageTitle() }}</span>
         </div>
         @if (
-          isProfilePage() ||
           isGroupExpensesPage() ||
           isBudgetExpensesPage() ||
           isGoalTransactionsPage() ||
@@ -204,76 +203,84 @@ import { MonthPickerService } from '../services/month-picker.service';
 
       <!-- Sidebar Drawer -->
       <aside
-        class="fixed inset-y-0 left-0 z-50 w-64 bg-white transform transition-transform duration-300 ease-in-out flex flex-col"
+        class="fixed inset-y-0 left-0 z-50 w-[300px] bg-white transform transition-transform duration-300 ease-in-out flex flex-col rounded-r-[32px] shadow-2xl overflow-hidden"
         [class.-translate-x-full]="!isSidebarOpen()"
         [class.translate-x-0]="isSidebarOpen()"
       >
-        <div class="h-14 flex items-center px-6 border-b-2 border-black bg-gray-100">
-          <span class="text-xl font-extrabold tracking-tight text-black">{{
-            authService.userProfile().username
-          }}</span>
+        <!-- Background decorative shape -->
+        <div class="absolute -top-24 -left-24 w-64 h-64 bg-[#F4F2FF] rounded-full blur-[40px] pointer-events-none"></div>
+
+        <div class="pt-6 pb-6 px-6 flex items-center gap-4 relative z-10">
+          <!-- Avatar -->
+          <div class="relative shrink-0">
+            <div class="w-[72px] h-[72px] rounded-full p-[3px] bg-white shadow-sm border border-gray-100">
+              <div class="w-full h-full rounded-full overflow-hidden bg-indigo-50">
+                <img [src]="authService.getAvatarUrl(authService.userProfile().avatarId)" class="w-full h-full object-cover" />
+              </div>
+            </div>
+          </div>
+          <!-- Info -->
+          <div class="flex flex-col">
+            <span class="text-[20px] font-extrabold text-gray-900 leading-tight mb-0.5">{{ authService.userProfile().name || authService.userProfile().username }}</span>
+            <span class="text-[13px] text-profile-primary font-medium mb-2">&#64;{{ authService.userProfile().username }}</span>
+          </div>
         </div>
 
-        <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto overscroll-none">
+        <nav class="flex-1 px-4 py-2 space-y-1 overflow-y-auto overscroll-none relative z-10 custom-scrollbar">
           @for (item of navItems; track item) {
             <a
               [routerLink]="item.path"
-              [routerLinkActive]="getActiveClasses(item.id)"
+              routerLinkActive="is-active"
+              #rla="routerLinkActive"
               [routerLinkActiveOptions]="{ exact: false }"
               (click)="toggleSidebar(false)"
-              class="flex items-center gap-3 px-3 py-2.5 rounded-none font-semibold transition-colors border-l-4 border-transparent text-gray-600 hover:bg-gray-100 hover:text-black"
+              class="flex items-center justify-between px-3 py-2.5 rounded-2xl font-bold transition-all"
+              [ngClass]="rla.isActive ? 'bg-profile-primary/10 text-profile-primary' : 'text-gray-900 hover:bg-gray-50'"
             >
-              <span
-                [innerHTML]="item.icon"
-                class="w-5 h-5"
-                [ngClass]="{ 'text-current': true }"
-              ></span>
-              {{ item.name }}
+              <div class="flex items-center gap-4">
+                <div 
+                  class="w-[42px] h-[42px] rounded-2xl flex items-center justify-center transition-colors"
+                  [ngClass]="rla.isActive ? 'bg-profile-primary text-white shadow-md shadow-profile-primary/20' : 'bg-profile-primary/10 text-profile-primary'"
+                >
+                  <span [innerHTML]="item.icon" class="w-5 h-5 flex items-center justify-center"></span>
+                </div>
+                <span class="text-[15px] font-bold">{{ item.name }}</span>
+              </div>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                [ngClass]="rla.isActive ? 'text-profile-primary' : 'text-gray-400'"
+              >
+                <path d="m9 18 6-6-6-6"/>
+              </svg>
             </a>
           }
         </nav>
 
-        <div class="p-4 border-t-2 border-black mt-auto flex items-center justify-between bg-white">
-          <span class="text-[10px] font-extrabold tracking-widest text-gray-400 uppercase">
+        <div class="px-6 py-5 mt-auto flex items-center justify-between relative z-10">
+          <div class="absolute top-0 left-6 right-6 h-px bg-gray-100"></div>
+          <span class="text-[12px] font-semibold tracking-wider text-gray-500">
             v1.0.27
           </span>
           <div class="flex gap-3">
             <button
               (click)="checkForUpdate()"
               title="Check for update"
-              class="p-3 text-gray-600 bg-gray-100 hover:bg-black hover:text-white transition-colors rounded-none"
+              class="w-11 h-11 rounded-2xl flex items-center justify-center bg-profile-primary/10 text-profile-primary transition-colors hover:bg-profile-primary hover:text-white"
             >
-              <svg
-                class="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                />
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                <path d="M21 2v6h-6"/>
+                <path d="M3 12a9 9 0 0 1 15-6.7L21 8"/>
+                <path d="M3 22v-6h6"/>
+                <path d="M21 12a9 9 0 0 1-15 6.7L3 16"/>
               </svg>
             </button>
             <button
               (click)="logout()"
               title="Logout"
-              class="p-3 text-red-600 bg-red-50 hover:bg-red-600 hover:text-white transition-colors rounded-none"
+              class="w-11 h-11 rounded-2xl flex items-center justify-center bg-red-50 text-red-500 transition-colors hover:bg-red-500 hover:text-white"
             >
-              <svg
-                class="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M5.636 5.636a9 9 0 1012.728 0M12 3v9"
-                />
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M18.36 6.64a9 9 0 1 1-12.73 0" />
+                <line x1="12" y1="2" x2="12" y2="12" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             </button>
           </div>
@@ -301,7 +308,7 @@ import { MonthPickerService } from '../services/month-picker.service';
                 #rla="routerLinkActive"
                 [routerLinkActiveOptions]="{ exact: false }"
                 class="flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 active:scale-95"
-                [ngClass]="rla.isActive ? 'bg-[#5421E6] text-white shadow-md' : 'bg-transparent text-slate-600 hover:text-black'"
+                [ngClass]="rla.isActive ? 'bg-[#059669] text-white shadow-md' : 'bg-transparent text-slate-600 hover:text-black'"
               >
                 <span
                   [innerHTML]="item.icon"
@@ -354,7 +361,7 @@ export class Layout implements AfterViewInit {
   isSidebarOpen = signal(false);
   authService = inject(AuthService);
   private confirmService = inject(ConfirmService);
-  private router = inject(Router);
+  router = inject(Router);
   private location = inject(Location);
   private sanitizer = inject(DomSanitizer);
   expenseService = inject(ExpenseService);
@@ -588,55 +595,34 @@ export class Layout implements AfterViewInit {
   }
 
   getActiveClasses(id: string): string {
-    switch (id) {
-      case 'dashboard':
-        return 'bg-black text-white rounded-xl shadow-md font-bold';
-      case 'expenses':
-        return 'bg-[#5421E6] text-white rounded-xl shadow-md shadow-[#5421E6]/30 font-bold';
-      case 'budgets':
-        return 'bg-emerald-600 text-white rounded-xl shadow-md shadow-emerald-600/30 font-bold';
-      case 'friends':
-        return 'bg-violet-600 text-white rounded-xl shadow-md shadow-violet-600/30 font-bold';
-      case 'splits':
-        return 'bg-lime-600 text-white rounded-xl shadow-md shadow-lime-600/30 font-bold';
-      case 'subscriptions':
-        return 'bg-purple-600 text-white rounded-xl shadow-md shadow-purple-600/30 font-bold';
-      case 'goals':
-        return 'bg-rose-600 text-white rounded-xl shadow-md shadow-rose-600/30 font-bold';
-      case 'ledger':
-        return 'bg-red-600 text-white rounded-xl shadow-md shadow-red-600/30 font-bold';
-      case 'tracker':
-        return 'bg-cyan-600 text-white rounded-xl shadow-md shadow-cyan-600/30 font-bold';
-      case 'reports':
-        return 'bg-fuchsia-600 text-white rounded-xl shadow-md shadow-fuchsia-600/30 font-bold';
-      default:
-        return 'bg-black text-white rounded-xl shadow-md font-bold';
-    }
+    return 'is-active'; // Now handled in template, this can be safely ignored but kept to prevent compilation errors if called elsewhere
   }
 
   getThemeClasses() {
     const route = this.currentUrl().split('/')[1] || 'dashboard';
     switch (route) {
       case 'expenses':
-        return { bg: 'bg-[#5421E6]', border: 'border-[#5421E6]', text: 'text-[#5421E6]' };
+        return { bg: 'bg-expense-primary', border: 'border-expense-primary', text: 'text-expense-primary' };
       case 'budgets':
-        return { bg: 'bg-emerald-600', border: 'border-emerald-700', text: 'text-emerald-600' };
+        return { bg: 'bg-budget-primary', border: 'border-budget-primary', text: 'text-budget-primary' };
       case 'friends':
-        return { bg: 'bg-violet-600', border: 'border-violet-700', text: 'text-violet-600' };
+        return { bg: 'bg-friends-primary', border: 'border-friends-primary', text: 'text-friends-primary' };
       case 'splits':
-        return { bg: 'bg-lime-600', border: 'border-lime-700', text: 'text-lime-600' };
+        return { bg: 'bg-splits-primary', border: 'border-splits-primary', text: 'text-splits-primary' };
       case 'subscriptions':
-        return { bg: 'bg-purple-600', border: 'border-purple-700', text: 'text-purple-600' };
+        return { bg: 'bg-subscriptions-primary', border: 'border-subscriptions-primary', text: 'text-subscriptions-primary' };
       case 'goals':
-        return { bg: 'bg-rose-600', border: 'border-rose-700', text: 'text-rose-600' };
+        return { bg: 'bg-goals-primary', border: 'border-goals-primary', text: 'text-goals-primary' };
       case 'ledger':
-        return { bg: 'bg-red-600', border: 'border-red-700', text: 'text-red-600' };
+        return { bg: 'bg-ledger-primary', border: 'border-ledger-primary', text: 'text-ledger-primary' };
       case 'reports':
-        return { bg: 'bg-fuchsia-600', border: 'border-fuchsia-700', text: 'text-fuchsia-600' };
+        return { bg: 'bg-reports-primary', border: 'border-reports-primary', text: 'text-reports-primary' };
       case 'tracker':
-        return { bg: 'bg-cyan-600', border: 'border-cyan-700', text: 'text-cyan-600' };
+        return { bg: 'bg-tracker-primary', border: 'border-tracker-primary', text: 'text-tracker-primary' };
+      case 'profile':
+        return { bg: 'bg-profile-primary', border: 'border-profile-primary', text: 'text-profile-primary' };
       default:
-        return { bg: 'bg-[#18181B]', border: 'border-[#18181B]', text: 'text-black' };
+        return { bg: 'bg-white', border: 'border-white', text: 'text-black' };
     }
   }
 

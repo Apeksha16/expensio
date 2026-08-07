@@ -17,7 +17,7 @@ import { ConfirmService } from '../../core/services/confirm.service';
         <!-- Shimmer -->
         <div class="flex flex-col gap-3 pb-28 mt-2">
           @for (i of [1, 2, 3]; track i) {
-            <div class="w-full bg-gray-100 border-2 border-gray-200 rounded-2xl p-4 flex items-center gap-4 h-[76px] animate-pulse">
+            <div class="w-full bg-gray-50 border border-gray-100 rounded-2xl p-4 flex items-center gap-4 h-[76px] animate-pulse">
               <div class="flex flex-col gap-2 flex-1">
                 <div class="h-4 bg-gray-200 w-1/3"></div>
                 <div class="h-3 bg-gray-200 w-1/4"></div>
@@ -28,11 +28,11 @@ import { ConfirmService } from '../../core/services/confirm.service';
         </div>
       } @else {
         <!-- Top Summary Box -->
-        <div class="bg-black text-white p-5 rounded-2xl flex flex-col gap-1 relative overflow-hidden shadow-[6px_6px_0px_0px_rgba(139,92,246,1)] mt-2">
-          <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+        <div class="bg-white text-gray-900 border border-gray-100 p-5 rounded-2xl flex flex-col gap-1 relative overflow-hidden shadow-sm mt-2">
+          <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
             Total Monthly Subscriptions
           </span>
-          <span class="text-4xl font-extrabold tracking-tight">
+          <span class="text-4xl font-extrabold tracking-tight text-gray-900">
             ₹{{ subscriptionService.totalMonthlyAmount() | number: '1.0-0' }}
           </span>
         </div>
@@ -41,23 +41,25 @@ import { ConfirmService } from '../../core/services/confirm.service';
         <div class="shrink-0 flex gap-2 mt-2">
           <button
             (click)="activeTab.set('upcoming')"
-            [class.bg-black]="activeTab() === 'upcoming'"
+            [class.bg-subscriptions-primary]="activeTab() === 'upcoming'"
             [class.text-white]="activeTab() === 'upcoming'"
-            [class.bg-white]="activeTab() !== 'upcoming'"
-            [class.text-black]="activeTab() !== 'upcoming'"
-            class="flex-1 py-3 font-black tracking-widest uppercase transition-all rounded-xl border-2 border-black"
-            [class.shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]]="activeTab() !== 'upcoming'"
+            [class.shadow-md]="activeTab() === 'upcoming'"
+            [class.shadow-subscriptions-primary/30]="activeTab() === 'upcoming'"
+            [class.bg-gray-100]="activeTab() !== 'upcoming'"
+            [class.text-gray-500]="activeTab() !== 'upcoming'"
+            class="flex-1 py-3 font-bold tracking-widest uppercase transition-all rounded-xl text-xs"
           >
             Upcoming
           </button>
           <button
             (click)="activeTab.set('paid')"
-            [class.bg-black]="activeTab() === 'paid'"
+            [class.bg-subscriptions-primary]="activeTab() === 'paid'"
             [class.text-white]="activeTab() === 'paid'"
-            [class.bg-white]="activeTab() !== 'paid'"
-            [class.text-black]="activeTab() !== 'paid'"
-            class="flex-1 py-3 font-black tracking-widest uppercase transition-all rounded-xl border-2 border-black"
-            [class.shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]]="activeTab() !== 'paid'"
+            [class.shadow-md]="activeTab() === 'paid'"
+            [class.shadow-subscriptions-primary/30]="activeTab() === 'paid'"
+            [class.bg-gray-100]="activeTab() !== 'paid'"
+            [class.text-gray-500]="activeTab() !== 'paid'"
+            class="flex-1 py-3 font-bold tracking-widest uppercase transition-all rounded-xl text-xs"
           >
             Paid
           </button>
@@ -68,25 +70,25 @@ import { ConfirmService } from '../../core/services/confirm.service';
           <div class="flex-1 flex flex-col gap-6 pb-28 mt-2">
             <!-- This Month Section -->
             <div class="flex flex-col gap-3">
-              <h3 class="font-black text-xs text-black uppercase tracking-widest px-1">
+              <h3 class="font-bold text-xs text-gray-700 uppercase tracking-widest px-1">
                 This Month
               </h3>
               @if (subscriptionService.upcomingSubscriptions().length > 0) {
                 @for (sub of subscriptionService.upcomingSubscriptions(); track sub.id) {
                   <button
                     (click)="subscriptionService.openBottomSheet(sub)"
-                    class="w-full bg-subscriptions-surface border-2 border-black rounded-2xl p-4 flex flex-col gap-3 text-left shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] transition-all active:scale-[0.99]"
+                    class="w-full bg-subscriptions-surface border border-subscriptions-primary/20 rounded-2xl p-4 flex flex-col gap-3 text-left shadow-sm hover:shadow-md transition-all active:scale-[0.99]"
                   >
                     <div class="flex justify-between items-start gap-4">
                       <div class="flex flex-col gap-0.5 flex-1 min-w-0 pr-4">
-                        <span class="font-black text-lg text-black truncate">{{ sub.title }}</span>
-                        <span class="text-[10px] font-black text-gray-500 uppercase tracking-widest">{{ sub.category }}</span>
+                        <span class="font-extrabold text-lg text-gray-900 truncate">{{ sub.title }}</span>
+                        <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{{ sub.category }}</span>
                       </div>
-                      <span class="font-black text-lg text-black flex-shrink-0">
+                      <span class="font-extrabold text-lg text-gray-900 flex-shrink-0">
                         ₹{{ sub.amount | number: '1.0-2' }}
                       </span>
                     </div>
-                    <div class="flex justify-between items-center mt-2 pt-3 border-t-2 border-black border-dashed w-full gap-2">
+                    <div class="flex justify-between items-center mt-2 pt-3 border-t border-subscriptions-primary/20 border-dashed w-full gap-2">
                       <span class="text-[10px] font-extrabold uppercase tracking-wider min-w-0">
                         <span [ngClass]="getDueMessageClass(sub.billing_day)" class="px-2.5 py-1 rounded-lg border">
                           {{ getDueMessage(sub.billing_day) }}
@@ -94,7 +96,7 @@ import { ConfirmService } from '../../core/services/confirm.service';
                       </span>
                       <button
                         (click)="markAsPaid($event, sub)"
-                        class="bg-black text-white border-2 border-black px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-[2px_2px_0px_0px_rgba(59,130,246,1)] hover:shadow-[3px_3px_0px_0px_rgba(59,130,246,1)] active:scale-[0.95] transition-all flex items-center gap-2"
+                        class="bg-subscriptions-primary hover:bg-subscriptions-dark text-white px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest shadow-md active:scale-[0.95] transition-all flex items-center gap-2"
                       >
                         Mark Paid
                       </button>
@@ -102,8 +104,8 @@ import { ConfirmService } from '../../core/services/confirm.service';
                   </button>
                 }
               } @else {
-                <div class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-2xl p-6 text-center">
-                  <p class="text-black font-extrabold text-sm uppercase tracking-widest">
+                <div class="bg-transparent border border-dashed border-gray-200 rounded-2xl p-6 text-center">
+                  <p class="text-gray-500 font-bold text-sm uppercase tracking-widest">
                     No pending for this month
                   </p>
                 </div>
@@ -112,25 +114,25 @@ import { ConfirmService } from '../../core/services/confirm.service';
 
             <!-- Next Month Section -->
             <div class="flex flex-col gap-3">
-              <h3 class="font-black text-xs text-black uppercase tracking-widest px-1">
+              <h3 class="font-bold text-xs text-gray-700 uppercase tracking-widest px-1">
                 Next Month
               </h3>
               @if (subscriptionService.nextMonthSubscriptions().length > 0) {
                 @for (sub of subscriptionService.nextMonthSubscriptions(); track sub.id) {
                   <button
                     (click)="subscriptionService.openBottomSheet(sub)"
-                    class="w-full bg-white border-2 border-black rounded-2xl p-4 flex flex-col gap-3 text-left shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all active:scale-[0.99] opacity-80"
+                    class="w-full bg-white border border-gray-100 rounded-2xl p-4 flex flex-col gap-3 text-left shadow-sm hover:shadow-md transition-all active:scale-[0.99] opacity-80"
                   >
                     <div class="flex justify-between items-start gap-4">
                       <div class="flex flex-col gap-0.5 flex-1 min-w-0 pr-4">
-                        <span class="font-black text-lg text-black truncate">{{ sub.title }}</span>
-                        <span class="text-[10px] font-black text-gray-500 uppercase tracking-widest">{{ sub.category }}</span>
+                        <span class="font-extrabold text-lg text-gray-900 truncate">{{ sub.title }}</span>
+                        <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{{ sub.category }}</span>
                       </div>
-                      <span class="font-black text-lg text-black flex-shrink-0">
+                      <span class="font-extrabold text-lg text-gray-900 flex-shrink-0">
                         ₹{{ sub.amount | number: '1.0-2' }}
                       </span>
                     </div>
-                    <div class="flex justify-between items-center mt-2 pt-3 border-t-2 border-black border-dashed w-full gap-2">
+                    <div class="flex justify-between items-center mt-2 pt-3 border-t border-gray-100 border-dashed w-full gap-2">
                       <span class="text-[10px] font-extrabold uppercase tracking-wider min-w-0">
                         <span class="px-2.5 py-1 bg-slate-100 text-slate-700 border border-slate-300 rounded-lg">
                           {{ getNextMonthDueMessage(sub.billing_day) }}
@@ -140,8 +142,8 @@ import { ConfirmService } from '../../core/services/confirm.service';
                   </button>
                 }
               } @else {
-                <div class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-2xl p-6 text-center">
-                  <p class="text-black font-extrabold text-sm uppercase tracking-widest">
+                <div class="bg-transparent border border-dashed border-gray-200 rounded-2xl p-6 text-center">
+                  <p class="text-gray-500 font-bold text-sm uppercase tracking-widest">
                     No subscriptions added yet
                   </p>
                 </div>
@@ -157,19 +159,19 @@ import { ConfirmService } from '../../core/services/confirm.service';
               @for (sub of subscriptionService.paidSubscriptions(); track sub.id) {
                 <button
                   (click)="subscriptionService.openBottomSheet(sub)"
-                  class="w-full bg-subscriptions-light border-2 border-black rounded-2xl p-4 flex flex-col gap-3 text-left shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all active:scale-[0.99]"
+                  class="w-full bg-subscriptions-light/50 border border-subscriptions-primary/10 rounded-2xl p-4 flex flex-col gap-3 text-left shadow-sm hover:shadow-md transition-all active:scale-[0.99]"
                 >
                   <div class="flex justify-between items-start gap-4">
                     <div class="flex flex-col gap-0.5 flex-1 min-w-0 pr-4">
-                      <span class="font-black text-lg text-black truncate">{{ sub.title }}</span>
-                      <span class="text-[10px] font-black text-gray-500 uppercase tracking-widest">{{ sub.category }}</span>
+                      <span class="font-extrabold text-lg text-gray-900 truncate">{{ sub.title }}</span>
+                      <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{{ sub.category }}</span>
                     </div>
-                    <span class="font-black text-lg text-black flex-shrink-0 opacity-50 line-through">
+                    <span class="font-extrabold text-lg text-gray-900 flex-shrink-0 opacity-50 line-through">
                       ₹{{ sub.amount | number: '1.0-2' }}
                     </span>
                   </div>
-                  <div class="flex justify-between items-center mt-2 pt-3 border-t-2 border-black border-dashed w-full gap-2">
-                    <span class="text-[10px] font-black text-emerald-600 uppercase tracking-widest min-w-0 flex items-center gap-1">
+                  <div class="flex justify-between items-center mt-2 pt-3 border-t border-subscriptions-primary/20 border-dashed w-full gap-2">
+                    <span class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest min-w-0 flex items-center gap-1">
                       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
                       </svg>
@@ -179,14 +181,14 @@ import { ConfirmService } from '../../core/services/confirm.service';
                 </button>
               }
             } @else {
-              <div class="flex-1 flex flex-col items-center justify-center p-8 text-center h-[300px]">
-                <div class="w-32 h-32 bg-gray-50 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center mb-6">
-                  <svg class="w-12 h-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              <div class="mt-4 w-full bg-[#FCFCFD] border border-dashed border-gray-200 rounded-[24px] p-8 flex flex-col items-center justify-center text-center">
+                <div class="w-12 h-12 bg-indigo-50 rounded-[14px] flex items-center justify-center mb-3">
+                  <svg class="w-6 h-6 text-[#5421E6]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <p class="text-black font-extrabold text-xl">Nothing paid yet</p>
-                <p class="text-gray-400 font-bold text-sm mt-2 max-w-[250px]">
+                <h4 class="text-sm font-bold text-slate-800 mb-1">Nothing paid yet</h4>
+                <p class="text-xs text-slate-500 max-w-[250px]">
                   When you mark a subscription as paid, it will appear here.
                 </p>
               </div>

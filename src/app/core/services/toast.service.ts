@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, untracked } from '@angular/core';
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info' | 'offline' | 'sync_success' | 'loading' | 'banner';
 
@@ -39,6 +39,12 @@ export class ToastService {
     }
     
     const type = options.type || 'info';
+    
+    // Prevent duplicate active toasts with exactly the same title and type
+    const currentToasts = untracked(() => this.toasts());
+    if (currentToasts.some(t => t.title === title && t.type === type && t.subtitle === options.subtitle)) {
+      return '';
+    }
     
     this.toasts.update(current => [...current, { 
       id, 

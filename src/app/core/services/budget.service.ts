@@ -124,7 +124,7 @@ export class BudgetService {
     if (!categoryName) return defaultPath;
 
     // Check if budget exists with this name (if loaded)
-    const matchingBudget = untracked(() => this.budgets()).find(b => b.name.toUpperCase() === categoryName.toUpperCase());
+    const matchingBudget = this.budgets().find(b => b.name.toUpperCase() === categoryName.toUpperCase());
     if (matchingBudget && matchingBudget.icon_path) {
       return matchingBudget.icon_path;
     }

@@ -24,59 +24,85 @@ import { Router } from '@angular/router';
   },
   changeDetection: ChangeDetectionStrategy.Default,
   template: `
-    <div class="flex-1 bg-white p-4 flex flex-col gap-4 pb-28">
-      <!-- Top Summary Box -->
-      <div class="shrink-0 bg-black text-white p-5 rounded-2xl flex flex-col gap-4 relative overflow-hidden shadow-[6px_6px_0px_0px_rgba(16,185,129,1)]">
-        <div class="flex justify-between items-end relative z-10">
-          <div class="flex flex-col">
-            <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
-              Total Allocation
-            </span>
-            @if (budgetService.isLoading()) {
-              <div class="h-10 w-32 bg-gray-800 animate-pulse rounded mt-1"></div>
-            } @else {
-              <span class="text-4xl font-black tracking-tight">
-                ₹{{ totalAllocated() | number: '1.0-0' }}
+    <div class="flex-1 bg-white flex flex-col h-full overflow-hidden">
+      <!-- Top Fixed Section -->
+      <div class="px-5 pt-5 pb-2 shrink-0">
+        <!-- Top Summary Box -->
+      <div class="shrink-0 bg-emerald-600 text-white p-5 rounded-[24px] flex flex-col relative overflow-hidden shadow-lg shadow-emerald-600/20">
+        <div class="flex items-start justify-between relative z-10">
+          <!-- Left side: Icon + Total Allocation -->
+          <div class="flex items-center gap-3">
+            <!-- Icon Box -->
+            <div class="w-12 h-12 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shrink-0">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21.2 15.8A10 10 0 1 1 8.2 2.8" />
+                <path d="M23 11A10 10 0 0 0 13 1v10z" />
+              </svg>
+            </div>
+            <div class="flex flex-col">
+              <span class="text-[10px] font-bold text-emerald-100 uppercase tracking-wider mb-0.5">
+                Total Allocation
               </span>
-            }
+              @if (budgetService.isLoading()) {
+                <div class="h-8 w-24 bg-gray-800 animate-pulse rounded"></div>
+              } @else {
+                <span class="text-2xl font-bold tracking-tight">
+                  ₹{{ monthlySalary() | number: '1.0-0' }}
+                </span>
+              }
+            </div>
           </div>
-          <div class="text-right flex flex-col cursor-pointer" (click)="showSalaryLimit.update((v) => !v)">
-            <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">
-              Salary Limit
-            </span>
-            @if (budgetService.isLoading()) {
-              <div class="h-5 w-16 bg-gray-800 animate-pulse rounded mt-1 self-end"></div>
-            } @else {
-              <span class="text-sm font-black text-white transition-all select-none mt-1">
-                {{ isMasked() && !showSalaryLimit() ? '••••' : '₹' + (monthlySalary() | number: '1.0-0') }}
-              </span>
-            }
+
+          <!-- Right side: Allocated -->
+          <div class="flex flex-col items-end gap-1">
+            <div class="flex items-center gap-2">
+              <div class="flex flex-col items-end">
+                <span class="text-[10px] font-bold text-emerald-100 uppercase tracking-wider mb-0.5">
+                  Allocated
+                </span>
+                @if (budgetService.isLoading()) {
+                  <div class="h-6 w-16 bg-emerald-500 animate-pulse rounded"></div>
+                } @else {
+                  <span class="text-lg font-bold text-white">
+                    ₹{{ totalAllocated() | number: '1.0-0' }}
+                  </span>
+                }
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- Global Progress Bar -->
-        <div class="h-2 w-full bg-gray-800 rounded-full overflow-hidden flex relative z-10 border border-gray-700">
-          <div
-            class="h-full bg-white transition-all duration-1000 ease-out rounded-full"
-            [style.width.%]="!budgetService.isLoading() && animateBars() ? globalProgressPercent() : 0"
-          ></div>
+        <!-- Progress bar section -->
+        <div class="mt-6 flex flex-col gap-2 relative z-10">
+          <div class="h-2 w-full bg-emerald-700/50 rounded-full overflow-hidden flex">
+            <div class="h-full bg-white transition-all duration-1000 ease-out rounded-full"
+                 [style.width.%]="!budgetService.isLoading() && animateBars() ? globalProgressPercent() : 0"></div>
+          </div>
+          <div class="flex justify-between items-center text-[11px] font-medium">
+            <span class="text-emerald-50">{{ globalProgressPercent() | number: '1.0-0' }}% of total allocation used</span>
+            <span class="text-white">₹{{ monthlySalary() - totalAllocated() | number: '1.0-0' }} left</span>
+          </div>
         </div>
       </div>
 
+      </div>
 
-      <!-- Goals List -->
-      <div class="flex-1 flex flex-col gap-3 mt-2">
+      <!-- Scrollable Budgets List -->
+      <div class="flex-1 overflow-y-auto px-5 pb-32 flex flex-col gap-3">
         @if (budgetService.isLoading()) {
           @for (i of [1, 2, 3, 4, 5]; track i) {
-            <div class="w-full bg-gray-100 rounded-2xl p-4 flex flex-col gap-3 h-[88px] animate-pulse border-2 border-gray-200">
+            <div class="w-full bg-gray-50 rounded-2xl p-4 flex flex-col gap-3 h-[90px] animate-pulse border border-gray-100">
               <div class="flex justify-between items-center w-full">
-                <div class="flex flex-col gap-2 w-1/2">
-                  <div class="h-5 bg-gray-200 w-2/3"></div>
-                  <div class="h-3 bg-gray-200 w-1/2"></div>
+                <div class="flex items-center gap-3 w-1/2">
+                  <div class="w-12 h-12 bg-gray-200 rounded-2xl shrink-0"></div>
+                  <div class="flex flex-col gap-2 w-full">
+                    <div class="h-4 bg-gray-200 w-2/3 rounded"></div>
+                    <div class="h-3 bg-gray-200 w-1/2 rounded"></div>
+                  </div>
                 </div>
                 <div class="flex flex-col items-end gap-1">
-                  <div class="h-6 bg-gray-200 w-16"></div>
-                  <div class="h-2 bg-gray-200 w-20"></div>
+                  <div class="h-5 bg-gray-200 w-16 rounded"></div>
+                  <div class="h-3 bg-gray-200 w-12 rounded"></div>
                 </div>
               </div>
             </div>
@@ -86,68 +112,63 @@ import { Router } from '@angular/router';
             @for (budget of budgetService.budgets(); track budget) {
               <button
                 (click)="openBudget(budget)"
-                class="w-full bg-white border-2 border-black text-black rounded-2xl p-4 flex flex-col gap-3 text-left hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all active:scale-[0.99]"
+                class="w-full bg-budget-primary/[0.03] border border-budget-primary/10 rounded-2xl p-4 flex flex-col gap-4 text-left shadow-sm hover:shadow-md transition-all active:scale-[0.99]"
               >
-                <div class="flex justify-between items-center w-full">
-                  <div class="flex flex-col gap-0.5">
-                    <span class="font-black text-lg">{{ budget.name }}</span>
-                    <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-500">
-                      <span>Consumed: ₹{{ getConsumed(budget.name) | number: '1.0-0' }}</span>
+                <div class="flex justify-between items-start w-full">
+                  <div class="flex items-center gap-3">
+                    <!-- Icon Box -->
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0"
+                         [ngClass]="getCategoryIconBg(budget.name)">
+                      <svg class="w-6 h-6" [ngClass]="getCategoryIconColor(budget.name)" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                        <path [attr.d]="budget.icon_path || getCategoryFallbackIconPath(budget.name)" />
+                      </svg>
+                    </div>
+                    <div class="flex flex-col">
+                      <span class="font-bold text-[15px] text-gray-900 leading-tight">{{ budget.name }}</span>
+                      <span class="text-[12px] font-medium text-gray-500 mt-0.5">Spent ₹{{ getConsumed(budget.name) | number: '1.0-0' }}</span>
                     </div>
                   </div>
-                  <div class="flex flex-col items-end gap-1">
+                  
+                  <div class="flex items-center gap-2">
                     @if (budget.id === 'virtual-others') {
                       <div class="flex flex-col items-end">
-                        <span class="font-black text-xl">₹{{ monthlySalary() - totalAllocated() | number: '1.0-0' }}</span>
-                        <span class="text-[9px] font-bold uppercase tracking-widest text-gray-400">Unallocated Limit</span>
+                        <span class="font-bold text-[15px] text-gray-900">₹{{ monthlySalary() - totalAllocated() | number: '1.0-0' }}</span>
+                        <span class="text-[12px] font-bold text-emerald-500 mt-0.5">₹{{ (monthlySalary() - totalAllocated()) - getConsumed(budget.name) | number: '1.0-0' }} left</span>
                       </div>
                     } @else {
                       <div class="flex flex-col items-end">
-                        <span class="font-black text-xl">₹{{ budget.amount + (budget.rollover_amount || 0) | number: '1.0-0' }}</span>
-                        @if (budget.rollover_amount) {
-                          <span class="text-[9px] font-black text-emerald-600 tracking-widest uppercase border border-emerald-200 bg-emerald-50 px-1 rounded">
-                            + ₹{{ budget.rollover_amount | number: '1.0-0' }} Rolled Over
-                          </span>
-                        }
+                        <span class="font-bold text-[15px] text-gray-900">₹{{ budget.amount + (budget.rollover_amount || 0) | number: '1.0-0' }}</span>
+                        <span class="text-[12px] font-bold text-emerald-500 mt-0.5">₹{{ (budget.amount + (budget.rollover_amount || 0)) - getConsumed(budget.name) | number: '1.0-0' }} left</span>
                       </div>
                     }
+                    <svg class="w-5 h-5 text-gray-300 ml-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
                   </div>
                 </div>
-                <!-- Progress Bar -->
-                <div class="h-2 w-full bg-gray-100 rounded-full overflow-hidden mt-1 border border-gray-200">
-                  <div
-                    class="h-full transition-all duration-1000 ease-out rounded-full"
-                    [style.width.%]="
-                      !budgetService.isLoading() && animateBars()
-                        ? getPercent(
-                            budget.name,
-                            budget.id === 'virtual-others'
-                              ? monthlySalary() - totalAllocated()
-                              : budget.amount + (budget.rollover_amount || 0)
-                          )
-                        : 0
-                    "
-                    [ngClass]="
-                      getColorClass(
-                        budget.name,
-                        budget.id === 'virtual-others'
-                          ? monthlySalary() - totalAllocated()
-                          : budget.amount + (budget.rollover_amount || 0)
-                      )
-                    "
-                  ></div>
+                
+                <!-- Progress Bar inline with percentage -->
+                <div class="flex items-center gap-3 w-full">
+                  <div class="h-2 flex-1 bg-gray-100 rounded-full overflow-hidden">
+                    <div
+                      class="h-full transition-all duration-1000 ease-out rounded-full"
+                      [style.width.%]="!budgetService.isLoading() && animateBars() ? getPercent(budget.name, budget.id === 'virtual-others' ? monthlySalary() - totalAllocated() : budget.amount + (budget.rollover_amount || 0)) : 0"
+                      [ngClass]="getCategoryProgressColor(budget.name)"
+                    ></div>
+                  </div>
+                  <span class="text-[11px] font-bold text-gray-500 w-8 text-right">{{ getPercent(budget.name, budget.id === 'virtual-others' ? monthlySalary() - totalAllocated() : budget.amount + (budget.rollover_amount || 0)) | number: '1.0-0' }}%</span>
                 </div>
               </button>
             }
           } @else {
-            <div class="flex-1 flex flex-col items-center justify-center p-8 text-center h-[300px]">
-              <div class="w-32 h-32 bg-gray-50 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center mb-6">
-                <svg class="w-12 h-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <div class="mt-4 w-full bg-[#FCFCFD] border border-dashed border-gray-200 rounded-[24px] p-8 flex flex-col items-center justify-center text-center">
+              <div class="w-12 h-12 bg-indigo-50 rounded-[14px] flex items-center justify-center mb-3">
+                <svg class="w-6 h-6 text-[#5421E6]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <p class="text-black font-extrabold text-xl">No budgets yet</p>
-              <p class="text-gray-400 font-bold text-sm mt-2 max-w-[250px]">
+              <h4 class="text-sm font-bold text-slate-800 mb-1">No budgets yet</h4>
+              <p class="text-xs text-slate-500 max-w-[250px]">
                 Tap the + button below to create your first budget.
               </p>
             </div>
@@ -234,5 +255,27 @@ export class Budgets implements OnInit, AfterViewInit {
 
   openBudget(budget: any) {
     this.router.navigate(['/budgets', budget.name]);
+  }
+
+  getCategoryIconBg(budgetName: string): string {
+    return 'bg-emerald-50'; // Unified green theme
+  }
+
+  getCategoryIconColor(budgetName: string): string {
+    return 'text-budget-primary'; // Unified green theme
+  }
+
+  getCategoryProgressColor(budgetName: string): string {
+    return 'bg-budget-primary'; // Unified green theme
+  }
+
+  getCategoryFallbackIconPath(budgetName: string): string {
+    const name = budgetName.toLowerCase();
+    if (name.includes('shop')) return 'M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z';
+    if (name.includes('food') || name.includes('din')) return 'M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6'; // actually spoon/fork but a generic icon works
+    if (name.includes('trans') || name.includes('auto') || name.includes('car')) return 'M5 10h14l-1.5-4H6.5L5 10zm0 0v8a2 2 0 002 2h1a2 2 0 002-2v-1h4v1a2 2 0 002 2h1a2 2 0 002-2v-8M9 14a1 1 0 11-2 0 1 1 0 012 0zm8 0a1 1 0 11-2 0 1 1 0 012 0z';
+    if (name.includes('health') || name.includes('med')) return 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z';
+    if (name.includes('entertain') || name.includes('fun')) return 'M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z';
+    return 'M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4'; // sliders for others
   }
 }

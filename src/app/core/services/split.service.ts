@@ -576,8 +576,16 @@ export class SplitService {
     return Object.values(this.simplifiedBalances()).filter(val => val > 0).reduce((sum, val) => sum + val, 0);
   });
 
+  peopleOwedToYou = computed(() => {
+    return Object.values(this.simplifiedBalances()).filter(val => val > 0).length;
+  });
+
   totalYouOwe = computed(() => {
     return Object.values(this.simplifiedBalances()).filter(val => val < 0).reduce((sum, val) => sum + Math.abs(val), 0);
+  });
+
+  peopleYouOwe = computed(() => {
+    return Object.values(this.simplifiedBalances()).filter(val => val < 0).length;
   });
 
   // --- Sheet Controls ---

@@ -10,8 +10,8 @@ import { NgClass } from '@angular/common';
       [type]="type()"
       [disabled]="isLoading()"
       (click)="clicked.emit()"
-      class="w-full font-black tracking-widest uppercase transition-all duration-200 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none flex justify-center items-center gap-2 touch-manipulation focus:outline-none focus:ring-0 px-4 py-3 min-h-[48px] rounded-xl border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] disabled:opacity-70 disabled:cursor-not-allowed disabled:active:translate-x-0 disabled:active:translate-y-0 disabled:active:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-[11px]"
-      [ngClass]="isGoogle() ? 'bg-white text-black hover:bg-gray-50' : 'bg-black text-white hover:bg-gray-900'"
+      class="w-full font-bold tracking-widest uppercase transition-all duration-200 active:scale-95 flex justify-center items-center gap-2 touch-manipulation focus:outline-none focus:ring-0 px-4 py-3 min-h-[48px] rounded-xl shadow-md disabled:opacity-70 disabled:cursor-not-allowed disabled:active:scale-100 text-[11px]"
+      [ngClass]="isGoogle() ? 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 shadow-sm' : 'bg-black text-white hover:bg-gray-900 shadow-black/20'"
     >
       @if (isLoading()) {
         <svg

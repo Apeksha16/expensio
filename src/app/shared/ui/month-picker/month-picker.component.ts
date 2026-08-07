@@ -140,7 +140,7 @@ export class MonthPickerComponent {
       case 'dashboard':
         return { bg: 'bg-black', border: 'border-black', text: 'text-black' };
       default:
-        return { bg: 'bg-black', border: 'border-black', text: 'text-black' };
+        return { bg: 'bg-tracker-primary', border: 'border-tracker-primary', text: 'text-tracker-primary' };
     }
   }
 

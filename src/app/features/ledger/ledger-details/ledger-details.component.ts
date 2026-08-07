@@ -23,15 +23,15 @@ import { ConfirmService } from '../../../core/services/confirm.service';
         @if (ledgerService.isLoading()) {
           <div class="flex flex-col gap-3">
             @for (i of [1, 2, 3]; track i) {
-              <div class="w-full bg-gray-100 rounded-2xl h-20 animate-pulse border-2 border-gray-200"></div>
+              <div class="w-full bg-gray-50 rounded-2xl h-20 animate-pulse border border-gray-100"></div>
             }
           </div>
         } @else {
           @if (ledger()) {
             <!-- Settled Banner -->
             @if (ledgerBalance() === 0) {
-              <div class="mb-5 bg-emerald-300 border-2 border-black rounded-2xl p-4 flex items-center gap-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                <div class="w-10 h-10 bg-white border-2 border-black text-black flex items-center justify-center rounded-xl shrink-0 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+              <div class="mb-5 bg-emerald-50 border border-emerald-100 rounded-2xl p-4 flex items-center gap-4 shadow-sm">
+                <div class="w-10 h-10 bg-white border border-emerald-200 text-emerald-600 flex items-center justify-center rounded-xl shrink-0 shadow-sm">
                   <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
                   </svg>
@@ -48,7 +48,7 @@ import { ConfirmService } from '../../../core/services/confirm.service';
             }
 
             <!-- Summary Card -->
-            <div class="mb-6 bg-black p-5 rounded-2xl relative overflow-hidden text-white shadow-[6px_6px_0px_0px_rgba(239,68,68,1)]">
+            <div class="mb-6 bg-white border border-gray-100 p-5 rounded-2xl relative overflow-hidden text-gray-900 shadow-sm">
               <div class="relative z-10 flex flex-col items-center text-center">
                 <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">
                   Remaining Balance
@@ -56,7 +56,7 @@ import { ConfirmService } from '../../../core/services/confirm.service';
                 <span class="text-3xl font-black tracking-tight mt-1">
                   {{ ledgerBalance() >= 0 ? '+' : '' }}₹{{ ledgerBalance() | number: '1.2-2' }}
                 </span>
-                <span class="text-[10px] font-black mt-1 uppercase tracking-widest text-gray-300">
+                <span class="text-[10px] font-bold mt-1 uppercase tracking-widest text-gray-500">
                   @if (ledgerBalance() > 0) {
                     They still owe you
                   } @else if (ledgerBalance() < 0) {
@@ -66,16 +66,16 @@ import { ConfirmService } from '../../../core/services/confirm.service';
                   }
                 </span>
 
-                <div class="w-full h-px bg-gray-700 my-4 border-dashed border-t-2 border-gray-700"></div>
+                <div class="w-full h-px my-4 border-dashed border-t border-gray-200"></div>
 
-                <div class="flex flex-col gap-0.5 w-full text-left bg-gray-900 p-4 border-2 border-gray-700 rounded-xl">
-                  <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                <div class="flex flex-col gap-0.5 w-full text-left bg-gray-50 p-4 border border-gray-100 rounded-xl">
+                  <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
                     Started as
-                    <span class="text-white">₹{{ $safeNavigationMigration(ledger()?.amount) | number: '1.0-0' }}</span>
+                    <span class="text-gray-900">₹{{ $safeNavigationMigration(ledger()?.amount) | number: '1.0-0' }}</span>
                     {{ ledger()?.type === 'in' ? 'Received' : 'Given' }}
                   </span>
                   @if (ledger()?.purpose) {
-                    <span class="text-[10px] font-bold text-gray-300 uppercase tracking-widest mt-1">
+                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">
                       {{ ledger()?.purpose }}
                     </span>
                   }
@@ -88,7 +88,7 @@ import { ConfirmService } from '../../../core/services/confirm.service';
                 @if (ledgerBalance() < 0) {
                   <button
                     (click)="settleBalance('in')"
-                    class="flex-1 bg-white hover:bg-emerald-50 text-black p-3 font-black text-xs uppercase tracking-widest transition-all rounded-xl flex items-center justify-center gap-2 border-2 border-black active:scale-[0.98] shadow-[4px_4px_0px_0px_rgba(16,185,129,1)]"
+                    class="flex-1 bg-white hover:bg-emerald-50 text-emerald-700 p-3 font-bold text-xs uppercase tracking-widest transition-all rounded-xl flex items-center justify-center gap-2 border border-emerald-200 active:scale-[0.98] shadow-sm"
                   >
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
@@ -98,7 +98,7 @@ import { ConfirmService } from '../../../core/services/confirm.service';
                 } @else {
                   <button
                     (click)="settleBalance('out')"
-                    class="flex-1 bg-white hover:bg-red-50 text-black p-3 font-black text-xs uppercase tracking-widest transition-all rounded-xl flex items-center justify-center gap-2 border-2 border-black active:scale-[0.98] shadow-[4px_4px_0px_0px_rgba(239,68,68,1)]"
+                    class="flex-1 bg-white hover:bg-red-50 text-red-700 p-3 font-bold text-xs uppercase tracking-widest transition-all rounded-xl flex items-center justify-center gap-2 border border-red-200 active:scale-[0.98] shadow-sm"
                   >
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 10l7-7m0 0l7 7m-7-7v18" />
@@ -121,7 +121,7 @@ import { ConfirmService } from '../../../core/services/confirm.service';
                     (click)="editTransaction(tx)"
                     role="button"
                     tabindex="0"
-                    class="w-full bg-white rounded-2xl p-4 flex items-center justify-between gap-4 text-left shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:scale-[0.99] transition-all border-2 border-black"
+                    class="w-full bg-white rounded-2xl p-4 flex items-center justify-between gap-4 text-left shadow-sm hover:shadow-md active:scale-[0.99] transition-all border border-gray-100"
                   >
                     <div class="flex flex-col gap-1 flex-1 min-w-0 pr-4">
                       <span class="font-black text-base text-black truncate">{{ tx.purpose || 'No note' }}</span>
@@ -141,14 +141,14 @@ import { ConfirmService } from '../../../core/services/confirm.service';
                   </div>
                 }
               } @else {
-                <div class="flex-1 flex flex-col items-center justify-center p-8 text-center mt-4 h-[200px]">
-                  <div class="w-32 h-32 bg-gray-50 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center mb-6">
-                    <svg class="w-12 h-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                <div class="mt-4 w-full bg-[#FCFCFD] border border-dashed border-gray-200 rounded-[24px] p-8 flex flex-col items-center justify-center text-center">
+                  <div class="w-12 h-12 bg-indigo-50 rounded-[14px] flex items-center justify-center mb-3">
+                    <svg class="w-6 h-6 text-[#5421E6]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
                   </div>
-                  <p class="text-black font-extrabold text-lg">No payments yet</p>
-                  <p class="text-gray-400 font-bold text-sm mt-2 max-w-[250px]">
+                  <h4 class="text-sm font-bold text-slate-800 mb-1">No payments yet</h4>
+                  <p class="text-xs text-slate-500 max-w-[250px]">
                     Tap the button above to add your first payment.
                   </p>
                 </div>
@@ -161,7 +161,7 @@ import { ConfirmService } from '../../../core/services/confirm.service';
               </p>
               <button
                 (click)="goBack()"
-                class="mt-6 bg-white border-2 border-black text-black px-6 py-3 font-black text-sm rounded-xl uppercase tracking-widest hover:bg-gray-50 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:scale-[0.95] transition-all"
+                class="mt-6 bg-white border border-gray-200 text-gray-700 px-6 py-3 font-bold text-sm rounded-xl uppercase tracking-widest hover:bg-gray-50 shadow-sm active:scale-[0.95] transition-all"
               >
                 Go Back
               </button>

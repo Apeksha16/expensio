@@ -40,11 +40,11 @@ import { HapticService } from '../../../core/services/haptic.service';
         @slideUp
         appSwipeToClose
         (swipeClose)="close()"
-        class="fixed bottom-0 left-0 right-0 bg-black z-[90] 
-               max-h-[95vh] flex flex-col shadow-2xl"
+        class="fixed bottom-0 left-0 right-0 bg-white z-[90] 
+               max-h-[95vh] flex flex-col rounded-t-[32px] shadow-2xl overflow-hidden"
       >
         <div
-          class="p-6 pt-4 pb-4 border-b-2 border-black bg-black text-white sticky top-[-2px] z-10"
+          class="p-6 pt-4 pb-4 bg-white text-gray-900 sticky top-[-2px] z-10 shrink-0"
         >
           <div class="flex justify-between items-center mb-6">
             <h2 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">
@@ -52,7 +52,7 @@ import { HapticService } from '../../../core/services/haptic.service';
             </h2>
             <button
               (click)="close()"
-              class="p-2 hover:bg-white hover:text-black transition-colors border-2 border-transparent hover:border-white rounded-none"
+              class="p-2 hover:bg-gray-100 text-gray-400 hover:text-gray-900 transition-colors rounded-full"
             >
               <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path
@@ -72,11 +72,10 @@ import { HapticService } from '../../../core/services/haptic.service';
             @for (day of days; track day) {
               <button
                 (click)="selectDay(day)"
-                class="h-10 w-full flex items-center justify-center font-bold border-2 rounded-none transition-colors text-sm"
+                class="h-10 w-full flex items-center justify-center font-bold rounded-xl transition-all text-sm"
                 [ngClass]="{
-                  'border-black bg-black text-white': day === selectedDay,
-                  'border-transparent hover:border-black text-black bg-gray-50':
-                    day !== selectedDay,
+                  'bg-black text-white shadow-md': day === selectedDay,
+                  'text-gray-700 bg-gray-50 hover:bg-gray-200': day !== selectedDay,
                 }"
               >
                 {{ day }}
@@ -86,7 +85,7 @@ import { HapticService } from '../../../core/services/haptic.service';
           <div class="mt-4 mb-2">
             <button
               (click)="confirm()"
-              class="w-full bg-black text-white px-4 py-3 text-[11px] font-extrabold uppercase tracking-widest min-h-[44px] border-2 border-black rounded-none hover:bg-gray-900 transition-colors"
+              class="w-full bg-black text-white px-4 py-3 text-[11px] font-extrabold uppercase tracking-widest min-h-[44px] rounded-xl hover:bg-gray-900 transition-all shadow-md active:scale-95"
             >
               Confirm Day
             </button>

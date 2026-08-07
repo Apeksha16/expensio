@@ -24,16 +24,16 @@ import Chart from 'chart.js/auto';
   template: `
     <div class="h-full flex flex-col relative w-full bg-white overflow-y-auto">
       <!-- Filters Header -->
-      <div class="bg-white p-4 border-b-2 border-black sticky top-0 z-10 flex flex-col gap-4">
+      <div class="bg-white p-4 border-b border-gray-100 sticky top-0 z-10 flex flex-col gap-4">
         <!-- Date Presets Scrollable -->
         <div class="flex overflow-x-auto gap-3 pb-2 no-scrollbar">
           @for (preset of presets; track preset) {
             <button
               (click)="reportService.fetchReports(preset)"
-              class="whitespace-nowrap px-4 py-2 text-sm font-black border-2 border-black rounded-xl transition-all active:scale-[0.98]"
+              class="whitespace-nowrap px-4 py-2 text-sm font-bold border border-gray-200 rounded-xl transition-all active:scale-[0.98]"
               [ngClass]="{
-                'bg-black text-white shadow-[3px_3px_0px_0px_rgba(236,72,153,1)]': reportService.activePreset() === preset,
-                'bg-white text-black hover:bg-gray-50 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]': reportService.activePreset() !== preset,
+                'bg-gray-900 text-white shadow-md': reportService.activePreset() === preset,
+                'bg-white text-gray-700 hover:bg-gray-50 shadow-sm hover:shadow-md': reportService.activePreset() !== preset,
               }"
             >
               {{ preset }}
@@ -43,30 +43,30 @@ import Chart from 'chart.js/auto';
 
         <!-- Type Toggles -->
         <div class="flex flex-wrap gap-4">
-          <label class="flex items-center gap-2 text-xs font-black text-black cursor-pointer">
+          <label class="flex items-center gap-2 text-xs font-bold text-gray-700 cursor-pointer">
             <input
               type="checkbox"
               [checked]="reportService.showGoals()"
               (change)="reportService.toggleGoalFilter()"
-              class="text-black bg-white border-2 border-black focus:ring-black focus:ring-offset-0 w-4 h-4 rounded"
+              class="text-gray-900 bg-white border-gray-300 focus:ring-gray-900 focus:ring-offset-0 w-4 h-4 rounded"
             />
             Include Goals
           </label>
-          <label class="flex items-center gap-2 text-xs font-black text-black cursor-pointer">
+          <label class="flex items-center gap-2 text-xs font-bold text-gray-700 cursor-pointer">
             <input
               type="checkbox"
               [checked]="reportService.showSubscriptions()"
               (change)="reportService.toggleSubscriptionFilter()"
-              class="text-black bg-white border-2 border-black focus:ring-black focus:ring-offset-0 w-4 h-4 rounded"
+              class="text-gray-900 bg-white border-gray-300 focus:ring-gray-900 focus:ring-offset-0 w-4 h-4 rounded"
             />
             Include Subs
           </label>
-          <label class="flex items-center gap-2 text-xs font-black text-black cursor-pointer">
+          <label class="flex items-center gap-2 text-xs font-bold text-gray-700 cursor-pointer">
             <input
               type="checkbox"
               [checked]="reportService.showSplits()"
               (change)="reportService.toggleSplitFilter()"
-              class="text-black bg-white border-2 border-black focus:ring-black focus:ring-offset-0 w-4 h-4 rounded"
+              class="text-gray-900 bg-white border-gray-300 focus:ring-gray-900 focus:ring-offset-0 w-4 h-4 rounded"
             />
             Include Splits
           </label>
@@ -76,22 +76,22 @@ import Chart from 'chart.js/auto';
       <div class="p-4 flex flex-col gap-6 pb-28">
         <!-- Summary Cards -->
         <div class="grid grid-cols-2 gap-4">
-          <div class="bg-white border-2 border-black p-4 rounded-2xl flex flex-col gap-1 shadow-[4px_4px_0px_0px_rgba(244,63,94,1)]">
-            <span class="text-[10px] font-black text-gray-500 uppercase tracking-widest">Total Spent</span>
-            <span class="text-xl font-black text-black">{{ totalSpent | currency: 'INR' : 'symbol' : '1.0-0' }}</span>
+          <div class="bg-white border border-gray-100 p-4 rounded-2xl flex flex-col gap-1 shadow-sm">
+            <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Total Spent</span>
+            <span class="text-xl font-extrabold text-gray-900">{{ totalSpent | currency: 'INR' : 'symbol' : '1.0-0' }}</span>
           </div>
-          <div class="bg-white border-2 border-black p-4 rounded-2xl flex flex-col gap-1 shadow-[4px_4px_0px_0px_rgba(59,130,246,1)]">
-            <span class="text-[10px] font-black text-gray-500 uppercase tracking-widest">Daily Avg</span>
-            <span class="text-xl font-black text-black">{{ dailyAverage | currency: 'INR' : 'symbol' : '1.0-0' }}</span>
+          <div class="bg-white border border-gray-100 p-4 rounded-2xl flex flex-col gap-1 shadow-sm">
+            <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Daily Avg</span>
+            <span class="text-xl font-extrabold text-gray-900">{{ dailyAverage | currency: 'INR' : 'symbol' : '1.0-0' }}</span>
           </div>
         </div>
 
         @if (reportService.isLoading()) {
           <div class="flex flex-col gap-6">
-            <div class="bg-gray-100 h-64 w-full animate-pulse rounded-2xl p-4 flex flex-col items-center justify-center border-2 border-gray-200">
-              <div class="w-40 h-40 rounded-full border-8 border-gray-200"></div>
+            <div class="bg-gray-50 h-64 w-full animate-pulse rounded-2xl p-4 flex flex-col items-center justify-center border border-gray-100">
+              <div class="w-40 h-40 rounded-full border-8 border-gray-100"></div>
             </div>
-            <div class="bg-gray-100 h-64 w-full animate-pulse rounded-2xl p-4 flex flex-col justify-end gap-2 border-2 border-gray-200">
+            <div class="bg-gray-50 h-64 w-full animate-pulse rounded-2xl p-4 flex flex-col justify-end gap-2 border border-gray-100">
               <div class="flex justify-between items-end h-32 w-full px-4">
                 <div class="w-8 bg-gray-200 h-24 rounded-t"></div>
                 <div class="w-8 bg-gray-200 h-16 rounded-t"></div>
@@ -105,21 +105,21 @@ import Chart from 'chart.js/auto';
           reportService.expenses().length === 0 &&
           (!reportService.isLongTerm() || reportService.monthlySummaries().length === 0)
         ) {
-          <div class="flex-1 flex flex-col items-center justify-center p-8 text-center mt-8 h-[300px]">
-            <div class="w-32 h-32 bg-gray-50 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center mb-6">
-              <svg class="w-12 h-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          <div class="mt-8 w-full bg-[#FCFCFD] border border-dashed border-gray-200 rounded-[24px] p-8 flex flex-col items-center justify-center text-center">
+            <div class="w-12 h-12 bg-indigo-50 rounded-[14px] flex items-center justify-center mb-3">
+              <svg class="w-6 h-6 text-[#5421E6]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
             </div>
-            <p class="text-black font-extrabold text-xl">No data available</p>
-            <p class="text-gray-400 font-bold text-sm mt-2 max-w-[250px]">
+            <h4 class="text-sm font-bold text-slate-800 mb-1">No data available</h4>
+            <p class="text-xs text-slate-500 max-w-[250px]">
               Try changing the date range or toggling filters to see your reports.
             </p>
           </div>
         } @else {
           <!-- Category Doughnut Chart -->
-          <div class="bg-white border-2 border-black p-4 rounded-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-            <h2 class="text-sm font-black text-black uppercase tracking-widest mb-4 pb-2 border-b-2 border-black">
+          <div class="bg-white border border-gray-100 p-4 rounded-2xl shadow-sm">
+            <h2 class="text-sm font-bold text-gray-700 uppercase tracking-widest mb-4 pb-2 border-b border-gray-100">
               Category Breakdown
             </h2>
             <div class="relative h-64 w-full">
@@ -128,8 +128,8 @@ import Chart from 'chart.js/auto';
           </div>
 
           <!-- Trend Bar Chart -->
-          <div class="bg-white border-2 border-black p-4 rounded-2xl mt-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-            <h2 class="text-sm font-black text-black uppercase tracking-widest mb-4 pb-2 border-b-2 border-black">
+          <div class="bg-white border border-gray-100 p-4 rounded-2xl mt-4 shadow-sm">
+            <h2 class="text-sm font-bold text-gray-700 uppercase tracking-widest mb-4 pb-2 border-b border-gray-100">
               Spending Trend
             </h2>
             <div class="relative h-64 w-full">
@@ -139,22 +139,22 @@ import Chart from 'chart.js/auto';
 
           <!-- Top Spends List -->
           <div class="mt-6">
-            <h2 class="text-xs font-black text-black uppercase tracking-widest mb-3 px-1">
+            <h2 class="text-xs font-bold text-gray-700 uppercase tracking-widest mb-3 px-1">
               Top Transactions
             </h2>
             <div class="flex flex-col gap-3">
               @for (expense of topExpenses; track expense.id) {
-                <div class="w-full bg-white border-2 border-black rounded-2xl p-4 flex justify-between items-center text-left shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all">
+                <div class="w-full bg-white border border-gray-100 rounded-2xl p-4 flex justify-between items-center text-left shadow-sm hover:shadow-md transition-all">
                   <div class="flex flex-col gap-1 flex-1 min-w-0 pr-4">
                     <span class="font-extrabold text-base text-gray-900 truncate">{{ expense.title }}</span>
                     <div class="flex items-center gap-2 text-[10px] font-bold text-gray-500 uppercase tracking-widest min-w-0">
                       <span class="truncate">{{ expense.category }}</span>
-                      <span class="flex-shrink-0 border-l-2 border-gray-300 h-3"></span>
+                      <span class="flex-shrink-0 border-l border-gray-300 h-3"></span>
                       <span class="whitespace-nowrap flex-shrink-0">{{ expense.date | date: 'MMM d' }}</span>
                     </div>
                   </div>
                   <div class="flex flex-col items-end gap-2 flex-shrink-0">
-                    <span class="font-black text-lg text-black">
+                    <span class="font-extrabold text-lg text-gray-900">
                       ₹{{ expense.amount | number: '1.0-0' }}
                     </span>
                   </div>
@@ -243,7 +243,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
   }
 
   getCategoryColor(category: string): string {
-    if (!category) return 'border-black';
+    if (!category) return 'border-gray-900';
     if (category === 'virtual-invest') {
       return 'border-goals-primary';
     } else if (category.includes('(Group Split)') || category.includes('(Split)')) {

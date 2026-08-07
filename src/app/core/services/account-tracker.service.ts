@@ -537,7 +537,6 @@ export class AccountTrackerService {
           });
         }
 
-        this.toastService.show('Accounts set up successfully! 🎉', 'success');
         return;
       }
 
@@ -567,7 +566,6 @@ export class AccountTrackerService {
         }
       }
 
-      this.toastService.show('Accounts set up successfully! 🎉', 'success');
       await this.fetchTrackerData();
     } catch (err: any) {
       console.error('Error setting initial balances:', err);

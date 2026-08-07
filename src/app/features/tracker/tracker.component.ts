@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { AccountTrackerService, AccountType } from '../../core/services/account-tracker.service';
 import { MonthPickerService } from '../../core/services/month-picker.service';
 import { HapticService } from '../../core/services/haptic.service';
+import { ToastService } from '../../core/services/toast.service';
 import { AmountInputDirective } from '../../shared/ui/amount-input.directive';
 
 @Component({
@@ -14,19 +15,19 @@ import { AmountInputDirective } from '../../shared/ui/amount-input.directive';
     <div class="h-full overflow-y-auto space-y-6 pb-28 px-4 pt-4">
 
       <!-- Top Summary Header & Action Buttons -->
-      <div class="bg-black text-white p-5 rounded-2xl shadow-[6px_6px_0px_0px_rgba(14,165,233,1)] flex flex-col relative overflow-hidden">
+      <div class="bg-tracker-primary text-white p-5 rounded-[24px] shadow-xl shadow-tracker-primary/20 flex flex-col relative overflow-hidden">
         <div class="flex justify-between items-center mb-3">
-          <span class="text-xs font-extrabold uppercase tracking-widest text-sky-400">Total Net Worth</span>
+          <span class="text-xs font-extrabold uppercase tracking-widest text-tracker-light/80">Total Net Worth</span>
           <div class="flex items-center gap-2">
             <button
               (click)="openWizard()"
-              class="px-2.5 py-1 bg-sky-500 hover:bg-sky-600 text-white font-extrabold text-xs rounded-none border border-black transition-colors flex items-center gap-1"
+              class="px-2.5 py-1.5 bg-white/10 hover:bg-white/20 text-white font-extrabold text-xs rounded-full transition-colors flex items-center gap-1 backdrop-blur-md"
             >
               <span>⚙️ Setup Balances</span>
             </button>
             <button
               (click)="openMonthPicker()"
-              class="px-3 py-1 bg-white/10 hover:bg-white/20 text-white font-extrabold text-xs rounded-none border border-white/30 transition-colors flex items-center gap-1.5"
+              class="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white font-extrabold text-xs rounded-full transition-colors flex items-center gap-1.5 backdrop-blur-md"
             >
               <span>📅 {{ formatMonth(trackerService.activeMonth()) }}</span>
             </button>
@@ -38,10 +39,10 @@ import { AmountInputDirective } from '../../shared/ui/amount-input.directive';
       </div>
 
       <!-- End of Month Salary Rollover Banner -->
-      <div class="bg-gradient-to-br from-sky-50 to-blue-50 p-5 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] relative overflow-hidden">
+      <div class="bg-gradient-to-br from-indigo-50 to-blue-50 p-5 border border-indigo-100 rounded-[24px] shadow-sm relative overflow-hidden">
         <div class="flex items-start justify-between gap-3 mb-3">
           <div>
-            <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-sky-500 text-white font-black text-[10px] uppercase tracking-wider border border-black mb-2">
+            <div class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-indigo-500 text-white font-black text-[10px] uppercase tracking-wider rounded-full mb-2">
               <span>⚡ Month-End Savings Auto-Rollover</span>
             </div>
             <h3 class="text-lg font-black text-gray-900 leading-tight">
@@ -51,23 +52,23 @@ import { AmountInputDirective } from '../../shared/ui/amount-input.directive';
               At the end of the month, any amount remaining in your Salary Account automatically moves into Savings!
             </p>
           </div>
-          <div class="w-12 h-12 rounded-full bg-sky-100 border-2 border-black flex items-center justify-center text-2xl flex-shrink-0">
+          <div class="w-12 h-12 rounded-2xl bg-indigo-100 flex items-center justify-center text-2xl flex-shrink-0">
             🏦
           </div>
         </div>
 
         @if (trackerService.currentMonthRollover()) {
-          <div class="p-3 bg-emerald-100 border-2 border-emerald-600 text-emerald-900 font-bold text-xs flex items-center gap-2">
+          <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-100 text-emerald-800 font-bold text-xs flex items-center gap-2">
             <span class="text-base">✅</span>
             <span>
               Rolled over ₹{{ trackerService.currentMonthRollover()?.rolled_over_amount?.toLocaleString() }} into Savings for {{ formatMonth(trackerService.activeMonth()) }}.
             </span>
           </div>
         } @else {
-          <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2 border-t border-sky-200">
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-3 mt-1 border-t border-indigo-100/50">
             <div>
               <span class="text-xs font-bold text-gray-500 block">Current Salary Surplus</span>
-              <span class="text-xl font-black text-sky-700">
+              <span class="text-xl font-black text-indigo-700">
                 ₹{{ trackerService.salarySurplusForActiveMonth().toLocaleString() }}
               </span>
             </div>
@@ -75,7 +76,7 @@ import { AmountInputDirective } from '../../shared/ui/amount-input.directive';
             <button
               (click)="triggerRollover()"
               [disabled]="trackerService.salarySurplusForActiveMonth() <= 0 || trackerService.isLoading()"
-              class="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white font-extrabold text-xs uppercase tracking-wider border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all flex items-center justify-center gap-2"
+              class="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white font-extrabold text-xs uppercase tracking-wider rounded-full shadow-lg shadow-emerald-500/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
             >
               <span>Roll Over to Savings 🚀</span>
             </button>
@@ -85,20 +86,20 @@ import { AmountInputDirective } from '../../shared/ui/amount-input.directive';
 
       <!-- Accounts Cards Grid -->
       <div class="space-y-4">
-        <div class="flex justify-between items-center">
+        <div class="flex justify-between items-center px-1">
           <h3 class="text-xs font-extrabold uppercase tracking-widest text-gray-500">
             Your Accounts (3 Types)
           </h3>
-          <span class="text-[11px] font-bold text-sky-600">Cash expenses deduct from Cash Account</span>
+          <span class="text-[11px] font-bold text-indigo-600">Cash expenses deduct from Cash Account</span>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           
           <!-- Salary Account Card -->
-          <div class="bg-white p-5 border-2 border-black shadow-[4px_4px_0px_0px_rgba(59,130,246,1)] relative group">
+          <div class="bg-white p-5 rounded-[24px] border border-gray-100 shadow-sm hover:shadow-md transition-all active:scale-[0.99] relative group">
             <div class="flex items-center justify-between mb-3">
-              <div class="flex items-center gap-2">
-                <span class="p-2 bg-blue-100 border border-black text-xl">💳</span>
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-xl">💳</div>
                 <div>
                   <h4 class="font-black text-base text-gray-900">Salary Account</h4>
                   <span class="text-[10px] font-extrabold uppercase text-blue-600 tracking-wider">Primary Income</span>
@@ -111,13 +112,13 @@ import { AmountInputDirective } from '../../shared/ui/amount-input.directive';
             <div class="flex gap-2">
               <button
                 (click)="openDeposit('Salary')"
-                class="flex-1 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-800 font-extrabold text-xs border border-black transition-colors"
+                class="flex-1 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl font-extrabold text-xs transition-colors"
               >
                 + Deposit
               </button>
               <button
                 (click)="openTransfer('Salary')"
-                class="flex-1 py-1.5 bg-gray-50 hover:bg-gray-100 text-gray-800 font-extrabold text-xs border border-black transition-colors"
+                class="flex-1 py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-xl font-extrabold text-xs transition-colors"
               >
                 Transfer 🔄
               </button>
@@ -125,10 +126,10 @@ import { AmountInputDirective } from '../../shared/ui/amount-input.directive';
           </div>
 
           <!-- Cash Account Card -->
-          <div class="bg-white p-5 border-2 border-black shadow-[4px_4px_0px_0px_rgba(245,158,11,1)] relative group">
+          <div class="bg-white p-5 rounded-[24px] border border-gray-100 shadow-sm hover:shadow-md transition-all active:scale-[0.99] relative group">
             <div class="flex items-center justify-between mb-3">
-              <div class="flex items-center gap-2">
-                <span class="p-2 bg-amber-100 border border-black text-xl">💵</span>
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-xl">💵</div>
                 <div>
                   <h4 class="font-black text-base text-gray-900">Cash Account</h4>
                   <span class="text-[10px] font-extrabold uppercase text-amber-600 tracking-wider">Physical Wallet</span>
@@ -141,13 +142,13 @@ import { AmountInputDirective } from '../../shared/ui/amount-input.directive';
             <div class="flex gap-2">
               <button
                 (click)="openDeposit('Cash')"
-                class="flex-1 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 font-extrabold text-xs border border-black transition-colors"
+                class="flex-1 py-2 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-xl font-extrabold text-xs transition-colors"
               >
                 + Cash Add
               </button>
               <button
                 (click)="openExpense('Cash')"
-                class="flex-1 py-1.5 bg-red-50 hover:bg-red-100 text-red-800 font-extrabold text-xs border border-black transition-colors"
+                class="flex-1 py-2 bg-red-50 hover:bg-red-100 text-red-700 rounded-xl font-extrabold text-xs transition-colors"
               >
                 - Spend
               </button>
@@ -155,10 +156,10 @@ import { AmountInputDirective } from '../../shared/ui/amount-input.directive';
           </div>
 
           <!-- Savings Account Card -->
-          <div class="bg-white p-5 border-2 border-black shadow-[4px_4px_0px_0px_rgba(16,185,129,1)] relative group">
+          <div class="bg-white p-5 rounded-[24px] border border-gray-100 shadow-sm hover:shadow-md transition-all active:scale-[0.99] relative group">
             <div class="flex items-center justify-between mb-3">
-              <div class="flex items-center gap-2">
-                <span class="p-2 bg-emerald-100 border border-black text-xl">🐷</span>
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-xl">🐷</div>
                 <div>
                   <h4 class="font-black text-base text-gray-900">Savings Account</h4>
                   <span class="text-[10px] font-extrabold uppercase text-emerald-600 tracking-wider">Monthly Accumulator</span>
@@ -171,13 +172,13 @@ import { AmountInputDirective } from '../../shared/ui/amount-input.directive';
             <div class="flex gap-2">
               <button
                 (click)="openDeposit('Savings')"
-                class="flex-1 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-extrabold text-xs border border-black transition-colors"
+                class="flex-1 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl font-extrabold text-xs transition-colors"
               >
                 + Deposit
               </button>
               <button
                 (click)="openTransfer('Savings')"
-                class="flex-1 py-1.5 bg-gray-50 hover:bg-gray-100 text-gray-800 font-extrabold text-xs border border-black transition-colors"
+                class="flex-1 py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-xl font-extrabold text-xs transition-colors"
               >
                 Transfer 🔄
               </button>
@@ -191,48 +192,48 @@ import { AmountInputDirective } from '../../shared/ui/amount-input.directive';
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
         <button
           (click)="trackerService.openBottomSheet('deposit', 'Salary')"
-          class="py-3 bg-white hover:bg-sky-50 border-2 border-black font-extrabold text-xs text-gray-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center justify-center gap-1.5"
+          class="py-3 bg-white hover:bg-gray-50 border border-gray-100 rounded-[20px] font-extrabold text-xs text-gray-900 shadow-sm active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
         >
           <span>➕ Add Deposit</span>
         </button>
         <button
           (click)="trackerService.openBottomSheet('withdrawal', 'Cash')"
-          class="py-3 bg-white hover:bg-amber-50 border-2 border-black font-extrabold text-xs text-gray-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center justify-center gap-1.5"
+          class="py-3 bg-white hover:bg-gray-50 border border-gray-100 rounded-[20px] font-extrabold text-xs text-gray-900 shadow-sm active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
         >
           <span>💸 Record Expense</span>
         </button>
         <button
           (click)="trackerService.openBottomSheet('transfer', 'Salary')"
-          class="py-3 bg-white hover:bg-emerald-50 border-2 border-black font-extrabold text-xs text-gray-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center justify-center gap-1.5"
+          class="py-3 bg-white hover:bg-gray-50 border border-gray-100 rounded-[20px] font-extrabold text-xs text-gray-900 shadow-sm active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
         >
           <span>🔄 Transfer Funds</span>
         </button>
         <button
           (click)="triggerRollover()"
           [disabled]="trackerService.salarySurplusForActiveMonth() <= 0"
-          class="py-3 bg-sky-500 hover:bg-sky-600 disabled:opacity-40 text-white border-2 border-black font-extrabold text-xs shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all flex items-center justify-center gap-1.5"
+          class="py-3 bg-indigo-50 hover:bg-indigo-100 disabled:opacity-50 disabled:bg-gray-50 disabled:text-gray-400 text-indigo-700 rounded-[20px] font-extrabold text-xs shadow-sm active:scale-[0.98] transition-all flex items-center justify-center gap-1.5"
         >
           <span>⚡ Month Rollover</span>
         </button>
       </div>
 
       <!-- Transaction History Section -->
-      <div class="bg-white border-2 border-black p-5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 border-b-2 border-black pb-3">
+      <div class="bg-white border border-gray-100 p-5 rounded-[24px] shadow-sm">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
           <h3 class="font-black text-base text-gray-900 tracking-tight">
             Transaction History ({{ formatMonth(trackerService.activeMonth()) }})
           </h3>
 
           <!-- Filter Pills -->
-          <div class="flex items-center gap-1 overflow-x-auto w-full sm:w-auto">
+          <div class="flex items-center gap-1 overflow-x-auto w-full sm:w-auto pb-1 no-scrollbar">
             @for (filter of filterOptions; track filter) {
               <button
                 (click)="selectedFilter.set(filter)"
-                [class.bg-black]="selectedFilter() === filter"
+                [class.bg-tracker-primary]="selectedFilter() === filter"
                 [class.text-white]="selectedFilter() === filter"
                 [class.bg-gray-100]="selectedFilter() !== filter"
-                [class.text-gray-700]="selectedFilter() !== filter"
-                class="px-2.5 py-1 text-[11px] font-extrabold border border-black transition-colors rounded-none whitespace-nowrap"
+                [class.text-gray-600]="selectedFilter() !== filter"
+                class="px-4 py-1.5 text-xs font-extrabold rounded-full transition-colors whitespace-nowrap"
               >
                 {{ filter }}
               </button>
@@ -242,19 +243,19 @@ import { AmountInputDirective } from '../../shared/ui/amount-input.directive';
 
         <!-- Transactions List -->
         @if (filteredTransactions().length === 0) {
-          <div class="text-center py-10 text-gray-400 font-semibold text-sm">
+          <div class="text-center py-10 bg-gray-50 rounded-2xl text-gray-400 font-semibold text-sm">
             No transactions found for this period.
           </div>
         } @else {
-          <div class="divide-y divide-gray-200 space-y-1">
+          <div class="space-y-1">
             @for (tx of filteredTransactions(); track tx.id) {
-              <div class="py-3 flex items-center justify-between gap-3">
+              <div class="py-3 flex items-center justify-between gap-3 px-2 hover:bg-gray-50 rounded-xl transition-colors">
                 <div class="flex items-center gap-3">
                   <div
-                    [class.bg-emerald-100]="tx.transaction_type === 'Income' || tx.transaction_type === 'Rollover'"
-                    [class.bg-red-100]="tx.transaction_type === 'Expense'"
-                    [class.bg-blue-100]="tx.transaction_type === 'Transfer'"
-                    class="w-10 h-10 border border-black flex items-center justify-center text-base flex-shrink-0"
+                    [class.bg-emerald-50]="tx.transaction_type === 'Income' || tx.transaction_type === 'Rollover'"
+                    [class.bg-red-50]="tx.transaction_type === 'Expense'"
+                    [class.bg-blue-50]="tx.transaction_type === 'Transfer'"
+                    class="w-10 h-10 rounded-xl flex items-center justify-center text-base flex-shrink-0"
                   >
                     @if (tx.transaction_type === 'Income') { 💰 }
                     @else if (tx.transaction_type === 'Expense') { 💸 }
@@ -266,7 +267,7 @@ import { AmountInputDirective } from '../../shared/ui/amount-input.directive';
                       {{ tx.description || tx.transaction_type }}
                     </div>
                     <div class="flex items-center gap-2 text-[11px] font-bold text-gray-500">
-                      <span class="px-1.5 py-0.5 bg-gray-100 border border-gray-300 text-gray-700">
+                      <span class="px-2 py-0.5 bg-gray-100 rounded-md text-gray-700">
                         {{ tx.account_type }}
                         @if (tx.target_account_type) { ➔ {{ tx.target_account_type }} }
                       </span>
@@ -278,10 +279,10 @@ import { AmountInputDirective } from '../../shared/ui/amount-input.directive';
                 <div
                   [class.text-emerald-600]="tx.transaction_type === 'Income' || tx.transaction_type === 'Rollover'"
                   [class.text-red-600]="tx.transaction_type === 'Expense'"
-                  [class.text-blue-600]="tx.transaction_type === 'Transfer'"
+                  [class.text-gray-900]="tx.transaction_type === 'Transfer'"
                   class="font-black text-base text-right whitespace-nowrap"
                 >
-                  {{ tx.transaction_type === 'Expense' ? '-' : '+' }}₹{{ tx.amount.toLocaleString() }}
+                  {{ tx.transaction_type === 'Expense' ? '-' : (tx.transaction_type === 'Transfer' ? '' : '+') }}₹{{ tx.amount.toLocaleString() }}
                 </div>
               </div>
             }
@@ -293,64 +294,64 @@ import { AmountInputDirective } from '../../shared/ui/amount-input.directive';
 
     <!-- Step-by-Step Initial Setup Wizard Modal -->
     @if (isWizardOpen()) {
-      <div class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white border-4 border-black p-6 w-full max-w-md shadow-[8px_8px_0px_0px_rgba(14,165,233,1)] relative animate-in fade-in zoom-in duration-200">
+      <div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-[32px] p-6 w-full max-w-md shadow-2xl relative animate-in fade-in zoom-in duration-200">
           <button
             (click)="closeWizard()"
-            class="absolute top-4 right-4 text-gray-500 hover:text-black font-bold text-xl"
+            class="absolute top-5 right-5 w-8 h-8 flex items-center justify-center bg-gray-100 rounded-full text-gray-500 hover:text-gray-800 font-bold transition-colors"
           >
             ✕
           </button>
 
           <!-- Step Indicator -->
-          <div class="flex items-center justify-between mb-4">
-            <span class="text-xs font-black uppercase tracking-widest text-sky-600">
+          <div class="flex items-center justify-between mb-6 pr-10">
+            <span class="text-xs font-black uppercase tracking-widest text-indigo-600">
               Account Setup Wizard
             </span>
-            <span class="px-2.5 py-0.5 bg-sky-100 border border-black font-extrabold text-xs text-sky-800">
+            <span class="px-2.5 py-1 bg-indigo-50 rounded-full font-extrabold text-[10px] text-indigo-700 uppercase tracking-widest">
               Step {{ wizardStep() }} of 3
             </span>
           </div>
 
           <!-- Step 1: Salary Account -->
           @if (wizardStep() === 1) {
-            <div class="space-y-4">
-              <div class="flex items-center gap-3">
-                <span class="p-3 bg-blue-100 border-2 border-black text-2xl">💳</span>
+            <div class="space-y-6">
+              <div class="flex items-center gap-4">
+                <div class="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center text-3xl">💳</div>
                 <div>
-                  <h3 class="font-black text-lg text-gray-900">Set Salary Account</h3>
-                  <p class="text-xs font-bold text-gray-500">First, enter your monthly salary or current Salary balance.</p>
+                  <h3 class="font-black text-xl text-gray-900">Salary Account</h3>
+                  <p class="text-xs font-medium text-gray-500 mt-0.5">First, enter your monthly salary or current Salary balance.</p>
                 </div>
               </div>
 
               <div>
-                <label class="block text-xs font-extrabold uppercase tracking-wider text-gray-700 mb-1">
+                <label class="block text-[11px] font-extrabold uppercase tracking-widest text-gray-700 mb-2">
                   Salary Account Balance (₹)
                 </label>
                 <div class="relative">
-                  <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xl font-bold text-gray-400">₹</span>
+                  <span class="absolute left-4 top-1/2 -translate-y-1/2 text-xl font-bold text-gray-400">₹</span>
                   <input
                     type="text"
                     appAmountInput
                     [(ngModel)]="salaryVal"
                     placeholder="e.g. 50000"
-                    class="w-full pl-8 pr-4 py-3 bg-gray-50 border-2 border-black text-xl font-black focus:bg-white focus:outline-none"
+                    class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl text-xl font-black focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none transition-all"
                   />
                 </div>
               </div>
 
-              <div class="flex justify-end gap-2 pt-2">
+              <div class="flex justify-end gap-3 pt-2">
                 <button
                   (click)="closeWizard()"
-                  class="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-extrabold text-xs border-2 border-black"
+                  class="px-5 py-3 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-full font-extrabold text-xs transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   (click)="nextWizardStep()"
-                  class="px-5 py-2.5 bg-sky-500 hover:bg-sky-600 text-white font-black text-xs uppercase border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+                  class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs uppercase tracking-wider rounded-full shadow-lg shadow-indigo-600/30 active:scale-95 transition-all"
                 >
-                  Next ➔ (Cash)
+                  Next ➔
                 </button>
               </div>
             </div>
@@ -358,43 +359,43 @@ import { AmountInputDirective } from '../../shared/ui/amount-input.directive';
 
           <!-- Step 2: Cash Account -->
           @if (wizardStep() === 2) {
-            <div class="space-y-4">
-              <div class="flex items-center gap-3">
-                <span class="p-3 bg-amber-100 border-2 border-black text-2xl">💵</span>
+            <div class="space-y-6">
+              <div class="flex items-center gap-4">
+                <div class="w-14 h-14 bg-amber-50 rounded-2xl flex items-center justify-center text-3xl">💵</div>
                 <div>
-                  <h3 class="font-black text-lg text-gray-900">Set Cash Account</h3>
-                  <p class="text-xs font-bold text-gray-500">Next, enter the cash in hand or cash wallet balance.</p>
+                  <h3 class="font-black text-xl text-gray-900">Cash Account</h3>
+                  <p class="text-xs font-medium text-gray-500 mt-0.5">Next, enter the cash in hand or cash wallet balance.</p>
                 </div>
               </div>
 
               <div>
-                <label class="block text-xs font-extrabold uppercase tracking-wider text-gray-700 mb-1">
+                <label class="block text-[11px] font-extrabold uppercase tracking-widest text-gray-700 mb-2">
                   Cash Account Balance (₹)
                 </label>
                 <div class="relative">
-                  <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xl font-bold text-gray-400">₹</span>
+                  <span class="absolute left-4 top-1/2 -translate-y-1/2 text-xl font-bold text-gray-400">₹</span>
                   <input
                     type="text"
                     appAmountInput
                     [(ngModel)]="cashVal"
                     placeholder="e.g. 5000"
-                    class="w-full pl-8 pr-4 py-3 bg-gray-50 border-2 border-black text-xl font-black focus:bg-white focus:outline-none"
+                    class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl text-xl font-black focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none transition-all"
                   />
                 </div>
               </div>
 
-              <div class="flex justify-between gap-2 pt-2">
+              <div class="flex justify-between gap-3 pt-2">
                 <button
                   (click)="prevWizardStep()"
-                  class="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-extrabold text-xs border-2 border-black"
+                  class="px-5 py-3 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-full font-extrabold text-xs transition-colors"
                 >
                   ⬅ Back
                 </button>
                 <button
                   (click)="nextWizardStep()"
-                  class="px-5 py-2.5 bg-sky-500 hover:bg-sky-600 text-white font-black text-xs uppercase border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+                  class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs uppercase tracking-wider rounded-full shadow-lg shadow-indigo-600/30 active:scale-95 transition-all"
                 >
-                  Next ➔ (Savings)
+                  Next ➔
                 </button>
               </div>
             </div>
@@ -402,44 +403,44 @@ import { AmountInputDirective } from '../../shared/ui/amount-input.directive';
 
           <!-- Step 3: Savings Account -->
           @if (wizardStep() === 3) {
-            <div class="space-y-4">
-              <div class="flex items-center gap-3">
-                <span class="p-3 bg-emerald-100 border-2 border-black text-2xl">🐷</span>
+            <div class="space-y-6">
+              <div class="flex items-center gap-4">
+                <div class="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-3xl">🐷</div>
                 <div>
-                  <h3 class="font-black text-lg text-gray-900">Set Savings Account</h3>
-                  <p class="text-xs font-bold text-gray-500">Finally, enter your current accumulated Savings balance.</p>
+                  <h3 class="font-black text-xl text-gray-900">Savings Account</h3>
+                  <p class="text-xs font-medium text-gray-500 mt-0.5">Finally, enter your current accumulated Savings balance.</p>
                 </div>
               </div>
 
               <div>
-                <label class="block text-xs font-extrabold uppercase tracking-wider text-gray-700 mb-1">
+                <label class="block text-[11px] font-extrabold uppercase tracking-widest text-gray-700 mb-2">
                   Savings Account Balance (₹)
                 </label>
                 <div class="relative">
-                  <span class="absolute left-3 top-1/2 -translate-y-1/2 text-xl font-bold text-gray-400">₹</span>
+                  <span class="absolute left-4 top-1/2 -translate-y-1/2 text-xl font-bold text-gray-400">₹</span>
                   <input
                     type="text"
                     appAmountInput
                     [(ngModel)]="savingsVal"
                     placeholder="e.g. 25000"
-                    class="w-full pl-8 pr-4 py-3 bg-gray-50 border-2 border-black text-xl font-black focus:bg-white focus:outline-none"
+                    class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl text-xl font-black focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none transition-all"
                   />
                 </div>
               </div>
 
-              <div class="flex justify-between gap-2 pt-2">
+              <div class="flex justify-between gap-3 pt-2">
                 <button
                   (click)="prevWizardStep()"
-                  class="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-extrabold text-xs border-2 border-black"
+                  class="px-5 py-3 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-full font-extrabold text-xs transition-colors"
                 >
                   ⬅ Back
                 </button>
                 <button
                   (click)="submitWizard()"
                   [disabled]="trackerService.isLoading()"
-                  class="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs uppercase border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+                  class="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs uppercase tracking-wider rounded-full shadow-lg shadow-emerald-500/30 active:scale-95 transition-all"
                 >
-                  {{ trackerService.isLoading() ? 'Saving...' : 'Save & Initialize 🎉' }}
+                  {{ trackerService.isLoading() ? 'Saving...' : 'Save & Finish 🎉' }}
                 </button>
               </div>
             </div>
@@ -454,6 +455,7 @@ export class TrackerComponent {
   trackerService = inject(AccountTrackerService);
   private monthPickerService = inject(MonthPickerService);
   private haptic = inject(HapticService);
+  private toastService = inject(ToastService);
 
   filterOptions: ('All' | AccountType)[] = ['All', 'Salary', 'Cash', 'Savings'];
   selectedFilter = signal<'All' | AccountType>('All');
@@ -511,6 +513,7 @@ export class TrackerComponent {
     const svg = parseFloat(this.savingsVal) || 0;
 
     await this.trackerService.setInitialBalances(sal, csh, svg);
+    this.toastService.show('Accounts set up successfully!', 'success');
     this.closeWizard();
   }
 

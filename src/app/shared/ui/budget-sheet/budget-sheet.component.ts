@@ -136,7 +136,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                     class="flex flex-col items-center justify-center gap-1.5 p-2.5 rounded-xl transition-all min-h-[64px] border active:scale-95 shadow-sm"
                     [ngClass]="
                       budgetForm.get('icon_path')?.value === cat.path
-                        ? 'bg-budget-primary text-white border-budget-primary shadow-md shadow-budget-primary/25 font-bold'
+                        ? 'bg-budget-primary text-white border-budget-primary font-bold'
                         : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                     "
                   >
@@ -162,7 +162,7 @@ import { SafeInputDirective } from '../safe-input.directive';
             <!-- Budget Name -->
             <div class="flex flex-col gap-1.5">
               <label class="text-[11px] font-bold text-gray-500 tracking-wider uppercase"
-                >Goal Name</label
+                >Budget Name</label
               >
               <div class="relative group">
                 <input
@@ -170,7 +170,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                   appSafeInput
                   type="text"
                   formControlName="name"
-                  class="w-full bg-gray-50 border border-gray-200 text-gray-900 font-semibold text-sm rounded-xl focus:bg-white focus:border-budget-primary focus:ring-4 focus:ring-budget-primary/15 block p-3 outline-none transition-all placeholder-gray-400 min-h-[48px] touch-manipulation shadow-sm"
+                  class="w-full bg-white border-2 border-gray-100 text-gray-900 font-bold text-sm rounded-xl focus:bg-white focus:border-budget-primary focus:ring-4 focus:ring-budget-primary/15 block p-3 outline-none transition-all placeholder-gray-400 min-h-[48px] touch-manipulation shadow-sm"
                   placeholder="e.g. Groceries"
                 />
               </div>
@@ -196,22 +196,28 @@ import { SafeInputDirective } from '../safe-input.directive';
                   appAmountInput
                   formControlName="amount"
                   (keydown)="preventE($event)"
-                  class="w-full bg-gray-50 border border-gray-200 text-gray-900 font-bold text-base rounded-xl focus:bg-white focus:border-budget-primary focus:ring-4 focus:ring-budget-primary/15 block p-3 outline-none transition-all placeholder-gray-400 min-h-[48px] touch-manipulation pl-8 shadow-sm"
+                  class="w-full bg-white border-2 border-gray-100 text-gray-900 font-bold text-base rounded-xl focus:bg-white focus:border-budget-primary focus:ring-4 focus:ring-budget-primary/15 block p-3 outline-none transition-all placeholder-gray-400 min-h-[48px] touch-manipulation pl-8 shadow-sm"
                   placeholder="0"
                 />
               </div>
             </div>
             <!-- Auto Rollover -->
             <label
-              class="flex items-center gap-3 p-3.5 bg-gray-50 border border-gray-200 rounded-xl transition-all cursor-pointer w-full mt-2 hover:bg-gray-100"
+              class="flex items-center gap-3 p-3.5 bg-white border-2 border-gray-100 rounded-xl transition-all cursor-pointer w-full mt-2 hover:bg-gray-50 shadow-sm relative group"
             >
-              <input
-                type="checkbox"
-                formControlName="auto_rollover"
-                class="w-5 h-5 accent-budget-primary bg-white border border-gray-300 rounded-md focus:ring-budget-primary cursor-pointer"
-              />
+              <div class="relative flex items-center justify-center w-[22px] h-[22px] shrink-0">
+                <input
+                  type="checkbox"
+                  formControlName="auto_rollover"
+                  class="peer sr-only"
+                />
+                <div class="absolute inset-0 rounded-full border-2 border-gray-200 bg-white peer-checked:bg-budget-primary peer-checked:border-budget-primary transition-all"></div>
+                <svg class="absolute w-3.5 h-3.5 text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity drop-shadow-sm" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
               <span
-                class="text-xs font-semibold text-gray-800 tracking-wide uppercase select-none"
+                class="text-[11px] font-bold text-gray-700 tracking-wider uppercase select-none mt-0.5"
               >
                 Auto-add for next month
               </span>
@@ -233,7 +239,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                   budgetService.isSaving() ||
                   budgetService.isDeleting()
                 "
-                class="flex-1 font-bold rounded-xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-3.5 text-sm min-h-[48px] bg-budget-primary hover:bg-budget-dark text-white shadow-lg shadow-budget-primary/30 disabled:opacity-50 disabled:active:scale-100"
+                class="flex-1 font-bold rounded-xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-3.5 text-sm min-h-[48px] bg-budget-primary hover:bg-emerald-700 text-white disabled:opacity-50 disabled:active:scale-100 shadow-sm"
               >
                 @if (budgetService.isSaving()) {
                   <svg
@@ -368,7 +374,12 @@ export class BudgetSheetComponent {
   }
 
   selectCategory(cat: { name: string; path: string }) {
-    this.budgetForm.patchValue({ icon_path: cat.path, name: cat.name });
+    const currentName = this.budgetForm.get('name')?.value;
+    if (!currentName || currentName.trim() === '') {
+      this.budgetForm.patchValue({ icon_path: cat.path, name: cat.name });
+    } else {
+      this.budgetForm.patchValue({ icon_path: cat.path });
+    }
   }
 
   close() {

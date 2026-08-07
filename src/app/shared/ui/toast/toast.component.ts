@@ -18,6 +18,12 @@ import { trigger, transition, style, animate } from '@angular/animations';
       ]),
     ]),
   ],
+  styles: [`
+    @keyframes shrink-x {
+      from { transform: scaleX(1); }
+      to { transform: scaleX(0); }
+    }
+  `],
   template: `
     <div class="fixed top-4 left-0 right-0 z-[9999] pointer-events-none flex flex-col items-center gap-3 px-4">
       @for (toast of topToasts(); track toast.id) {
@@ -106,31 +112,13 @@ import { trigger, transition, style, animate } from '@angular/animations';
           </div>
         }
 
-        <!-- Progress Bar for specific types if desired -->
-        @if (toast.type === 'success' && !toast.action) {
-          <div class="absolute bottom-0 left-0 h-1 bg-[#10b981]" [style.width.%]="progress"></div>
-        }
       </div>
     </ng-template>
   `,
   changeDetection: ChangeDetectionStrategy.Default,
 })
-export class ToastComponent implements OnInit, OnDestroy {
+export class ToastComponent {
   toastService = inject(ToastService);
-  progress = 100;
-  private intervalId: any;
-
-  ngOnInit() {
-    this.intervalId = setInterval(() => {
-      if (this.progress > 0) {
-        this.progress -= 2; // Rough approximation for 3s duration
-      }
-    }, 60);
-  }
-
-  ngOnDestroy() {
-    if (this.intervalId) clearInterval(this.intervalId);
-  }
 
   topToasts = computed(() => this.toastService.toasts().filter(t => t.type !== 'banner'));
 
@@ -141,24 +129,24 @@ export class ToastComponent implements OnInit, OnDestroy {
       case 'success':
       case 'banner':
       case 'sync_success':
-        return 'bg-[#10b981]'; // Emerald 500
+        return 'bg-toast-success';
       case 'error':
-        return 'bg-[#ef4444]'; // Red 500
+        return 'bg-toast-error';
       case 'warning':
-        return 'bg-[#f59e0b]'; // Amber 500
+        return 'bg-toast-warning';
       case 'info':
-        return 'bg-[#3b82f6]'; // Blue 500
+        return 'bg-toast-info';
       case 'offline':
-        return 'bg-[#94a3b8]'; // Slate 400
+        return 'bg-toast-offline';
       case 'loading':
-        return 'bg-[#8b5cf6]'; // Violet 500
+        return 'bg-toast-loading';
       default:
         return 'bg-gray-500';
     }
   }
 
   getActionColorClass(type: ToastType): string {
-    if (type === 'banner' || type === 'success') return 'text-[#10b981]';
+    if (type === 'banner' || type === 'success') return 'text-toast-success';
     return 'text-[#4f46e5]'; // Indigo 600 default
   }
 
