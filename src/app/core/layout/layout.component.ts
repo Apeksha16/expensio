@@ -95,7 +95,7 @@ import { MonthPickerService } from '../services/month-picker.service';
         ) {
           <button
             (click)="goBack()"
-            class="p-2 -ml-2 opacity-80 relative z-10 hover:opacity-100 focus:outline-none transition-opacity"
+            class="active:scale-[0.98] transition-all duration-200 p-2 -ml-2 opacity-80 relative z-10 focus:outline-none transition-opacity"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -109,7 +109,7 @@ import { MonthPickerService } from '../services/month-picker.service';
         } @else {
           <button
             (click)="toggleSidebar(true)"
-            class="p-2 -ml-2 opacity-80 relative z-10 hover:opacity-100 focus:outline-none transition-opacity"
+            class="active:scale-[0.98] transition-all duration-200 p-2 -ml-2 opacity-80 relative z-10 focus:outline-none transition-opacity"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -126,7 +126,7 @@ import { MonthPickerService } from '../services/month-picker.service';
         @if (isGroupExpensesPage()) {
           <button
             (click)="editGroup()"
-            class="p-2 -mr-2 opacity-80 relative z-10 hover:opacity-100 focus:outline-none transition-opacity"
+            class="active:scale-[0.98] transition-all duration-200 p-2 -mr-2 opacity-80 relative z-10 focus:outline-none transition-opacity"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -140,7 +140,7 @@ import { MonthPickerService } from '../services/month-picker.service';
         } @else if (isBudgetExpensesPage() && !isVirtualOthersBudget()) {
           <button
             (click)="editBudget()"
-            class="p-2 -mr-2 opacity-80 relative z-10 hover:opacity-100 focus:outline-none transition-opacity"
+            class="active:scale-[0.98] transition-all duration-200 p-2 -mr-2 opacity-80 relative z-10 focus:outline-none transition-opacity"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -154,7 +154,7 @@ import { MonthPickerService } from '../services/month-picker.service';
         } @else if (isGoalTransactionsPage()) {
           <button
             (click)="editGoal()"
-            class="p-2 -mr-2 opacity-80 relative z-10 hover:opacity-100 focus:outline-none transition-opacity"
+            class="active:scale-[0.98] transition-all duration-200 p-2 -mr-2 opacity-80 relative z-10 focus:outline-none transition-opacity"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -168,7 +168,7 @@ import { MonthPickerService } from '../services/month-picker.service';
         } @else if (isLedgerDetailsPage()) {
           <button
             (click)="editLedger()"
-            class="p-2 -mr-2 opacity-80 relative z-10 hover:opacity-100 focus:outline-none transition-opacity"
+            class="active:scale-[0.98] transition-all duration-200 p-2 -mr-2 opacity-80 relative z-10 focus:outline-none transition-opacity"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -182,7 +182,7 @@ import { MonthPickerService } from '../services/month-picker.service';
         } @else if (isExpensesPage() || isBudgetsPage()) {
           <button
             (click)="openMonthPicker()"
-            class="p-2 -mr-2 relative z-10 hover:opacity-80 focus:outline-none transition-opacity"
+            class="active:scale-[0.98] transition-all duration-200 p-2 -mr-2 relative z-10 focus:outline-none transition-opacity"
           >
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
@@ -197,7 +197,7 @@ import { MonthPickerService } from '../services/month-picker.service';
       @if (isSidebarOpen()) {
         <div
           (click)="toggleSidebar(false)"
-          class="fixed inset-0 bg-black/40 z-40 transition-opacity"
+          class="active:scale-[0.98] transition-all duration-200 fixed inset-0 bg-black/40 z-40 transition-opacity"
         ></div>
       }
 
@@ -234,8 +234,8 @@ import { MonthPickerService } from '../services/month-picker.service';
               #rla="routerLinkActive"
               [routerLinkActiveOptions]="{ exact: false }"
               (click)="toggleSidebar(false)"
-              class="flex items-center justify-between px-3 py-2.5 rounded-2xl font-bold transition-all"
-              [ngClass]="rla.isActive ? 'bg-profile-primary/10 text-profile-primary' : 'text-gray-900 hover:bg-gray-50'"
+              class="active:scale-[0.98] transition-all duration-200 flex items-center justify-between px-3 py-2.5 rounded-2xl font-bold transition-all"
+              [ngClass]="rla.isActive ? 'bg-profile-primary/10 text-profile-primary' : 'text-gray-900'"
             >
               <div class="flex items-center gap-4">
                 <div 
@@ -264,7 +264,7 @@ import { MonthPickerService } from '../services/month-picker.service';
             <button
               (click)="checkForUpdate()"
               title="Check for update"
-              class="w-11 h-11 rounded-2xl flex items-center justify-center bg-profile-primary/10 text-profile-primary transition-colors hover:bg-profile-primary hover:text-white"
+              class="active:scale-[0.98] transition-all duration-200 w-11 h-11 rounded-2xl flex items-center justify-center bg-profile-primary/10 text-profile-primary transition-colors"
             >
               <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
                 <path d="M21 2v6h-6"/>
@@ -276,7 +276,7 @@ import { MonthPickerService } from '../services/month-picker.service';
             <button
               (click)="logout()"
               title="Logout"
-              class="w-11 h-11 rounded-2xl flex items-center justify-center bg-red-50 text-red-500 transition-colors hover:bg-red-500 hover:text-white"
+              class="active:scale-[0.98] transition-all duration-200 w-11 h-11 rounded-2xl flex items-center justify-center bg-red-50 text-red-500 transition-colors"
             >
               <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M18.36 6.64a9 9 0 1 1-12.73 0" />
@@ -298,7 +298,7 @@ import { MonthPickerService } from '../services/month-picker.service';
       @if (!isProfilePage()) {
         <nav
           class="fixed left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.12)] z-30 rounded-full px-2 py-2 border border-gray-100"
-          style="bottom: 1.5rem; width: max-content; min-width: 250px;"
+          style="bottom: calc(1.5rem + env(safe-area-inset-bottom)); width: max-content; min-width: 250px;"
         >
           <div class="flex justify-center items-center gap-2">
             @for (item of bottomNavItems(); track item.id) {
@@ -308,7 +308,7 @@ import { MonthPickerService } from '../services/month-picker.service';
                 #rla="routerLinkActive"
                 [routerLinkActiveOptions]="{ exact: false }"
                 class="flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 active:scale-95"
-                [ngClass]="rla.isActive ? 'bg-[#059669] text-white shadow-md' : 'bg-transparent text-slate-600 hover:text-black'"
+                [ngClass]="rla.isActive ? getNavActiveBgClass(item.id) + ' text-white shadow-lg' : 'bg-transparent text-slate-600'"
               >
                 <span
                   [innerHTML]="item.icon"
@@ -324,9 +324,9 @@ import { MonthPickerService } from '../services/month-picker.service';
       @if (!isProfilePage() && !isDashboardPage() && !isReportsPage()) {
         <button
           (click)="handleFabClick()"
-          class="fixed right-5 w-14 h-14 text-white rounded-full flex items-center justify-center z-40 shadow-xl transition-all duration-200 active:scale-90 hover:scale-105"
+          class="fixed right-5 w-14 h-14 text-white rounded-full flex items-center justify-center z-40 shadow-xl transition-all duration-200 active:scale-90"
           [ngClass]="getThemeClasses().bg + ' shadow-' + getThemeClasses().bg + '/30'"
-          style="bottom: 5.5rem;"
+          style="bottom: calc(5.5rem + env(safe-area-inset-bottom));"
         >
           <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path
@@ -621,8 +621,21 @@ export class Layout implements AfterViewInit {
         return { bg: 'bg-tracker-primary', border: 'border-tracker-primary', text: 'text-tracker-primary' };
       case 'profile':
         return { bg: 'bg-profile-primary', border: 'border-profile-primary', text: 'text-profile-primary' };
+      case 'dashboard':
+        return { bg: 'bg-slate-900', border: 'border-slate-900', text: 'text-white' };
       default:
         return { bg: 'bg-white', border: 'border-white', text: 'text-black' };
+    }
+  }
+
+  getNavActiveBgClass(id: string): string {
+    switch (id) {
+      case 'expenses': return 'bg-expense-primary shadow-expense-primary/30';
+      case 'budgets': return 'bg-budget-primary shadow-budget-primary/30';
+      case 'friends': return 'bg-friends-primary shadow-friends-primary/30';
+      case 'splits': return 'bg-splits-primary shadow-splits-primary/30';
+      case 'dashboard': return 'bg-slate-900 shadow-slate-900/30';
+      default: return 'bg-slate-900 shadow-slate-900/30';
     }
   }
 

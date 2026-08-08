@@ -7,31 +7,112 @@
 </main>
 
 @if (!appInitService.isReady()) {
-  <div @fadeOut class="fixed inset-0 z-[10000] bg-white flex flex-col items-center justify-center pointer-events-none">
-    <div class="flex-1 flex flex-col items-center justify-center w-full">
-      <div class="w-24 h-24 bg-[#5421E6] rounded-[28px] flex items-center justify-center mb-6 shadow-xl shadow-[#5421E6]/30">
-        <!-- Assuming logo.png is the M logo or similar. In the design it's a black rounded square with purple M -->
-        <img src="logo.png" alt="Expensio Logo" class="w-16 h-16 object-contain" />
+  <div @fadeOut class="fixed inset-0 z-[10000] bg-[#FAFAFA] flex flex-col items-center justify-between py-12 pointer-events-none font-sans">
+    
+    <!-- Top padding spacer -->
+    <div class="flex-1"></div>
+
+    <!-- Center content -->
+    <div class="flex flex-col items-center justify-center w-full relative z-10">
+      
+      <!-- Logo Area with Halos -->
+      <div class="relative flex items-center justify-center mb-10 w-64 h-64">
+        <!-- Concentric circles -->
+        <div class="absolute inset-0 bg-indigo-50/40 rounded-full scale-110"></div>
+        <div class="absolute inset-4 bg-indigo-50/80 rounded-full"></div>
+        <div class="absolute inset-10 bg-indigo-100/50 rounded-full"></div>
+        
+        <!-- Sparkles (Stars) -->
+        <svg class="absolute top-4 right-8 w-6 h-6 text-indigo-300" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 0C12 6.627 17.373 12 24 12C17.373 12 12 17.373 12 24C12 17.373 6.627 12 0 12C6.627 12 12 6.627 12 0Z" />
+        </svg>
+        <svg class="absolute bottom-8 left-4 w-7 h-7 text-indigo-300 opacity-80" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 0C12 6.627 17.373 12 24 12C17.373 12 12 17.373 12 24C12 17.373 6.627 12 0 12C6.627 12 12 6.627 12 0Z" />
+        </svg>
+        <svg class="absolute bottom-16 right-4 w-3 h-3 text-indigo-300" viewBox="0 0 24 24" fill="currentColor">
+          <circle cx="12" cy="12" r="12" />
+        </svg>
+        <svg class="absolute top-16 left-6 w-2.5 h-2.5 text-indigo-300" viewBox="0 0 24 24" fill="currentColor">
+          <circle cx="12" cy="12" r="12" />
+        </svg>
+        <svg class="absolute bottom-12 right-12 w-3 h-3 text-indigo-300" viewBox="0 0 24 24" fill="currentColor">
+          <circle cx="12" cy="12" r="12" />
+        </svg>
+
+        <!-- App Icon -->
+        <div class="relative z-10 w-28 h-28 flex items-center justify-center rounded-[32px] drop-shadow-2xl">
+          <img src="expensio-logo-2.png" alt="Expensio Logo" class="w-full h-full object-contain" />
+        </div>
       </div>
-      <h1 class="text-4xl font-extrabold text-black mb-2 tracking-tight">
+      
+      <!-- Typography -->
+      <h1 class="text-[44px] font-[800] text-[#0F172A] mb-1 tracking-tight leading-none drop-shadow-sm">
         Expensio
       </h1>
-      <p class="text-gray-500 font-medium text-sm">
-        Your life. Organized.
+      <p class="text-slate-500 font-bold text-[13px] tracking-[0.12em] uppercase mt-2">
+        Expenses made simple
       </p>
+
+      <!-- Features Row -->
+      <div class="flex items-center justify-center gap-4 mt-12 px-6">
+        
+        <!-- Track -->
+        <div class="flex flex-col items-center justify-center">
+          <div class="w-14 h-14 bg-white border border-indigo-50 shadow-sm rounded-[20px] flex items-center justify-center mb-2">
+            <svg class="w-[26px] h-[26px] text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+            </svg>
+          </div>
+          <span class="text-[12px] font-semibold text-slate-500">Track</span>
+        </div>
+
+        <div class="w-px h-10 bg-slate-200"></div>
+
+        <!-- Budget -->
+        <div class="flex flex-col items-center justify-center">
+          <div class="w-14 h-14 bg-white border border-indigo-50 shadow-sm rounded-[20px] flex items-center justify-center mb-2">
+            <svg class="w-[26px] h-[26px] text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+            </svg>
+          </div>
+          <span class="text-[12px] font-semibold text-slate-500">Budget</span>
+        </div>
+
+        <div class="w-px h-10 bg-slate-200"></div>
+
+        <!-- Split -->
+        <div class="flex flex-col items-center justify-center">
+          <div class="w-14 h-14 bg-white border border-indigo-50 shadow-sm rounded-[20px] flex items-center justify-center mb-2">
+            <svg class="w-[26px] h-[26px] text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+          </div>
+          <span class="text-[12px] font-semibold text-slate-500">Split</span>
+        </div>
+
+        <div class="w-px h-10 bg-slate-200"></div>
+
+        <!-- Plan -->
+        <div class="flex flex-col items-center justify-center">
+          <div class="w-14 h-14 bg-white border border-indigo-50 shadow-sm rounded-[20px] flex items-center justify-center mb-2">
+            <svg class="w-[26px] h-[26px] text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+          </div>
+          <span class="text-[12px] font-semibold text-slate-500">Plan</span>
+        </div>
+
+      </div>
     </div>
     
-    <div class="mb-12">
-      <svg class="w-8 h-8 animate-[spin_1s_steps(8)_infinite] text-indigo-600" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="12" cy="4" r="2" fill="currentColor" class="opacity-100"></circle>
-        <circle cx="17.66" cy="6.34" r="2" fill="currentColor" class="opacity-80"></circle>
-        <circle cx="20" cy="12" r="2" fill="currentColor" class="opacity-60"></circle>
-        <circle cx="17.66" cy="17.66" r="2" fill="currentColor" class="opacity-40"></circle>
-        <circle cx="12" cy="20" r="2" fill="currentColor" class="opacity-20"></circle>
-        <circle cx="6.34" cy="17.66" r="2" fill="currentColor" class="opacity-10"></circle>
-        <circle cx="4" cy="12" r="2" fill="currentColor" class="opacity-10"></circle>
-        <circle cx="6.34" cy="6.34" r="2" fill="currentColor" class="opacity-10"></circle>
-      </svg>
+    <div class="flex-1 flex flex-col items-center justify-end w-full pb-8">
+      <p class="text-[13px] font-medium text-slate-500 text-center max-w-[260px] leading-relaxed mb-6">
+        Take control of your money<br>and build a better financial future.
+      </p>
+      
+      <!-- Minimal Loader -->
+      <div class="w-6 h-6 rounded-full border-[2.5px] border-indigo-100 border-t-[#5B21B6] animate-spin"></div>
     </div>
   </div>
 }

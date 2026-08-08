@@ -53,7 +53,7 @@ import { AuthService } from '../../core/services/auth.service';
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
         } @else if (pullDistance() > 0) {
-          <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex flex-col items-center gap-1">
+          <div class="text-xs font-bold text-slate-500 uppercase tracking-widest flex flex-col items-center gap-1">
             <svg
               class="w-5 h-5 transition-transform"
               [class.rotate-180]="pullDistance() > 60"
@@ -71,21 +71,21 @@ import { AuthService } from '../../core/services/auth.service';
       <div class="px-5 pt-5 pb-2 shrink-0">
         @if (expenseService.isLoading()) {
           <!-- Skeleton Loader -->
-          <div class="bg-white p-6 rounded-[24px] shadow-sm border border-gray-100 relative overflow-hidden">
+          <div class="bg-white p-6 rounded-[24px] shadow-sm border border-slate-100 relative overflow-hidden">
             <div class="flex flex-col gap-1">
-              <div class="h-[14px] bg-slate-100 w-24 animate-pulse rounded-full"></div>
-              <div class="h-8 bg-slate-100 w-32 animate-pulse rounded-lg mt-0.5"></div>
+              <div class="h-[14px] bg-slate-200 w-24 animate-pulse rounded-full"></div>
+              <div class="h-8 bg-slate-200 w-32 animate-pulse rounded-lg mt-0.5"></div>
             </div>
           </div>
         } @else {
           <!-- Total Spend Summary Card -->
-          <div class="bg-[#5421E6] p-6 rounded-[24px] shadow-[0_8px_30px_rgb(84,33,230,0.3)] relative overflow-hidden">
+          <div class="bg-expense-primary p-6 rounded-[24px] shadow-lg shadow-expense-primary/30 relative overflow-hidden">
             <div class="relative z-10 flex flex-col gap-4">
               <!-- Header & Amount -->
               <div class="flex flex-col gap-1">
                 <div class="flex items-center justify-between">
-                  <span class="text-[11px] font-bold uppercase tracking-widest text-white/70">Total Spend</span>
-                  <span class="text-[10px] font-bold text-white bg-white/20 px-2.5 py-1 rounded-full border border-white/10 backdrop-blur-sm">
+                  <span class="text-xs font-bold uppercase tracking-widest text-white/70">Total Spend</span>
+                  <span class="text-xs font-bold text-white bg-white/20 px-2.5 py-1 rounded-full border border-white/10 backdrop-blur-sm">
                     {{ getActiveMonthLabel() }}
                   </span>
                 </div>
@@ -139,15 +139,15 @@ import { AuthService } from '../../core/services/auth.service';
         @if (expenseService.isLoading()) {
           <div class="flex flex-col gap-3">
             @for (i of [1,2,3,4,5]; track i) {
-              <div class="bg-white border border-gray-100 rounded-[20px] p-4 flex items-center gap-3 shadow-[0_2px_12px_rgb(0,0,0,0.03)]">
-                <div class="w-12 h-12 rounded-full bg-slate-100 animate-pulse shrink-0"></div>
+              <div class="bg-white border border-slate-100 rounded-[20px] p-4 flex items-center gap-3 shadow-[0_2px_12px_rgb(0,0,0,0.03)]">
+                <div class="w-12 h-12 rounded-full bg-slate-200 animate-pulse shrink-0"></div>
                 <div class="flex flex-col gap-1.5 flex-1 min-w-0">
-                  <div class="h-4 bg-slate-100 w-32 animate-pulse rounded-full"></div>
-                  <div class="h-3 bg-slate-100 w-24 animate-pulse rounded-full"></div>
+                  <div class="h-4 bg-slate-200 w-32 animate-pulse rounded-full"></div>
+                  <div class="h-3 bg-slate-200 w-24 animate-pulse rounded-full"></div>
                 </div>
                 <div class="flex flex-col items-end gap-1.5 shrink-0">
-                  <div class="h-4 bg-slate-100 w-16 animate-pulse rounded-full"></div>
-                  <div class="h-2.5 bg-slate-100 w-10 animate-pulse rounded-full"></div>
+                  <div class="h-4 bg-slate-200 w-16 animate-pulse rounded-full"></div>
+                  <div class="h-2.5 bg-slate-200 w-10 animate-pulse rounded-full"></div>
                 </div>
               </div>
             }
@@ -155,9 +155,9 @@ import { AuthService } from '../../core/services/auth.service';
         } @else {
           <!-- Expense List -->
           @if (expenseService.expenses().length === 0) {
-            <div class="w-full bg-[#FCFCFD] border border-dashed border-gray-200 rounded-[24px] p-10 flex flex-col items-center justify-center text-center mt-4">
-              <div class="w-16 h-16 bg-indigo-50 rounded-[16px] flex items-center justify-center mb-4">
-                <svg class="w-8 h-8 text-[#5421E6]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="w-full bg-[#FCFCFD] border border-solid border-slate-100 shadow-sm rounded-[24px] p-10 flex flex-col items-center justify-center text-center mt-4">
+              <div class="w-16 h-16 bg-expense-surface rounded-[16px] flex items-center justify-center mb-4">
+                <svg class="w-8 h-8 text-expense-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
               </div>
@@ -169,7 +169,7 @@ import { AuthService } from '../../core/services/auth.service';
               @for (expense of expenseService.expenses(); track trackById($index, expense)) {
                 <button
                   (click)="editExpense(expense)"
-                  class="w-full bg-white border border-gray-100 rounded-[20px] p-4 flex items-center gap-3 text-left transition-all active:scale-[0.99] cursor-pointer shadow-[0_2px_12px_rgb(0,0,0,0.03)] hover:shadow-md"
+                  class="w-full bg-white border border-slate-100 rounded-[20px] p-4 flex items-center gap-3 text-left transition-all active:scale-[0.99] cursor-pointer shadow-[0_2px_12px_rgb(0,0,0,0.03)]"
                 >
                   <!-- Icon -->
                   <div class="flex items-center gap-3 shrink-0">
@@ -184,14 +184,14 @@ import { AuthService } from '../../core/services/auth.service';
                   <div class="flex flex-col gap-2 min-w-0 flex-1 ml-1">
                     <span class="font-bold text-[17px] text-slate-900 truncate leading-none mt-1">{{ expense.title }}</span>
                     <div class="flex flex-col gap-1.5">
-                      <div class="flex items-center gap-1.5 text-slate-400">
+                      <div class="flex items-center gap-1.5 text-slate-500">
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                           <line x1="16" y1="2" x2="16" y2="6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                           <line x1="8" y1="2" x2="8" y2="6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                           <line x1="3" y1="10" x2="21" y2="10" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
-                        <span class="text-[11px] font-medium">{{ expense.date | date: 'MMM d, yyyy • hh:mm a' }}</span>
+                        <span class="text-xs font-medium">{{ expense.date | date: 'MMM d, yyyy • hh:mm a' }}</span>
                       </div>
                     </div>
                   </div>
@@ -212,7 +212,7 @@ import { AuthService } from '../../core/services/auth.service';
               <div #scrollTrigger class="h-4 mt-2"></div>
               @if (expenseService.hasMore() && expenseService.expenses().length > 0) {
                 <div class="flex justify-center py-4">
-                  <svg class="animate-spin h-5 w-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <svg class="animate-spin h-5 w-5 text-slate-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>

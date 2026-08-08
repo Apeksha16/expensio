@@ -42,7 +42,7 @@ import { HapticService } from '../../../core/services/haptic.service';
       <div
         @fadeIn
         (click)="close()"
-        class="fixed inset-0 bg-black/60 z-[80] backdrop-blur-sm"
+        class="active:scale-[0.98] transition-all duration-200 fixed inset-0 bg-black/60 z-[80] backdrop-blur-sm"
       ></div>
       <!-- Sheet Content -->
       <div
@@ -63,14 +63,14 @@ import { HapticService } from '../../../core/services/haptic.service';
           <div class="flex justify-between items-center mb-6">
             <button
               (click)="prevMonth()"
-              class="p-2.5 border border-gray-200 rounded-2xl hover:bg-gray-50 transition-all text-slate-500 active:scale-95"
+              class="p-2.5 border border-gray-200 rounded-2xl transition-all text-slate-500 active:scale-95"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="m15 18-6-6 6-6"/></svg>
             </button>
             <span class="font-bold text-sm text-slate-900 tracking-wide">{{ viewDate | date: 'MMMM yyyy' }}</span>
             <button
               (click)="nextMonth()"
-              class="p-2.5 border border-gray-200 rounded-2xl hover:bg-gray-50 transition-all text-slate-500 active:scale-95"
+              class="p-2.5 border border-gray-200 rounded-2xl transition-all text-slate-500 active:scale-95"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="m9 18 6-6-6-6"/></svg>
             </button>
@@ -87,11 +87,11 @@ import { HapticService } from '../../../core/services/haptic.service';
             @for (day of calendarDays; track day.date.getTime()) {
               <button
                 (click)="selectDate(day.date)"
-                class="h-11 w-11 mx-auto flex items-center justify-center font-bold rounded-full transition-all text-[15px]"
+                class="active:scale-[0.98] transition-all duration-200 h-11 w-11 mx-auto flex items-center justify-center font-bold rounded-full transition-all text-[15px]"
                 [ngClass]="[
                   day.isSelected ? theme.bg + ' text-white shadow-md' : '',
                   !day.isSelected && day.isCurrentMonth
-                    ? 'text-slate-900 hover:bg-slate-100'
+                    ? 'text-slate-900'
                     : '',
                   !day.isSelected && !day.isCurrentMonth ? 'text-slate-300' : '',
                   day.isToday && !day.isSelected ? 'border border-slate-300' : '',
@@ -104,7 +104,7 @@ import { HapticService } from '../../../core/services/haptic.service';
           <div class="mt-8 mb-4 flex gap-3">
             <button
               (click)="close()"
-              class="flex-1 bg-slate-50 text-slate-700 px-4 py-4 text-sm font-bold rounded-2xl transition-all active:scale-95 text-center hover:bg-slate-100"
+              class="flex-1 bg-slate-50 text-slate-700 px-4 py-4 text-sm font-bold rounded-2xl transition-all active:scale-95 text-center"
             >
               Cancel
             </button>
@@ -132,80 +132,80 @@ export class DatePickerComponent {
         return {
           bg: 'bg-expense-primary',
           border: 'border-expense-primary',
-          hoverBg: 'hover:bg-expense-primary',
-          hoverBorder: 'hover:border-expense-primary',
+          hoverBg: '',
+          hoverBorder: '',
           text: 'text-expense-primary',
-          hoverDarkBg: 'hover:bg-expense-dark',
+          hoverDarkBg: '',
           darkBg: 'bg-expense-dark',
         };
       case 'budgets':
         return {
           bg: 'bg-budget-primary',
           border: 'border-budget-primary',
-          hoverBg: 'hover:bg-budget-primary',
-          hoverBorder: 'hover:border-budget-primary',
+          hoverBg: '',
+          hoverBorder: '',
           text: 'text-budget-primary',
-          hoverDarkBg: 'hover:bg-budget-dark',
+          hoverDarkBg: '',
           darkBg: 'bg-budget-dark',
         };
       case 'friends':
         return {
           bg: 'bg-friends-primary',
           border: 'border-friends-primary',
-          hoverBg: 'hover:bg-friends-primary',
-          hoverBorder: 'hover:border-friends-primary',
+          hoverBg: '',
+          hoverBorder: '',
           text: 'text-friends-primary',
-          hoverDarkBg: 'hover:bg-friends-dark',
+          hoverDarkBg: '',
           darkBg: 'bg-friends-dark',
         };
       case 'splits':
         return {
           bg: 'bg-splits-primary',
           border: 'border-splits-primary',
-          hoverBg: 'hover:bg-splits-primary',
-          hoverBorder: 'hover:border-splits-primary',
+          hoverBg: '',
+          hoverBorder: '',
           text: 'text-splits-primary',
-          hoverDarkBg: 'hover:bg-splits-dark',
+          hoverDarkBg: '',
           darkBg: 'bg-splits-dark',
         };
       case 'subscriptions':
         return {
           bg: 'bg-subscriptions-primary',
           border: 'border-subscriptions-primary',
-          hoverBg: 'hover:bg-subscriptions-primary',
-          hoverBorder: 'hover:border-subscriptions-primary',
+          hoverBg: '',
+          hoverBorder: '',
           text: 'text-subscriptions-primary',
-          hoverDarkBg: 'hover:bg-subscriptions-dark',
+          hoverDarkBg: '',
           darkBg: 'bg-subscriptions-dark',
         };
       case 'goals':
         return {
           bg: 'bg-goals-primary',
           border: 'border-goals-primary',
-          hoverBg: 'hover:bg-goals-primary',
-          hoverBorder: 'hover:border-goals-primary',
+          hoverBg: '',
+          hoverBorder: '',
           text: 'text-goals-primary',
-          hoverDarkBg: 'hover:bg-goals-dark',
+          hoverDarkBg: '',
           darkBg: 'bg-goals-dark',
         };
       case 'ledger':
         return {
           bg: 'bg-ledger-primary',
           border: 'border-ledger-primary',
-          hoverBg: 'hover:bg-ledger-primary',
-          hoverBorder: 'hover:border-ledger-primary',
+          hoverBg: '',
+          hoverBorder: '',
           text: 'text-ledger-primary',
-          hoverDarkBg: 'hover:bg-ledger-dark',
+          hoverDarkBg: '',
           darkBg: 'bg-ledger-dark',
         };
       default:
         return {
           bg: 'bg-tracker-primary',
           border: 'border-tracker-primary',
-          hoverBg: 'hover:bg-tracker-primary',
-          hoverBorder: 'hover:border-tracker-primary',
+          hoverBg: '',
+          hoverBorder: '',
           text: 'text-tracker-primary',
-          hoverDarkBg: 'hover:bg-tracker-dark',
+          hoverDarkBg: '',
           darkBg: 'bg-tracker-dark',
         };
     }

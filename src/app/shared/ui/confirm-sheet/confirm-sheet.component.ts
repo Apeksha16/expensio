@@ -45,14 +45,14 @@ import { SafeInputDirective } from '../safe-input.directive';
       <div
         @fadeIn
         (click)="close()"
-        class="fixed inset-0 bg-black/60 z-[100] backdrop-blur-sm"
+        class="active:scale-[0.98] transition-all duration-200 fixed inset-0 bg-black/60 z-[100] backdrop-blur-sm"
       ></div>
       <!-- Sheet Content -->
       <div
         @slideUp
         appSwipeToClose
         (swipeClose)="close()"
-        class="fixed bottom-0 left-0 right-0 z-[110] bg-white p-6 pb-8 flex flex-col gap-6 rounded-t-3xl shadow-2xl"
+        class="fixed bottom-0 left-0 right-0 z-[110] bg-white p-6  flex flex-col gap-6 rounded-t-[32px] shadow-2xl" style="padding-bottom: calc(env(safe-area-inset-bottom) + 2rem);"
       >
         <div class="flex flex-col gap-2">
           <h2 class="text-xl font-bold tracking-tight text-gray-900">
@@ -75,7 +75,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                 appAutofocus
                 appSafeInput
                 [max]="confirmService.config()?.inputMax ?? null"
-                class="w-full bg-gray-50 border border-gray-200 p-3 font-bold text-gray-900 text-sm outline-none transition-all rounded-xl focus:bg-white focus:border-red-500 focus:ring-4 focus:ring-red-500/15 shadow-sm"
+                class="w-full bg-white border-2 border-gray-100 text-slate-900 font-bold text-2xl rounded-2xl px-4 py-4 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-300 focus:border-red-500 focus:ring-4 focus:ring-red-500/15"
               />
             </div>
           }
@@ -83,14 +83,14 @@ import { SafeInputDirective } from '../safe-input.directive';
         <div class="flex gap-3 mt-2">
           <button
             (click)="close()"
-            class="flex-1 font-bold rounded-xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-3.5 text-sm min-h-[48px] bg-gray-100 text-gray-700 hover:bg-gray-200 text-center"
+            class="flex-1 font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-slate-100 text-slate-700 text-center"
           >
             {{ confirmService.config()?.cancelText }}
           </button>
           <button
             (click)="confirm()"
             [disabled]="isProcessing()"
-            class="flex-1 font-bold rounded-xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-3.5 text-sm min-h-[48px] bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-600/30 disabled:opacity-50 disabled:active:scale-100"
+            class="flex-1 font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-red-600 text-white shadow-md shadow-red-600/30 disabled:opacity-50 disabled:active:scale-100"
           >
             @if (isProcessing()) {
               <svg

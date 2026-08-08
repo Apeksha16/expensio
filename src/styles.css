@@ -25,11 +25,11 @@
   --color-text: var(--app-text);
   --color-text-muted: var(--app-text-muted);
 
-  /* Expense Module */
-  --color-expense-primary: #5421E6;
-  --color-expense-dark: #3b17a1;
-  --color-expense-light: #7b52f0;
-  --color-expense-surface: #f4f0ff;
+  /* Expense Module - Violet */
+  --color-expense-primary: #7c3aed; /* violet-600 */
+  --color-expense-dark: #5b21b6; /* violet-900 */
+  --color-expense-light: #8b5cf6; /* violet-500 */
+  --color-expense-surface: #f5f3ff; /* violet-50 */
 
   /* Budget Module */
   --color-budget-primary: #059669; /* emerald-600 */
@@ -37,11 +37,11 @@
   --color-budget-light: #10b981; /* emerald-500 */
   --color-budget-surface: #ecfdf5; /* emerald-50 */
 
-  /* Friends Module - Teal */
-  --color-friends-primary: #0d9488;
-  --color-friends-dark: #0f766e;
-  --color-friends-light: #14b8a6;
-  --color-friends-surface: #f0fdfa;
+  /* Friends Module - Fuchsia/Magenta */
+  --color-friends-primary: #d946ef;
+  --color-friends-dark: #a21caf;
+  --color-friends-light: #e879f9;
+  --color-friends-surface: #fdf4ff;
 
   /* Splits Module - Orange */
   --color-splits-primary: #ea580c;

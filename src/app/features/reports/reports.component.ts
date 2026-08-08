@@ -24,16 +24,16 @@ import Chart from 'chart.js/auto';
   template: `
     <div class="h-full flex flex-col relative w-full bg-white overflow-y-auto">
       <!-- Filters Header -->
-      <div class="bg-white p-4 border-b border-gray-100 sticky top-0 z-10 flex flex-col gap-4">
+      <div class="bg-white p-4 border-b border-slate-100 sticky top-0 z-10 flex flex-col gap-4">
         <!-- Date Presets Scrollable -->
         <div class="flex overflow-x-auto gap-3 pb-2 no-scrollbar">
           @for (preset of presets; track preset) {
             <button
               (click)="reportService.fetchReports(preset)"
-              class="whitespace-nowrap px-4 py-2 text-sm font-bold border border-gray-200 rounded-xl transition-all active:scale-[0.98]"
+              class="whitespace-nowrap px-4 py-2 text-sm font-bold border border-slate-100 rounded-xl transition-all active:scale-[0.98]"
               [ngClass]="{
                 'bg-gray-900 text-white shadow-md': reportService.activePreset() === preset,
-                'bg-white text-gray-700 hover:bg-gray-50 shadow-sm hover:shadow-md': reportService.activePreset() !== preset,
+                'bg-white text-gray-700 shadow-sm': reportService.activePreset() !== preset,
               }"
             >
               {{ preset }}
@@ -76,28 +76,28 @@ import Chart from 'chart.js/auto';
       <div class="p-4 flex flex-col gap-6 pb-28">
         <!-- Summary Cards -->
         <div class="grid grid-cols-2 gap-4">
-          <div class="bg-white border border-gray-100 p-4 rounded-2xl flex flex-col gap-1 shadow-sm">
-            <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Total Spent</span>
+          <div class="bg-white border border-slate-100 p-4 rounded-2xl flex flex-col gap-1 shadow-sm">
+            <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Total Spent</span>
             <span class="text-xl font-extrabold text-gray-900">{{ totalSpent | currency: 'INR' : 'symbol' : '1.0-0' }}</span>
           </div>
-          <div class="bg-white border border-gray-100 p-4 rounded-2xl flex flex-col gap-1 shadow-sm">
-            <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Daily Avg</span>
+          <div class="bg-white border border-slate-100 p-4 rounded-2xl flex flex-col gap-1 shadow-sm">
+            <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Daily Avg</span>
             <span class="text-xl font-extrabold text-gray-900">{{ dailyAverage | currency: 'INR' : 'symbol' : '1.0-0' }}</span>
           </div>
         </div>
 
         @if (reportService.isLoading()) {
           <div class="flex flex-col gap-6">
-            <div class="bg-gray-50 h-64 w-full animate-pulse rounded-2xl p-4 flex flex-col items-center justify-center border border-gray-100">
-              <div class="w-40 h-40 rounded-full border-8 border-gray-100"></div>
+            <div class="bg-slate-50 h-64 w-full animate-pulse rounded-2xl p-4 flex flex-col items-center justify-center border border-slate-100">
+              <div class="w-40 h-40 rounded-full border-8 border-slate-100"></div>
             </div>
-            <div class="bg-gray-50 h-64 w-full animate-pulse rounded-2xl p-4 flex flex-col justify-end gap-2 border border-gray-100">
+            <div class="bg-slate-50 h-64 w-full animate-pulse rounded-2xl p-4 flex flex-col justify-end gap-2 border border-slate-100">
               <div class="flex justify-between items-end h-32 w-full px-4">
-                <div class="w-8 bg-gray-200 h-24 rounded-t"></div>
-                <div class="w-8 bg-gray-200 h-16 rounded-t"></div>
-                <div class="w-8 bg-gray-200 h-32 rounded-t"></div>
-                <div class="w-8 bg-gray-200 h-12 rounded-t"></div>
-                <div class="w-8 bg-gray-200 h-20 rounded-t"></div>
+                <div class="w-8 bg-slate-200 h-24 rounded-t"></div>
+                <div class="w-8 bg-slate-200 h-16 rounded-t"></div>
+                <div class="w-8 bg-slate-200 h-32 rounded-t"></div>
+                <div class="w-8 bg-slate-200 h-12 rounded-t"></div>
+                <div class="w-8 bg-slate-200 h-20 rounded-t"></div>
               </div>
             </div>
           </div>
@@ -105,9 +105,9 @@ import Chart from 'chart.js/auto';
           reportService.expenses().length === 0 &&
           (!reportService.isLongTerm() || reportService.monthlySummaries().length === 0)
         ) {
-          <div class="mt-8 w-full bg-[#FCFCFD] border border-dashed border-gray-200 rounded-[24px] p-8 flex flex-col items-center justify-center text-center">
-            <div class="w-12 h-12 bg-indigo-50 rounded-[14px] flex items-center justify-center mb-3">
-              <svg class="w-6 h-6 text-[#5421E6]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div class="mt-8 w-full bg-[#FCFCFD] border border-solid border-slate-100 shadow-sm rounded-[24px] p-8 flex flex-col items-center justify-center text-center">
+            <div class="w-12 h-12 bg-slate-100 rounded-[14px] flex items-center justify-center mb-3">
+              <svg class="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
             </div>
@@ -118,8 +118,8 @@ import Chart from 'chart.js/auto';
           </div>
         } @else {
           <!-- Category Doughnut Chart -->
-          <div class="bg-white border border-gray-100 p-4 rounded-2xl shadow-sm">
-            <h2 class="text-sm font-bold text-gray-700 uppercase tracking-widest mb-4 pb-2 border-b border-gray-100">
+          <div class="bg-white border border-slate-100 p-4 rounded-2xl shadow-sm">
+            <h2 class="text-sm font-bold text-gray-700 uppercase tracking-widest mb-4 pb-2 border-b border-slate-100">
               Category Breakdown
             </h2>
             <div class="relative h-64 w-full">
@@ -128,8 +128,8 @@ import Chart from 'chart.js/auto';
           </div>
 
           <!-- Trend Bar Chart -->
-          <div class="bg-white border border-gray-100 p-4 rounded-2xl mt-4 shadow-sm">
-            <h2 class="text-sm font-bold text-gray-700 uppercase tracking-widest mb-4 pb-2 border-b border-gray-100">
+          <div class="bg-white border border-slate-100 p-4 rounded-2xl mt-4 shadow-sm">
+            <h2 class="text-sm font-bold text-gray-700 uppercase tracking-widest mb-4 pb-2 border-b border-slate-100">
               Spending Trend
             </h2>
             <div class="relative h-64 w-full">
@@ -144,10 +144,10 @@ import Chart from 'chart.js/auto';
             </h2>
             <div class="flex flex-col gap-3">
               @for (expense of topExpenses; track expense.id) {
-                <div class="w-full bg-white border border-gray-100 rounded-2xl p-4 flex justify-between items-center text-left shadow-sm hover:shadow-md transition-all">
+                <div class="w-full bg-white border border-slate-100 rounded-2xl p-4 flex justify-between items-center text-left shadow-sm transition-all">
                   <div class="flex flex-col gap-1 flex-1 min-w-0 pr-4">
                     <span class="font-extrabold text-base text-gray-900 truncate">{{ expense.title }}</span>
-                    <div class="flex items-center gap-2 text-[10px] font-bold text-gray-500 uppercase tracking-widest min-w-0">
+                    <div class="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-widest min-w-0">
                       <span class="truncate">{{ expense.category }}</span>
                       <span class="flex-shrink-0 border-l border-gray-300 h-3"></span>
                       <span class="whitespace-nowrap flex-shrink-0">{{ expense.date | date: 'MMM d' }}</span>

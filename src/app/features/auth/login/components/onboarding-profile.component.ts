@@ -38,7 +38,7 @@ import { LoginStateService } from '../login-state.service';
         <form (ngSubmit)="onFinalSubmit()" class="flex flex-col w-full pb-2">
           
           <div class="w-full mb-1 px-1">
-            <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Personal</span>
+            <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Personal</span>
           </div>
 
           <!-- Name Field -->
@@ -49,7 +49,7 @@ import { LoginStateService } from '../login-state.service';
               [class.border-gray-300]="!profileName && !nameError()"
               [class.border-red-500]="nameError()"
             >
-              <div class="pl-4 pr-2 h-full flex items-center justify-center text-gray-400">
+              <div class="pl-4 pr-2 h-full flex items-center justify-center text-gray-500">
                 <app-icon [icon]="UserIcon" size="20"></app-icon>
               </div>
               <input
@@ -70,8 +70,8 @@ import { LoginStateService } from '../login-state.service';
           </div>
 
           <div class="w-full mt-2 mb-3 px-1">
-            <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1">Financial</span>
-            <span class="text-xs text-gray-400">Used to suggest budgets and calculate your net worth.</span>
+            <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-1">Financial</span>
+            <span class="text-xs text-gray-500">Used to suggest budgets and calculate your net worth.</span>
           </div>
 
           <!-- Salary Field -->
@@ -82,7 +82,7 @@ import { LoginStateService } from '../login-state.service';
               [class.border-gray-300]="!profileSalary && !salaryError()"
               [class.border-red-500]="salaryError()"
             >
-              <div class="pl-4 pr-2 h-full flex items-center justify-center text-gray-400">
+              <div class="pl-4 pr-2 h-full flex items-center justify-center text-gray-500">
                 <app-icon [icon]="RupeeIcon" size="20"></app-icon>
               </div>
               <input
@@ -111,7 +111,7 @@ import { LoginStateService } from '../login-state.service';
               [class.border-gray-300]="profileCashBalance === null && !cashError()"
               [class.border-red-500]="cashError()"
             >
-              <div class="pl-4 pr-2 h-full flex items-center justify-center text-gray-400">
+              <div class="pl-4 pr-2 h-full flex items-center justify-center text-gray-500">
                 <app-icon [icon]="Wallet01Icon" size="20"></app-icon>
               </div>
               <input
@@ -140,7 +140,7 @@ import { LoginStateService } from '../login-state.service';
               [class.border-gray-300]="profileSavingsBalance === null && !savingsError()"
               [class.border-red-500]="savingsError()"
             >
-              <div class="pl-4 pr-2 h-full flex items-center justify-center text-gray-400">
+              <div class="pl-4 pr-2 h-full flex items-center justify-center text-gray-500">
                 <app-icon [icon]="PiggyBankIcon" size="20"></app-icon>
               </div>
               <input
@@ -165,7 +165,7 @@ import { LoginStateService } from '../login-state.service';
             <button
               type="submit"
               [disabled]="isLoading()"
-              class="w-full h-14 bg-[#4F46E5] text-white rounded-[14px] font-semibold text-[15px] hover:bg-indigo-700 transition-colors flex justify-center items-center active:scale-[0.98]"
+              class="w-full h-14 bg-[#4F46E5] text-white rounded-[14px] font-semibold text-[15px] transition-colors flex justify-center items-center active:scale-[0.98]"
             >
               @if (isLoading()) {
                 <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

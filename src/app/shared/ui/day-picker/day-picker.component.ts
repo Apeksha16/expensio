@@ -33,7 +33,7 @@ import { HapticService } from '../../../core/services/haptic.service';
       <div
         @fadeIn
         (click)="close()"
-        class="fixed inset-0 bg-black/60 z-[80] backdrop-blur-sm"
+        class="active:scale-[0.98] transition-all duration-200 fixed inset-0 bg-black/60 z-[80] backdrop-blur-sm"
       ></div>
       <!-- Sheet Content -->
       <div
@@ -52,7 +52,7 @@ import { HapticService } from '../../../core/services/haptic.service';
             </h2>
             <button
               (click)="close()"
-              class="p-2 hover:bg-gray-100 text-gray-400 hover:text-gray-900 transition-colors rounded-full"
+              class="active:scale-[0.98] transition-all duration-200 p-2 text-gray-400 transition-colors rounded-full"
             >
               <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path
@@ -72,10 +72,10 @@ import { HapticService } from '../../../core/services/haptic.service';
             @for (day of days; track day) {
               <button
                 (click)="selectDay(day)"
-                class="h-10 w-full flex items-center justify-center font-bold rounded-xl transition-all text-sm"
+                class="active:scale-[0.98] transition-all duration-200 h-10 w-full flex items-center justify-center font-bold rounded-xl transition-all text-sm"
                 [ngClass]="{
                   'bg-black text-white shadow-md': day === selectedDay,
-                  'text-gray-700 bg-gray-50 hover:bg-gray-200': day !== selectedDay,
+                  'text-gray-700 bg-gray-50': day !== selectedDay,
                 }"
               >
                 {{ day }}
@@ -85,7 +85,7 @@ import { HapticService } from '../../../core/services/haptic.service';
           <div class="mt-4 mb-2">
             <button
               (click)="confirm()"
-              class="w-full bg-black text-white px-4 py-3 text-[11px] font-extrabold uppercase tracking-widest min-h-[44px] rounded-xl hover:bg-gray-900 transition-all shadow-md active:scale-95"
+              class="w-full bg-slate-900 text-white px-4 py-4 text-sm font-bold rounded-2xl transition-all shadow-md active:scale-95"
             >
               Confirm Day
             </button>

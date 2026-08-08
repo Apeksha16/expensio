@@ -15,14 +15,14 @@ import { ConfirmService } from '../../core/services/confirm.service';
   template: `
     <div class="h-full bg-white p-4 flex flex-col gap-4">
       <!-- Summary Header -->
-      <div class="bg-white text-gray-900 border border-gray-100 p-5 rounded-2xl shadow-sm">
-        <h2 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
+      <div class="bg-white text-gray-900 border border-slate-100 p-5 rounded-2xl shadow-sm">
+        <h2 class="text-xs font-black text-gray-500 uppercase tracking-widest mb-1">
           Your Net Balance
         </h2>
         <p class="text-4xl font-extrabold tracking-tight text-gray-900">
           {{ ledgerService.netBalance() >= 0 ? '+' : '' }}₹{{ ledgerService.netBalance() | number: '1.2-2' }}
         </p>
-        <p class="text-[11px] font-bold mt-1 text-gray-500">
+        <p class="text-xs font-bold mt-1 text-gray-500">
           @if (ledgerService.netBalance() > 0) {
             Others owe you
           } @else if (ledgerService.netBalance() < 0) {
@@ -31,7 +31,7 @@ import { ConfirmService } from '../../core/services/confirm.service';
             All settled!
           }
         </p>
-        <div class="flex justify-between items-center mt-5 pt-4 border-t border-gray-100 text-[10px] font-bold uppercase tracking-widest text-gray-500">
+        <div class="flex justify-between items-center mt-5 pt-4 border-t border-slate-100 text-xs font-bold uppercase tracking-widest text-gray-500">
           <div>
             Money In:
             <span class="text-emerald-500 ml-1 font-extrabold">₹{{ ledgerService.totalReceived() | number: '1.0-0' }}</span>
@@ -47,20 +47,20 @@ import { ConfirmService } from '../../core/services/confirm.service';
       <div class="flex-1 flex flex-col gap-4 pb-28 mt-1 overflow-y-auto overflow-x-hidden no-scrollbar">
         @if (ledgerService.isLoading()) {
           @for (i of [1, 2, 3]; track i) {
-            <div class="w-full bg-gray-50 rounded-2xl p-4 flex flex-col gap-4 border border-gray-100 animate-pulse h-[130px]">
+            <div class="w-full bg-slate-50 rounded-2xl p-4 flex flex-col gap-4 border border-slate-100 animate-pulse h-[130px]">
               <div class="flex justify-between items-center">
                 <div class="flex items-center gap-3 w-2/3">
-                  <div class="w-10 h-10 rounded-xl bg-gray-200 shrink-0 border border-gray-300"></div>
+                  <div class="w-10 h-10 rounded-xl bg-slate-200 shrink-0 border border-gray-300"></div>
                   <div class="flex flex-col gap-2 w-full">
-                    <div class="h-4 bg-gray-200 rounded w-1/2"></div>
-                    <div class="h-2 bg-gray-200 rounded w-1/3"></div>
+                    <div class="h-4 bg-slate-200 rounded w-1/2"></div>
+                    <div class="h-2 bg-slate-200 rounded w-1/3"></div>
                   </div>
                 </div>
-                <div class="h-5 bg-gray-200 rounded w-16 shrink-0 ml-3"></div>
+                <div class="h-5 bg-slate-200 rounded w-16 shrink-0 ml-3"></div>
               </div>
-              <div class="flex justify-between items-center pt-3 border-t border-gray-200 border-dashed">
-                <div class="h-2.5 bg-gray-200 rounded w-1/3"></div>
-                <div class="h-6 bg-gray-200 rounded w-16 shrink-0"></div>
+              <div class="flex justify-between items-center pt-3 border-t border-slate-100 border-dashed">
+                <div class="h-2.5 bg-slate-200 rounded w-1/3"></div>
+                <div class="h-6 bg-slate-200 rounded w-16 shrink-0"></div>
               </div>
             </div>
           }
@@ -71,7 +71,7 @@ import { ConfirmService } from '../../core/services/confirm.service';
                 (click)="viewDetails(entry.id)"
                 role="button"
                 tabindex="0"
-                class="w-full bg-white rounded-2xl p-4 flex flex-col gap-3 text-left hover:shadow-md shadow-sm transition-all active:scale-[0.99] border border-gray-100 relative overflow-hidden"
+                class="w-full bg-white rounded-2xl p-4 flex flex-col gap-3 text-left shadow-sm transition-all active:scale-[0.99] border border-slate-100 relative overflow-hidden"
               >
                 <!-- Top Row: Avatar, Name, Amount -->
                 <div class="flex justify-between items-center w-full">
@@ -100,8 +100,8 @@ import { ConfirmService } from '../../core/services/confirm.service';
                 </div>
 
                 <!-- Bottom Row: Purpose and Status Tag -->
-                <div class="flex justify-between items-center w-full pt-3 border-t border-gray-100 border-dashed mt-1">
-                  <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest truncate pr-4">
+                <div class="flex justify-between items-center w-full pt-3 border-t border-slate-100 border-dashed mt-1">
+                  <span class="text-xs font-bold text-gray-500 uppercase tracking-widest truncate pr-4">
                     {{ entry.purpose || 'No note' }}
                   </span>
 
@@ -109,7 +109,7 @@ import { ConfirmService } from '../../core/services/confirm.service';
                     @if (ledgerService.getLedgerBalance(entry) < 0) {
                       <button
                         (click)="settleUp($event, entry)"
-                        class="text-[9px] font-bold text-gray-700 border border-gray-200 bg-white hover:bg-gray-50 shadow-sm active:scale-[0.95] px-3 py-1.5 rounded-xl uppercase tracking-widest transition-all"
+                        class="text-[9px] font-bold text-gray-700 border border-slate-100 bg-white shadow-sm active:scale-[0.95] px-3 py-1.5 rounded-xl uppercase tracking-widest transition-all"
                       >
                         Received back
                       </button>
@@ -119,7 +119,7 @@ import { ConfirmService } from '../../core/services/confirm.service';
                     } @else if (ledgerService.getLedgerBalance(entry) > 0) {
                       <button
                         (click)="settleUp($event, entry)"
-                        class="text-[9px] font-bold text-gray-700 border border-gray-200 bg-white hover:bg-gray-50 shadow-sm active:scale-[0.95] px-3 py-1.5 rounded-xl uppercase tracking-widest transition-all"
+                        class="text-[9px] font-bold text-gray-700 border border-slate-100 bg-white shadow-sm active:scale-[0.95] px-3 py-1.5 rounded-xl uppercase tracking-widest transition-all"
                       >
                         Paid back
                       </button>
@@ -127,7 +127,7 @@ import { ConfirmService } from '../../core/services/confirm.service';
                         You owe
                       </span>
                     } @else {
-                      <span class="text-[9px] font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded-lg uppercase tracking-widest">
+                      <span class="text-[9px] font-bold text-gray-500 bg-slate-50 px-2 py-1 rounded-lg uppercase tracking-widest">
                         Settled
                       </span>
                     }
@@ -136,7 +136,7 @@ import { ConfirmService } from '../../core/services/confirm.service';
               </div>
             }
           } @else {
-            <div class="mt-4 w-full bg-[#FCFCFD] border border-dashed border-gray-200 rounded-[24px] p-8 flex flex-col items-center justify-center text-center">
+            <div class="mt-4 w-full bg-[#FCFCFD] border border-solid border-slate-100 shadow-sm rounded-[24px] p-8 flex flex-col items-center justify-center text-center">
               <div class="w-12 h-12 bg-ledger-primary/10 rounded-[14px] flex items-center justify-center mb-3">
                 <svg class="w-6 h-6 text-ledger-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />

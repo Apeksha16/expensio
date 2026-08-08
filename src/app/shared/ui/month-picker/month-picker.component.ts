@@ -42,7 +42,7 @@ import { Router } from '@angular/router';
       <div
         @fadeIn
         (click)="close()"
-        class="fixed inset-0 bg-black/60 z-[80] backdrop-blur-sm"
+        class="active:scale-[0.98] transition-all duration-200 fixed inset-0 bg-black/60 z-[80] backdrop-blur-sm"
       ></div>
       <!-- Sheet Content -->
       <div
@@ -67,7 +67,7 @@ import { Router } from '@angular/router';
                 [ngClass]="
                   m.value === monthPicker.activeMonth()
                     ? getThemeClasses().bg + ' border-transparent text-white shadow-md'
-                    : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'
+                    : 'border-slate-200 bg-white text-slate-700'
                 "
               >
                 {{ m.label }}

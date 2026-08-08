@@ -25,12 +25,12 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
 
       <!-- Avatar -->
       <div class="relative shrink-0 z-10">
-        <div class="w-[84px] h-[84px] rounded-full p-[3px] bg-white shadow-sm border border-gray-100">
+        <div class="w-[84px] h-[84px] rounded-full p-[3px] bg-white shadow-sm border border-slate-100">
           <div class="w-full h-full rounded-full overflow-hidden bg-profile-primary/10">
             <img [src]="getSelectedAvatarUrl()" alt="Avatar" class="w-full h-full object-cover" />
           </div>
         </div>
-        <button (click)="isAvatarSheetOpen.set(true)" class="absolute bottom-0 right-0 w-[28px] h-[28px] bg-profile-primary text-white rounded-full flex items-center justify-center border-[2.5px] border-white shadow-sm hover:scale-105 transition-transform">
+        <button (click)="isAvatarSheetOpen.set(true)" class="active:scale-[0.98] transition-all duration-200 absolute bottom-0 right-0 w-[28px] h-[28px] bg-profile-primary text-white rounded-full flex items-center justify-center border-[2.5px] border-white shadow-sm transition-transform">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
         </button>
       </div>
@@ -41,7 +41,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
           <input type="text" [ngModel]="pendingProfile().name" (ngModelChange)="updateField('name', $event)"
             class="w-full bg-transparent text-gray-900 font-extrabold text-[20px] leading-tight focus:outline-none focus:border-b focus:border-profile-primary transition-all truncate placeholder-gray-300"
             maxlength="20" placeholder="Your Name" appSafeInput />
-          <div class="text-gray-300 group-hover:text-profile-primary transition-colors ml-2 pointer-events-none shrink-0">
+          <div class="text-gray-300 group- transition-colors ml-2 pointer-events-none shrink-0">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
           </div>
         </div>
@@ -58,7 +58,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
         </div>
         <div class="flex flex-col">
-          <span class="text-[11px] font-semibold text-gray-400">Email Address</span>
+          <span class="text-xs font-semibold text-gray-500">Email Address</span>
           <span class="text-gray-900 font-bold text-[13px]">{{ pendingProfile().email }}</span>
         </div>
       </div>
@@ -71,7 +71,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
         </div>
         <div class="flex flex-col">
-          <span class="text-[11px] font-semibold text-gray-400">Member Since</span>
+          <span class="text-xs font-semibold text-gray-500">Member Since</span>
           <span class="text-gray-900 font-bold text-[13px]">July 30, 2026</span>
         </div>
       </div>
@@ -79,7 +79,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
 
       <!-- Account Balances -->
       <div class="flex flex-col gap-3">
-        <h3 class="text-profile-primary font-extrabold text-[11px] tracking-wider uppercase ml-1">Account Balances</h3>
+        <h3 class="text-profile-primary font-extrabold text-xs tracking-wider uppercase ml-1">Account Balances</h3>
         
         <!-- Salary -->
         <div class="bg-profile-primary/10 rounded-[24px] p-4 border border-profile-primary/20 flex items-center justify-between shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
@@ -130,13 +130,13 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
         </div>
       </div>
       
-      <p class="text-[10px] text-gray-500 mt-[-6px] px-2 leading-tight font-medium">
+      <p class="text-xs text-gray-500 mt-[-6px] px-2 leading-tight font-medium">
         * Note: Updating your account balances will immediately overwrite your current balances and reflect across subsequent months.
       </p>
 
       <!-- Preferences -->
       <div class="flex flex-col gap-3">
-        <h3 class="text-profile-primary font-extrabold text-[11px] tracking-wider uppercase ml-1">Preferences</h3>
+        <h3 class="text-profile-primary font-extrabold text-xs tracking-wider uppercase ml-1">Preferences</h3>
 
         <div class="bg-profile-primary/10 rounded-[24px] border border-profile-primary/20 flex flex-col shadow-[0_2px_10px_rgba(0,0,0,0.03)] overflow-hidden">
           
@@ -144,11 +144,11 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
           <div class="flex items-center justify-between p-4 border-b border-profile-primary/20">
             <div class="flex flex-col">
               <span class="text-gray-900 font-bold text-[13px]">Mask Values</span>
-              <span class="text-gray-400 font-medium text-[11px] mt-0.5">Hide balances on dashboard</span>
+              <span class="text-gray-500 font-medium text-xs mt-0.5">Hide balances on dashboard</span>
             </div>
             <button type="button" (click)="toggleMaskValues()"
-              class="relative inline-flex h-[26px] w-[44px] flex-shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out focus:outline-none"
-              [ngClass]="pendingProfile().maskValues ? 'bg-profile-primary' : 'bg-gray-200'" role="switch"
+              class="active:scale-[0.98] transition-all duration-200 relative inline-flex h-[26px] w-[44px] flex-shrink-0 cursor-pointer rounded-full transition-colors duration-200 ease-in-out focus:outline-none"
+              [ngClass]="pendingProfile().maskValues ? 'bg-profile-primary' : 'bg-slate-200'" role="switch"
               [attr.aria-checked]="pendingProfile().maskValues">
               <span aria-hidden="true"
                 class="pointer-events-none inline-block h-5 w-5 mt-[3px] ml-[3px] transform rounded-full bg-white shadow-sm transition duration-200 ease-in-out"
@@ -159,7 +159,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
           <div class="flex items-center justify-between p-4">
             <div class="flex flex-col">
               <span class="text-gray-900 font-bold text-[13px]">Email Reports</span>
-              <span class="text-gray-400 font-medium text-[11px] mt-0.5">Automated expense summaries</span>
+              <span class="text-gray-500 font-medium text-xs mt-0.5">Automated expense summaries</span>
             </div>
             <div class="flex bg-profile-primary/10 rounded-[10px] p-1 border border-profile-primary/20">
               <button (click)="updateField('emailReportFrequency', 'none')"
@@ -167,7 +167,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
                 [class.text-white]="pendingProfile().emailReportFrequency === 'none'"
                 [class.text-gray-500]="pendingProfile().emailReportFrequency !== 'none'"
                 [class.shadow-sm]="pendingProfile().emailReportFrequency === 'none'"
-                class="px-2.5 py-1.5 text-[10px] font-bold rounded-md transition-all">
+                class="active:scale-[0.98] transition-all duration-200 px-2.5 py-1.5 text-xs font-bold rounded-md transition-all">
                 Off
               </button>
               <button (click)="updateField('emailReportFrequency', 'weekly')"
@@ -175,7 +175,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
                 [class.text-white]="pendingProfile().emailReportFrequency === 'weekly'"
                 [class.text-gray-500]="pendingProfile().emailReportFrequency !== 'weekly'"
                 [class.shadow-sm]="pendingProfile().emailReportFrequency === 'weekly'"
-                class="px-2.5 py-1.5 text-[10px] font-bold rounded-md transition-all">
+                class="active:scale-[0.98] transition-all duration-200 px-2.5 py-1.5 text-xs font-bold rounded-md transition-all">
                 Weekly
               </button>
               <button (click)="updateField('emailReportFrequency', 'monthly')"
@@ -183,7 +183,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
                 [class.text-white]="pendingProfile().emailReportFrequency === 'monthly'"
                 [class.text-gray-500]="pendingProfile().emailReportFrequency !== 'monthly'"
                 [class.shadow-sm]="pendingProfile().emailReportFrequency === 'monthly'"
-                class="px-2.5 py-1.5 text-[10px] font-bold rounded-md transition-all">
+                class="active:scale-[0.98] transition-all duration-200 px-2.5 py-1.5 text-xs font-bold rounded-md transition-all">
                 Monthly
               </button>
             </div>
@@ -198,7 +198,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
     <!-- Save Button (Fixed at bottom) -->
     <div class="fixed bottom-0 left-0 right-0 p-4 bg-white/90 backdrop-blur-md border-t border-gray-50/50 pb-8 z-20">
       <button [disabled]="!isDirty() || isUpdating()" (click)="handleUpdate()"
-        class="w-full bg-profile-primary text-white p-4 font-bold text-[15px] transition-all rounded-[16px] shadow-lg shadow-profile-primary/25 hover:bg-profile-dark disabled:opacity-50 disabled:shadow-none disabled:cursor-not-allowed flex items-center justify-center gap-2">
+        class="active:scale-[0.98] transition-all duration-200 w-full bg-profile-primary text-white p-4 font-bold text-[15px] transition-all rounded-[16px] shadow-lg shadow-profile-primary/25 disabled:opacity-50 disabled:shadow-none disabled:cursor-not-allowed flex items-center justify-center gap-2">
         @if (isUpdating()) {
           <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -214,12 +214,12 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
 
   <!-- Avatar Selection Bottom Sheet -->
   @if (isAvatarSheetOpen()) {
-    <div class="fixed inset-0 bg-[#0B0F19]/40 z-[100] backdrop-blur-sm transition-opacity" (click)="isAvatarSheetOpen.set(false)"></div>
+    <div class="active:scale-[0.98] transition-all duration-200 fixed inset-0 bg-[#0B0F19]/40 z-[100] backdrop-blur-sm transition-opacity" (click)="isAvatarSheetOpen.set(false)"></div>
     <div class="fixed bottom-0 left-0 right-0 z-[101] bg-white rounded-t-[32px] overflow-hidden flex flex-col h-[75vh] animate-[slideUp_0.3s_ease-out]">
       <div class="flex flex-col items-center pt-3 pb-2 px-6 relative shrink-0">
         <div class="w-12 h-1 bg-gray-300 rounded-full mb-4"></div>
         <h2 class="text-base font-bold text-gray-900 mb-2">Choose Avatar</h2>
-        <button (click)="isAvatarSheetOpen.set(false)" class="absolute right-5 top-5 text-gray-400 hover:text-gray-600 bg-gray-50 rounded-full p-1.5">
+        <button (click)="isAvatarSheetOpen.set(false)" class="active:scale-[0.98] transition-all duration-200 absolute right-5 top-5 text-gray-500 bg-slate-50 rounded-full p-1.5">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
         </button>
       </div>
@@ -229,11 +229,11 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
           @for (avatar of authService.avatars; track avatar.id) {
             <button
               (click)="selectAvatar(avatar.id)"
-              class="relative aspect-square rounded-[20px] flex items-center justify-center transition-all border-2"
+              class="active:scale-[0.98] transition-all duration-200 relative aspect-square rounded-[20px] flex items-center justify-center transition-all border-2"
               [ngClass]="
                 pendingProfile().avatarId === avatar.id
                   ? 'border-profile-primary bg-profile-primary/10 shadow-[0_0_0_2px_rgba(8,145,178,0.1)]'
-                  : 'border-transparent bg-[#FAFAFA] hover:bg-gray-50'
+                  : 'border-transparent bg-[#FAFAFA]'
               "
             >
               <img [src]="avatar.url" alt="Avatar" class="w-full h-full object-cover rounded-[18px]" />

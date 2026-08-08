@@ -49,7 +49,7 @@ interface SelectableNavItem {
       <!-- Backdrop -->
       <div
         @fadeIn
-        class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60]"
+        class="active:scale-[0.98] transition-all duration-200 fixed inset-0 bg-black/60 backdrop-blur-sm z-[60]"
         (click)="closeSheet()"
       ></div>
 
@@ -58,16 +58,16 @@ interface SelectableNavItem {
         @slideUp
         appSwipeToClose
         (swipeClose)="closeSheet()"
-        class="fixed bottom-0 left-0 right-0 z-[70] max-h-[95vh] flex flex-col rounded-t-3xl shadow-2xl"
+        class="fixed bottom-0 left-0 right-0 z-[70] max-h-[95vh] flex flex-col rounded-t-[32px] shadow-2xl bg-white overflow-hidden" style="padding-bottom: env(safe-area-inset-bottom);"
       >
         <!-- Header -->
         <div
-          class="flex justify-between items-center py-4 px-6 bg-slate-900 text-white rounded-t-3xl sticky top-0 z-10 shrink-0 shadow-sm"
+          class="flex justify-between items-center py-4 px-6 text-white bg-slate-900 rounded-t-[32px] sticky top-0 z-10 shrink-0 shadow-sm"
         >
           <h2 class="text-lg font-bold tracking-wide">Configure Quick Actions</h2>
         </div>
 
-        <div class="p-6 flex flex-col gap-6 overflow-y-auto overscroll-none bg-white flex-1">
+        <div class="p-6 flex flex-col gap-6 overflow-y-auto overscroll-none bg-white flex-1 overflow-y-auto overscroll-none pb-6" style="scrollbar-width: none;">
           <p class="text-[11px] font-bold text-gray-500 tracking-wider uppercase">
             Select up to 4 items. Drag to reorder.
           </p>
@@ -76,7 +76,7 @@ interface SelectableNavItem {
             @for (item of items(); track item.navItem.id) {
               <div
                 cdkDrag
-                class="flex items-center gap-3 p-3 bg-white border border-gray-200 cursor-grab shadow-sm transition-all rounded-xl select-none touch-manipulation active:cursor-grabbing hover:border-gray-300"
+                class="flex items-center gap-3 p-3 bg-white border border-gray-200 cursor-grab shadow-sm transition-all rounded-xl select-none touch-manipulation active:cursor-grabbing"
                 [class.opacity-50]="!item.selected && selectedCount() >= 4"
               >
                 <!-- Custom Drag Preview (shown while dragging) -->
@@ -156,14 +156,14 @@ interface SelectableNavItem {
             <button
               type="button"
               (click)="closeSheet()"
-              class="flex-1 font-bold rounded-xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-3.5 text-sm min-h-[48px] bg-gray-100 text-gray-700 hover:bg-gray-200 text-center"
+              class="flex-1 font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-slate-100 text-slate-700 text-center"
             >
               Cancel
             </button>
             <button
               type="button"
               (click)="save()"
-              class="flex-1 font-bold rounded-xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-3.5 text-sm min-h-[48px] bg-slate-900 hover:bg-slate-800 text-white shadow-lg shadow-slate-900/30"
+              class="flex-1 font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-slate-900 text-white shadow-md shadow-slate-900/30"
             >
               Save
             </button>

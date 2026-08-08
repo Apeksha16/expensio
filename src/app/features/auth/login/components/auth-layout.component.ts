@@ -18,7 +18,7 @@ import { ArrowLeft01Icon } from '@hugeicons/core-free-icons';
       @if (showBackButton()) {
         <button
           (click)="goBack()"
-          class="absolute top-10 left-6 text-black font-medium flex items-center hover:opacity-70 z-10 p-2 -ml-2"
+          class="active:scale-[0.98] transition-all duration-200 absolute top-10 left-6 text-black font-medium flex items-center z-10 p-2 -ml-2"
         >
           <app-icon [icon]="ArrowLeft01Icon" size="20"></app-icon>
         </button>

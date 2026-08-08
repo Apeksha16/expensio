@@ -36,13 +36,13 @@ import { Mail01Icon, UserIcon } from '@hugeicons/core-free-icons';
           <div class="flex flex-col gap-4 w-full mb-4">
             <button
               (click)="onCachedLogin()"
-              class="w-full h-[60px] bg-indigo-600 text-white rounded-xl font-bold text-lg hover:bg-indigo-700 transition-colors flex justify-center items-center"
+              class="active:scale-[0.98] transition-all duration-200 w-full h-[60px] bg-indigo-600 text-white rounded-xl font-bold text-lg transition-colors flex justify-center items-center"
             >
               Log in with MPIN
             </button>
             <button
               (click)="loginWithOther()"
-              class="text-sm font-semibold text-indigo-600 hover:text-indigo-800 text-center w-full"
+              class="active:scale-[0.98] transition-all duration-200 text-sm font-semibold text-indigo-600 text-center w-full"
             >
               Log in with another account
             </button>
@@ -61,10 +61,10 @@ import { Mail01Icon, UserIcon } from '@hugeicons/core-free-icons';
           <div class="flex flex-col gap-6">
             <div class="relative w-full pb-6">
               <div
-                class="flex items-center bg-white border-2 border-gray-200 rounded-2xl focus-within:border-indigo-600 transition-colors overflow-hidden"
+                class="flex items-center bg-white border border-slate-100 rounded-2xl focus-within:border-indigo-600 transition-colors overflow-hidden"
                 [class.border-red-500]="emailError()"
               >
-                <div class="pl-4 pr-1 text-gray-400 flex items-center justify-center">
+                <div class="pl-4 pr-1 text-gray-500 flex items-center justify-center">
                   @if (emailProxy.includes('@')) {
                     <app-icon [icon]="Mail01Icon" size="22"></app-icon>
                   } @else {
@@ -89,9 +89,9 @@ import { Mail01Icon, UserIcon } from '@hugeicons/core-free-icons';
                     <button 
                       type="button" 
                       (click)="selectDomain(domain)" 
-                      class="px-4 py-1.5 bg-white border border-gray-200 hover:border-indigo-600 hover:text-indigo-600 text-gray-600 text-sm font-medium rounded-full whitespace-nowrap transition-all shadow-sm"
+                      class="active:scale-[0.98] transition-all duration-200 px-4 py-1.5 bg-white border border-slate-100 text-gray-600 text-sm font-medium rounded-full whitespace-nowrap transition-all shadow-sm"
                     >
-                      <span class="text-gray-400 font-normal">&#64;</span>{{ domain }}
+                      <span class="text-gray-500 font-normal">&#64;</span>{{ domain }}
                     </button>
                   }
                 </div>
@@ -108,7 +108,7 @@ import { Mail01Icon, UserIcon } from '@hugeicons/core-free-icons';
             <button
               (click)="onEmailSubmit()"
               [disabled]="isLoading()"
-              class="w-full mt-4 h-[60px] bg-indigo-600 text-white rounded-xl font-bold text-lg hover:bg-indigo-700 transition-colors flex justify-center items-center"
+              class="active:scale-[0.98] transition-all duration-200 w-full mt-4 h-[60px] bg-indigo-600 text-white rounded-xl font-bold text-lg transition-colors flex justify-center items-center"
             >
               @if (isLoading()) {
                 <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

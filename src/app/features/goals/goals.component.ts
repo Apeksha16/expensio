@@ -20,20 +20,20 @@ import { AddFundsSheetComponent } from '../../shared/ui/add-funds-sheet/add-fund
         <!-- Shimmer -->
         <div class="flex flex-col gap-3 pb-28 mt-2">
           @for (i of [1, 2, 3]; track i) {
-            <div class="w-full bg-gray-50 border border-gray-100 rounded-2xl p-4 flex items-center gap-4 h-[100px] animate-pulse">
-              <div class="h-10 w-10 bg-gray-200 rounded-xl shrink-0 border border-gray-300"></div>
+            <div class="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 flex items-center gap-4 h-[100px] animate-pulse">
+              <div class="h-10 w-10 bg-slate-200 rounded-xl shrink-0 border border-gray-300"></div>
               <div class="flex flex-col gap-2 flex-1">
-                <div class="h-4 bg-gray-200 w-1/3"></div>
-                <div class="h-3 bg-gray-200 w-1/2"></div>
-                <div class="h-2 bg-gray-200 w-full mt-2"></div>
+                <div class="h-4 bg-slate-200 w-1/3"></div>
+                <div class="h-3 bg-slate-200 w-1/2"></div>
+                <div class="h-2 bg-slate-200 w-full mt-2"></div>
               </div>
             </div>
           }
         </div>
       } @else {
         <!-- Top Summary Box -->
-        <div class="bg-white text-gray-900 border border-gray-100 p-5 rounded-2xl flex flex-col gap-1 relative overflow-hidden shadow-sm mt-2">
-          <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+        <div class="bg-white text-gray-900 border border-slate-100 p-5 rounded-2xl flex flex-col gap-1 relative overflow-hidden shadow-sm mt-2">
+          <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">
             Total Goals Savings
           </span>
           <span class="text-4xl font-extrabold tracking-tight text-gray-900">
@@ -46,7 +46,7 @@ import { AddFundsSheetComponent } from '../../shared/ui/add-funds-sheet/add-fund
             @for (goal of activeGoals(); track goal.id) {
               <button
                 (click)="openTransactions(goal.id)"
-                class="w-full bg-white border border-gray-100 rounded-2xl p-4 flex flex-col gap-3 text-left hover:shadow-md shadow-sm transition-all active:scale-[0.99]"
+                class="w-full bg-white border border-slate-100 rounded-2xl p-4 flex flex-col gap-3 text-left shadow-sm transition-all active:scale-[0.99]"
               >
                 <div class="flex items-start gap-4 w-full">
                   <div class="w-12 h-12 bg-goals-primary/10 border border-goals-primary/20 text-goals-primary flex items-center justify-center shrink-0 rounded-xl">
@@ -56,7 +56,7 @@ import { AddFundsSheetComponent } from '../../shared/ui/add-funds-sheet/add-fund
                   </div>
                   <div class="flex flex-col gap-0.5 flex-1 min-w-0 pr-2">
                     <span class="font-extrabold text-lg text-gray-900 truncate">{{ goal.name }}</span>
-                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                    <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">
                       Target: {{ goal.target_date | date: 'MMM yyyy' }}
                     </span>
                   </div>
@@ -72,11 +72,11 @@ import { AddFundsSheetComponent } from '../../shared/ui/add-funds-sheet/add-fund
 
                 <!-- Progress Bar -->
                 <div class="w-full flex flex-col gap-1 mt-1">
-                  <div class="flex justify-between text-[10px] font-bold text-gray-700 uppercase tracking-widest">
+                  <div class="flex justify-between text-xs font-bold text-gray-700 uppercase tracking-widest">
                     <span>₹{{ goal.saved_amount | number: '1.0-0' }} Saved</span>
                     <span>₹{{ goal.total_amount | number: '1.0-0' }} Goal</span>
                   </div>
-                  <div class="h-3 w-full bg-gray-100 rounded-full overflow-hidden">
+                  <div class="h-3 w-full bg-slate-50 rounded-full overflow-hidden">
                     <div
                       class="h-full bg-goals-primary transition-all duration-500 origin-left animate-[fillProgress_1s_ease-out]"
                       [style.width.%]="getProgress(goal)"
@@ -84,26 +84,26 @@ import { AddFundsSheetComponent } from '../../shared/ui/add-funds-sheet/add-fund
                   </div>
                 </div>
 
-                <div class="flex justify-between items-center w-full gap-2 mt-2 pt-3 border-t border-gray-100 border-dashed">
+                <div class="flex justify-between items-center w-full gap-2 mt-2 pt-3 border-t border-slate-100 border-dashed">
                   @if (paidGoalsThisMonth().has(goal.id)) {
-                    <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-widest flex items-center gap-1 border border-emerald-200 bg-emerald-50 px-2 py-1 rounded">
+                    <span class="text-xs font-bold text-emerald-700 uppercase tracking-widest flex items-center gap-1 border border-emerald-200 bg-emerald-50 px-2 py-1 rounded">
                       <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
                       </svg>
                       Paid this month
                     </span>
                   } @else if (goalService.isGoalDueThisMonth(goal)) {
-                    <span class="text-[10px] font-bold text-red-700 uppercase tracking-widest border border-red-200 bg-red-50 px-2 py-1 rounded">
+                    <span class="text-xs font-bold text-red-700 uppercase tracking-widest border border-red-200 bg-red-50 px-2 py-1 rounded">
                       Due · ₹{{ goal.calculated_installment | number: '1.0-0' }}
                     </span>
                   } @else {
-                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest bg-gray-100 px-2 py-1 rounded border border-gray-200">
+                    <span class="text-xs font-bold text-gray-500 uppercase tracking-widest bg-slate-50 px-2 py-1 rounded border border-slate-100">
                       No Payment Due
                     </span>
                   }
                   <button
                     (click)="addFunds($event, goal)"
-                    class="bg-goals-primary hover:bg-goals-primary/90 text-white px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest shadow-md active:scale-[0.95] transition-all flex items-center gap-2"
+                    class="bg-goals-primary text-white px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest shadow-md active:scale-[0.95] transition-all flex items-center gap-2"
                   >
                     Add Funds
                   </button>
@@ -111,7 +111,7 @@ import { AddFundsSheetComponent } from '../../shared/ui/add-funds-sheet/add-fund
               </button>
             }
           } @else {
-            <div class="mt-4 w-full bg-[#FCFCFD] border border-dashed border-gray-200 rounded-[24px] p-8 flex flex-col items-center justify-center text-center">
+            <div class="mt-4 w-full bg-[#FCFCFD] border border-solid border-slate-100 shadow-sm rounded-[24px] p-8 flex flex-col items-center justify-center text-center">
               <div class="w-12 h-12 bg-goals-primary/10 rounded-[14px] flex items-center justify-center mb-3">
                 <svg class="w-6 h-6 text-goals-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -131,8 +131,8 @@ import { AddFundsSheetComponent } from '../../shared/ui/add-funds-sheet/add-fund
               </h3>
             </div>
             @for (goal of archivedGoals(); track goal.id) {
-              <div class="w-full bg-gray-50 border border-gray-100 rounded-2xl p-4 flex flex-col gap-3 text-left opacity-75">
-                <div class="flex justify-between items-center w-full pb-3 border-b border-gray-200 border-dashed">
+              <div class="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 flex flex-col gap-3 text-left opacity-75">
+                <div class="flex justify-between items-center w-full pb-3 border-b border-slate-100 border-dashed">
                   <span class="font-bold text-goals-primary uppercase tracking-widest text-xs flex items-center gap-1">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -141,14 +141,14 @@ import { AddFundsSheetComponent } from '../../shared/ui/add-funds-sheet/add-fund
                   </span>
                 </div>
                 <div class="flex items-start gap-4">
-                  <div class="w-12 h-12 bg-gray-200 text-gray-500 border border-gray-300 flex items-center justify-center shrink-0 rounded-xl">
+                  <div class="w-12 h-12 bg-slate-200 text-gray-500 border border-gray-300 flex items-center justify-center shrink-0 rounded-xl">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
                       <path [attr.d]="getGoalIconPath(goal.icon)"></path>
                     </svg>
                   </div>
                   <div class="flex flex-col gap-0.5 flex-1 min-w-0 pr-2">
                     <span class="font-extrabold text-lg text-gray-900 truncate">{{ goal.name }}</span>
-                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Achieved</span>
+                    <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">Achieved</span>
                   </div>
                   <div class="flex flex-col items-end shrink-0">
                     <span class="font-extrabold text-lg text-gray-900">₹{{ goal.total_amount | number: '1.0-0' }}</span>

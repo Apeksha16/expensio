@@ -65,46 +65,42 @@ import { SafeInputDirective } from '../safe-input.directive';
       <div
         @fadeIn
         (click)="close()"
-        class="fixed inset-0 bg-black/60 z-[60] backdrop-blur-sm"
+        class="active:scale-[0.98] transition-all duration-200 fixed inset-0 bg-black/60 z-[60] backdrop-blur-sm"
       ></div>
       <!-- Sheet Content -->
       <div
         @slideUp
         appSwipeToClose
         (swipeClose)="close()"
-        class="fixed bottom-0 left-0 right-0 z-[70] max-h-[95vh] overflow-y-auto overscroll-none flex flex-col rounded-t-3xl shadow-2xl"
+        class="fixed bottom-0 left-0 right-0 z-[70] max-h-[95vh] flex flex-col rounded-t-[32px] shadow-2xl bg-white overflow-hidden"
+        style="padding-bottom: env(safe-area-inset-bottom);"
       >
         <!-- Header -->
-        <div class="flex justify-between items-center py-4 px-6 bg-white rounded-t-3xl sticky top-0 z-10">
-          <h2 class="text-xl font-extrabold tracking-tight text-gray-900">
-            {{ splitService.editingSplit()?.id ? 'Edit Split' : '+ Add Split' }}
+        <div class="flex justify-between items-center py-4 px-6 text-white bg-splits-primary rounded-t-[32px] sticky top-0 z-10 shrink-0 shadow-sm">
+          <h2 class="text-lg font-bold tracking-wide">
+            {{ splitService.editingSplit()?.id ? 'Edit Split' : 'Add Split' }}
           </h2>
           @if (splitService.editingSplit()?.id) {
             <button
               type="button"
               (click)="onDelete()"
               [disabled]="isDeleting()"
-              class="w-9 h-9 text-white/80 hover:text-white hover:bg-white/10 hover:bg-red-600 flex items-center justify-center rounded-full text-white disabled:opacity-50 transition-all active:scale-95"
+              class="w-8 h-8 text-white/80 hover:text-white bg-black/10 hover:bg-black/20 transition-all rounded-full flex items-center justify-center disabled:opacity-50 active:scale-95"
             >
               @if (isDeleting()) {
-                <svg
-                  class="animate-spin h-4 w-4 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
+                <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
               } @else {
-                <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
               }
             </button>
           }
         </div>
-        <div class="p-6 bg-white flex-1">
+        <div class="p-6 bg-white flex-1 overflow-y-auto overscroll-none pb-6" style="scrollbar-width: none;">
           @if (splitService.editingSplit()?.id) {
             <div class="flex justify-center mb-5">
               <span
@@ -133,13 +129,13 @@ import { SafeInputDirective } from '../safe-input.directive';
                   type="text"
                   formControlName="title"
                   placeholder="e.g. Dinner, Trip"
-                  class="w-full bg-white border-b-2 border-gray-100 text-gray-900 font-bold text-sm focus:border-splits-primary block py-2 outline-none transition-all placeholder-gray-400 min-h-[44px] touch-manipulation"
+                  class="w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl px-4 py-4 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-400 focus:border-splits-primary focus:ring-4 focus:ring-splits-primary/15"
                 />
               </div>
               <div class="flex flex-col gap-1 mt-4">
                 <label class="text-[13px] font-extrabold text-gray-800">How much?</label>
                 <div class="relative">
-                  <div class="absolute inset-y-0 left-0 flex items-center pointer-events-none">
+                  <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <span class="text-gray-900 font-black text-xl">₹</span>
                   </div>
                   <input
@@ -150,7 +146,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                     formControlName="totalAmount"
                     placeholder="0.00"
                     (keydown)="preventE($event)"
-                    class="w-full bg-white border-b-2 border-gray-100 text-gray-900 font-black text-xl focus:border-splits-primary block py-2 outline-none transition-all placeholder-gray-300 min-h-[44px] touch-manipulation pl-6"
+                    class="w-full bg-white border-2 border-gray-100 text-slate-900 font-bold text-2xl rounded-2xl pl-10 pr-4 py-4 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-300 focus:border-splits-primary focus:ring-4 focus:ring-splits-primary/15"
                   />
                 </div>
               </div>
@@ -160,7 +156,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                   <button
                     type="button"
                     (click)="isDropdownOpen.set(!isDropdownOpen())"
-                    class="w-full bg-gray-50 border border-gray-200 text-gray-900 font-semibold text-sm rounded-xl focus:bg-white focus:border-splits-primary focus:ring-4 focus:ring-splits-primary/15 p-3 outline-none transition-all min-h-[48px] touch-manipulation flex justify-between items-center text-left cursor-pointer shadow-sm"
+                    class="active:scale-[0.98] transition-all duration-200 w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl focus:border-splits-primary focus:ring-4 focus:ring-splits-primary/15 px-4 py-4 outline-none touch-manipulation flex justify-between items-center text-left cursor-pointer shadow-sm"
                   >
                     <span class="truncate font-bold">{{ getPayerName() }}</span>
                     <svg
@@ -180,13 +176,13 @@ import { SafeInputDirective } from '../safe-input.directive';
                   </button>
                   @if (isDropdownOpen()) {
                     <div
-                      class="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto"
+                      class="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 max-h-60 overflow-y-auto"
                     >
                       <button
                         type="button"
                         (click)="selectPayer(currentUser().id)"
-                        class="w-full text-left p-3 hover:bg-gray-50 text-gray-900 text-sm font-semibold transition-colors flex items-center justify-between border-b border-gray-100 last:border-0"
-                        [class.bg-gray-50]="splitForm.get('payerId')?.value === currentUser().id"
+                        class="active:scale-[0.98] transition-all duration-200 w-full text-left px-4 py-4 text-slate-900 text-base font-semibold transition-colors flex items-center justify-between border-b border-gray-100 last:border-0"
+                        [class.bg-slate-50]="splitForm.get('payerId')?.value === currentUser().id"
                       >
                         <span>Me ({{ currentUser().name }})</span>
                         @if (splitForm.get('payerId')?.value === currentUser().id) {
@@ -209,8 +205,8 @@ import { SafeInputDirective } from '../safe-input.directive';
                         <button
                           type="button"
                           (click)="selectPayer(friend.profile.id)"
-                          class="w-full text-left p-3 hover:bg-gray-50 text-gray-900 text-sm font-semibold transition-colors flex items-center justify-between border-b border-gray-100 last:border-0"
-                          [class.bg-gray-50]="splitForm.get('payerId')?.value === friend.profile.id"
+                          class="active:scale-[0.98] transition-all duration-200 w-full text-left px-4 py-4 text-slate-900 text-base font-semibold transition-colors flex items-center justify-between border-b border-gray-100 last:border-0"
+                          [class.bg-slate-50]="splitForm.get('payerId')?.value === friend.profile.id"
                         >
                           <span>{{ friend.profile.name }}</span>
                           @if (splitForm.get('payerId')?.value === friend.profile.id) {
@@ -234,7 +230,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                   }
                 </div>
                 @if (isDropdownOpen()) {
-                  <div (click)="isDropdownOpen.set(false)" class="fixed inset-0 z-40"></div>
+                  <div (click)="isDropdownOpen.set(false)" class="active:scale-[0.98] transition-all duration-200 fixed inset-0 z-40"></div>
                 }
               </div>
               <div class="flex flex-col gap-2 mt-4">
@@ -243,7 +239,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                   @for (friend of friendService.acceptedFriends(); track friend.id) {
                     <label
                       (click)="toggleParticipant(friend.profile.id)"
-                      class="flex items-center justify-between cursor-pointer"
+                      class="active:scale-[0.98] transition-all duration-200 flex items-center justify-between cursor-pointer"
                     >
                       <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden shrink-0">
@@ -284,7 +280,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                       [ngClass]="
                         splitStrategy() === 'EQUAL'
                           ? 'bg-splits-primary text-white border-splits-primary shadow-md shadow-splits-primary/25'
-                          : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                          : 'bg-white text-gray-700 border-gray-200'
                       "
                     >
                       Equally
@@ -296,7 +292,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                       [ngClass]="
                         splitStrategy() === 'CUSTOM'
                           ? 'bg-splits-primary text-white border-splits-primary shadow-md shadow-splits-primary/25'
-                          : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                          : 'bg-white text-gray-700 border-gray-200'
                       "
                     >
                       Custom
@@ -331,7 +327,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                             [formControl]="getCustomControl(p)"
                             placeholder="0"
                             (keydown)="preventE($event)"
-                            class="w-full bg-white text-gray-900 text-xs font-bold rounded-lg border border-gray-200 block p-2 outline-none transition-all placeholder-gray-400 pl-7 text-right shadow-sm focus:border-splits-primary"
+                            class="w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-sm rounded-xl pl-8 pr-3 py-3 text-right outline-none transition-all touch-manipulation shadow-sm placeholder-slate-400 focus:border-splits-primary focus:ring-4 focus:ring-splits-primary/15"
                           />
                         </div>
                       }
@@ -359,14 +355,14 @@ import { SafeInputDirective } from '../safe-input.directive';
                 <button
                   type="button"
                   (click)="close()"
-                  class="flex-1 font-bold rounded-[20px] transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-[14px] bg-gray-100 text-gray-700 hover:bg-gray-200 text-center"
+                  class="flex-1 font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-slate-100 text-slate-700 text-center"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   [disabled]="!splitForm.valid || isSaving() || isDeleting()"
-                  class="flex-[2] font-bold rounded-[20px] transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-[14px] bg-splits-primary hover:bg-splits-dark text-white shadow-lg shadow-splits-primary/30 disabled:opacity-50 disabled:active:scale-100"
+                  class="flex-[2] font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-splits-primary text-white shadow-md shadow-splits-primary/30 disabled:opacity-50 disabled:active:scale-100"
                 >
                   @if (isSaving()) {
                     <svg
@@ -421,7 +417,7 @@ import { SafeInputDirective } from '../safe-input.directive';
               <button
                 type="button"
                 (click)="close()"
-                class="mt-4 font-bold rounded-xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-6 py-3.5 text-sm min-h-[48px] bg-splits-primary hover:bg-splits-dark text-white shadow-lg shadow-splits-primary/30"
+                class="mt-4 font-bold rounded-xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-6 py-3.5 text-sm min-h-[48px] bg-splits-primary text-white shadow-lg shadow-splits-primary/30"
               >
                 Okay
               </button>

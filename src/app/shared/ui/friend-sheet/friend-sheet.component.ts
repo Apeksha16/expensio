@@ -64,7 +64,7 @@ import { SafeInputDirective } from '../safe-input.directive';
       <div
         @fadeIn
         (click)="close()"
-        class="fixed inset-0 bg-black/60 z-[60] backdrop-blur-sm"
+        class="active:scale-[0.98] transition-all duration-200 fixed inset-0 bg-black/60 z-[60] backdrop-blur-sm"
       ></div>
     }
 
@@ -76,7 +76,7 @@ import { SafeInputDirective } from '../safe-input.directive';
         appSwipeToClose
         (swipeClose)="close()"
         class="fixed bottom-0 left-0 right-0 z-[70] 
-             max-h-[95vh] flex flex-col rounded-t-3xl shadow-2xl"
+             max-h-[95vh] flex flex-col rounded-t-[32px] shadow-2xl bg-white overflow-hidden" style="padding-bottom: env(safe-area-inset-bottom);"
       >
         <!-- Header -->
         <div
@@ -86,7 +86,7 @@ import { SafeInputDirective } from '../safe-input.directive';
             {{ isAddMode ? 'Add Friend' : 'Remove Friend' }}
           </h2>
         </div>
-        <div class="p-6 flex flex-col gap-6 overflow-y-auto overscroll-none bg-white flex-1">
+        <div class="p-6 flex flex-col gap-6 overflow-y-auto overscroll-none bg-white flex-1 overflow-y-auto overscroll-none pb-6" style="scrollbar-width: none;">
           <!-- ADD MODE -->
           @if (isAddMode) {
             <form (submit)="$event.preventDefault(); sendRequest()" class="space-y-4">
@@ -95,7 +95,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                   >Search User</label
                 >
                 <div class="relative group">
-                  <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                  <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <svg
                       class="w-5 h-5 text-gray-400"
                       fill="none"
@@ -117,7 +117,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                     name="query"
                     [(ngModel)]="searchQuery"
                     (ngModelChange)="onSearchChange($event)"
-                    class="w-full bg-white border-2 border-gray-100 text-gray-900 font-bold text-sm rounded-xl focus:bg-white focus:border-friends-primary focus:ring-4 focus:ring-friends-primary/15 block p-3 outline-none transition-all placeholder-gray-400 min-h-[48px] touch-manipulation pl-10 shadow-sm"
+                    class="w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl pl-11 pr-4 py-4 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-400 focus:border-friends-primary focus:ring-4 focus:ring-friends-primary/15"
                     placeholder="Username or email..."
                   />
                 </div>
@@ -157,11 +157,11 @@ import { SafeInputDirective } from '../safe-input.directive';
                   <button
                     type="button"
                     (click)="selectUser(user)"
-                    class="flex items-center gap-4 p-3 border rounded-xl transition-all text-left shrink-0 active:scale-95 shadow-sm mb-2"
+                    class="flex items-center gap-4 p-4 border-2 rounded-2xl transition-all text-left shrink-0 active:scale-95 shadow-sm mb-2"
                     [ngClass]="
                       selectedUser?.username === user.username
                         ? 'border-friends-primary bg-friends-primary text-white shadow-md shadow-friends-primary/25'
-                        : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                        : 'bg-white border-gray-100'
                     "
                   >
                     <div
@@ -188,14 +188,14 @@ import { SafeInputDirective } from '../safe-input.directive';
                 <button
                   type="button"
                   (click)="close()"
-                  class="flex-1 font-bold rounded-xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-3.5 text-sm min-h-[48px] bg-gray-100 text-gray-700 hover:bg-gray-200 text-center"
+                  class="flex-1 font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-slate-100 text-slate-700 text-center"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   [disabled]="!selectedUser || isSending"
-                  class="flex-1 font-bold rounded-xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-3.5 text-sm min-h-[48px] bg-friends-primary hover:bg-friends-dark text-white shadow-lg shadow-friends-primary/30 disabled:opacity-50 disabled:active:scale-100"
+                  class="flex-1 font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-friends-primary text-white shadow-md shadow-friends-primary/30 disabled:opacity-50 disabled:active:scale-100"
                 >
                   @if (isSending) {
                     <svg
@@ -248,14 +248,14 @@ import { SafeInputDirective } from '../safe-input.directive';
               <button
                 type="button"
                 (click)="close()"
-                class="flex-1 font-bold rounded-xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-3.5 text-sm min-h-[48px] bg-gray-100 text-gray-700 hover:bg-gray-200 text-center"
+                class="flex-1 font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-slate-100 text-slate-700 text-center"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 (click)="confirmRemove()"
-                class="flex-1 font-bold rounded-xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-3.5 text-sm min-h-[48px] bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-600/30"
+                class="flex-1 font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-red-600 text-white shadow-md shadow-red-600/30"
               >
                 Remove
               </button>

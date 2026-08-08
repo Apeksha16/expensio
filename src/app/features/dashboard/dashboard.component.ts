@@ -57,7 +57,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
         } @else if (pullDistance() > 0) {
-          <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex flex-col items-center gap-1">
+          <div class="text-xs font-bold text-slate-500 uppercase tracking-widest flex flex-col items-center gap-1">
             <svg
               class="w-5 h-5 transition-transform"
               [class.rotate-180]="pullDistance() > 60"
@@ -79,18 +79,18 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
             <div class="flex flex-col items-center justify-center relative mt-2">
               <div class="w-full max-w-[220px] aspect-[100/55] bg-slate-50 rounded-t-full animate-pulse"></div>
               <div class="absolute bottom-0 flex flex-col items-center translate-y-1">
-                <div class="h-2.5 bg-slate-100 w-16 mb-2 animate-pulse rounded-full"></div>
-                <div class="h-8 bg-slate-100 w-32 animate-pulse rounded-lg"></div>
+                <div class="h-2.5 bg-slate-200 w-16 mb-2 animate-pulse rounded-full"></div>
+                <div class="h-8 bg-slate-200 w-32 animate-pulse rounded-lg"></div>
               </div>
             </div>
             <div class="flex justify-between items-end mt-6 pt-4 border-t border-slate-100">
               <div class="flex flex-col gap-1.5">
-                <div class="h-2.5 bg-slate-100 w-10 animate-pulse rounded-full"></div>
-                <div class="h-4 bg-slate-100 w-16 animate-pulse rounded-full"></div>
+                <div class="h-2.5 bg-slate-200 w-10 animate-pulse rounded-full"></div>
+                <div class="h-4 bg-slate-200 w-16 animate-pulse rounded-full"></div>
               </div>
               <div class="flex flex-col items-end gap-1.5">
-                <div class="h-2.5 bg-slate-100 w-10 animate-pulse rounded-full"></div>
-                <div class="h-4 bg-slate-100 w-16 animate-pulse rounded-full"></div>
+                <div class="h-2.5 bg-slate-200 w-10 animate-pulse rounded-full"></div>
+                <div class="h-4 bg-slate-200 w-16 animate-pulse rounded-full"></div>
               </div>
             </div>
           </div>
@@ -106,7 +106,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
                   [class.text-white]="activeGaugeIndex() === 0"
                   [class.text-slate-700]="activeGaugeIndex() !== 0"
                   [class.bg-transparent]="activeGaugeIndex() !== 0"
-                  class="px-3 py-1.5 text-xs font-bold rounded-full transition-all duration-200 cursor-pointer"
+                  class="active:scale-[0.98] transition-all duration-200 px-3 py-1.5 text-xs font-bold rounded-full transition-all duration-200 cursor-pointer"
                 >
                   Salary
                 </button>
@@ -116,7 +116,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
                   [class.text-white]="activeGaugeIndex() === 1"
                   [class.text-slate-700]="activeGaugeIndex() !== 1"
                   [class.bg-transparent]="activeGaugeIndex() !== 1"
-                  class="px-3 py-1.5 text-xs font-bold rounded-full transition-all duration-200 cursor-pointer"
+                  class="active:scale-[0.98] transition-all duration-200 px-3 py-1.5 text-xs font-bold rounded-full transition-all duration-200 cursor-pointer"
                 >
                   Cash
                 </button>
@@ -126,7 +126,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
                   [class.text-white]="activeGaugeIndex() === 2"
                   [class.text-slate-700]="activeGaugeIndex() !== 2"
                   [class.bg-transparent]="activeGaugeIndex() !== 2"
-                  class="px-3 py-1.5 text-xs font-bold rounded-full transition-all duration-200 cursor-pointer"
+                  class="active:scale-[0.98] transition-all duration-200 px-3 py-1.5 text-xs font-bold rounded-full transition-all duration-200 cursor-pointer"
                 >
                   Savings
                 </button>
@@ -143,14 +143,14 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
               <!-- CARD 1: SALARY ACCOUNT GAUGE -->
               <div
                 (click)="scrollToCard(0)"
-                class="snap-center shrink-0 w-[85vw] max-w-[340px] bg-goals-primary/5 text-slate-800 p-6 rounded-[24px] transition-all duration-300 transform relative cursor-pointer shadow-sm border border-goals-primary/20"
+                class="active:scale-[0.98] transition-all duration-200 snap-center shrink-0 w-[85vw] max-w-[340px] bg-goals-primary/5 text-slate-800 p-6 rounded-[24px] transition-all duration-300 transform relative cursor-pointer shadow-sm border border-goals-primary/20"
                 [class.scale-100]="activeGaugeIndex() === 0"
                 [class.scale-95]="activeGaugeIndex() !== 0"
                 [class.opacity-50]="activeGaugeIndex() !== 0"
               >
                 <div class="flex items-center justify-between mb-4">
                   <span class="font-bold text-base text-slate-800">Salary Account</span>
-                  <span class="text-[10px] font-bold uppercase px-3 py-1 bg-blue-50 text-blue-600 rounded-full">Primary</span>
+                  <span class="text-xs font-bold uppercase px-3 py-1 bg-blue-50 text-blue-600 rounded-full">Primary</span>
                 </div>
 
                 <div class="flex flex-col items-center justify-center relative mt-3">
@@ -167,8 +167,8 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
                       class="transition-all duration-1000 ease-out"
                     />
                   </svg>
-                  <div class="absolute inset-0 flex flex-col items-center justify-end pb-2" (click)="toggleMask(); $event.stopPropagation()">
-                    <span class="text-[10px] font-bold tracking-widest uppercase mb-1" [class.text-red-500]="isOverBudget()" [class.text-goals-primary]="!isOverBudget()">
+                  <div class="active:scale-[0.98] transition-all duration-200 absolute inset-0 flex flex-col items-center justify-end pb-2" (click)="toggleMask(); $event.stopPropagation()">
+                    <span class="text-xs font-bold tracking-widest uppercase mb-1" [class.text-red-500]="isOverBudget()" [class.text-goals-primary]="!isOverBudget()">
                       {{ isOverBudget() ? 'OVER BUDGET' : 'REMAINING' }}
                     </span>
                     <div class="w-[65%] flex justify-center overflow-hidden">
@@ -180,15 +180,15 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
                   </div>
                 </div>
 
-                <div class="flex justify-between items-end mt-8" (click)="toggleMask(); $event.stopPropagation()">
+                <div class="active:scale-[0.98] transition-all duration-200 flex justify-between items-end mt-8" (click)="toggleMask(); $event.stopPropagation()">
                   <div class="flex flex-col gap-1">
-                    <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Spent This Month</p>
+                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Spent This Month</p>
                     <div class="flex items-center gap-1.5">
                       <span class="text-sm font-bold text-slate-800">{{ isMasked() ? '••••' : (thisMonthTotal() | currency:'INR':'symbol':'1.0-0') }}</span>
                     </div>
                   </div>
                   <div class="flex flex-col items-end gap-1">
-                    <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Salary Limit</p>
+                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Salary Limit</p>
                     <div class="flex items-center gap-1.5">
                       <span class="text-sm font-bold text-slate-800">{{ isMasked() ? '••••' : (salary() | currency:'INR':'symbol':'1.0-0') }}</span>
                     </div>
@@ -199,14 +199,14 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
               <!-- CARD 2: CASH ACCOUNT GAUGE -->
               <div
                 (click)="scrollToCard(1)"
-                class="snap-center shrink-0 w-[85vw] max-w-[340px] bg-budget-primary/5 text-slate-800 p-6 rounded-[24px] transition-all duration-300 transform relative cursor-pointer shadow-sm border border-budget-primary/20"
+                class="active:scale-[0.98] transition-all duration-200 snap-center shrink-0 w-[85vw] max-w-[340px] bg-budget-primary/5 text-slate-800 p-6 rounded-[24px] transition-all duration-300 transform relative cursor-pointer shadow-sm border border-budget-primary/20"
                 [class.scale-100]="activeGaugeIndex() === 1"
                 [class.scale-95]="activeGaugeIndex() !== 1"
                 [class.opacity-50]="activeGaugeIndex() !== 1"
               >
                 <div class="flex items-center justify-between mb-4">
                   <span class="font-bold text-base text-slate-800">Cash Account</span>
-                  <span class="text-[10px] font-bold uppercase px-3 py-1 bg-amber-50 text-amber-600 rounded-full">Wallet</span>
+                  <span class="text-xs font-bold uppercase px-3 py-1 bg-amber-50 text-amber-600 rounded-full">Wallet</span>
                 </div>
 
                 <div class="flex flex-col items-center justify-center relative mt-3">
@@ -223,8 +223,8 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
                       class="transition-all duration-1000 ease-out"
                     />
                   </svg>
-                  <div class="absolute inset-0 flex flex-col items-center justify-end pb-2" (click)="toggleMask(); $event.stopPropagation()">
-                    <span class="text-[10px] font-bold tracking-widest text-amber-600 uppercase mb-1">Balance</span>
+                  <div class="active:scale-[0.98] transition-all duration-200 absolute inset-0 flex flex-col items-center justify-end pb-2" (click)="toggleMask(); $event.stopPropagation()">
+                    <span class="text-xs font-bold tracking-widest text-amber-600 uppercase mb-1">Balance</span>
                     <div class="w-[65%] flex justify-center overflow-hidden">
                       <p class="font-bold tracking-tight text-slate-900 leading-none text-center truncate"
                          [style.font-size]="getFontSizeForAmount(isMasked() ? '••••' : (cashBalance() | currency:'INR':'symbol':'1.0-0'))">
@@ -234,15 +234,15 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
                   </div>
                 </div>
 
-                <div class="flex justify-between items-end mt-8" (click)="toggleMask(); $event.stopPropagation()">
+                <div class="active:scale-[0.98] transition-all duration-200 flex justify-between items-end mt-8" (click)="toggleMask(); $event.stopPropagation()">
                   <div class="flex flex-col gap-1">
-                    <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Cash Spent</p>
+                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Cash Spent</p>
                     <div class="flex items-center gap-1.5">
                       <span class="text-sm font-bold text-slate-800">{{ isMasked() ? '••••' : (cashSpent() | currency:'INR':'symbol':'1.0-0') }}</span>
                     </div>
                   </div>
                   <div class="flex flex-col items-end gap-1">
-                    <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Cash Balance</p>
+                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Cash Balance</p>
                     <div class="flex items-center gap-1.5">
                       <span class="text-sm font-bold text-slate-800">{{ isMasked() ? '••••' : (cashBalance() | currency:'INR':'symbol':'1.0-0') }}</span>
                     </div>
@@ -253,14 +253,14 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
               <!-- CARD 3: SAVINGS ACCOUNT GAUGE -->
               <div
                 (click)="scrollToCard(2)"
-                class="snap-center shrink-0 w-[85vw] max-w-[340px] bg-profile-primary/5 text-slate-800 p-6 rounded-[24px] transition-all duration-300 transform relative cursor-pointer shadow-sm border border-profile-primary/20"
+                class="active:scale-[0.98] transition-all duration-200 snap-center shrink-0 w-[85vw] max-w-[340px] bg-profile-primary/5 text-slate-800 p-6 rounded-[24px] transition-all duration-300 transform relative cursor-pointer shadow-sm border border-profile-primary/20"
                 [class.scale-100]="activeGaugeIndex() === 2"
                 [class.scale-95]="activeGaugeIndex() !== 2"
                 [class.opacity-50]="activeGaugeIndex() !== 2"
               >
                 <div class="flex items-center justify-between mb-4">
                   <span class="font-bold text-base text-slate-800">Savings Account</span>
-                  <span class="text-[10px] font-bold uppercase px-3 py-1 bg-profile-primary/10 text-profile-primary rounded-full">Savings</span>
+                  <span class="text-xs font-bold uppercase px-3 py-1 bg-profile-primary/10 text-profile-primary rounded-full">Savings</span>
                 </div>
 
                 <div class="flex flex-col items-center justify-center relative mt-3">
@@ -276,8 +276,8 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
                       class="transition-all duration-1000 ease-out"
                     />
                   </svg>
-                  <div class="absolute inset-0 flex flex-col items-center justify-end pb-2" (click)="toggleMask(); $event.stopPropagation()">
-                    <span class="text-[10px] font-bold tracking-widest text-profile-primary uppercase mb-1">Total Savings</span>
+                  <div class="active:scale-[0.98] transition-all duration-200 absolute inset-0 flex flex-col items-center justify-end pb-2" (click)="toggleMask(); $event.stopPropagation()">
+                    <span class="text-xs font-bold tracking-widest text-profile-primary uppercase mb-1">Total Savings</span>
                     <div class="w-[65%] flex justify-center overflow-hidden">
                       <p class="font-extrabold tracking-tight text-[#111111] leading-none text-center truncate"
                          [style.font-size]="getFontSizeForAmount(isMasked() ? '••••' : (savingsBalance() | currency:'INR':'symbol':'1.0-0'))">
@@ -287,9 +287,9 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
                   </div>
                 </div>
 
-                <div class="flex justify-between items-end mt-8" (click)="toggleMask(); $event.stopPropagation()">
+                <div class="active:scale-[0.98] transition-all duration-200 flex justify-between items-end mt-8" (click)="toggleMask(); $event.stopPropagation()">
                   <div class="flex flex-col gap-1">
-                    <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Growth Status</p>
+                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Growth Status</p>
                     <div class="flex items-center gap-1.5">
                       <span class="text-sm font-bold text-emerald-500">Active</span>
                       <svg class="w-3 h-3 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -298,7 +298,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
                     </div>
                   </div>
                   <div class="flex flex-col items-end gap-1">
-                    <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Accumulated</p>
+                    <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Accumulated</p>
                     <div class="flex items-center gap-1.5">
                       <span class="text-sm font-bold text-slate-800">{{ isMasked() ? '••••' : (savingsBalance() | currency:'INR':'symbol':'1.0-0') }}</span>
                     </div>
@@ -312,14 +312,19 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
               @for (idx of [0, 1, 2]; track idx) {
                 <button
                   (click)="scrollToCard(idx)"
-                  [class.w-5]="activeGaugeIndex() === idx"
-                  [class.bg-goals-primary]="activeGaugeIndex() === 0 && idx === 0"
-                  [class.bg-budget-primary]="activeGaugeIndex() === 1 && idx === 1"
-                  [class.bg-profile-primary]="activeGaugeIndex() === 2 && idx === 2"
-                  [class.w-2]="activeGaugeIndex() !== idx"
-                  [class.bg-[#D1D5DB]]="activeGaugeIndex() !== idx"
-                  class="h-2 rounded-full transition-all duration-300"
-                ></button>
+                  class="active:scale-[0.98] p-2 -m-2 cursor-pointer transition-transform duration-200"
+                  aria-label="Scroll to card"
+                >
+                  <div
+                    [class.w-5]="activeGaugeIndex() === idx"
+                    [class.bg-goals-primary]="activeGaugeIndex() === 0 && idx === 0"
+                    [class.bg-budget-primary]="activeGaugeIndex() === 1 && idx === 1"
+                    [class.bg-profile-primary]="activeGaugeIndex() === 2 && idx === 2"
+                    [class.w-2]="activeGaugeIndex() !== idx"
+                    [class.bg-[#D1D5DB]]="activeGaugeIndex() !== idx"
+                    class="h-2 rounded-full transition-all duration-300"
+                  ></div>
+                </button>
               }
             </div>
           </div>
@@ -327,8 +332,8 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
           <!-- Upcoming Payments Section -->
           <div class="flex flex-col gap-3 mt-4">
             <div class="flex justify-between items-end px-1">
-              <h3 class="text-[11px] font-bold uppercase tracking-widest text-slate-700">Upcoming Payments</h3>
-              <button class="text-[11px] font-semibold text-slate-800 hover:underline cursor-pointer flex items-center">
+              <h3 class="text-xs font-bold uppercase tracking-widest text-slate-700">Upcoming Payments</h3>
+              <button routerLink="/subscriptions" class="text-xs font-semibold text-slate-800 cursor-pointer flex items-center">
                 View All
                 <svg class="w-3 h-3 ml-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -340,7 +345,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
               <div class="flex gap-3 overflow-x-auto pb-2 pt-1 px-1 snap-x snap-mandatory no-scrollbar">
                 @for (payment of combinedUpcomingPayments(); track payment.id; let i = $index) {
                   <div
-                    class="snap-start shrink-0 w-[240px] bg-slate-50/50 border border-slate-100 rounded-[20px] p-3 flex items-center gap-3 transition-transform active:scale-95 cursor-pointer shadow-sm hover:shadow-md"
+                    class="snap-start shrink-0 w-[240px] bg-slate-50/50 border border-slate-100 rounded-[20px] p-3 flex items-center gap-3 transition-transform active:scale-95 cursor-pointer shadow-sm"
                     (click)="payUpcoming(payment)"
                   >
                     <!-- Icon -->
@@ -363,10 +368,10 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
                         <span class="font-bold text-sm text-slate-800 shrink-0">₹{{ payment.amount | number: '1.0-0' }}</span>
                       </div>
                       <div class="flex items-center gap-1.5 mt-1">
-                        <span class="text-[9px] font-bold uppercase px-1.5 py-0.5 bg-slate-100 text-slate-600 rounded-md">
+                        <span class="text-[9px] font-bold uppercase px-1.5 py-0.5 bg-slate-200 text-slate-600 rounded-md">
                           {{ payment.type === 'sub' ? 'Sub' : 'Goal' }}
                         </span>
-                        <span class="text-[10px] font-semibold text-slate-400">
+                        <span class="text-xs font-semibold text-slate-500">
                           Due {{ payment.dueDay }}{{ getOrdinalSuffix(payment.dueDay) }}
                         </span>
                       </div>
@@ -375,9 +380,9 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
                 }
               </div>
             } @else {
-              <div class="w-full bg-[#FCFCFD] border border-dashed border-gray-200 rounded-[24px] p-8 flex flex-col items-center justify-center text-center">
-                <div class="w-12 h-12 bg-slate-100 rounded-[14px] flex items-center justify-center mb-3">
-                  <svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="w-full bg-[#FCFCFD] border border-solid border-slate-100 shadow-sm rounded-[24px] p-8 flex flex-col items-center justify-center text-center">
+                <div class="w-12 h-12 bg-slate-200 rounded-[14px] flex items-center justify-center mb-3">
+                  <svg class="w-6 h-6 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                   </svg>
                 </div>
@@ -390,8 +395,8 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
           <!-- Split Summary Section -->
           <div class="flex flex-col gap-3 mt-4">
             <div class="flex justify-between items-end px-1">
-              <h3 class="text-[11px] font-bold uppercase tracking-widest text-slate-700">Split Summary</h3>
-              <button class="text-[11px] font-semibold text-splits-primary hover:underline cursor-pointer flex items-center">
+              <h3 class="text-xs font-bold uppercase tracking-widest text-slate-700">Split Summary</h3>
+              <button routerLink="/splits" class="text-xs font-semibold text-splits-primary cursor-pointer flex items-center">
                 View Details
                 <svg class="w-3 h-3 ml-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -404,13 +409,13 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
               <div class="flex justify-between items-center relative">
                 <!-- Left Column -->
                 <div class="flex flex-col flex-1 pr-4 relative">
-                  <span class="text-[10px] font-bold uppercase tracking-widest text-emerald-500 mb-2">You Are Owed</span>
+                  <span class="text-xs font-bold uppercase tracking-widest text-emerald-500 mb-2">You Are Owed</span>
                   <div class="flex items-center justify-between">
                     <div>
                       <span class="text-[28px] leading-none font-bold text-slate-900 block mb-1">
                         {{ totalOwedToYou() | currency: 'INR' : 'symbol' : '1.0-0' }}
                       </span>
-                      <span class="text-[10px] font-semibold text-slate-400">
+                      <span class="text-xs font-semibold text-slate-500">
                         From {{ friendsWhoOweYou().length }} people
                       </span>
                     </div>
@@ -421,18 +426,18 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
                     </div>
                   </div>
                   <!-- Vertical Divider Line -->
-                  <div class="absolute right-0 top-0 bottom-0 w-px bg-gray-100"></div>
+                  <div class="absolute right-0 top-0 bottom-0 w-px bg-slate-50"></div>
                 </div>
 
                 <!-- Right Column -->
                 <div class="flex flex-col flex-1 pl-4">
-                  <span class="text-[10px] font-bold uppercase tracking-widest text-red-500 mb-2">You Owe</span>
+                  <span class="text-xs font-bold uppercase tracking-widest text-red-500 mb-2">You Owe</span>
                   <div class="flex items-center justify-between">
                     <div>
                       <span class="text-[28px] leading-none font-bold text-slate-900 block mb-1">
                         {{ totalYouOwe() | currency: 'INR' : 'symbol' : '1.0-0' }}
                       </span>
-                      <span class="text-[10px] font-semibold text-slate-400">
+                      <span class="text-xs font-semibold text-slate-500">
                         To {{ friendsYouOwe().length }} people
                       </span>
                     </div>
@@ -447,8 +452,8 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
 
               <!-- Top Balances List or Settle Button -->
               @if (topSplitFriends().length === 0) {
-                <div class="pt-4 border-t border-gray-100 flex justify-center">
-                  <button class="text-xs font-bold text-splits-primary uppercase tracking-widest flex items-center gap-1 hover:underline">
+                <div class="pt-4 border-t border-slate-100 flex justify-center">
+                  <button class="text-xs font-bold text-splits-primary uppercase tracking-widest flex items-center gap-1">
                     ALL SETTLED UP
                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -456,17 +461,17 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
                   </button>
                 </div>
               } @else {
-                <div class="flex flex-col gap-2 pt-4 border-t border-gray-100">
+                <div class="flex flex-col gap-2 pt-4 border-t border-slate-100">
                   @for (fb of topSplitFriends(); track fb.friend.id) {
-                    <div class="bg-[#FAFAFA] p-3 rounded-xl flex items-center justify-between border border-gray-100">
+                    <div class="bg-[#FAFAFA] p-3 rounded-xl flex items-center justify-between border border-slate-100">
                       <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full border border-gray-200 bg-white flex items-center justify-center overflow-hidden shrink-0">
+                        <div class="w-8 h-8 rounded-full border border-slate-100 bg-white flex items-center justify-center overflow-hidden shrink-0">
                           <img [src]="getAvatarUrl(fb.friend.profile.avatarId)" class="w-full h-full object-cover" />
                         </div>
                         <span class="font-semibold text-sm text-slate-800 truncate max-w-[120px]">{{ fb.friend.profile.name }}</span>
                       </div>
                       <div class="flex items-center gap-2">
-                        <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">
                           {{ fb.balance > 0 ? 'owes you' : 'you owe' }}
                         </span>
                         <span class="font-bold text-sm" [ngClass]="fb.balance > 0 ? 'text-emerald-500' : 'text-red-500'">
@@ -483,8 +488,8 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
           <!-- Recent Transactions Section -->
           <div class="flex flex-col gap-3 mt-4">
             <div class="flex justify-between items-end px-1">
-              <h3 class="text-[11px] font-bold uppercase tracking-widest text-slate-700">Recent Transactions</h3>
-              <button routerLink="/expenses" class="text-[11px] font-semibold text-ledger-primary hover:underline cursor-pointer flex items-center">
+              <h3 class="text-xs font-bold uppercase tracking-widest text-slate-700">Recent Transactions</h3>
+              <button routerLink="/expenses" class="text-xs font-semibold text-ledger-primary cursor-pointer flex items-center">
                 View All
                 <svg class="w-3 h-3 ml-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -496,7 +501,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
               @for (expense of recentExpenses(); track expense.id) {
                 <button
                   (click)="editExpense(expense)"
-                  class="w-full bg-ledger-primary/5 border border-ledger-primary/20 rounded-[20px] p-4 flex items-center gap-3 text-left transition-all active:scale-[0.99] cursor-pointer shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:shadow-md"
+                  class="w-full bg-ledger-primary/5 border border-ledger-primary/20 rounded-[20px] p-4 flex items-center gap-3 text-left transition-all active:scale-[0.99] cursor-pointer shadow-[0_2px_10px_rgba(0,0,0,0.02)]"
                 >
                   <!-- Left side: Icon -->
                   <div class="flex items-center gap-3 shrink-0">
@@ -528,14 +533,14 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
                   <div class="flex flex-col gap-2 min-w-0 flex-1 ml-1">
                     <span class="font-bold text-[17px] text-slate-900 truncate leading-none mt-1">{{ expense.title }}</span>
                     <div class="flex flex-col gap-1.5">
-                      <div class="flex items-center gap-1.5 text-slate-400">
+                      <div class="flex items-center gap-1.5 text-slate-500">
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                           <line x1="16" y1="2" x2="16" y2="6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                           <line x1="8" y1="2" x2="8" y2="6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                           <line x1="3" y1="10" x2="21" y2="10" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
-                        <span class="text-[11px] font-medium">{{ expense.date | date: 'MMM d, yyyy • hh:mm a' }}</span>
+                        <span class="text-xs font-medium">{{ expense.date | date: 'MMM d, yyyy • hh:mm a' }}</span>
                       </div>
                     </div>
                   </div>
@@ -552,7 +557,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
                 </button>
               }
               @if (recentExpenses().length === 0) {
-                <div class="w-full bg-[#FCFCFD] border border-dashed border-gray-200 rounded-[24px] p-8 flex flex-col items-center justify-center text-center">
+                <div class="w-full bg-[#FCFCFD] border border-solid border-slate-100 shadow-sm rounded-[24px] p-8 flex flex-col items-center justify-center text-center">
                   <div class="w-12 h-12 bg-ledger-primary/10 rounded-[14px] flex items-center justify-center mb-3">
                     <svg class="w-6 h-6 text-ledger-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>

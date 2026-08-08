@@ -30,8 +30,8 @@ import { ToastService } from '../../core/services/toast.service';
         @if (isInitialLoading()) {
           <!-- Top Summary Box Shimmer -->
           <div class="flex gap-4 w-full">
-            <div class="flex-1 bg-gray-50 border border-gray-100 rounded-3xl h-[160px] animate-pulse"></div>
-            <div class="flex-1 bg-gray-50 border border-gray-100 rounded-3xl h-[160px] animate-pulse"></div>
+            <div class="flex-1 bg-slate-50 border border-slate-100 rounded-3xl h-[160px] animate-pulse"></div>
+            <div class="flex-1 bg-slate-50 border border-slate-100 rounded-3xl h-[160px] animate-pulse"></div>
           </div>
         } @else {
           <!-- Summary Cards -->
@@ -43,11 +43,11 @@ import { ToastService } from '../../core/services/toast.service';
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                 </svg>
               </div>
-              <span class="text-[11px] font-bold text-gray-500 mb-1">You'll Get</span>
+              <span class="text-xs font-bold text-gray-500 mb-1">You'll Get</span>
               <span class="text-2xl font-extrabold text-gray-900 tracking-tight">
                 ₹{{ splitService.totalOwedToYou() | number: '1.0-0' }}
               </span>
-              <span class="text-[10px] font-bold text-gray-400 mt-1">from {{ splitService.peopleOwedToYou() }} people</span>
+              <span class="text-xs font-bold text-gray-500 mt-1">from {{ splitService.peopleOwedToYou() }} people</span>
             </div>
 
             <!-- You Owe -->
@@ -57,24 +57,23 @@ import { ToastService } from '../../core/services/toast.service';
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18" />
                 </svg>
               </div>
-              <span class="text-[11px] font-bold text-gray-500 mb-1">You Owe</span>
+              <span class="text-xs font-bold text-gray-500 mb-1">You Owe</span>
               <span class="text-2xl font-extrabold text-gray-900 tracking-tight">
                 ₹{{ splitService.totalYouOwe() | number: '1.0-0' }}
               </span>
-              <span class="text-[10px] font-bold text-gray-400 mt-1">to {{ splitService.peopleYouOwe() }} people</span>
+              <span class="text-xs font-bold text-gray-500 mt-1">to {{ splitService.peopleYouOwe() }} people</span>
             </div>
           </div>
 
           <!-- Tabs -->
-          <div class="w-full bg-gray-100 p-1.5 rounded-[16px] flex shrink-0 mt-2">
+          <div class="w-full bg-slate-50 p-1.5 rounded-[16px] flex shrink-0 mt-2">
             <button
               (click)="splitService.activeTab.set('expenses')"
               [class.bg-white]="splitService.activeTab() === 'expenses'"
               [class.text-splits-primary]="splitService.activeTab() === 'expenses'"
               [class.shadow-sm]="splitService.activeTab() === 'expenses'"
               [class.text-gray-500]="splitService.activeTab() !== 'expenses'"
-              [class.hover:text-gray-700]="splitService.activeTab() !== 'expenses'"
-              class="flex-1 py-3 font-extrabold text-[13px] transition-all rounded-xl"
+              class="active:scale-[0.98] transition-all duration-200 flex-1 py-3 font-extrabold text-[13px] transition-all rounded-xl"
             >
               Expenses
             </button>
@@ -84,8 +83,7 @@ import { ToastService } from '../../core/services/toast.service';
               [class.text-splits-primary]="splitService.activeTab() === 'groups'"
               [class.shadow-sm]="splitService.activeTab() === 'groups'"
               [class.text-gray-500]="splitService.activeTab() !== 'groups'"
-              [class.hover:text-gray-700]="splitService.activeTab() !== 'groups'"
-              class="flex-1 py-3 font-extrabold text-[13px] transition-all rounded-xl"
+              class="active:scale-[0.98] transition-all duration-200 flex-1 py-3 font-extrabold text-[13px] transition-all rounded-xl"
             >
               Groups
             </button>
@@ -98,19 +96,19 @@ import { ToastService } from '../../core/services/toast.service';
         @if (isInitialLoading()) {
           <div class="flex flex-col gap-3">
             @for (i of [1, 2, 3]; track i) {
-              <div class="w-full bg-gray-50 border border-gray-100 rounded-2xl h-[76px] animate-pulse"></div>
+              <div class="w-full bg-slate-50 border border-slate-100 rounded-2xl h-[76px] animate-pulse"></div>
             }
           </div>
         } @else {
           @if (splitService.activeTab() === 'expenses') {
             @if (individualSplits().length > 0) {
               <div class="flex justify-between items-center mb-3">
-                <h3 class="font-extrabold text-gray-900 uppercase tracking-wider text-[11px]">
+                <h3 class="font-extrabold text-gray-900 uppercase tracking-wider text-xs">
                   All Expenses
                 </h3>
                 <button
                   (click)="settleUp()"
-                  class="px-3 py-1.5 border border-gray-200 bg-white text-gray-700 font-bold text-[10px] uppercase tracking-widest hover:bg-gray-50 hover:border-gray-300 transition-colors rounded-xl shadow-sm active:scale-95"
+                  class="px-3 py-1.5 border border-slate-100 bg-white text-gray-700 font-bold text-xs uppercase tracking-widest transition-colors rounded-xl shadow-sm active:scale-95"
                 >
                   Settle Up
                 </button>
@@ -121,7 +119,7 @@ import { ToastService } from '../../core/services/toast.service';
                 @for (split of individualSplits(); track split.id) {
                   <button
                     (click)="editSplit(split)"
-                    class="w-full bg-white border border-gray-100 rounded-3xl p-4 flex gap-4 text-left hover:shadow-md shadow-sm transition-all active:scale-[0.99] items-center"
+                    class="w-full bg-white border border-slate-100 rounded-3xl p-4 flex gap-4 text-left shadow-sm transition-all active:scale-[0.99] items-center"
                   >
                     <!-- Category Icon -->
                     <div class="w-12 h-12 rounded-full bg-[#F4F2FF] flex items-center justify-center shrink-0">
@@ -140,34 +138,34 @@ import { ToastService } from '../../core/services/toast.service';
                       </div>
                       
                       <div class="flex justify-between items-center">
-                        <span class="text-[11px] font-semibold text-gray-500 truncate">
+                        <span class="text-xs font-semibold text-gray-500 truncate">
                           {{ split.date | date: 'mediumDate' }} • Paid by {{ split.payer_id === currentUser().id ? 'You' : getFriendName(split.payer_id) }}
                         </span>
                       </div>
                       
                       @if (getExpenseBalances(split).length > 0) {
-                        <div class="flex flex-col gap-2 mt-2 pt-2 border-t border-gray-100 border-dashed">
+                        <div class="flex flex-col gap-2 mt-2 pt-2 border-t border-slate-100 border-dashed">
                           @for (bal of getExpenseBalances(split); track bal.participantId) {
                             <div class="flex justify-between items-center w-full gap-2">
-                              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full" [ngClass]="bal.type === 'owed' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'">
+                              <span class="text-xs font-bold px-2 py-0.5 rounded-full" [ngClass]="bal.type === 'owed' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'">
                                 {{ bal.type === 'owed' ? 'You get' : 'You owe' }} ₹{{ bal.amount % 1 === 0 ? (bal.amount | number: '1.0-0') : (bal.amount | number: '1.2-2') }}
                               </span>
                               
                               <!-- Actions -->
                               <div class="flex items-center gap-2">
                                 @if (bal.pending) {
-                                  <span class="text-[10px] font-bold text-orange-500 uppercase tracking-wider mr-1">Pending</span>
+                                  <span class="text-xs font-bold text-orange-500 uppercase tracking-wider mr-1">Pending</span>
                                   @if (bal.type === 'owed') {
-                                    <button (click)="confirmSettlement($event, split.id, bal.participantId)" [disabled]="processingIds().has('confirm_' + split.id + '_' + bal.participantId)" class="bg-emerald-500 text-white px-3 py-1 rounded-full text-[10px] font-bold tracking-wide shadow-sm hover:bg-emerald-600 transition-colors disabled:opacity-50 flex items-center gap-1">
+                                    <button (click)="confirmSettlement($event, split.id, bal.participantId)" [disabled]="processingIds().has('confirm_' + split.id + '_' + bal.participantId)" class="active:scale-[0.98] transition-all duration-200 bg-emerald-500 text-white px-3 py-1 rounded-full text-xs font-bold tracking-wide shadow-sm transition-colors disabled:opacity-50 flex items-center gap-1">
                                       Confirm
                                     </button>
                                   } @else {
-                                    <button (click)="cancelSettlement($event, split.id)" class="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-[10px] font-bold tracking-wide shadow-sm hover:bg-gray-200 transition-colors">
+                                    <button (click)="cancelSettlement($event, split.id)" class="active:scale-[0.98] transition-all duration-200 bg-slate-50 text-gray-600 px-3 py-1 rounded-full text-xs font-bold tracking-wide shadow-sm transition-colors">
                                       Cancel
                                     </button>
                                   }
                                 } @else {
-                                  <button (click)="settleIndividualSplit($event, split, bal)" class="bg-gray-100 text-gray-700 hover:bg-gray-200 px-3 py-1 rounded-full text-[10px] font-bold tracking-wide transition-colors">
+                                  <button (click)="settleIndividualSplit($event, split, bal)" class="active:scale-[0.98] transition-all duration-200 bg-slate-50 text-gray-700 px-3 py-1 rounded-full text-xs font-bold tracking-wide transition-colors">
                                     Settle
                                   </button>
                                 }
@@ -177,7 +175,7 @@ import { ToastService } from '../../core/services/toast.service';
                         </div>
                       } @else {
                         <div class="flex mt-1">
-                          <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider border border-gray-200 px-2 py-0.5 rounded-md">Settled</span>
+                          <span class="text-xs font-bold text-gray-500 uppercase tracking-wider border border-slate-100 px-2 py-0.5 rounded-md">Settled</span>
                         </div>
                       }
                     </div>
@@ -186,7 +184,7 @@ import { ToastService } from '../../core/services/toast.service';
               } @else {
                 <div class="mt-8 flex flex-col items-center justify-center text-center px-4">
                   <!-- Custom illustration placeholder for empty state -->
-                  <div class="w-40 h-40 bg-gray-50 rounded-full flex items-center justify-center mb-6 border-8 border-white shadow-sm overflow-hidden">
+                  <div class="w-40 h-40 bg-slate-50 rounded-full flex items-center justify-center mb-6 border-8 border-white shadow-sm overflow-hidden">
                     <svg class="w-16 h-16 text-splits-primary/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4" />
                     </svg>
@@ -207,7 +205,7 @@ import { ToastService } from '../../core/services/toast.service';
                 @for (group of splitService.activeGroups(); track group.id) {
                   <button
                     (click)="openGroup(group.id)"
-                    class="w-full bg-white border border-gray-100 rounded-3xl p-4 flex gap-4 text-left hover:shadow-md shadow-sm transition-all active:scale-[0.99] items-center"
+                    class="w-full bg-white border border-slate-100 rounded-3xl p-4 flex gap-4 text-left shadow-sm transition-all active:scale-[0.99] items-center"
                   >
                     <!-- Group Icon -->
                     <div class="w-12 h-12 rounded-full bg-[#F4F2FF] flex items-center justify-center shrink-0">
@@ -220,26 +218,26 @@ import { ToastService } from '../../core/services/toast.service';
                     <div class="flex flex-col flex-1 min-w-0 justify-center gap-1">
                       <div class="flex justify-between items-start">
                         <span class="font-extrabold text-[15px] text-gray-900 truncate pr-2">{{ group.name }}</span>
-                        <button (click)="archiveGroup($event, group.id)" class="text-[10px] font-bold text-gray-400 border border-gray-200 rounded-md uppercase tracking-wider hover:text-gray-900 hover:border-gray-300 px-1.5 py-0.5 transition-colors flex-shrink-0 mt-0.5">
+                        <button (click)="archiveGroup($event, group.id)" class="active:scale-[0.98] transition-all duration-200 text-xs font-bold text-gray-500 border border-slate-100 rounded-md uppercase tracking-wider px-1.5 py-0.5 transition-colors flex-shrink-0 mt-0.5">
                           Archive
                         </button>
                       </div>
                       
-                      <span class="text-[11px] font-semibold text-gray-500">
+                      <span class="text-xs font-semibold text-gray-500">
                         {{ group.members.length }} members
                       </span>
                       
                       <div class="flex flex-wrap gap-1 mt-1">
                         @if (getGroupBalance(group.id).net > 0) {
-                          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600">
+                          <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600">
                             You get ₹{{ getGroupBalance(group.id).net | number: '1.0-0' }}
                           </span>
                         } @else if (getGroupBalance(group.id).net < 0) {
-                          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-50 text-red-600">
+                          <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-red-50 text-red-600">
                             You owe ₹{{ 0 - getGroupBalance(group.id).net | number: '1.0-0' }}
                           </span>
                         } @else {
-                          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">Settled</span>
+                          <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-slate-50 text-gray-500">Settled</span>
                         }
                       </div>
                     </div>
@@ -248,7 +246,7 @@ import { ToastService } from '../../core/services/toast.service';
               } @else {
                 <div class="mt-8 flex flex-col items-center justify-center text-center px-4">
                   <!-- Custom illustration placeholder for empty state -->
-                  <div class="w-40 h-40 bg-gray-50 rounded-full flex items-center justify-center mb-6 border-8 border-white shadow-sm overflow-hidden">
+                  <div class="w-40 h-40 bg-slate-50 rounded-full flex items-center justify-center mb-6 border-8 border-white shadow-sm overflow-hidden">
                     <svg class="w-16 h-16 text-splits-primary/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
@@ -263,17 +261,17 @@ import { ToastService } from '../../core/services/toast.service';
               <!-- Archived Groups -->
               @if (splitService.archivedGroups().length > 0) {
                 <div class="mt-4 mb-1">
-                  <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Archived Groups</span>
+                  <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Archived Groups</span>
                 </div>
                 @for (group of splitService.archivedGroups(); track group.id) {
-                  <div class="w-full bg-gray-50 border border-gray-100 rounded-2xl p-4 flex flex-col gap-2 opacity-70">
+                  <div class="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 flex flex-col gap-2 opacity-70">
                     <div class="flex justify-between items-center w-full">
                       <span class="font-extrabold text-sm text-gray-500 truncate">{{ group.name }}</span>
-                      <button (click)="restoreGroup($event, group.id)" class="text-[10px] font-bold text-gray-500 border border-gray-300 rounded-md uppercase tracking-wider hover:text-gray-900 hover:border-gray-500 px-1.5 py-0.5 transition-colors">
+                      <button (click)="restoreGroup($event, group.id)" class="active:scale-[0.98] transition-all duration-200 text-xs font-bold text-gray-500 border border-gray-300 rounded-md uppercase tracking-wider px-1.5 py-0.5 transition-colors">
                         Restore
                       </button>
                     </div>
-                    <span class="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest">
+                    <span class="text-[9px] font-extrabold text-gray-500 uppercase tracking-widest">
                       {{ group.members.length }} members · Archived
                     </span>
                   </div>

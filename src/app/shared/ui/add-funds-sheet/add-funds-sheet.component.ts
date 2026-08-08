@@ -46,68 +46,45 @@ import { AutofocusDirective } from '../autofocus.directive';
       <div
         @fadeIn
         (click)="close()"
-        class="fixed inset-0 bg-black/60 z-[60] backdrop-blur-sm"
+        class="active:scale-[0.98] transition-all duration-200 fixed inset-0 bg-black/60 z-[60] backdrop-blur-sm"
       ></div>
       <!-- Sheet Content -->
       <div
         @slideUp
         appSwipeToClose
         (swipeClose)="close()"
-        class="fixed bottom-0 left-0 right-0 z-[70] max-h-[95vh] overflow-y-auto overscroll-none flex flex-col rounded-t-3xl shadow-2xl"
+        class="fixed bottom-0 left-0 right-0 z-[70] max-h-[95vh] flex flex-col rounded-t-[32px] shadow-2xl bg-white overflow-hidden"
+        style="padding-bottom: env(safe-area-inset-bottom);"
       >
         <!-- Header -->
-        <div
-          class="flex justify-between items-center py-4 px-6 bg-goals-primary text-white rounded-t-3xl sticky top-0 z-10 shadow-sm"
-        >
+        <div class="flex justify-between items-center py-4 px-6 text-white bg-goals-primary rounded-t-[32px] sticky top-0 z-10 shrink-0 shadow-sm">
           <h2 class="text-lg font-bold tracking-wide">
             {{ goalService.editingFund() ? 'Edit Fund' : 'Add Funds' }}
           </h2>
-          <div class="flex gap-2">
-            @if (goalService.editingFund()) {
-              <button
-                type="button"
-                (click)="deleteFund()"
-                [disabled]="isDeleting() || isSaving()"
-                class="w-9 h-9 text-white/80 hover:text-white hover:bg-white/10 hover:bg-red-600 transition-all rounded-full flex items-center justify-center text-white disabled:opacity-50 active:scale-95"
-              >
-                @if (!isDeleting()) {
-                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                    />
-                  </svg>
-                }
-                @if (isDeleting()) {
-                  <svg
-                    class="animate-spin h-4 w-4 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      class="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      stroke-width="4"
-                    ></circle>
-                    <path
-                      class="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                }
-              </button>
-            }
-          </div>
+          @if (goalService.editingFund()) {
+            <button
+              type="button"
+              (click)="deleteFund()"
+              [disabled]="isDeleting() || isSaving()"
+              class="w-8 h-8 text-white/80 hover:text-white bg-black/10 hover:bg-black/20 transition-all rounded-full flex items-center justify-center disabled:opacity-50 active:scale-95"
+            >
+              @if (!isDeleting()) {
+                <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              }
+              @if (isDeleting()) {
+                <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              }
+            </button>
+          }
         </div>
 
-        <div class="p-6 bg-white flex-1">
+
+        <div class="p-6 bg-white flex-1 overflow-y-auto overscroll-none pb-6" style="scrollbar-width: none;">
           <div class="mb-5 text-center">
             <h3 class="text-xl font-black tracking-tight text-goals-dark">
               {{ goalService.activeGoalForFunds()?.name }}
@@ -130,11 +107,11 @@ import { AutofocusDirective } from '../autofocus.directive';
               <button
                 type="button"
                 (click)="setMode('installment')"
-                class="flex-1 p-2.5 text-xs font-bold uppercase tracking-wide border rounded-xl transition-all active:scale-95 shadow-sm"
+                class="flex-1 py-3 px-2 rounded-2xl text-xs font-bold uppercase tracking-wide transition-all active:scale-95 border-2 shadow-sm touch-manipulation"
                 [ngClass]="
                   fundMode() === 'installment'
                     ? 'bg-goals-primary text-white border-goals-primary shadow-md shadow-goals-primary/25'
-                    : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                    : 'bg-white text-slate-600 border-gray-100'
                 "
               >
                 Installment
@@ -142,11 +119,11 @@ import { AutofocusDirective } from '../autofocus.directive';
               <button
                 type="button"
                 (click)="setMode('custom')"
-                class="flex-1 p-2.5 text-xs font-bold uppercase tracking-wide border rounded-xl transition-all active:scale-95 shadow-sm"
+                class="flex-1 py-3 px-2 rounded-2xl text-xs font-bold uppercase tracking-wide transition-all active:scale-95 border-2 shadow-sm touch-manipulation"
                 [ngClass]="
                   fundMode() === 'custom'
                     ? 'bg-goals-primary text-white border-goals-primary shadow-md shadow-goals-primary/25'
-                    : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                    : 'bg-white text-slate-600 border-gray-100'
                 "
               >
                 Custom
@@ -174,9 +151,9 @@ import { AutofocusDirective } from '../autofocus.directive';
                   >
                   <div class="relative group">
                     <div
-                      class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none"
+                      class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"
                     >
-                      <span class="text-gray-500 font-bold">₹</span>
+                      <span class="text-gray-400 font-bold text-xl">₹</span>
                     </div>
                     <input
                       [formControl]="customAmount"
@@ -186,7 +163,7 @@ import { AutofocusDirective } from '../autofocus.directive';
                       inputmode="numeric"
                       placeholder="0"
                       (keydown)="preventE($event)"
-                      class="w-full bg-gray-50 border border-gray-200 text-gray-900 font-bold text-base rounded-xl focus:bg-white focus:border-goals-primary focus:ring-4 focus:ring-goals-primary/15 block p-3 outline-none transition-all placeholder-gray-400 min-h-[48px] touch-manipulation pl-8 shadow-sm"
+                      class="w-full bg-white border-2 border-gray-100 text-slate-900 font-bold text-2xl rounded-2xl pl-10 pr-4 py-4 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-300 focus:border-goals-primary focus:ring-4 focus:ring-goals-primary/15"
                     />
                   </div>
                 </div>
@@ -197,7 +174,7 @@ import { AutofocusDirective } from '../autofocus.directive';
               <button
                 type="button"
                 (click)="close()"
-                class="flex-1 font-bold rounded-xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-3.5 text-sm min-h-[48px] bg-gray-100 text-gray-700 hover:bg-gray-200 text-center"
+                class="flex-1 font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-slate-100 text-slate-700 text-center"
               >
                 Cancel
               </button>
@@ -207,7 +184,7 @@ import { AutofocusDirective } from '../autofocus.directive';
                 [disabled]="
                   isSaving() || isDeleting() || (fundMode() === 'custom' && customAmount.invalid)
                 "
-                class="flex-1 font-bold rounded-xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-3.5 text-sm min-h-[48px] bg-goals-primary hover:bg-goals-dark text-white shadow-lg shadow-goals-primary/30 disabled:opacity-50 disabled:active:scale-100"
+                class="flex-1 font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-goals-primary text-white shadow-md shadow-goals-primary/30 disabled:opacity-50 disabled:active:scale-100"
               >
                 @if (isSaving()) {
                   <svg

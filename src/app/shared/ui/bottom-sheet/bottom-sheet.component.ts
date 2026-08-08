@@ -62,41 +62,38 @@ import { SafeInputDirective } from '../safe-input.directive';
       <div
         @fadeIn
         (click)="close()"
-        class="fixed inset-0 bg-black/60 z-[60] backdrop-blur-sm"
+        class="active:scale-[0.98] transition-all duration-200 fixed inset-0 bg-black/60 z-[60] backdrop-blur-sm"
       ></div>
       <div
         appSwipeToClose
         (swipeClose)="close()"
         @slideUp
         class="fixed bottom-0 left-0 right-0 z-[70] 
-               max-h-[95vh] flex flex-col rounded-t-[32px] shadow-2xl bg-white overflow-hidden"
+               max-h-[95vh] flex flex-col rounded-t-[32px] shadow-2xl bg-white overflow-hidden" style="padding-bottom: env(safe-area-inset-bottom);"
       >
         <!-- Header -->
-        <div class="flex flex-col items-center pt-3 pb-2 px-6 bg-white shrink-0 z-10 border-b border-gray-50/50">
-          <div class="w-12 h-1.5 bg-gray-200 rounded-full mb-4"></div>
-          <div class="w-full flex justify-between items-center relative">
-            @if (isEditing) {
-              <button
-                type="button"
-                (click)="delete()"
-                [disabled]="isDeleting() || isSaving()"
-                class="w-9 h-9 text-red-500 bg-red-50 hover:bg-red-100 transition-all rounded-full flex items-center justify-center disabled:opacity-50 active:scale-95 absolute left-0"
-              >
-                @if (!isDeleting()) {
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
-                }
-                @if (isDeleting()) {
-                  <svg class="animate-spin h-4 w-4 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                }
-              </button>
-            }
-            <h2 class="text-[22px] font-extrabold text-slate-900 tracking-tight w-full text-center">
-              {{ isEditing ? 'Edit Expense' : 'Add Expense' }}
-            </h2>
-          </div>
+        <div class="flex justify-between items-center py-4 px-6 text-white rounded-t-[32px] sticky top-0 z-10 shrink-0 shadow-sm" [ngClass]="theme.bg">
+          <h2 class="text-lg font-bold tracking-wide">
+            {{ isEditing ? 'Edit Expense' : 'Add Expense' }}
+          </h2>
+          @if (isEditing) {
+            <button
+              type="button"
+              (click)="delete()"
+              [disabled]="isDeleting() || isSaving()"
+              class="w-8 h-8 text-white/80 hover:text-white bg-black/10 hover:bg-black/20 transition-all rounded-full flex items-center justify-center disabled:opacity-50 active:scale-95"
+            >
+              @if (!isDeleting()) {
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+              }
+              @if (isDeleting()) {
+                <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              }
+            </button>
+          }
         </div>
         
         <!-- Content -->
@@ -169,7 +166,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                       [ngClass]="
                         (expenseForm.get('category')?.value || '').toLowerCase() === cat.name.toLowerCase()
                           ? theme.activeBg
-                          : 'bg-white text-slate-600 border-gray-100 shadow-sm hover:bg-slate-50'
+                          : 'bg-white text-slate-600 border-gray-100 shadow-sm'
                       "
                     >
                       <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
@@ -193,7 +190,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                     [ngClass]="
                       expenseForm.get('paid_via')?.value === method
                         ? theme.activeBg
-                        : 'bg-white text-slate-600 border-gray-100 shadow-sm hover:bg-slate-50'
+                        : 'bg-white text-slate-600 border-gray-100 shadow-sm'
                     "
                   >
                     <span class="text-xs font-semibold tracking-wide text-center">{{ method === 'Credit Card' ? 'Credit' : method }}</span>
@@ -207,7 +204,7 @@ import { SafeInputDirective } from '../safe-input.directive';
               <button
                 type="button"
                 (click)="isDatePickerOpen = true"
-                class="w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-sm rounded-2xl flex justify-between items-center p-4 outline-none transition-all touch-manipulation shadow-sm" [ngClass]="[theme.focusBorder, theme.focusRing]"
+                class="active:scale-[0.98] transition-all duration-200 w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-sm rounded-2xl flex justify-between items-center p-4 outline-none transition-all touch-manipulation shadow-sm" [ngClass]="[theme.focusBorder, theme.focusRing]"
               >
                 <div class="flex items-center gap-3">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-slate-400"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
@@ -223,7 +220,7 @@ import { SafeInputDirective } from '../safe-input.directive';
               <button
                 type="button"
                 (click)="close()"
-                class="flex-1 font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-slate-100 text-slate-700 hover:bg-slate-200 text-center"
+                class="flex-1 font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-slate-100 text-slate-700 text-center"
               >
                 Cancel
               </button>
@@ -260,19 +257,19 @@ export class BottomSheetComponent implements OnInit {
   get theme() {
     const route = this.router.url.split('/')[1] || 'dashboard';
     switch (route) {
-      case 'expenses': return { text: 'text-expense-primary', bg: 'bg-expense-primary', border: 'border-expense-primary', focusBorder: 'focus:border-expense-primary', focusRing: 'focus:ring-expense-primary/10', shadow: 'shadow-expense-primary/20', activeBg: 'bg-expense-primary text-white border-expense-primary shadow-md shadow-expense-primary/20' };
-      case 'budgets': return { text: 'text-budget-primary', bg: 'bg-budget-primary', border: 'border-budget-primary', focusBorder: 'focus:border-budget-primary', focusRing: 'focus:ring-budget-primary/10', shadow: 'shadow-budget-primary/20', activeBg: 'bg-budget-primary text-white border-budget-primary shadow-md shadow-budget-primary/20' };
-      case 'friends': return { text: 'text-friends-primary', bg: 'bg-friends-primary', border: 'border-friends-primary', focusBorder: 'focus:border-friends-primary', focusRing: 'focus:ring-friends-primary/10', shadow: 'shadow-friends-primary/20', activeBg: 'bg-friends-primary text-white border-friends-primary shadow-md shadow-friends-primary/20' };
-      case 'splits': return { text: 'text-splits-primary', bg: 'bg-splits-primary', border: 'border-splits-primary', focusBorder: 'focus:border-splits-primary', focusRing: 'focus:ring-splits-primary/10', shadow: 'shadow-splits-primary/20', activeBg: 'bg-splits-primary text-white border-splits-primary shadow-md shadow-splits-primary/20' };
-      case 'subscriptions': return { text: 'text-subscriptions-primary', bg: 'bg-subscriptions-primary', border: 'border-subscriptions-primary', focusBorder: 'focus:border-subscriptions-primary', focusRing: 'focus:ring-subscriptions-primary/10', shadow: 'shadow-subscriptions-primary/20', activeBg: 'bg-subscriptions-primary text-white border-subscriptions-primary shadow-md shadow-subscriptions-primary/20' };
+      case 'expenses': return { text: 'text-expense-primary', bg: 'bg-expense-primary', border: 'border-expense-primary', focusBorder: 'focus:border-expense-primary', focusRing: 'focus:ring-4 focus:ring-expense-primary/15', shadow: 'shadow-expense-primary/20', activeBg: 'bg-expense-primary text-white border-expense-primary shadow-md shadow-expense-primary/20' };
+      case 'budgets': return { text: 'text-budget-primary', bg: 'bg-budget-primary', border: 'border-budget-primary', focusBorder: 'focus:border-budget-primary', focusRing: 'focus:ring-4 focus:ring-budget-primary/15', shadow: 'shadow-budget-primary/20', activeBg: 'bg-budget-primary text-white border-budget-primary shadow-md shadow-budget-primary/20' };
+      case 'friends': return { text: 'text-friends-primary', bg: 'bg-friends-primary', border: 'border-friends-primary', focusBorder: 'focus:border-friends-primary', focusRing: 'focus:ring-4 focus:ring-friends-primary/15', shadow: 'shadow-friends-primary/20', activeBg: 'bg-friends-primary text-white border-friends-primary shadow-md shadow-friends-primary/20' };
+      case 'splits': return { text: 'text-splits-primary', bg: 'bg-splits-primary', border: 'border-splits-primary', focusBorder: 'focus:border-splits-primary', focusRing: 'focus:ring-4 focus:ring-splits-primary/15', shadow: 'shadow-splits-primary/20', activeBg: 'bg-splits-primary text-white border-splits-primary shadow-md shadow-splits-primary/20' };
+      case 'subscriptions': return { text: 'text-subscriptions-primary', bg: 'bg-subscriptions-primary', border: 'border-subscriptions-primary', focusBorder: 'focus:border-subscriptions-primary', focusRing: 'focus:ring-4 focus:ring-subscriptions-primary/15', shadow: 'shadow-subscriptions-primary/20', activeBg: 'bg-subscriptions-primary text-white border-subscriptions-primary shadow-md shadow-subscriptions-primary/20' };
       case 'goals': 
-      case 'goal-transactions': return { text: 'text-goals-primary', bg: 'bg-goals-primary', border: 'border-goals-primary', focusBorder: 'focus:border-goals-primary', focusRing: 'focus:ring-goals-primary/10', shadow: 'shadow-goals-primary/20', activeBg: 'bg-goals-primary text-white border-goals-primary shadow-md shadow-goals-primary/20' };
+      case 'goal-transactions': return { text: 'text-goals-primary', bg: 'bg-goals-primary', border: 'border-goals-primary', focusBorder: 'focus:border-goals-primary', focusRing: 'focus:ring-4 focus:ring-goals-primary/15', shadow: 'shadow-goals-primary/20', activeBg: 'bg-goals-primary text-white border-goals-primary shadow-md shadow-goals-primary/20' };
       case 'ledger': 
-      case 'ledger-details': return { text: 'text-ledger-primary', bg: 'bg-ledger-primary', border: 'border-ledger-primary', focusBorder: 'focus:border-ledger-primary', focusRing: 'focus:ring-ledger-primary/10', shadow: 'shadow-ledger-primary/20', activeBg: 'bg-ledger-primary text-white border-ledger-primary shadow-md shadow-ledger-primary/20' };
-      case 'tracker': return { text: 'text-tracker-primary', bg: 'bg-tracker-primary', border: 'border-tracker-primary', focusBorder: 'focus:border-tracker-primary', focusRing: 'focus:ring-tracker-primary/10', shadow: 'shadow-tracker-primary/20', activeBg: 'bg-tracker-primary text-white border-tracker-primary shadow-md shadow-tracker-primary/20' };
-      case 'profile': return { text: 'text-profile-primary', bg: 'bg-profile-primary', border: 'border-profile-primary', focusBorder: 'focus:border-profile-primary', focusRing: 'focus:ring-profile-primary/10', shadow: 'shadow-profile-primary/20', activeBg: 'bg-profile-primary text-white border-profile-primary shadow-md shadow-profile-primary/20' };
-      case 'reports': return { text: 'text-reports-primary', bg: 'bg-reports-primary', border: 'border-reports-primary', focusBorder: 'focus:border-reports-primary', focusRing: 'focus:ring-reports-primary/10', shadow: 'shadow-reports-primary/20', activeBg: 'bg-reports-primary text-white border-reports-primary shadow-md shadow-reports-primary/20' };
-      default: return { text: 'text-expense-primary', bg: 'bg-expense-primary', border: 'border-expense-primary', focusBorder: 'focus:border-expense-primary', focusRing: 'focus:ring-expense-primary/10', shadow: 'shadow-expense-primary/20', activeBg: 'bg-expense-primary text-white border-expense-primary shadow-md shadow-expense-primary/20' };
+      case 'ledger-details': return { text: 'text-ledger-primary', bg: 'bg-ledger-primary', border: 'border-ledger-primary', focusBorder: 'focus:border-ledger-primary', focusRing: 'focus:ring-4 focus:ring-ledger-primary/15', shadow: 'shadow-ledger-primary/20', activeBg: 'bg-ledger-primary text-white border-ledger-primary shadow-md shadow-ledger-primary/20' };
+      case 'tracker': return { text: 'text-tracker-primary', bg: 'bg-tracker-primary', border: 'border-tracker-primary', focusBorder: 'focus:border-tracker-primary', focusRing: 'focus:ring-4 focus:ring-tracker-primary/15', shadow: 'shadow-tracker-primary/20', activeBg: 'bg-tracker-primary text-white border-tracker-primary shadow-md shadow-tracker-primary/20' };
+      case 'profile': return { text: 'text-profile-primary', bg: 'bg-profile-primary', border: 'border-profile-primary', focusBorder: 'focus:border-profile-primary', focusRing: 'focus:ring-4 focus:ring-profile-primary/15', shadow: 'shadow-profile-primary/20', activeBg: 'bg-profile-primary text-white border-profile-primary shadow-md shadow-profile-primary/20' };
+      case 'reports': return { text: 'text-reports-primary', bg: 'bg-reports-primary', border: 'border-reports-primary', focusBorder: 'focus:border-reports-primary', focusRing: 'focus:ring-4 focus:ring-reports-primary/15', shadow: 'shadow-reports-primary/20', activeBg: 'bg-reports-primary text-white border-reports-primary shadow-md shadow-reports-primary/20' };
+      default: return { text: 'text-expense-primary', bg: 'bg-expense-primary', border: 'border-expense-primary', focusBorder: 'focus:border-expense-primary', focusRing: 'focus:ring-4 focus:ring-expense-primary/15', shadow: 'shadow-expense-primary/20', activeBg: 'bg-expense-primary text-white border-expense-primary shadow-md shadow-expense-primary/20' };
     }
   }
 

@@ -34,10 +34,10 @@ import { SubscriptionService } from '../../../core/services/subscription.service
           <div class="flex justify-between items-end relative z-10">
             <div class="flex flex-col">
               @if (budgetService.isLoading()) {
-                <div class="h-4 w-24 bg-gray-800 animate-pulse rounded mb-1"></div>
-                <div class="h-10 w-32 bg-gray-800 animate-pulse rounded mt-1"></div>
+                <div class="h-4 w-24 bg-white/20 animate-pulse rounded mb-1"></div>
+                <div class="h-10 w-32 bg-white/20 animate-pulse rounded mt-1"></div>
               } @else {
-                <span class="text-[10px] font-black text-emerald-100/70 uppercase tracking-widest mb-1">
+                <span class="text-xs font-black text-emerald-100/70 uppercase tracking-widest mb-1">
                   {{ budgetName() }}
                 </span>
                 <span class="text-4xl font-black tracking-tight">
@@ -47,15 +47,15 @@ import { SubscriptionService } from '../../../core/services/subscription.service
             </div>
             <div class="text-right flex flex-col">
               @if (budgetService.isLoading()) {
-                <div class="h-4 w-16 bg-gray-800 animate-pulse rounded mb-1 self-end"></div>
-                <div class="h-5 w-20 bg-gray-800 animate-pulse rounded mt-1 self-end"></div>
+                <div class="h-4 w-16 bg-white/20 animate-pulse rounded mb-1 self-end"></div>
+                <div class="h-5 w-20 bg-white/20 animate-pulse rounded mt-1 self-end"></div>
               } @else {
                 @if (isVirtualOthers()) {
-                  <span class="text-[10px] font-black text-emerald-100/70 uppercase tracking-widest">
+                  <span class="text-xs font-black text-emerald-100/70 uppercase tracking-widest">
                     Unbudgeted
                   </span>
                 } @else {
-                  <span class="text-[10px] font-black text-emerald-100/70 uppercase tracking-widest">
+                  <span class="text-xs font-black text-emerald-100/70 uppercase tracking-widest">
                     Limit
                   </span>
                   <span class="text-sm font-black text-white mt-1">
@@ -80,12 +80,12 @@ import { SubscriptionService } from '../../../core/services/subscription.service
 
         @if (expenseService.isLoading() || budgetService.isLoading()) {
           @for (i of [1, 2, 3, 4, 5]; track i) {
-            <div class="w-full bg-gray-100 rounded-2xl p-4 h-[88px] animate-pulse flex justify-between items-center border-2 border-gray-200">
+            <div class="w-full bg-slate-50 rounded-2xl p-4 h-[88px] animate-pulse flex justify-between items-center border border-slate-100">
               <div class="flex flex-col gap-2 w-1/2">
-                <div class="h-5 bg-gray-200 w-3/4"></div>
-                <div class="h-3 bg-gray-200 w-1/2"></div>
+                <div class="h-5 bg-slate-200 w-3/4"></div>
+                <div class="h-3 bg-slate-200 w-1/2"></div>
               </div>
-              <div class="h-6 bg-gray-200 w-16"></div>
+              <div class="h-6 bg-slate-200 w-16"></div>
             </div>
           }
         } @else {
@@ -93,11 +93,11 @@ import { SubscriptionService } from '../../../core/services/subscription.service
             @for (expense of budgetExpenses(); track expense.id) {
               <button
                 (click)="editExpense(expense)"
-                class="w-full bg-budget-primary/[0.03] border border-budget-primary/10 rounded-[20px] p-4 flex justify-between items-center text-left shadow-[0_2px_12px_rgb(0,0,0,0.03)] hover:shadow-md hover:bg-budget-primary/[0.06] transition-all active:scale-[0.99]"
+                class="w-full bg-budget-primary/[0.03] border border-budget-primary/10 rounded-[20px] p-4 flex justify-between items-center text-left shadow-[0_2px_12px_rgb(0,0,0,0.03)] transition-all active:scale-[0.99]"
               >
                 <div class="flex flex-col gap-1 flex-1 min-w-0 pr-4">
                   <span class="font-extrabold text-base text-gray-900 truncate">{{ expense.title }}</span>
-                  <div class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest min-w-0 text-gray-500">
+                  <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest min-w-0 text-gray-500">
                     <span class="truncate">{{ expense.category }}</span>
                     <span class="flex-shrink-0 border-l-2 border-gray-300 h-3"></span>
                     <span class="flex items-center gap-1.5 whitespace-nowrap flex-shrink-0">
@@ -112,16 +112,16 @@ import { SubscriptionService } from '../../../core/services/subscription.service
                   <span class="font-black text-lg text-black">
                     ₹{{ expense.amount | number: '1.0-0' }}
                   </span>
-                  <span class="text-[10px] font-black uppercase tracking-widest text-gray-500">
+                  <span class="text-xs font-black uppercase tracking-widest text-gray-500">
                     {{ expense.paid_via }}
                   </span>
                 </div>
               </button>
             }
           } @else {
-            <div class="mt-4 w-full bg-[#FCFCFD] border border-dashed border-gray-200 rounded-[24px] p-8 flex flex-col items-center justify-center text-center">
-              <div class="w-12 h-12 bg-indigo-50 rounded-[14px] flex items-center justify-center mb-3">
-                <svg class="w-6 h-6 text-[#5421E6]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div class="mt-4 w-full bg-[#FCFCFD] border border-solid border-slate-100 shadow-sm rounded-[24px] p-8 flex flex-col items-center justify-center text-center">
+              <div class="w-12 h-12 bg-budget-surface rounded-[14px] flex items-center justify-center mb-3">
+                <svg class="w-6 h-6 text-budget-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                 </svg>
               </div>
@@ -263,16 +263,16 @@ export class BudgetExpenses implements OnInit {
 
   getCategoryColor(category: string): string {
     if (!category)
-      return 'border-expense-primary bg-expense-surface hover:bg-expense-light text-expense-dark';
+      return 'border-expense-primary bg-expense-surface text-expense-dark';
     if (category === 'virtual-invest') {
-      return 'border-goals-primary bg-goals-surface hover:bg-goals-light text-goals-dark';
+      return 'border-goals-primary bg-goals-surface text-goals-dark';
     } else if (category.includes('(Group Split)')) {
-      return 'border-friends-primary bg-friends-surface hover:bg-friends-light text-friends-dark';
+      return 'border-friends-primary bg-friends-surface text-friends-dark';
     } else if (category.includes('(Split)')) {
-      return 'border-splits-primary bg-splits-surface hover:bg-splits-light text-splits-dark';
+      return 'border-splits-primary bg-splits-surface text-splits-dark';
     } else if (category.includes('(Subscription)')) {
-      return 'border-subscriptions-primary bg-subscriptions-surface hover:bg-subscriptions-light text-subscriptions-dark';
+      return 'border-subscriptions-primary bg-subscriptions-surface text-subscriptions-dark';
     }
-    return 'border-expense-primary bg-expense-surface hover:bg-expense-light text-expense-dark';
+    return 'border-expense-primary bg-expense-surface text-expense-dark';
   }
 }

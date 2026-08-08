@@ -47,7 +47,7 @@ import { HapticService } from '../../../core/services/haptic.service';
     @if (trackerService.isSheetOpen()) {
       <!-- Backdrop -->
       <div
-        class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 transition-opacity"
+        class="active:scale-[0.98] transition-all duration-200 fixed inset-0 bg-black/60 backdrop-blur-sm z-50 transition-opacity"
         @fadeIn
         (click)="close()"
       ></div>
@@ -60,34 +60,32 @@ import { HapticService } from '../../../core/services/haptic.service';
           <div
             appSwipeToClose
             (closeSwipe)="close()"
-            class="pointer-events-auto bg-white rounded-t-3xl p-6 shadow-2xl flex flex-col max-h-[90vh] overflow-y-auto"
+            class="pointer-events-auto bg-white rounded-t-[32px] shadow-2xl flex flex-col max-h-[90vh] overflow-y-auto" style="padding-bottom: calc(env(safe-area-inset-bottom) + 1.5rem);"
           >
-            <!-- Handle bar -->
-            <div class="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-4 flex-shrink-0"></div>
-
             <!-- Header -->
-            <div class="flex justify-between items-center mb-6">
-              <h2 class="text-xl font-black text-gray-900 tracking-tight">
+            <div class="flex justify-between items-center py-4 px-6 text-white bg-slate-900 rounded-t-[32px] sticky top-0 z-10 shrink-0 shadow-sm">
+              <h2 class="text-lg font-bold tracking-wide">
                 {{ titleText }}
               </h2>
               <button
                 (click)="close()"
-                class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200 transition-all active:scale-95"
+                class="w-8 h-8 text-white/80 hover:text-white bg-black/10 hover:bg-black/20 transition-all rounded-full flex items-center justify-center disabled:opacity-50 active:scale-95"
               >
                 ✕
               </button>
             </div>
-
+            
+            <div class="p-6 pb-2">
             <!-- Action Mode Tabs -->
             <div class="grid grid-cols-3 gap-2 mb-6">
               <button
                 type="button"
                 (click)="setMode('deposit')"
-                class="py-2.5 text-xs font-bold uppercase tracking-wider rounded-xl transition-all active:scale-95 border shadow-sm"
+                class="flex-1 py-3 px-2 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all active:scale-95 border-2 shadow-sm touch-manipulation"
                 [ngClass]="
                   trackerService.sheetMode() === 'deposit'
                     ? 'bg-sky-500 text-white border-sky-500 shadow-md shadow-sky-500/25 font-bold'
-                    : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                    : 'bg-white text-slate-600 border-gray-100'
                 "
               >
                 Deposit 💰
@@ -95,11 +93,11 @@ import { HapticService } from '../../../core/services/haptic.service';
               <button
                 type="button"
                 (click)="setMode('withdrawal')"
-                class="py-2.5 text-xs font-bold uppercase tracking-wider rounded-xl transition-all active:scale-95 border shadow-sm"
+                class="flex-1 py-3 px-2 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all active:scale-95 border-2 shadow-sm touch-manipulation"
                 [ngClass]="
                   trackerService.sheetMode() === 'withdrawal'
                     ? 'bg-rose-500 text-white border-rose-500 shadow-md shadow-rose-500/25 font-bold'
-                    : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                    : 'bg-white text-slate-600 border-gray-100'
                 "
               >
                 Expense 💸
@@ -107,11 +105,11 @@ import { HapticService } from '../../../core/services/haptic.service';
               <button
                 type="button"
                 (click)="setMode('transfer')"
-                class="py-2.5 text-xs font-bold uppercase tracking-wider rounded-xl transition-all active:scale-95 border shadow-sm"
+                class="flex-1 py-3 px-2 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all active:scale-95 border-2 shadow-sm touch-manipulation"
                 [ngClass]="
                   trackerService.sheetMode() === 'transfer'
                     ? 'bg-emerald-500 text-white border-emerald-500 shadow-md shadow-emerald-500/25 font-bold'
-                    : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                    : 'bg-white text-slate-600 border-gray-100'
                 "
               >
                 Transfer 🔄
@@ -131,11 +129,11 @@ import { HapticService } from '../../../core/services/haptic.service';
                     <button
                       type="button"
                       (click)="selectAccount(acc)"
-                      class="p-3 border font-bold text-sm text-center transition-all rounded-xl active:scale-95 shadow-sm"
+                      class="py-3 px-2 border-2 font-bold text-xs uppercase text-center transition-all rounded-2xl active:scale-95 shadow-sm touch-manipulation"
                       [ngClass]="
                         accountForm.value.account_type === acc
                           ? 'bg-sky-500 text-white border-sky-500 shadow-md shadow-sky-500/25'
-                          : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                          : 'bg-white text-slate-600 border-gray-100'
                       "
                     >
                       {{ acc }}
@@ -156,11 +154,11 @@ import { HapticService } from '../../../core/services/haptic.service';
                         type="button"
                         [disabled]="accountForm.value.account_type === acc"
                         (click)="selectTargetAccount(acc)"
-                        class="p-3 border font-bold text-sm text-center transition-all rounded-xl active:scale-95 shadow-sm"
+                        class="py-3 px-2 border-2 font-bold text-xs uppercase text-center transition-all rounded-2xl active:scale-95 shadow-sm touch-manipulation"
                         [ngClass]="{
                           'opacity-40 pointer-events-none': accountForm.value.account_type === acc,
                           'bg-emerald-500 text-white border-emerald-500 shadow-md shadow-emerald-500/25': accountForm.value.target_account_type === acc && accountForm.value.account_type !== acc,
-                          'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50': accountForm.value.target_account_type !== acc && accountForm.value.account_type !== acc
+                          'bg-white text-slate-600 border-gray-100': accountForm.value.target_account_type !== acc && accountForm.value.account_type !== acc
                         }"
                       >
                         {{ acc }}
@@ -176,14 +174,14 @@ import { HapticService } from '../../../core/services/haptic.service';
                   Amount (₹)
                 </label>
                 <div class="relative">
-                  <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-lg font-bold text-gray-400">₹</span>
+                  <span class="absolute left-4 top-1/2 -translate-y-1/2 text-xl font-bold text-gray-400">₹</span>
                   <input
                     type="text"
                     appAmountInput
                     appAutofocus
                     formControlName="amount"
                     placeholder="0"
-                    class="w-full pl-8 pr-4 py-3 bg-gray-50 border border-gray-200 text-gray-900 font-bold text-base rounded-xl focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/15 outline-none transition-all shadow-sm"
+                    class="w-full bg-white border-2 border-gray-100 text-slate-900 font-bold text-2xl rounded-2xl pl-10 pr-4 py-4 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-300 focus:border-sky-500 focus:ring-4 focus:ring-sky-500/15"
                   />
                 </div>
               </div>
@@ -197,7 +195,7 @@ import { HapticService } from '../../../core/services/haptic.service';
                   type="text"
                   formControlName="description"
                   placeholder="e.g. Salary deposit, ATM cash withdrawal, Savings transfer"
-                  class="w-full px-4 py-3 bg-gray-50 border border-gray-200 text-gray-900 font-semibold text-sm rounded-xl focus:bg-white focus:border-sky-500 focus:ring-4 focus:ring-sky-500/15 outline-none transition-all shadow-sm"
+                  class="w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl px-4 py-4 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-400 focus:border-sky-500 focus:ring-4 focus:ring-sky-500/15"
                 />
               </div>
 
@@ -205,12 +203,13 @@ import { HapticService } from '../../../core/services/haptic.service';
               <button
                 type="submit"
                 [disabled]="accountForm.invalid || trackerService.isLoading()"
-                class="w-full py-3.5 bg-sky-500 hover:bg-sky-600 disabled:opacity-50 text-white font-bold text-base uppercase tracking-wider rounded-xl shadow-lg shadow-sky-500/30 active:scale-95 transition-all mt-6"
+                class="w-full py-4 px-6 bg-sky-500 disabled:opacity-50 text-white font-bold text-sm rounded-2xl shadow-md active:scale-95 transition-all mt-6 touch-manipulation"
               >
                 {{ trackerService.isLoading() ? 'Saving...' : 'Confirm Transaction' }}
               </button>
             </form>
           </div>
+        </div>
       </div>
     }
   `,

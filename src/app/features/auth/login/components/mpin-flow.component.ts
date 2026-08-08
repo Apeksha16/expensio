@@ -65,7 +65,7 @@ export type MpinStep = 'login' | 'forgot' | 'reset' | 'set-mpin' | 'confirm-mpin
           @if (step() === 'login') {
             <button
               (click)="startForgotMpin()"
-              class="mt-4 text-sm font-semibold text-indigo-600 hover:text-indigo-800 block w-full text-center"
+              class="active:scale-[0.98] transition-all duration-200 mt-4 text-sm font-semibold text-indigo-600 block w-full text-center"
             >
               Forgot mPIN?
             </button>

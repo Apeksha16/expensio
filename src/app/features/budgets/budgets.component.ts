@@ -40,11 +40,11 @@ import { Router } from '@angular/router';
               </svg>
             </div>
             <div class="flex flex-col">
-              <span class="text-[10px] font-bold text-emerald-100 uppercase tracking-wider mb-0.5">
+              <span class="text-xs font-bold text-emerald-100 uppercase tracking-wider mb-0.5">
                 Total Allocation
               </span>
               @if (budgetService.isLoading()) {
-                <div class="h-8 w-24 bg-gray-800 animate-pulse rounded"></div>
+                <div class="h-8 w-24 bg-white/20 animate-pulse rounded"></div>
               } @else {
                 <span class="text-2xl font-bold tracking-tight">
                   ₹{{ monthlySalary() | number: '1.0-0' }}
@@ -57,11 +57,11 @@ import { Router } from '@angular/router';
           <div class="flex flex-col items-end gap-1">
             <div class="flex items-center gap-2">
               <div class="flex flex-col items-end">
-                <span class="text-[10px] font-bold text-emerald-100 uppercase tracking-wider mb-0.5">
+                <span class="text-xs font-bold text-emerald-100 uppercase tracking-wider mb-0.5">
                   Allocated
                 </span>
                 @if (budgetService.isLoading()) {
-                  <div class="h-6 w-16 bg-emerald-500 animate-pulse rounded"></div>
+                  <div class="h-6 w-16 bg-white/20 animate-pulse rounded"></div>
                 } @else {
                   <span class="text-lg font-bold text-white">
                     ₹{{ totalAllocated() | number: '1.0-0' }}
@@ -78,7 +78,7 @@ import { Router } from '@angular/router';
             <div class="h-full bg-white transition-all duration-1000 ease-out rounded-full"
                  [style.width.%]="!budgetService.isLoading() && animateBars() ? globalProgressPercent() : 0"></div>
           </div>
-          <div class="flex justify-between items-center text-[11px] font-medium">
+          <div class="flex justify-between items-center text-xs font-medium">
             <span class="text-emerald-50">{{ globalProgressPercent() | number: '1.0-0' }}% of total allocation used</span>
             <span class="text-white">₹{{ monthlySalary() - totalAllocated() | number: '1.0-0' }} left</span>
           </div>
@@ -91,18 +91,18 @@ import { Router } from '@angular/router';
       <div class="flex-1 overflow-y-auto px-5 pb-32 flex flex-col gap-3">
         @if (budgetService.isLoading()) {
           @for (i of [1, 2, 3, 4, 5]; track i) {
-            <div class="w-full bg-gray-50 rounded-2xl p-4 flex flex-col gap-3 h-[90px] animate-pulse border border-gray-100">
+            <div class="w-full bg-slate-50 rounded-2xl p-4 flex flex-col gap-3 h-[90px] animate-pulse border border-slate-100">
               <div class="flex justify-between items-center w-full">
                 <div class="flex items-center gap-3 w-1/2">
-                  <div class="w-12 h-12 bg-gray-200 rounded-2xl shrink-0"></div>
+                  <div class="w-12 h-12 bg-slate-200 rounded-2xl shrink-0"></div>
                   <div class="flex flex-col gap-2 w-full">
-                    <div class="h-4 bg-gray-200 w-2/3 rounded"></div>
-                    <div class="h-3 bg-gray-200 w-1/2 rounded"></div>
+                    <div class="h-4 bg-slate-200 w-2/3 rounded"></div>
+                    <div class="h-3 bg-slate-200 w-1/2 rounded"></div>
                   </div>
                 </div>
                 <div class="flex flex-col items-end gap-1">
-                  <div class="h-5 bg-gray-200 w-16 rounded"></div>
-                  <div class="h-3 bg-gray-200 w-12 rounded"></div>
+                  <div class="h-5 bg-slate-200 w-16 rounded"></div>
+                  <div class="h-3 bg-slate-200 w-12 rounded"></div>
                 </div>
               </div>
             </div>
@@ -112,7 +112,7 @@ import { Router } from '@angular/router';
             @for (budget of budgetService.budgets(); track budget) {
               <button
                 (click)="openBudget(budget)"
-                class="w-full bg-budget-primary/[0.03] border border-budget-primary/10 rounded-2xl p-4 flex flex-col gap-4 text-left shadow-sm hover:shadow-md transition-all active:scale-[0.99]"
+                class="w-full bg-budget-primary/[0.03] border border-budget-primary/10 rounded-2xl p-4 flex flex-col gap-4 text-left shadow-sm transition-all active:scale-[0.99]"
               >
                 <div class="flex justify-between items-start w-full">
                   <div class="flex items-center gap-3">
@@ -149,21 +149,21 @@ import { Router } from '@angular/router';
                 
                 <!-- Progress Bar inline with percentage -->
                 <div class="flex items-center gap-3 w-full">
-                  <div class="h-2 flex-1 bg-gray-100 rounded-full overflow-hidden">
+                  <div class="h-2 flex-1 bg-slate-50 rounded-full overflow-hidden">
                     <div
                       class="h-full transition-all duration-1000 ease-out rounded-full"
                       [style.width.%]="!budgetService.isLoading() && animateBars() ? getPercent(budget.name, budget.id === 'virtual-others' ? monthlySalary() - totalAllocated() : budget.amount + (budget.rollover_amount || 0)) : 0"
                       [ngClass]="getCategoryProgressColor(budget.name)"
                     ></div>
                   </div>
-                  <span class="text-[11px] font-bold text-gray-500 w-8 text-right">{{ getPercent(budget.name, budget.id === 'virtual-others' ? monthlySalary() - totalAllocated() : budget.amount + (budget.rollover_amount || 0)) | number: '1.0-0' }}%</span>
+                  <span class="text-xs font-bold text-gray-500 w-8 text-right">{{ getPercent(budget.name, budget.id === 'virtual-others' ? monthlySalary() - totalAllocated() : budget.amount + (budget.rollover_amount || 0)) | number: '1.0-0' }}%</span>
                 </div>
               </button>
             }
           } @else {
-            <div class="mt-4 w-full bg-[#FCFCFD] border border-dashed border-gray-200 rounded-[24px] p-8 flex flex-col items-center justify-center text-center">
-              <div class="w-12 h-12 bg-indigo-50 rounded-[14px] flex items-center justify-center mb-3">
-                <svg class="w-6 h-6 text-[#5421E6]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div class="mt-4 w-full bg-[#FCFCFD] border border-solid border-slate-100 shadow-sm rounded-[24px] p-8 flex flex-col items-center justify-center text-center">
+              <div class="w-12 h-12 bg-budget-surface rounded-[14px] flex items-center justify-center mb-3">
+                <svg class="w-6 h-6 text-budget-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>

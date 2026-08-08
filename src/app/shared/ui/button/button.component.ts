@@ -11,7 +11,7 @@ import { NgClass } from '@angular/common';
       [disabled]="isLoading()"
       (click)="clicked.emit()"
       class="w-full font-bold tracking-widest uppercase transition-all duration-200 active:scale-95 flex justify-center items-center gap-2 touch-manipulation focus:outline-none focus:ring-0 px-4 py-3 min-h-[48px] rounded-xl shadow-md disabled:opacity-70 disabled:cursor-not-allowed disabled:active:scale-100 text-[11px]"
-      [ngClass]="isGoogle() ? 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200 shadow-sm' : 'bg-black text-white hover:bg-gray-900 shadow-black/20'"
+      [ngClass]="isGoogle() ? 'bg-white text-gray-700 border border-gray-200 shadow-sm' : 'bg-black text-white shadow-black/20'"
     >
       @if (isLoading()) {
         <svg
