@@ -30,7 +30,6 @@ import { ToastComponent } from './shared/ui/toast/toast.component';
   standalone: true,
   imports: [RouterOutlet, ToastComponent],
   templateUrl: './app.html',
-  styleUrl: './app.css',
   changeDetection: ChangeDetectionStrategy.Default,
   animations: [
     slideInAnimation,
