@@ -2,15 +2,7 @@ import { Injectable, signal, inject, effect, untracked } from '@angular/core';
 import { UserProfile, AuthService } from './auth.service';
 import { SupabaseService } from './supabase.service';
 
-export interface FriendRelationship {
-  id: string;
-  requester_id: string;
-  addressee_id: string;
-  status: 'pending' | 'accepted';
-  created_at: string;
-  requester?: UserProfile;
-  addressee?: UserProfile;
-}
+
 
 export interface FriendData {
   id: string;

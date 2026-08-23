@@ -5,7 +5,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { routes } from './app.routes';
 import { provideServiceWorker } from '@angular/service-worker';
 
-export class CustomRouteReuseStrategy extends BaseRouteReuseStrategy {
+class CustomRouteReuseStrategy extends BaseRouteReuseStrategy {
   override shouldReuseRoute(future: ActivatedRouteSnapshot, curr: ActivatedRouteSnapshot): boolean {
     if (future.routeConfig?.loadComponent === curr.routeConfig?.loadComponent && 
         future.data['animationIndex'] !== curr.data['animationIndex']) {

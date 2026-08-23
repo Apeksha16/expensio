@@ -321,7 +321,7 @@ import { MonthPickerService } from '../services/month-picker.service';
       }
 
       <!-- Global Floating Action Button -->
-      @if (!isProfilePage() && !isDashboardPage() && !isReportsPage()) {
+      @if (!isProfilePage() && !isDashboardPage()) {
         <button
           (click)="handleFabClick()"
           class="fixed right-5 w-14 h-14 text-white rounded-full flex items-center justify-center z-40 shadow-xl transition-all duration-200 active:scale-90"
@@ -389,7 +389,7 @@ export class Layout implements AfterViewInit {
   isBudgetExpensesPage = computed(() => this.currentUrl().match(/\/budgets\/.+/) !== null);
   isGoalTransactionsPage = computed(() => this.currentUrl().match(/\/goals\/.+/) !== null);
   isLedgerDetailsPage = computed(() => this.currentUrl().match(/\/ledger\/.+/) !== null);
-  isReportsPage = computed(() => this.currentUrl().includes('/reports'));
+
   isExpensesPage = computed(() => this.currentUrl().includes('/expenses'));
   isBudgetsPage = computed(() => this.currentUrl().includes('/budgets') && !this.isBudgetExpensesPage());
 
@@ -460,7 +460,7 @@ export class Layout implements AfterViewInit {
     if (url.includes('/goals')) return 'Goals';
     if (url.includes('/ledger')) return 'Ledger';
     if (url.includes('/tracker')) return 'Accounts Tracker';
-    if (url.includes('/reports')) return 'Reports';
+
     if (url.includes('/profile')) return 'Profile';
     return 'Dashboard';
   });
@@ -626,8 +626,7 @@ export class Layout implements AfterViewInit {
         return { bg: 'bg-goals-primary', border: 'border-goals-primary', text: 'text-goals-primary' };
       case 'ledger':
         return { bg: 'bg-ledger-primary', border: 'border-ledger-primary', text: 'text-ledger-primary' };
-      case 'reports':
-        return { bg: 'bg-reports-primary', border: 'border-reports-primary', text: 'text-reports-primary' };
+
       case 'tracker':
         return { bg: 'bg-tracker-primary', border: 'border-tracker-primary', text: 'text-tracker-primary' };
       case 'profile':
