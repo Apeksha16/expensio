@@ -13,141 +13,163 @@ import { ConfirmService } from '../../core/services/confirm.service';
   },
   changeDetection: ChangeDetectionStrategy.Default,
   template: `
-    <div class="h-full bg-white p-4 flex flex-col gap-4">
-      <!-- Summary Header -->
-      <div class="bg-white text-gray-900 border border-slate-100 p-5 rounded-2xl shadow-sm">
-        <h2 class="text-xs font-black text-gray-500 uppercase tracking-widest mb-1">
-          Your Net Balance
-        </h2>
-        <p class="text-4xl font-extrabold tracking-tight text-gray-900">
-          {{ ledgerService.netBalance() >= 0 ? '+' : '' }}₹{{ ledgerService.netBalance() | number: '1.2-2' }}
-        </p>
-        <p class="text-xs font-bold mt-1 text-gray-500">
-          @if (ledgerService.netBalance() > 0) {
-            Others owe you
-          } @else if (ledgerService.netBalance() < 0) {
-            You owe others
-          } @else {
-            All settled!
-          }
-        </p>
-        <div class="flex justify-between items-center mt-5 pt-4 border-t border-slate-100 text-xs font-bold uppercase tracking-widest text-gray-500">
-          <div>
-            Money In:
-            <span class="text-emerald-500 ml-1 font-extrabold">₹{{ ledgerService.totalReceived() | number: '1.0-0' }}</span>
-          </div>
-          <div>
-            Money Out:
-            <span class="text-red-500 ml-1 font-extrabold">₹{{ ledgerService.totalGiven() | number: '1.0-0' }}</span>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Ledger Entry List -->
-      <div class="flex-1 flex flex-col gap-4 pb-28 mt-1 overflow-y-auto overflow-x-hidden no-scrollbar">
+    <div class="h-full bg-white flex flex-col relative">
+      <!-- Fixed Header Container -->
+      <div class="px-4 pt-4 shrink-0 flex flex-col gap-4">
         @if (ledgerService.isLoading()) {
-          @for (i of [1, 2, 3]; track i) {
-            <div class="w-full bg-slate-50 rounded-2xl p-4 flex flex-col gap-4 border border-slate-100 animate-pulse h-[130px]">
-              <div class="flex justify-between items-center">
-                <div class="flex items-center gap-3 w-2/3">
-                  <div class="w-10 h-10 rounded-xl bg-slate-200 shrink-0 border border-gray-300"></div>
-                  <div class="flex flex-col gap-2 w-full">
-                    <div class="h-4 bg-slate-200 rounded w-1/2"></div>
-                    <div class="h-2 bg-slate-200 rounded w-1/3"></div>
-                  </div>
-                </div>
-                <div class="h-5 bg-slate-200 rounded w-16 shrink-0 ml-3"></div>
-              </div>
-              <div class="flex justify-between items-center pt-3 border-t border-slate-100 border-dashed">
-                <div class="h-2.5 bg-slate-200 rounded w-1/3"></div>
-                <div class="h-6 bg-slate-200 rounded w-16 shrink-0"></div>
-              </div>
-            </div>
-          }
+          <!-- Top Summary Box Shimmer -->
+          <div class="flex gap-4 w-full">
+            <div class="flex-1 bg-slate-50 border border-slate-100 rounded-3xl h-[160px] animate-pulse"></div>
+            <div class="flex-1 bg-slate-50 border border-slate-100 rounded-3xl h-[160px] animate-pulse"></div>
+          </div>
         } @else {
-          @if (filteredEntries().length > 0) {
-            @for (entry of filteredEntries(); track entry.id) {
-              <div
-                (click)="viewDetails(entry.id)"
-                role="button"
-                tabindex="0"
-                class="w-full bg-white rounded-2xl p-4 flex flex-col gap-3 text-left shadow-sm transition-all active:scale-[0.99] border border-slate-100 relative overflow-hidden"
-              >
-                <!-- Top Row: Avatar, Name, Amount -->
-                <div class="flex justify-between items-center w-full">
-                  <div class="flex items-center gap-3 min-w-0">
-                    <div class="w-10 h-10 rounded-xl bg-ledger-primary/10 text-ledger-primary flex items-center justify-center shrink-0">
-                      <span class="text-base font-black">{{ entry.person_name.charAt(0).toUpperCase() }}</span>
-                    </div>
-                    <div class="flex flex-col min-w-0">
-                      <span class="font-extrabold text-lg text-gray-900 truncate">{{ entry.person_name }}</span>
-                      <span class="text-[9px] font-bold text-gray-500 uppercase tracking-widest mt-0.5">
-                        {{ entry.date | date: 'MMM d, h:mm a' }}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div class="flex flex-col items-end shrink-0 pl-3">
-                    <span
-                      class="font-black text-xl"
-                      [class.text-emerald-600]="ledgerService.getLedgerBalance(entry) > 0"
-                      [class.text-red-600]="ledgerService.getLedgerBalance(entry) < 0"
-                      [class.text-black]="ledgerService.getLedgerBalance(entry) === 0"
-                    >
-                      {{ ledgerService.getLedgerBalance(entry) > 0 ? '+' : '' }}₹{{ ledgerService.getLedgerBalance(entry) | number: '1.0-0' }}
-                    </span>
-                  </div>
-                </div>
-
-                <!-- Bottom Row: Purpose and Status Tag -->
-                <div class="flex justify-between items-center w-full pt-3 border-t border-slate-100 border-dashed mt-1">
-                  <span class="text-xs font-bold text-gray-500 uppercase tracking-widest truncate pr-4">
-                    {{ entry.purpose || 'No note' }}
-                  </span>
-
-                  <div class="shrink-0 flex items-center gap-2">
-                    @if (ledgerService.getLedgerBalance(entry) < 0) {
-                      <button
-                        (click)="settleUp($event, entry)"
-                        class="text-[9px] font-bold text-gray-700 border border-slate-100 bg-white shadow-sm active:scale-[0.95] px-3 py-1.5 rounded-xl uppercase tracking-widest transition-all"
-                      >
-                        Received back
-                      </button>
-                      <span class="text-[9px] font-bold text-emerald-800 bg-emerald-100 px-2 py-1 rounded-lg uppercase tracking-widest">
-                        They owe you
-                      </span>
-                    } @else if (ledgerService.getLedgerBalance(entry) > 0) {
-                      <button
-                        (click)="settleUp($event, entry)"
-                        class="text-[9px] font-bold text-gray-700 border border-slate-100 bg-white shadow-sm active:scale-[0.95] px-3 py-1.5 rounded-xl uppercase tracking-widest transition-all"
-                      >
-                        Paid back
-                      </button>
-                      <span class="text-[9px] font-bold text-red-800 bg-red-100 px-2 py-1 rounded-lg uppercase tracking-widest">
-                        You owe
-                      </span>
-                    } @else {
-                      <span class="text-[9px] font-bold text-gray-500 bg-slate-50 px-2 py-1 rounded-lg uppercase tracking-widest">
-                        Settled
-                      </span>
-                    }
-                  </div>
-                </div>
-              </div>
-            }
-          } @else {
-            <div class="mt-4 w-full bg-[#FCFCFD] border border-solid border-slate-100 shadow-sm rounded-[24px] p-8 flex flex-col items-center justify-center text-center">
-              <div class="w-12 h-12 bg-ledger-primary/10 rounded-[14px] flex items-center justify-center mb-3">
-                <svg class="w-6 h-6 text-ledger-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+          <!-- Summary Cards -->
+          <div class="flex gap-4 w-full">
+            <!-- Money In -->
+            <div class="flex-1 bg-[#EFF6FF] rounded-3xl p-5 flex flex-col items-start relative overflow-hidden shadow-sm">
+              <div class="w-10 h-10 rounded-full bg-[#DBEAFE] flex items-center justify-center mb-4">
+                <svg class="w-5 h-5 text-ledger-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                 </svg>
               </div>
-              <h4 class="text-sm font-bold text-slate-800 mb-1">No records yet</h4>
-              <p class="text-xs text-slate-500 max-w-[250px]">
-                Tap + to track money you've given to or received from someone.
-              </p>
+              <span class="text-xs font-bold text-gray-500 mb-1">Money In</span>
+              <span class="text-2xl font-extrabold text-gray-900 tracking-tight truncate w-full">
+                ₹{{ ledgerService.totalReceived() | number: '1.0-0' }}
+              </span>
             </div>
-          }
+
+            <!-- Money Out -->
+            <div class="flex-1 bg-[#FFF0F4] rounded-3xl p-5 flex flex-col items-start relative overflow-hidden shadow-sm">
+              <div class="w-10 h-10 rounded-full bg-[#FFE4EC] flex items-center justify-center mb-4">
+                <svg class="w-5 h-5 text-[#E11D48]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                </svg>
+              </div>
+              <span class="text-xs font-bold text-gray-500 mb-1">Money Out</span>
+              <span class="text-2xl font-extrabold text-gray-900 tracking-tight truncate w-full">
+                ₹{{ ledgerService.totalGiven() | number: '1.0-0' }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Tabs -->
+          <div class="w-full bg-slate-50 p-1.5 rounded-[16px] flex shrink-0 mt-2">
+            <button
+              (click)="activeTab.set('pending')"
+              [class.bg-white]="activeTab() === 'pending'"
+              [class.text-ledger-primary]="activeTab() === 'pending'"
+              [class.shadow-sm]="activeTab() === 'pending'"
+              [class.text-gray-500]="activeTab() !== 'pending'"
+              class="active:scale-[0.98] transition-all duration-200 flex-1 py-3 font-extrabold text-[13px] transition-all rounded-xl"
+            >
+              Pending
+            </button>
+            <button
+              (click)="activeTab.set('completed')"
+              [class.bg-white]="activeTab() === 'completed'"
+              [class.text-ledger-primary]="activeTab() === 'completed'"
+              [class.shadow-sm]="activeTab() === 'completed'"
+              [class.text-gray-500]="activeTab() !== 'completed'"
+              class="active:scale-[0.98] transition-all duration-200 flex-1 py-3 font-extrabold text-[13px] transition-all rounded-xl"
+            >
+              Completed
+            </button>
+          </div>
+        }
+      </div>
+      
+      <!-- Scrollable Area -->
+      <div class="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar px-4 pb-28 mt-4">
+        @if (ledgerService.isLoading()) {
+          <div class="flex flex-col gap-3">
+            @for (i of [1, 2, 3]; track i) {
+              <div class="w-full bg-slate-50 border border-slate-100 rounded-3xl h-[120px] animate-pulse"></div>
+            }
+          </div>
+        } @else {
+          <div class="flex flex-col gap-3">
+            @if (filteredEntries().length > 0) {
+              @for (entry of filteredEntries(); track entry.id) {
+                <button
+                  (click)="viewDetails(entry.id)"
+                  class="w-full bg-ledger-primary/[0.03] border border-ledger-primary/10 rounded-3xl p-4 flex flex-col gap-3 text-left shadow-sm transition-all active:scale-[0.99] overflow-hidden"
+                >
+                  <!-- Top Row: Avatar, Name, Amount -->
+                  <div class="flex justify-between items-center w-full">
+                    <div class="flex items-center gap-3.5 min-w-0">
+                      <div class="w-12 h-12 rounded-full bg-[#EFF6FF] flex items-center justify-center shrink-0">
+                        <span class="text-xl font-extrabold text-ledger-primary">{{ entry.person_name.charAt(0).toUpperCase() }}</span>
+                      </div>
+                      <div class="flex flex-col min-w-0">
+                        <span class="font-extrabold text-[16px] text-gray-900 truncate">{{ entry.person_name }}</span>
+                        <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-0.5">
+                          {{ entry.date | date: 'MMM d, h:mm a' }}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="flex flex-col items-end shrink-0 pl-3 max-w-[45%] min-w-0">
+                      <span
+                        class="font-extrabold text-xl tracking-tight leading-none truncate w-full text-right"
+                        [class.text-emerald-600]="ledgerService.getLedgerBalance(entry) > 0"
+                        [class.text-red-600]="ledgerService.getLedgerBalance(entry) < 0"
+                        [class.text-gray-900]="ledgerService.getLedgerBalance(entry) === 0"
+                      >
+                        ₹{{ (ledgerService.getLedgerBalance(entry) < 0 ? -ledgerService.getLedgerBalance(entry) : ledgerService.getLedgerBalance(entry)) | number: '1.0-0' }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Bottom Row: Purpose and Status Tag -->
+                  <div class="flex justify-between items-center w-full pt-3 border-t border-slate-100 border-dashed mt-1">
+                    <span class="text-[11px] font-semibold text-gray-500 truncate pr-4">
+                      {{ entry.purpose || 'No note' }}
+                    </span>
+
+                    <div class="shrink-0 flex items-center gap-2">
+                      @if (ledgerService.getLedgerBalance(entry) < 0) {
+                        <div
+                          (click)="settleUp($event, entry)"
+                          class="text-[10px] font-bold text-gray-700 border border-slate-200 bg-white shadow-sm active:bg-slate-50 px-3 py-1.5 rounded-xl uppercase tracking-widest transition-all cursor-pointer"
+                        >
+                          Settle
+                        </div>
+                        <span class="text-[10px] font-bold text-red-600 bg-red-50 px-2 py-1 rounded-full uppercase tracking-widest">
+                          You owe
+                        </span>
+                      } @else if (ledgerService.getLedgerBalance(entry) > 0) {
+                        <div
+                          (click)="settleUp($event, entry)"
+                          class="text-[10px] font-bold text-gray-700 border border-slate-200 bg-white shadow-sm active:bg-slate-50 px-3 py-1.5 rounded-xl uppercase tracking-widest transition-all cursor-pointer"
+                        >
+                          Settle
+                        </div>
+                        <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full uppercase tracking-widest">
+                          You get
+                        </span>
+                      } @else {
+                        <span class="text-[10px] font-bold text-gray-500 bg-slate-50 border border-slate-100 px-2 py-1 rounded-full uppercase tracking-widest">
+                          Settled
+                        </span>
+                      }
+                    </div>
+                  </div>
+                </button>
+              }
+            } @else {
+              <div class="mt-8 flex flex-col items-center justify-center text-center px-4">
+                <div class="w-40 h-40 bg-slate-50 rounded-full flex items-center justify-center mb-6 border-8 border-white shadow-sm overflow-hidden">
+                  <svg class="w-16 h-16 text-ledger-primary/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                  </svg>
+                </div>
+                <h4 class="text-[17px] font-extrabold text-gray-900 mb-2">No records yet</h4>
+                <p class="text-[13px] font-medium text-gray-500 max-w-[240px] mb-8 leading-relaxed">
+                  Tap + to track money you've given to or received from someone.
+                </p>
+              </div>
+            }
+          </div>
         }
       </div>
     </div>
@@ -158,39 +180,20 @@ export class LedgerComponent {
   router = inject(Router);
   confirmService = inject(ConfirmService);
 
-  searchQuery = signal('');
-  activeFilter = signal<'all' | 'in' | 'out'>('all');
+  activeTab = signal<'pending' | 'completed'>('pending');
 
   filteredEntries = computed(() => {
     let entries = this.ledgerService.ledgerEntries();
-    const query = this.searchQuery().toLowerCase().trim();
-    const filter = this.activeFilter();
+    const tab = this.activeTab();
 
-    if (query) {
-      entries = entries.filter(
-        (e) =>
-          e.person_name.toLowerCase().includes(query) ||
-          (e.purpose && e.purpose.toLowerCase().includes(query)),
-      );
-    }
-
-    if (filter === 'in') {
-      entries = entries.filter((e) => this.ledgerService.getLedgerBalance(e) >= 0);
-    } else if (filter === 'out') {
-      entries = entries.filter((e) => this.ledgerService.getLedgerBalance(e) < 0);
+    if (tab === 'pending') {
+      entries = entries.filter((e) => this.ledgerService.getLedgerBalance(e) !== 0);
+    } else if (tab === 'completed') {
+      entries = entries.filter((e) => this.ledgerService.getLedgerBalance(e) === 0);
     }
 
     return entries;
   });
-
-  onSearchInput(event: Event) {
-    const input = event.target as HTMLInputElement;
-    this.searchQuery.set(input.value);
-  }
-
-  setFilter(filter: 'all' | 'in' | 'out') {
-    this.activeFilter.set(filter);
-  }
 
   viewDetails(id: string) {
     this.router.navigate(['/ledger', id]);
@@ -202,26 +205,10 @@ export class LedgerComponent {
     if (balance === 0) return;
 
     const amountToSettle = Math.abs(balance);
-    const type = balance < 0 ? 'in' : 'out';
+    // If balance < 0 (You owe them), settling means you are giving money (out).
+    // If balance > 0 (They owe you), settling means you are receiving money (in).
+    const type = balance < 0 ? 'out' : 'in';
 
-    this.confirmService.open({
-      title: 'Settle Balance',
-      message: `How much are you settling now?`,
-      confirmText: 'Settle',
-      cancelText: 'Cancel',
-      showInput: true,
-      inputValue: amountToSettle,
-      inputMax: amountToSettle,
-      onConfirm: async (amount?: number) => {
-        const finalAmount = amount && amount > 0 ? amount : amountToSettle;
-        await this.ledgerService.addSubEntry({
-          ledger_id: entry.id,
-          amount: finalAmount,
-          type: type,
-          purpose: 'Settled',
-          date: new Date().toISOString(),
-        });
-      }
-    });
+    this.ledgerService.openSubBottomSheetForSettlement(entry, amountToSettle, type);
   }
 }

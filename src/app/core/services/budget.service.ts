@@ -96,6 +96,21 @@ export class BudgetService {
     return monthlySalary - allocated;
   });
 
+  sortCategories<T extends {name: string}>(categories: T[]): T[] {
+    return categories.sort((a, b) => {
+      const aName = a.name.toLowerCase();
+      const bName = b.name.toLowerCase();
+      
+      const aIsOther = aName === 'others' || aName === 'other';
+      const bIsOther = bName === 'others' || bName === 'other';
+      
+      if (aIsOther && !bIsOther) return 1;
+      if (!aIsOther && bIsOther) return -1;
+      
+      return aName.localeCompare(bName);
+    });
+  }
+
   openBottomSheet(budget?: Budget) {
     if (budget) {
       this.editingBudget.set(budget);
@@ -185,7 +200,7 @@ export class BudgetService {
 
     if (!error && data) {
       if (data.length === 0) {
-        // Try to rollover from previous month
+        // Try to rollover from previous month safely via backend RPC
         const [year, m] = monthStr.split('-');
         let prevM = parseInt(m) - 1;
         let prevY = parseInt(year);
@@ -195,44 +210,25 @@ export class BudgetService {
         }
         const prevMonthStr = `${prevY}-${prevM.toString().padStart(2, '0')}`;
         
-        const { data: prevData, error: prevError } = await this.supabaseService.client
-          .from('budgets')
-          .select('*')
-          .eq('month', prevMonthStr)
-          .eq('auto_rollover', true);
+        const { error: rpcError } = await this.supabaseService.client.rpc('safely_rollover_budgets', {
+          p_target_month: monthStr,
+          p_prev_month: prevMonthStr
+        });
           
-        if (!prevError && prevData && prevData.length > 0) {
-          const user = this.authService.currentUser();
-          if (user) {
-            const newBudgets = prevData.map(b => {
-              return {
-                user_id: user.id,
-                name: b.name,
-                amount: b.amount,
-                icon_path: b.icon_path,
-                month: monthStr,
-                auto_rollover: true,
-                rollover_amount: 0
-              };
-            });
+        if (!rpcError) {
+          // Re-fetch after potential rollover insertion
+          const { data: refetchedData } = await this.supabaseService.client
+            .from('budgets')
+            .select('*')
+            .eq('month', monthStr)
+            .order('created_at', { ascending: true });
             
-            const { data: insertedData, error: insertError } = await this.supabaseService.client
-              .from('budgets')
-              .insert(newBudgets)
-              .select();
-              
-            if (!insertError && insertedData) {
-              this._budgetsCache.update(c => ({...c, [monthStr]: insertedData as Budget[]}));
-              this.isLoading.set(false);
-              return;
-            } else {
-              // Rollover failed — show error and fall back to displaying last month's budgets
-              this.toastService.showError("Couldn't load budget.");
-              this._budgetsCache.update(c => ({...c, [monthStr]: prevData as Budget[]}));
-              this.isLoading.set(false);
-              return;
-            }
-          }
+          this._budgetsCache.update(c => ({...c, [monthStr]: (refetchedData || []) as Budget[]}));
+          this.isLoading.set(false);
+          return;
+        } else {
+          // Fallback if RPC fails
+          console.error("Budget rollover RPC failed", rpcError);
         }
       }
       this._budgetsCache.update(c => ({...c, [monthStr]: data as Budget[]}));
@@ -310,22 +306,7 @@ export class BudgetService {
           break;
         }
       }
-
-      // If the name changed, cascade the update to expenses ONLY in the budget's month
-      if (oldName && oldName !== data.name) {
-        const user = this.authService.currentUser();
-        if (user) {
-          const { startDate, endDate } = this.getMonthDateRange(targetMonth);
-          
-          await this.supabaseService.client
-            .from('expenses')
-            .update({ category: data.name })
-            .eq('user_id', user.id)
-            .eq('category', oldName)
-            .gte('date', startDate)
-            .lt('date', endDate);
-        }
-      }
+      // Budget rename cascading is now handled securely and atomically by the trg_cascade_budget_rename Postgres trigger.
 
       this._budgetsCache.update(c => {
         const next = { ...c };

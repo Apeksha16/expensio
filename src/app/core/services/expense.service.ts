@@ -36,12 +36,19 @@ export class ExpenseService {
       const user = this.authService.currentUser();
       const month = this.activeMonth(); // Track month changes
       if (user) {
-        this.fetchExpenses(month);
-      } else if (untracked(() => this.authService.isInitialized())) {
+        untracked(() => {
+          this.fetchExpenses(month);
+          this.setupRealtime(month);
+        });
+      } else {
         this.allExpenses.set([]);
         this.monthlyCache.clear();
         this.applyFilterAndPagination();
         this.hasInitiallyLoaded.set(true);
+        if (this.realtimeChannel) {
+          this.supabaseService.client.removeChannel(this.realtimeChannel);
+          this.realtimeChannel = null;
+        }
       }
     });
 
@@ -94,8 +101,28 @@ export class ExpenseService {
   }
 
   private monthlyCache = new Map<string, Expense[]>();
+  private realtimeChannel: any = null;
+  private fetchDebounceTimeout: any = null;
 
-  async fetchExpenses(monthStr?: string) {
+  private setupRealtime(monthStr: string) {
+    const user = this.authService.currentUser();
+    if (!user) return;
+
+    if (this.realtimeChannel) {
+      this.supabaseService.client.removeChannel(this.realtimeChannel);
+    }
+    
+    this.realtimeChannel = this.supabaseService.client.channel('public:expenses')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'expenses', filter: `user_id=eq.${user.id}` }, () => {
+        if (this.fetchDebounceTimeout) clearTimeout(this.fetchDebounceTimeout);
+        this.fetchDebounceTimeout = setTimeout(() => {
+          this.fetchExpenses(this.activeMonth(), true);
+        }, 150);
+      })
+      .subscribe();
+  }
+
+  async fetchExpenses(monthStr?: string, force = false) {
     this.isLoading.set(true);
     const month = monthStr || this.activeMonth();
 
@@ -106,7 +133,7 @@ export class ExpenseService {
     const startDate = localStart.toISOString();
     const nextMonthStr = localEnd.toISOString();
 
-    if (this.monthlyCache.has(month)) {
+    if (!force && this.monthlyCache.has(month)) {
       this.allExpenses.set(this.monthlyCache.get(month)!);
       this.applyFilterAndPagination();
       this.hasInitiallyLoaded.set(true);
@@ -250,21 +277,14 @@ export class ExpenseService {
       .single();
 
     if (!error && data) {
-      this.monthlyCache.clear(); // Invalidate cache on mutation
-      this.allExpenses.update(exps => {
-        const updated = [data as Expense, ...exps];
-        return updated.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-      });
-      this.applyFilterAndPagination();
+      const currentMonth = this.activeMonth();
+      const exps = this.allExpenses();
+      const updated = [data as Expense, ...exps];
+      updated.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       
-      // Deduct from Cash / Salary Account in AccountTrackerService
-      const trackerService = this.injector.get(AccountTrackerService);
-      trackerService.recordExpensePayment(
-        expense.paid_via || 'UPI',
-        expense.amount,
-        expense.title,
-        expense.date
-      );
+      this.allExpenses.set(updated);
+      this.monthlyCache.set(currentMonth, updated); // Specific cache update
+      this.applyFilterAndPagination();
 
       if (!silent) {
         this.toastService.showSuccess('Expense added successfully.');
@@ -300,44 +320,16 @@ export class ExpenseService {
       .eq('id', id);
 
     if (!error) {
-      this.monthlyCache.clear(); // Invalidate cache on mutation
-      this.allExpenses.update(exps => {
-        const updated = exps.map(exp => exp.id === id ? { ...exp, ...data } : exp);
-        return updated.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-      });
-      this.applyFilterAndPagination();
+      const currentMonth = this.activeMonth();
+      const exps = this.allExpenses();
+      const updated = exps.map(exp => exp.id === id ? { ...exp, ...data } : exp);
+      updated.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       
-      // Trigger Budget Rollover Sync for the new category/date
-      const budgetService = this.injector.get(BudgetService);
-      budgetService.syncRolloverForMonth(data.date, data.category);
+      this.allExpenses.set(updated);
+      this.monthlyCache.set(currentMonth, updated); // Specific cache update
+      this.applyFilterAndPagination();
 
-      // Trigger Budget Rollover Sync for the old category/date if it changed
-      if (oldExpense) {
-        if (oldExpense.category !== data.category || oldExpense.date !== data.date) {
-          budgetService.syncRolloverForMonth(oldExpense.date, oldExpense.category);
-        }
-      }
-
-      // Trigger Goal Progress Sync
-      if (data.category === 'virtual-invest' || oldExpense?.category === 'virtual-invest') {
-        const goalService = this.injector.get(GoalService);
-        const titleToSync = data.category === 'virtual-invest' ? data.title : oldExpense?.title;
-        if (titleToSync) {
-          goalService.recalculateSavedAmount(titleToSync);
-        }
-      }
-
-      // Sync with AccountTrackerService
-      const trackerService = this.injector.get(AccountTrackerService);
-      if (oldExpense) {
-        trackerService.revertExpensePayment(oldExpense.paid_via || 'UPI', oldExpense.amount, oldExpense.title);
-      }
-      trackerService.recordExpensePayment(
-        data.paid_via || 'UPI',
-        data.amount,
-        data.title,
-        data.date
-      );
+      // Goal Progress Sync is now handled atomically by the trg_sync_goal_progress Postgres trigger
 
       if (!silent) {
         this.toastService.showSuccess('Expense updated successfully.');
@@ -368,15 +360,15 @@ export class ExpenseService {
       .eq('category', 'virtual-invest');
 
     if (!error) {
-      this.monthlyCache.clear(); // Invalidate cache
-      this.allExpenses.update(exps => {
-        return exps.map(exp => {
-          if ((exp.title === oldTitleWithPrefix || exp.title === oldTitleWithoutPrefix) && exp.category === 'virtual-invest') {
-            return { ...exp, title: newTitle };
-          }
-          return exp;
-        });
+      const currentMonth = this.activeMonth();
+      const updated = this.allExpenses().map(exp => {
+        if ((exp.title === oldTitleWithPrefix || exp.title === oldTitleWithoutPrefix) && exp.category === 'virtual-invest') {
+          return { ...exp, title: newTitle };
+        }
+        return exp;
       });
+      this.allExpenses.set(updated);
+      this.monthlyCache.set(currentMonth, updated); // Specific cache update
       this.applyFilterAndPagination();
       return true;
     }
@@ -389,60 +381,45 @@ export class ExpenseService {
       this.toastService.showError('This expense can only be deleted from Splits.');
       return false;
     }
-    
+
     const expense = this.allExpenses().find(e => e.id === id);
-    
+
     const { error } = await this.supabaseService.client
       .from('expenses')
       .delete()
       .eq('id', id);
 
-    if (!error) {
-      this.monthlyCache.clear(); // Invalidate cache
-      this.allExpenses.update(exps => exps.filter(exp => exp.id !== id));
-      this.applyFilterAndPagination();
-      
-      if (expense) {
-        // Trigger Budget Rollover Sync
-        const budgetService = this.injector.get(BudgetService);
-        budgetService.syncRolloverForMonth(expense.date, expense.category);
-        
-        // Trigger Goal Progress Sync
-        if (expense.category === 'virtual-invest') {
-          const goalService = this.injector.get(GoalService);
-          goalService.recalculateSavedAmount(expense.title);
-        }
-        
-        // Trigger Subscription Sync
-        if (expense.subscription_id) {
-          await this.supabaseService.client
-            .from('subscriptions')
-            .update({ last_paid_month: null })
-            .eq('id', expense.subscription_id);
-        }
-
-        // Revert deduction in AccountTrackerService
-        const trackerService = this.injector.get(AccountTrackerService);
-        trackerService.revertExpensePayment(expense.paid_via || 'UPI', expense.amount, expense.title);
-      }
-
+    if (error) {
+      console.error('Error deleting expense:', error);
+      this.toastService.showError("Couldn't delete expense. Please try again.");
+      return false;
+    } else {
       this.toastService.showSuccess('Expense deleted successfully.');
+      
+      // Note: If expense had a subscription_id, the trg_sync_subscription_status
+      // trigger in Postgres will automatically reset the subscription's last_paid_month.
+
+      // We still update local state optimistically.
+      this.allExpenses.update(expenses => expenses.filter(e => e.id !== id));
+      this.applyFilterAndPagination();
+      this.monthlyCache.set(this.activeMonth(), this.allExpenses());
       return true;
     }
-    this.toastService.showError("Couldn't delete expense. Please try again.");
-    return false;
   }
 
   getConsumedForCategory(category: string): number {
     const month = this.activeMonth();
-    const catLower = category.toLowerCase();
+    const catLower = category.toLowerCase().trim();
     return this.allExpenses()
       .filter(e => {
         const d = new Date(e.date);
         const mStr = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}`;
         if (mStr !== month) return false;
+        
         const eCat = e.category.toLowerCase();
-        return eCat === catLower || eCat === `${catLower} (split)` || eCat === `${catLower} (group split)` || eCat === `${catLower} (subscription)`;
+        // Exact match or matches the category name immediately followed by a space and parenthetical string
+        // E.g. "Food" matches "food (split)", "food (subscription)", etc.
+        return eCat === catLower || eCat.startsWith(`${catLower} (`);
       })
       .reduce((sum, e) => sum + e.amount, 0);
   }

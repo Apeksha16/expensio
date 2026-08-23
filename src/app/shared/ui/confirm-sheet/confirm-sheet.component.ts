@@ -75,7 +75,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                 appAutofocus
                 appSafeInput
                 [max]="confirmService.config()?.inputMax ?? null"
-                class="w-full bg-white border-2 border-gray-100 text-slate-900 font-bold text-2xl rounded-2xl px-4 py-4 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-300 focus:border-red-500 focus:ring-4 focus:ring-red-500/15"
+                class="w-full bg-white border-2 border-gray-100 text-slate-900 font-bold text-2xl rounded-2xl px-4 py-3 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-300 focus:border-red-500 focus:ring-4 focus:ring-red-500/15"
               />
             </div>
           }

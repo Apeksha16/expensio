@@ -163,7 +163,7 @@ import { AutofocusDirective } from '../autofocus.directive';
                       inputmode="numeric"
                       placeholder="0"
                       (keydown)="preventE($event)"
-                      class="w-full bg-white border-2 border-gray-100 text-slate-900 font-bold text-2xl rounded-2xl pl-10 pr-4 py-4 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-300 focus:border-goals-primary focus:ring-4 focus:ring-goals-primary/15"
+                      class="w-full bg-white border-2 border-gray-100 text-slate-900 font-bold text-2xl rounded-2xl pl-10 pr-4 py-3 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-300 focus:border-goals-primary focus:ring-4 focus:ring-goals-primary/15"
                     />
                   </div>
                 </div>
@@ -174,7 +174,7 @@ import { AutofocusDirective } from '../autofocus.directive';
               <button
                 type="button"
                 (click)="close()"
-                class="flex-1 font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-slate-100 text-slate-700 text-center"
+                class="flex-1 font-bold rounded-2xl border-2 border-gray-100 transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-white text-slate-700 text-center shadow-sm"
               >
                 Cancel
               </button>

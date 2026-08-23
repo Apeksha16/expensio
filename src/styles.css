@@ -55,17 +55,17 @@
   --color-subscriptions-light: #e879f9;
   --color-subscriptions-surface: #fdf4ff;
 
-  /* Goals Module - Blue */
-  --color-goals-primary: #2563eb;
-  --color-goals-dark: #1d4ed8;
-  --color-goals-light: #3b82f6;
-  --color-goals-surface: #eff6ff;
+  /* Goals Module - Slate/Navy (Formerly Ledger) */
+  --color-goals-primary: #475569;
+  --color-goals-dark: #334155;
+  --color-goals-light: #64748b;
+  --color-goals-surface: #f8fafc;
 
-  /* Ledger Module - Slate/Navy */
-  --color-ledger-primary: #475569;
-  --color-ledger-dark: #334155;
-  --color-ledger-light: #64748b;
-  --color-ledger-surface: #f8fafc;
+  /* Ledger Module - Blue (Formerly Goals) */
+  --color-ledger-primary: #2563eb;
+  --color-ledger-dark: #1d4ed8;
+  --color-ledger-light: #3b82f6;
+  --color-ledger-surface: #eff6ff;
 
   /* Reports Module - Rose */
   --color-reports-primary: #e11d48;

@@ -66,26 +66,26 @@ import { HapticService } from '../../../core/services/haptic.service';
           </div>
           <div class="text-3xl font-extrabold tracking-tight">Day {{ selectedDay }}</div>
         </div>
-        <div class="p-6 bg-white flex-1 overflow-y-auto">
+        <div class="p-6 pb-12 bg-white flex-1 overflow-y-auto">
           <!-- Calendar Grid 1-31 -->
-          <div class="grid grid-cols-7 gap-1">
+          <div class="grid grid-cols-7 gap-1.5">
             @for (day of days; track day) {
               <button
                 (click)="selectDay(day)"
-                class="active:scale-[0.98] transition-all duration-200 h-10 w-full flex items-center justify-center font-bold rounded-xl transition-all text-sm"
+                class="active:scale-[0.95] transition-all duration-200 h-11 w-full flex items-center justify-center font-bold rounded-xl text-[15px]"
                 [ngClass]="{
-                  'bg-black text-white shadow-md': day === selectedDay,
-                  'text-gray-700 bg-gray-50': day !== selectedDay,
+                  'bg-slate-900 text-white shadow-md': day === selectedDay,
+                  'text-slate-700 bg-slate-50 hover:bg-slate-100': day !== selectedDay,
                 }"
               >
                 {{ day }}
               </button>
             }
           </div>
-          <div class="mt-4 mb-2">
+          <div class="mt-8 mb-2">
             <button
               (click)="confirm()"
-              class="w-full bg-slate-900 text-white px-4 py-4 text-sm font-bold rounded-2xl transition-all shadow-md active:scale-95"
+              class="w-full bg-slate-900 text-white px-4 py-4 text-[15px] font-extrabold rounded-2xl transition-all shadow-[0_8px_20px_rgba(15,23,42,0.15)] active:scale-[0.98]"
             >
               Confirm Day
             </button>

@@ -167,30 +167,30 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
                       class="transition-all duration-1000 ease-out"
                     />
                   </svg>
-                  <div class="active:scale-[0.98] transition-all duration-200 absolute inset-0 flex flex-col items-center justify-end pb-2" (click)="toggleMask(); $event.stopPropagation()">
+                  <div class="absolute inset-y-0 left-0 right-0 flex flex-col items-center justify-end pb-2">
                     <span class="text-xs font-bold tracking-widest uppercase mb-1" [class.text-red-500]="isOverBudget()" [class.text-goals-primary]="!isOverBudget()">
                       {{ isOverBudget() ? 'OVER BUDGET' : 'REMAINING' }}
                     </span>
                     <div class="w-[65%] flex justify-center overflow-hidden">
-                      <p class="font-bold tracking-tight leading-none text-center truncate" [class.text-red-500]="isOverBudget()" [class.text-slate-900]="!isOverBudget()"
-                         [style.font-size]="getFontSizeForAmount(isMasked() ? '••••' : (isOverBudget() ? '+' + (overAmount() | currency:'INR':'symbol':'1.0-0') : (remainingAmount() | currency:'INR':'symbol':'1.0-0')))">
-                        {{ isMasked() ? '••••' : (isOverBudget() ? '+' + (overAmount() | currency:'INR':'symbol':'1.0-0') : (remainingAmount() | currency:'INR':'symbol':'1.0-0')) }}
+                      <p class="font-bold tracking-tight leading-none text-center truncate cursor-pointer active:scale-95 transition-transform" (click)="toggleMask(); $event.stopPropagation()" [class.text-red-500]="isOverBudget()" [class.text-slate-900]="!isOverBudget()"
+                         [style.font-size]="getFontSizeForAmount(isMasked() ? '••••' : (isOverBudget() ? '+' + (overAmount() | currency:'INR':'₹':'1.0-0') : (remainingAmount() | currency:'INR':'₹':'1.0-0')))">
+                        {{ isMasked() ? '••••' : (isOverBudget() ? '+' + (overAmount() | currency:'INR':'₹':'1.0-0') : (remainingAmount() | currency:'INR':'₹':'1.0-0')) }}
                       </p>
                     </div>
                   </div>
                 </div>
 
-                <div class="active:scale-[0.98] transition-all duration-200 flex justify-between items-end mt-8" (click)="toggleMask(); $event.stopPropagation()">
+                <div class="flex justify-between items-end mt-8">
                   <div class="flex flex-col gap-1">
                     <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Spent This Month</p>
                     <div class="flex items-center gap-1.5">
-                      <span class="text-sm font-bold text-slate-800">{{ isMasked() ? '••••' : (thisMonthTotal() | currency:'INR':'symbol':'1.0-0') }}</span>
+                      <span class="text-sm font-bold text-slate-800 cursor-pointer active:scale-95 transition-transform inline-block" (click)="toggleMask(); $event.stopPropagation()">{{ isMasked() ? '••••' : (thisMonthTotal() | currency:'INR':'₹':'1.0-0') }}</span>
                     </div>
                   </div>
                   <div class="flex flex-col items-end gap-1">
                     <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Salary Limit</p>
                     <div class="flex items-center gap-1.5">
-                      <span class="text-sm font-bold text-slate-800">{{ isMasked() ? '••••' : (salary() | currency:'INR':'symbol':'1.0-0') }}</span>
+                      <span class="text-sm font-bold text-slate-800 cursor-pointer active:scale-95 transition-transform inline-block" (click)="toggleMask(); $event.stopPropagation()">{{ isMasked() ? '••••' : (salary() | currency:'INR':'₹':'1.0-0') }}</span>
                     </div>
                   </div>
                 </div>
@@ -223,28 +223,28 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
                       class="transition-all duration-1000 ease-out"
                     />
                   </svg>
-                  <div class="active:scale-[0.98] transition-all duration-200 absolute inset-0 flex flex-col items-center justify-end pb-2" (click)="toggleMask(); $event.stopPropagation()">
+                  <div class="absolute inset-y-0 left-0 right-0 flex flex-col items-center justify-end pb-2">
                     <span class="text-xs font-bold tracking-widest text-amber-600 uppercase mb-1">Balance</span>
                     <div class="w-[65%] flex justify-center overflow-hidden">
-                      <p class="font-bold tracking-tight text-slate-900 leading-none text-center truncate"
-                         [style.font-size]="getFontSizeForAmount(isMasked() ? '••••' : (cashBalance() | currency:'INR':'symbol':'1.0-0'))">
-                        {{ isMasked() ? '••••' : (cashBalance() | currency:'INR':'symbol':'1.0-0') }}
+                      <p class="font-bold tracking-tight text-slate-900 leading-none text-center truncate cursor-pointer active:scale-95 transition-transform inline-block" (click)="toggleMask(); $event.stopPropagation()"
+                         [style.font-size]="getFontSizeForAmount(isMasked() ? '••••' : (cashBalance() | currency:'INR':'₹':'1.0-0'))">
+                        {{ isMasked() ? '••••' : (cashBalance() | currency:'INR':'₹':'1.0-0') }}
                       </p>
                     </div>
                   </div>
                 </div>
 
-                <div class="active:scale-[0.98] transition-all duration-200 flex justify-between items-end mt-8" (click)="toggleMask(); $event.stopPropagation()">
+                <div class="flex justify-between items-end mt-8">
                   <div class="flex flex-col gap-1">
                     <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Cash Spent</p>
                     <div class="flex items-center gap-1.5">
-                      <span class="text-sm font-bold text-slate-800">{{ isMasked() ? '••••' : (cashSpent() | currency:'INR':'symbol':'1.0-0') }}</span>
+                      <span class="text-sm font-bold text-slate-800 cursor-pointer active:scale-95 transition-transform inline-block" (click)="toggleMask(); $event.stopPropagation()">{{ isMasked() ? '••••' : (cashSpent() | currency:'INR':'₹':'1.0-0') }}</span>
                     </div>
                   </div>
                   <div class="flex flex-col items-end gap-1">
                     <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Cash Balance</p>
                     <div class="flex items-center gap-1.5">
-                      <span class="text-sm font-bold text-slate-800">{{ isMasked() ? '••••' : (cashBalance() | currency:'INR':'symbol':'1.0-0') }}</span>
+                      <span class="text-sm font-bold text-slate-800 cursor-pointer active:scale-95 transition-transform inline-block" (click)="toggleMask(); $event.stopPropagation()">{{ isMasked() ? '••••' : (cashBalance() | currency:'INR':'₹':'1.0-0') }}</span>
                     </div>
                   </div>
                 </div>
@@ -272,22 +272,22 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
                       stroke-width="10"
                       stroke-linecap="round"
                       stroke-dasharray="125.66"
-                      stroke-dashoffset="0"
+                      [attr.stroke-dashoffset]="savingsGaugeOffset()"
                       class="transition-all duration-1000 ease-out"
                     />
                   </svg>
-                  <div class="active:scale-[0.98] transition-all duration-200 absolute inset-0 flex flex-col items-center justify-end pb-2" (click)="toggleMask(); $event.stopPropagation()">
+                  <div class="absolute inset-y-0 left-0 right-0 flex flex-col items-center justify-end pb-2">
                     <span class="text-xs font-bold tracking-widest text-profile-primary uppercase mb-1">Total Savings</span>
                     <div class="w-[65%] flex justify-center overflow-hidden">
-                      <p class="font-extrabold tracking-tight text-[#111111] leading-none text-center truncate"
-                         [style.font-size]="getFontSizeForAmount(isMasked() ? '••••' : (savingsBalance() | currency:'INR':'symbol':'1.0-0'))">
-                        {{ isMasked() ? '••••' : (savingsBalance() | currency:'INR':'symbol':'1.0-0') }}
+                      <p class="font-extrabold tracking-tight text-[#111111] leading-none text-center truncate cursor-pointer active:scale-95 transition-transform inline-block" (click)="toggleMask(); $event.stopPropagation()"
+                         [style.font-size]="getFontSizeForAmount(isMasked() ? '••••' : (savingsBalance() | currency:'INR':'₹':'1.0-0'))">
+                        {{ isMasked() ? '••••' : (savingsBalance() | currency:'INR':'₹':'1.0-0') }}
                       </p>
                     </div>
                   </div>
                 </div>
 
-                <div class="active:scale-[0.98] transition-all duration-200 flex justify-between items-end mt-8" (click)="toggleMask(); $event.stopPropagation()">
+                <div class="flex justify-between items-end mt-8">
                   <div class="flex flex-col gap-1">
                     <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Growth Status</p>
                     <div class="flex items-center gap-1.5">
@@ -300,7 +300,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
                   <div class="flex flex-col items-end gap-1">
                     <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Accumulated</p>
                     <div class="flex items-center gap-1.5">
-                      <span class="text-sm font-bold text-slate-800">{{ isMasked() ? '••••' : (savingsBalance() | currency:'INR':'symbol':'1.0-0') }}</span>
+                      <span class="text-sm font-bold text-slate-800 cursor-pointer active:scale-95 transition-transform inline-block" (click)="toggleMask(); $event.stopPropagation()">{{ isMasked() ? '••••' : (savingsBalance() | currency:'INR':'₹':'1.0-0') }}</span>
                     </div>
                   </div>
                 </div>
@@ -363,15 +363,15 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
 
                     <!-- Details -->
                     <div class="flex flex-col flex-1 min-w-0">
-                      <div class="flex justify-between items-start gap-1">
-                        <span class="font-semibold text-sm text-slate-800 truncate">{{ payment.title }}</span>
-                        <span class="font-bold text-sm text-slate-800 shrink-0">₹{{ payment.amount | number: '1.0-0' }}</span>
+                      <div class="flex justify-between items-start gap-2 min-w-0">
+                        <span class="font-semibold text-sm text-slate-800 truncate flex-1" [title]="payment.title">{{ payment.title }}</span>
+                        <span class="font-bold text-sm text-slate-800 shrink-0 truncate max-w-[90px] text-right" [title]="'₹' + (payment.amount | number: '1.0-0')">₹{{ payment.amount | number: '1.0-0' }}</span>
                       </div>
-                      <div class="flex items-center gap-1.5 mt-1">
-                        <span class="text-[9px] font-bold uppercase px-1.5 py-0.5 bg-slate-200 text-slate-600 rounded-md">
+                      <div class="flex items-center gap-1.5 mt-1 min-w-0">
+                        <span class="text-[9px] font-bold uppercase px-1.5 py-0.5 bg-slate-200 text-slate-600 rounded-md shrink-0">
                           {{ payment.type === 'sub' ? 'Sub' : 'Goal' }}
                         </span>
-                        <span class="text-xs font-semibold text-slate-500">
+                        <span class="text-xs font-semibold text-slate-500 truncate">
                           Due {{ payment.dueDay }}{{ getOrdinalSuffix(payment.dueDay) }}
                         </span>
                       </div>
@@ -404,85 +404,97 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
               </button>
             </div>
 
-            <div class="bg-splits-primary/5 p-6 rounded-[24px] border border-splits-primary/20 shadow-[0_2px_10px_rgba(0,0,0,0.02)] flex flex-col gap-6 relative">
-              <!-- Totals Header -->
-              <div class="flex justify-between items-center relative">
-                <!-- Left Column -->
-                <div class="flex flex-col flex-1 pr-4 relative">
-                  <span class="text-xs font-bold uppercase tracking-widest text-emerald-500 mb-2">You Are Owed</span>
-                  <div class="flex items-center justify-between">
-                    <div>
-                      <span class="text-[28px] leading-none font-bold text-slate-900 block mb-1">
-                        {{ totalOwedToYou() | currency: 'INR' : 'symbol' : '1.0-0' }}
-                      </span>
-                      <span class="text-xs font-semibold text-slate-500">
-                        From {{ friendsWhoOweYou().length }} people
-                      </span>
+            @if (hasFriends()) {
+              <div class="bg-splits-primary/5 p-6 rounded-[24px] border border-splits-primary/20 shadow-[0_2px_10px_rgba(0,0,0,0.02)] flex flex-col gap-6 relative">
+                <!-- Totals Header -->
+                <div class="flex justify-between items-center relative">
+                  <!-- Left Column -->
+                  <div class="flex flex-col flex-1 pr-4 relative">
+                    <span class="text-xs font-bold uppercase tracking-widest text-emerald-500 mb-2">You Are Owed</span>
+                    <div class="flex items-center justify-between gap-2">
+                      <div class="min-w-0 flex-1">
+                        <span class="text-[28px] leading-none font-bold text-slate-900 block mb-1 truncate" [title]="totalOwedToYou() | currency:'INR':'₹':'1.0-0'">
+                          {{ totalOwedToYou() | currency:'INR':'₹':'1.0-0' }}
+                        </span>
+                        <span class="text-xs font-semibold text-slate-500 block truncate">
+                          From {{ friendsWhoOweYou().length }} people
+                        </span>
+                      </div>
+                      <div class="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center shrink-0">
+                        <svg class="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                        </svg>
+                      </div>
                     </div>
-                    <div class="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center shrink-0">
-                      <svg class="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                      </svg>
+                    <!-- Vertical Divider Line -->
+                    <div class="absolute right-0 top-0 bottom-0 w-px bg-slate-50"></div>
+                  </div>
+
+                  <!-- Right Column -->
+                  <div class="flex flex-col flex-1 pl-4">
+                    <span class="text-xs font-bold uppercase tracking-widest text-red-500 mb-2">You Owe</span>
+                    <div class="flex items-center justify-between gap-2">
+                      <div class="min-w-0 flex-1">
+                        <span class="text-[28px] leading-none font-bold text-slate-900 block mb-1 truncate" [title]="totalYouOwe() | currency:'INR':'₹':'1.0-0'">
+                          {{ totalYouOwe() | currency:'INR':'₹':'1.0-0' }}
+                        </span>
+                        <span class="text-xs font-semibold text-slate-500 block truncate">
+                          To {{ friendsYouOwe().length }} people
+                        </span>
+                      </div>
+                      <div class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center shrink-0">
+                        <svg class="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                        </svg>
+                      </div>
                     </div>
                   </div>
-                  <!-- Vertical Divider Line -->
-                  <div class="absolute right-0 top-0 bottom-0 w-px bg-slate-50"></div>
                 </div>
 
-                <!-- Right Column -->
-                <div class="flex flex-col flex-1 pl-4">
-                  <span class="text-xs font-bold uppercase tracking-widest text-red-500 mb-2">You Owe</span>
-                  <div class="flex items-center justify-between">
-                    <div>
-                      <span class="text-[28px] leading-none font-bold text-slate-900 block mb-1">
-                        {{ totalYouOwe() | currency: 'INR' : 'symbol' : '1.0-0' }}
-                      </span>
-                      <span class="text-xs font-semibold text-slate-500">
-                        To {{ friendsYouOwe().length }} people
-                      </span>
-                    </div>
-                    <div class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center shrink-0">
-                      <svg class="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                      </svg>
-                    </div>
+                <!-- Top Balances List or Settle Button -->
+                @if (topSplitFriends().length === 0) {
+                  <div class="pt-4 border-t border-slate-100 flex justify-center">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                      All Settled Up
+                    </span>
                   </div>
-                </div>
-              </div>
-
-              <!-- Top Balances List or Settle Button -->
-              @if (topSplitFriends().length === 0) {
-                <div class="pt-4 border-t border-slate-100 flex justify-center">
-                  <button class="text-xs font-bold text-splits-primary uppercase tracking-widest flex items-center gap-1">
-                    ALL SETTLED UP
-                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
-                </div>
-              } @else {
-                <div class="flex flex-col gap-2 pt-4 border-t border-slate-100">
-                  @for (fb of topSplitFriends(); track fb.friend.id) {
-                    <div class="bg-[#FAFAFA] p-3 rounded-xl flex items-center justify-between border border-slate-100">
-                      <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full border border-slate-100 bg-white flex items-center justify-center overflow-hidden shrink-0">
-                          <img [src]="getAvatarUrl(fb.friend.profile.avatarId)" class="w-full h-full object-cover" />
+                } @else {
+                  <div class="flex flex-col gap-2 pt-4 border-t border-slate-100">
+                    @for (fb of topSplitFriends(); track fb.friend.id) {
+                      <div class="bg-[#FAFAFA] p-3 rounded-xl flex items-center justify-between gap-2 border border-slate-100 min-w-0">
+                        <div class="flex items-center gap-3 min-w-0 flex-1">
+                          <div class="w-8 h-8 rounded-full border border-slate-100 bg-white flex items-center justify-center overflow-hidden shrink-0">
+                            <img [src]="getAvatarUrl(fb.friend.profile.avatarId)" class="w-full h-full object-cover" />
+                          </div>
+                          <span class="font-semibold text-sm text-slate-800 truncate" [title]="fb.friend.profile.name">{{ fb.friend.profile.name }}</span>
                         </div>
-                        <span class="font-semibold text-sm text-slate-800 truncate max-w-[120px]">{{ fb.friend.profile.name }}</span>
+                        <div class="flex items-center gap-1.5 shrink-0 min-w-0 max-w-[50%] justify-end">
+                          <span class="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wider shrink-0">
+                            {{ fb.balance > 0 ? 'owes' : 'owe' }}
+                          </span>
+                          <span class="font-bold text-sm truncate" [ngClass]="fb.balance > 0 ? 'text-emerald-500' : 'text-red-500'" [title]="(fb.balance > 0 ? fb.balance : -fb.balance) | currency:'INR':'₹':'1.0-0'">
+                            {{ (fb.balance > 0 ? fb.balance : -fb.balance) | currency:'INR':'₹':'1.0-0' }}
+                          </span>
+                        </div>
                       </div>
-                      <div class="flex items-center gap-2">
-                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                          {{ fb.balance > 0 ? 'owes you' : 'you owe' }}
-                        </span>
-                        <span class="font-bold text-sm" [ngClass]="fb.balance > 0 ? 'text-emerald-500' : 'text-red-500'">
-                          {{ (fb.balance > 0 ? fb.balance : -fb.balance) | currency: 'INR' : 'symbol' : '1.0-0' }}
-                        </span>
-                      </div>
-                    </div>
-                  }
+                    }
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="w-full bg-[#FCFCFD] border border-solid border-slate-100 shadow-sm rounded-[24px] p-8 flex flex-col items-center justify-center text-center">
+                <div class="w-12 h-12 bg-splits-primary/10 rounded-[14px] flex items-center justify-center mb-3">
+                  <svg class="w-6 h-6 text-splits-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                  </svg>
                 </div>
-              }
-            </div>
+                <h4 class="text-sm font-bold text-slate-800 mb-1">No friends added</h4>
+                <p class="text-xs text-slate-500 mb-5">You don't have any friends to share expenses with. Add friends to start splitting bills!</p>
+                <button routerLink="/friends" class="bg-splits-primary text-white text-[13px] font-bold px-5 py-2.5 rounded-xl active:scale-95 transition-all shadow-sm shadow-splits-primary/20">
+                  Add Friends
+                </button>
+              </div>
+            }
           </div>
 
           <!-- Recent Transactions Section -->
@@ -532,17 +544,9 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
                   <!-- Details -->
                   <div class="flex flex-col gap-2 min-w-0 flex-1 ml-1">
                     <span class="font-bold text-[17px] text-slate-900 truncate leading-none mt-1">{{ expense.title }}</span>
-                    <div class="flex flex-col gap-1.5">
-                      <div class="flex items-center gap-1.5 text-slate-500">
-                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                          <line x1="16" y1="2" x2="16" y2="6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                          <line x1="8" y1="2" x2="8" y2="6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                          <line x1="3" y1="10" x2="21" y2="10" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        <span class="text-xs font-medium">{{ expense.date | date: 'MMM d, yyyy • hh:mm a' }}</span>
-                      </div>
-                    </div>
+                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-0.5">
+                      {{ expense.date | date: 'MMM d, h:mm a' }}
+                    </span>
                   </div>
 
                   <!-- Amount & Payment Tag -->
@@ -593,6 +597,7 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
     () => !this.expenseService.hasInitiallyLoaded() || this.expenseService.isLoading(),
   );
   isMasked = signal(false);
+  animationsReady = signal(false);
 
   pullStartY = 0;
   pullMoveY = 0;
@@ -726,6 +731,7 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   });
 
   salaryGaugeOffset = computed(() => {
+    if (!this.animationsReady() || this.activeGaugeIndex() !== 0) return 125.66;
     const p = this.percentage();
     return 125.66 * (1 - p);
   });
@@ -735,12 +741,18 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
   });
 
   cashGaugeOffset = computed(() => {
+    if (!this.animationsReady() || this.activeGaugeIndex() !== 1) return 125.66;
     const bal = this.cashBalance();
     const spent = this.cashSpent();
     const total = bal + spent;
     if (total <= 0) return 125.66;
     const ratio = Math.min(spent / total, 1);
     return 125.66 * (1 - ratio);
+  });
+
+  savingsGaugeOffset = computed(() => {
+    if (!this.animationsReady() || this.activeGaugeIndex() !== 2) return 125.66;
+    return 0; // Always full for savings, but animated
   });
 
   recentExpenses = computed(() => {
@@ -777,6 +789,8 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
 
   friendsWhoOweYou = computed(() => this.topSplitFriends().filter((fb) => fb.balance > 0));
   friendsYouOwe = computed(() => this.topSplitFriends().filter((fb) => fb.balance < 0));
+
+  hasFriends = computed(() => this.friendService.acceptedFriends().length > 0);
 
   combinedUpcomingPayments = computed(() => {
     const today = new Date().getDate();
@@ -885,7 +899,11 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit() {}
 
-  ngAfterViewInit() {}
+  ngAfterViewInit() {
+    setTimeout(() => {
+      this.animationsReady.set(true);
+    }, 50);
+  }
 
   ngOnDestroy() {}
 

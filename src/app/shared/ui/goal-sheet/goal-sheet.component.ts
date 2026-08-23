@@ -127,7 +127,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
                 type="text"
                 formControlName="name"
                 placeholder="e.g. New Bike, Vacation"
-                class="w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl px-4 py-4 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-400 focus:border-goals-primary focus:ring-4 focus:ring-goals-primary/15"
+                class="w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl px-4 py-3 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-400 focus:border-goals-primary focus:ring-4 focus:ring-goals-primary/15"
               />
             </div>
 
@@ -148,7 +148,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
                     formControlName="total_amount"
                     placeholder="0"
                     (keydown)="preventE($event)"
-                    class="w-full bg-white border-2 border-gray-100 text-slate-900 font-bold text-2xl rounded-2xl pl-10 pr-4 py-4 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-300 focus:border-goals-primary focus:ring-4 focus:ring-goals-primary/15"
+                    class="w-full bg-white border-2 border-gray-100 text-slate-900 font-bold text-2xl rounded-2xl pl-10 pr-4 py-3 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-300 focus:border-goals-primary focus:ring-4 focus:ring-goals-primary/15"
                   />
                 </div>
               </div>
@@ -169,7 +169,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
                     formControlName="saved_amount"
                     placeholder="0"
                     (keydown)="preventE($event)"
-                    class="w-full bg-white border-2 border-gray-100 text-slate-900 font-bold text-2xl rounded-2xl pl-10 pr-4 py-4 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-300 focus:border-goals-primary focus:ring-4 focus:ring-goals-primary/15"
+                    class="w-full bg-white border-2 border-gray-100 text-slate-900 font-bold text-2xl rounded-2xl pl-10 pr-4 py-3 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-300 focus:border-goals-primary focus:ring-4 focus:ring-goals-primary/15"
                   />
                 </div>
               </div>
@@ -183,7 +183,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
                 <button
                   type="button"
                   (click)="isDatePickerOpen = true"
-                  class="active:scale-[0.98] transition-all duration-200 w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl focus:border-goals-primary focus:ring-4 focus:ring-goals-primary/15 flex justify-between items-center px-4 py-4 outline-none touch-manipulation shadow-sm"
+                  class="active:scale-[0.98] transition-all duration-200 w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl focus:border-goals-primary focus:ring-4 focus:ring-goals-primary/15 flex justify-between items-center px-4 py-3 outline-none touch-manipulation shadow-sm"
                 >
                   <span>{{
                     $safeNavigationMigration(goalForm.get('target_date')?.value) | date: 'MMM d, y'
@@ -211,7 +211,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
                 <button
                   type="button"
                   (click)="isDayPickerOpen = true"
-                  class="active:scale-[0.98] transition-all duration-200 w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl focus:border-goals-primary focus:ring-4 focus:ring-goals-primary/15 flex justify-between items-center px-4 py-4 outline-none shadow-sm touch-manipulation"
+                  class="active:scale-[0.98] transition-all duration-200 w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl focus:border-goals-primary focus:ring-4 focus:ring-goals-primary/15 flex justify-between items-center px-4 py-3 outline-none shadow-sm touch-manipulation"
                 >
                   <span>{{ goalForm.get('installment_date')?.value || 1 }}</span>
                   <svg

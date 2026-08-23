@@ -16,6 +16,7 @@ import { SupabaseService } from '../../../core/services/supabase.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { GoalService } from '../../../core/services/goal.service';
 import { SubscriptionService } from '../../../core/services/subscription.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-budget-expenses',
@@ -29,53 +30,60 @@ import { SubscriptionService } from '../../../core/services/subscription.service
     <div class="h-full bg-white flex flex-col relative w-full overflow-hidden">
       <!-- Content Area -->
       <main class="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar px-4 pb-28 pt-4 flex flex-col gap-3">
-        <div class="bg-emerald-600 text-white p-5 rounded-2xl flex flex-col gap-4 relative overflow-hidden shrink-0 shadow-lg shadow-emerald-600/20 mb-2">
-          <!-- Abstract Decoration -->
-          <div class="flex justify-between items-end relative z-10">
-            <div class="flex flex-col">
-              @if (budgetService.isLoading()) {
-                <div class="h-4 w-24 bg-white/20 animate-pulse rounded mb-1"></div>
-                <div class="h-10 w-32 bg-white/20 animate-pulse rounded mt-1"></div>
-              } @else {
-                <span class="text-xs font-black text-emerald-100/70 uppercase tracking-widest mb-1">
-                  {{ budgetName() }}
-                </span>
-                <span class="text-4xl font-black tracking-tight">
-                  ₹{{ consumed() | number: '1.0-0' }}
-                </span>
-              }
-            </div>
-            <div class="text-right flex flex-col">
-              @if (budgetService.isLoading()) {
-                <div class="h-4 w-16 bg-white/20 animate-pulse rounded mb-1 self-end"></div>
-                <div class="h-5 w-20 bg-white/20 animate-pulse rounded mt-1 self-end"></div>
-              } @else {
-                @if (isVirtualOthers()) {
-                  <span class="text-xs font-black text-emerald-100/70 uppercase tracking-widest">
-                    Unbudgeted
+        <!-- Top Summary Box -->
+        <div class="bg-budget-primary/5 text-slate-800 p-6 rounded-[24px] shadow-sm border border-budget-primary/20 transition-all duration-300 relative overflow-hidden mb-2">
+          <div class="relative z-10 flex flex-col gap-4">
+            <!-- Header & Amount -->
+            <div class="flex flex-col gap-1 mt-1">
+              <div class="flex items-center justify-between mb-1">
+                <span class="font-bold text-base text-slate-800">Total Spent</span>
+                @if (!isVirtualOthers()) {
+                  <span class="text-xs font-bold uppercase px-3 py-1 bg-budget-primary/10 text-budget-primary rounded-full">
+                    Limit: {{ budgetAmount() | currency:'INR':'₹':'1.0-0' }}
                   </span>
                 } @else {
-                  <span class="text-xs font-black text-emerald-100/70 uppercase tracking-widest">
-                    Limit
-                  </span>
-                  <span class="text-sm font-black text-white mt-1">
-                    ₹{{ budgetAmount() | number: '1.0-0' }}
+                  <span class="text-xs font-bold uppercase px-3 py-1 bg-budget-primary/10 text-budget-primary rounded-full">
+                    Unbudgeted
                   </span>
                 }
-              }
+              </div>
+              <div class="flex items-baseline justify-center w-full mt-4">
+                @if (budgetService.isLoading()) {
+                  <div class="h-10 w-48 bg-slate-200 animate-pulse rounded-lg"></div>
+                } @else {
+                  <span class="font-bold tracking-tight text-slate-900 leading-none text-center truncate text-[36px]">
+                    {{ consumed() | currency:'INR':'₹':'1.0-0' }}
+                  </span>
+                }
+              </div>
             </div>
-          </div>
 
-          <!-- Progress Bar -->
-          @if (!isVirtualOthers()) {
-            <div class="h-2 w-full bg-gray-800 rounded-full overflow-hidden flex relative z-10 border border-gray-700">
-              <div
-                class="h-full transition-all duration-1000 ease-out rounded-full"
-                [style.width.%]="!budgetService.isLoading() && animateBars() ? getPercent() : 0"
-                [ngClass]="getColorClass()"
-              ></div>
-            </div>
-          }
+            <!-- Progress Bar -->
+            @if (!isVirtualOthers()) {
+              <div class="flex flex-col gap-2 mt-4 pt-4 border-t border-budget-primary/10">
+                <div class="flex justify-between items-center mb-1">
+                   <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Consumed</p>
+                   <span class="text-xs font-bold text-slate-800">
+                     {{ getPercent() | number:'1.0-0' }}%
+                   </span>
+                </div>
+                <div class="h-2.5 w-full bg-budget-primary/10 rounded-full overflow-hidden flex relative z-10 shadow-inner">
+                  <div
+                    class="h-full transition-all duration-1000 ease-out rounded-full"
+                    [style.width.%]="!budgetService.isLoading() && animateBars() ? getPercent() : 0"
+                    [ngClass]="getColorClass()"
+                  ></div>
+                </div>
+                <div class="flex justify-between items-center text-[10.5px] font-semibold mt-2">
+                  @if (budgetAmount() - consumed() < 0) {
+                    <span class="text-red-500">Overspent: {{ (consumed() - budgetAmount()) | currency:'INR':'₹':'1.0-0' }}</span>
+                  } @else {
+                    <span class="text-slate-600">Left: {{ (budgetAmount() - consumed()) | currency:'INR':'₹':'1.0-0' }}</span>
+                  }
+                </div>
+              </div>
+            }
+          </div>
         </div>
 
         @if (expenseService.isLoading() || budgetService.isLoading()) {
@@ -93,34 +101,39 @@ import { SubscriptionService } from '../../../core/services/subscription.service
             @for (expense of budgetExpenses(); track expense.id) {
               <button
                 (click)="editExpense(expense)"
-                class="w-full bg-budget-primary/[0.03] border border-budget-primary/10 rounded-[20px] p-4 flex justify-between items-center text-left shadow-[0_2px_12px_rgb(0,0,0,0.03)] transition-all active:scale-[0.99]"
+                class="w-full bg-budget-primary/5 border border-budget-primary/20 rounded-[20px] p-4 flex items-center gap-3 text-left transition-all active:scale-[0.99] cursor-pointer shadow-[0_2px_10px_rgba(0,0,0,0.02)]"
               >
-                <div class="flex flex-col gap-1 flex-1 min-w-0 pr-4">
-                  <span class="font-extrabold text-base text-gray-900 truncate">{{ expense.title }}</span>
-                  <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest min-w-0 text-gray-500">
-                    <span class="truncate">{{ expense.category }}</span>
-                    <span class="flex-shrink-0 border-l-2 border-gray-300 h-3"></span>
-                    <span class="flex items-center gap-1.5 whitespace-nowrap flex-shrink-0">
-                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                      </svg>
-                      {{ expense.date | date: 'MMM d, y • h:mm a' }}
-                    </span>
+                <!-- Icon -->
+                <div class="flex items-center gap-3 shrink-0">
+                  <div class="w-12 h-12 rounded-full flex items-center justify-center" [ngClass]="budgetService.getCategoryTheme(expense.category).bg + ' ' + budgetService.getCategoryTheme(expense.category).text">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path [attr.d]="budgetService.getCategoryIconPath(expense.category)"></path>
+                    </svg>
                   </div>
                 </div>
-                <div class="flex flex-col items-end gap-2 flex-shrink-0">
-                  <span class="font-black text-lg text-black">
-                    ₹{{ expense.amount | number: '1.0-0' }}
+
+                <!-- Details -->
+                <div class="flex flex-col gap-2 min-w-0 flex-1 ml-1">
+                  <span class="font-bold text-[17px] text-slate-900 truncate leading-none mt-1">{{ expense.title }}</span>
+                  <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-0.5">
+                    {{ expense.date | date: 'MMM d, h:mm a' }}
                   </span>
-                  <span class="text-xs font-black uppercase tracking-widest text-gray-500">
-                    {{ expense.paid_via }}
+                </div>
+
+                <!-- Amount & Payment Tag -->
+                <div class="flex flex-col items-end gap-2 shrink-0">
+                  <span class="font-extrabold text-[20px] text-slate-900 leading-none mt-1">
+                    ₹{{ expense.amount % 1 === 0 ? (expense.amount | number: '1.0-0') : (expense.amount | number: '1.2-2') }}
+                  </span>
+                  <span class="text-[10.5px] font-bold uppercase text-slate-500 tracking-wide">
+                    {{ formatPaymentMode(expense.paid_via) }}
                   </span>
                 </div>
               </button>
             }
           } @else {
             <div class="mt-4 w-full bg-[#FCFCFD] border border-solid border-slate-100 shadow-sm rounded-[24px] p-8 flex flex-col items-center justify-center text-center">
-              <div class="w-12 h-12 bg-budget-surface rounded-[14px] flex items-center justify-center mb-3">
+              <div class="w-12 h-12 bg-budget-primary/10 rounded-[14px] flex items-center justify-center mb-3">
                 <svg class="w-6 h-6 text-budget-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                 </svg>
@@ -208,9 +221,9 @@ export class BudgetExpenses implements OnInit {
 
   getColorClass(): string {
     const p = this.getPercent();
-    if (p >= 80) return 'bg-red-600';
+    if (p >= 80) return 'bg-red-500';
     if (p >= 60) return 'bg-yellow-500';
-    return 'bg-white'; // the background is black, so white bar looks better, or matching main page
+    return 'bg-budget-primary';
   }
 
   async editExpense(expense: Expense) {
@@ -274,5 +287,12 @@ export class BudgetExpenses implements OnInit {
       return 'border-subscriptions-primary bg-subscriptions-surface text-subscriptions-dark';
     }
     return 'border-expense-primary bg-expense-surface text-expense-dark';
+  }
+
+  formatPaymentMode(mode?: string): string {
+    const m = (mode || 'UPI').toUpperCase();
+    if (m.includes('CREDIT')) return 'CREDIT';
+    if (m.includes('DEBIT')) return 'DEBIT';
+    return m;
   }
 }

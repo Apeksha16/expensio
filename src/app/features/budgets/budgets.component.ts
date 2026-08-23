@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BudgetService } from '../../core/services/budget.service';
+import { AccountTrackerService } from '../../core/services/account-tracker.service';
 import { ExpenseService } from '../../core/services/expense.service';
 import { AuthService } from '../../core/services/auth.service';
 import { MonthPickerService } from '../../core/services/month-picker.service';
@@ -28,62 +29,45 @@ import { Router } from '@angular/router';
       <!-- Top Fixed Section -->
       <div class="px-5 pt-5 pb-2 shrink-0">
         <!-- Top Summary Box -->
-      <div class="shrink-0 bg-emerald-600 text-white p-5 rounded-[24px] flex flex-col relative overflow-hidden shadow-lg shadow-emerald-600/20">
-        <div class="flex items-start justify-between relative z-10">
-          <!-- Left side: Icon + Total Allocation -->
-          <div class="flex items-center gap-3">
-            <!-- Icon Box -->
-            <div class="w-12 h-12 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shrink-0">
-              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21.2 15.8A10 10 0 1 1 8.2 2.8" />
-                <path d="M23 11A10 10 0 0 0 13 1v10z" />
-              </svg>
-            </div>
-            <div class="flex flex-col">
-              <span class="text-xs font-bold text-emerald-100 uppercase tracking-wider mb-0.5">
-                Total Allocation
-              </span>
-              @if (budgetService.isLoading()) {
-                <div class="h-8 w-24 bg-white/20 animate-pulse rounded"></div>
-              } @else {
-                <span class="text-2xl font-bold tracking-tight">
-                  ₹{{ monthlySalary() | number: '1.0-0' }}
+        <div class="bg-budget-primary/5 text-slate-800 p-6 rounded-[24px] shadow-sm border border-budget-primary/20 transition-all duration-300 relative overflow-hidden">
+          <div class="relative z-10 flex flex-col gap-4">
+            <!-- Header & Amount -->
+            <div class="flex flex-col gap-1 mt-1">
+              <div class="flex items-center justify-between mb-1">
+                <span class="font-bold text-base text-slate-800">Total Allocation</span>
+                <span class="text-xs font-bold uppercase px-3 py-1 bg-budget-primary/10 text-budget-primary rounded-full">
+                  {{ getActiveMonthLabel() }}
                 </span>
-              }
-            </div>
-          </div>
-
-          <!-- Right side: Allocated -->
-          <div class="flex flex-col items-end gap-1">
-            <div class="flex items-center gap-2">
-              <div class="flex flex-col items-end">
-                <span class="text-xs font-bold text-emerald-100 uppercase tracking-wider mb-0.5">
-                  Allocated
-                </span>
+              </div>
+              <div class="flex items-baseline justify-center w-full mt-4 mb-2">
                 @if (budgetService.isLoading()) {
-                  <div class="h-6 w-16 bg-white/20 animate-pulse rounded"></div>
+                  <div class="h-10 w-48 bg-slate-200 animate-pulse rounded-lg"></div>
                 } @else {
-                  <span class="text-lg font-bold text-white">
-                    ₹{{ totalAllocated() | number: '1.0-0' }}
+                  <span class="font-bold tracking-tight text-slate-900 leading-none text-center truncate text-[40px]">
+                    {{ totalAllocated() | currency:'INR':'₹':'1.0-0' }}
                   </span>
                 }
               </div>
             </div>
-          </div>
-        </div>
 
-        <!-- Progress bar section -->
-        <div class="mt-6 flex flex-col gap-2 relative z-10">
-          <div class="h-2 w-full bg-emerald-700/50 rounded-full overflow-hidden flex">
-            <div class="h-full bg-white transition-all duration-1000 ease-out rounded-full"
-                 [style.width.%]="!budgetService.isLoading() && animateBars() ? globalProgressPercent() : 0"></div>
-          </div>
-          <div class="flex justify-between items-center text-xs font-medium">
-            <span class="text-emerald-50">{{ globalProgressPercent() | number: '1.0-0' }}% of total allocation used</span>
-            <span class="text-white">₹{{ monthlySalary() - totalAllocated() | number: '1.0-0' }} left</span>
+            <!-- Allocation Progress -->
+            <div class="flex flex-row justify-between items-center mt-4 pt-4 border-t border-budget-primary/10">
+              
+              <!-- Salary Limit -->
+              <div class="flex flex-col">
+                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Salary Limit</span>
+                <span class="text-sm font-bold text-slate-800 tracking-[0.2em] mt-0.5 cursor-pointer active:scale-95 inline-block transition-transform" (click)="toggleMask(); $event.stopPropagation()">{{ isMasked() ? '••••••' : (salaryUnallocated() | currency:'INR':'₹':'1.0-0') }} <span class="text-[10px] text-slate-400 font-semibold uppercase tracking-normal ml-0.5">Left</span></span>
+              </div>
+
+              <!-- Cash Limit -->
+              <div class="flex flex-col items-end text-right">
+                <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Cash Limit</span>
+                <span class="text-sm font-bold text-slate-800 tracking-[0.2em] mt-0.5 cursor-pointer active:scale-95 inline-block transition-transform" (click)="toggleMask(); $event.stopPropagation()">{{ isMasked() ? '••••••' : (cashUnallocated() | currency:'INR':'₹':'1.0-0') }} <span class="text-[10px] text-slate-400 font-semibold uppercase tracking-normal ml-0.5">Left</span></span>
+              </div>
+
+            </div>
           </div>
         </div>
-      </div>
 
       </div>
 
@@ -112,12 +96,12 @@ import { Router } from '@angular/router';
             @for (budget of budgetService.budgets(); track budget) {
               <button
                 (click)="openBudget(budget)"
-                class="w-full bg-budget-primary/[0.03] border border-budget-primary/10 rounded-2xl p-4 flex flex-col gap-4 text-left shadow-sm transition-all active:scale-[0.99]"
+                class="w-full bg-budget-primary/5 border border-budget-primary/20 rounded-[20px] p-4 flex flex-col gap-4 text-left shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition-all active:scale-[0.99]"
               >
                 <div class="flex justify-between items-start w-full">
                   <div class="flex items-center gap-3">
                     <!-- Icon Box -->
-                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0"
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center shrink-0"
                          [ngClass]="getCategoryIconBg(budget.name)">
                       <svg class="w-6 h-6" [ngClass]="getCategoryIconColor(budget.name)" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
                         <path [attr.d]="budget.icon_path || getCategoryFallbackIconPath(budget.name)" />
@@ -132,13 +116,21 @@ import { Router } from '@angular/router';
                   <div class="flex items-center gap-2">
                     @if (budget.id === 'virtual-others') {
                       <div class="flex flex-col items-end">
-                        <span class="font-bold text-[15px] text-gray-900">₹{{ monthlySalary() - totalAllocated() | number: '1.0-0' }}</span>
-                        <span class="text-[12px] font-bold text-emerald-500 mt-0.5">₹{{ (monthlySalary() - totalAllocated()) - getConsumed(budget.name) | number: '1.0-0' }} left</span>
+                        <span class="font-bold text-[15px] text-gray-900 cursor-pointer active:scale-95 transition-transform inline-block" (click)="toggleMask(); $event.stopPropagation()">{{ isMasked() ? '••••••' : ('₹' + (totalUnallocated() | number: '1.0-0')) }}</span>
+                        @if (totalUnallocated() - getConsumed(budget.name) < 0) {
+                          <span class="text-[12px] font-bold text-red-500 mt-0.5 cursor-pointer active:scale-95 transition-transform inline-block" (click)="toggleMask(); $event.stopPropagation()">{{ isMasked() ? '••••••' : ('₹' + (getConsumed(budget.name) - totalUnallocated() | number: '1.0-0')) }} overspent</span>
+                        } @else {
+                          <span class="text-[12px] font-bold text-emerald-500 mt-0.5 cursor-pointer active:scale-95 transition-transform inline-block" (click)="toggleMask(); $event.stopPropagation()">{{ isMasked() ? '••••••' : ('₹' + (totalUnallocated() - getConsumed(budget.name) | number: '1.0-0')) }} left</span>
+                        }
                       </div>
                     } @else {
                       <div class="flex flex-col items-end">
                         <span class="font-bold text-[15px] text-gray-900">₹{{ budget.amount + (budget.rollover_amount || 0) | number: '1.0-0' }}</span>
-                        <span class="text-[12px] font-bold text-emerald-500 mt-0.5">₹{{ (budget.amount + (budget.rollover_amount || 0)) - getConsumed(budget.name) | number: '1.0-0' }} left</span>
+                        @if ((budget.amount + (budget.rollover_amount || 0)) - getConsumed(budget.name) < 0) {
+                          <span class="text-[12px] font-bold text-red-500 mt-0.5">₹{{ getConsumed(budget.name) - (budget.amount + (budget.rollover_amount || 0)) | number: '1.0-0' }} overspent</span>
+                        } @else {
+                          <span class="text-[12px] font-bold text-emerald-500 mt-0.5">₹{{ (budget.amount + (budget.rollover_amount || 0)) - getConsumed(budget.name) | number: '1.0-0' }} left</span>
+                        }
                       </div>
                     }
                     <svg class="w-5 h-5 text-gray-300 ml-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -149,22 +141,22 @@ import { Router } from '@angular/router';
                 
                 <!-- Progress Bar inline with percentage -->
                 <div class="flex items-center gap-3 w-full">
-                  <div class="h-2 flex-1 bg-slate-50 rounded-full overflow-hidden">
+                  <div class="h-2 flex-1 bg-budget-primary/10 rounded-full overflow-hidden">
                     <div
                       class="h-full transition-all duration-1000 ease-out rounded-full"
-                      [style.width.%]="!budgetService.isLoading() && animateBars() ? getPercent(budget.name, budget.id === 'virtual-others' ? monthlySalary() - totalAllocated() : budget.amount + (budget.rollover_amount || 0)) : 0"
+                      [style.width.%]="!budgetService.isLoading() && animateBars() ? getPercent(budget.name, budget.id === 'virtual-others' ? totalUnallocated() : budget.amount + (budget.rollover_amount || 0)) : 0"
                       [ngClass]="getCategoryProgressColor(budget.name)"
                     ></div>
                   </div>
-                  <span class="text-xs font-bold text-gray-500 w-8 text-right">{{ getPercent(budget.name, budget.id === 'virtual-others' ? monthlySalary() - totalAllocated() : budget.amount + (budget.rollover_amount || 0)) | number: '1.0-0' }}%</span>
-                </div>
+                  <span class="text-xs font-bold text-gray-500 w-8 text-right">{{ getPercent(budget.name, budget.id === 'virtual-others' ? totalUnallocated() : budget.amount + (budget.rollover_amount || 0)) | number: '1.0-0' }}%</span>
+                </div>                
               </button>
             }
           } @else {
             <div class="mt-4 w-full bg-[#FCFCFD] border border-solid border-slate-100 shadow-sm rounded-[24px] p-8 flex flex-col items-center justify-center text-center">
-              <div class="w-12 h-12 bg-budget-surface rounded-[14px] flex items-center justify-center mb-3">
+              <div class="w-12 h-12 bg-budget-primary/10 rounded-[14px] flex items-center justify-center mb-3">
                 <svg class="w-6 h-6 text-budget-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 8h6m-5 0a3 3 0 110 6H9l3 3m-3-6h6m6 1a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
               <h4 class="text-sm font-bold text-slate-800 mb-1">No budgets yet</h4>
@@ -187,10 +179,14 @@ export class Budgets implements OnInit, AfterViewInit {
   private router = inject(Router);
   private monthSub: any;
   animateBars = signal(false);
-  isMasked = computed(() => this.authService.userProfile().maskValues);
+  maskValues = signal<boolean>(false);
+  isMasked = computed(() => this.maskValues());
   showSalaryLimit = signal(false);
 
   ngOnInit() {
+    if (this.authService.userProfile().maskValues) {
+      this.maskValues.set(true);
+    }
     this.expenseService.setMonthFilter(this.expenseService.getCurrentMonthString());
     this.monthSub = this.monthPicker.monthSelected$.subscribe((month) => {
       this.onMonthSelected(month);
@@ -206,6 +202,10 @@ export class Budgets implements OnInit, AfterViewInit {
   ngOnDestroy() {
     if (this.monthSub) this.monthSub.unsubscribe();
     this.expenseService.setMonthFilter(this.expenseService.getCurrentMonthString());
+  }
+
+  toggleMask() {
+    this.maskValues.update(v => !v);
   }
 
   getActiveMonthLabel() {
@@ -224,17 +224,46 @@ export class Budgets implements OnInit, AfterViewInit {
 
   monthlySalary = computed(() => this.authService.userProfile().salary);
 
+  accountTracker = inject(AccountTrackerService);
+
+  cashSpend = computed(() => {
+    const expenses = this.expenseService.allExpenses();
+    let cash = 0;
+    for (const exp of expenses) {
+      if (exp.category === 'virtual-invest') continue;
+      const mode = exp.paid_via?.toLowerCase() || 'upi';
+      if (mode.includes('cash')) {
+        cash += exp.amount;
+      }
+    }
+    return cash;
+  });
+
+  cashLimit = computed(() => {
+    return this.accountTracker.cashBalance() + this.cashSpend();
+  });
+
   totalAllocated = computed(() => {
     return this.budgetService
       .budgets()
       .reduce((sum, b) => sum + b.amount + (b.rollover_amount || 0), 0);
   });
 
-  globalProgressPercent = computed(() => {
-    const salary = this.monthlySalary();
-    if (!salary) return 0;
-    return Math.min(100, (this.totalAllocated() / salary) * 100);
+  salaryAllocated = computed(() => Math.min(this.totalAllocated(), this.monthlySalary()));
+  salaryUnallocated = computed(() => this.monthlySalary() - this.salaryAllocated());
+  salaryProgressPercent = computed(() => {
+    const s = this.monthlySalary();
+    return s > 0 ? (this.salaryAllocated() / s) * 100 : 0;
   });
+
+  cashAllocated = computed(() => Math.max(0, this.totalAllocated() - this.monthlySalary()));
+  cashUnallocated = computed(() => Math.max(0, this.cashLimit() - this.cashAllocated()));
+  cashProgressPercent = computed(() => {
+    const c = this.cashLimit();
+    return c > 0 ? (this.cashAllocated() / c) * 100 : 0;
+  });
+
+  totalUnallocated = computed(() => this.salaryUnallocated() + this.cashUnallocated());
 
   getConsumed(budgetName: string): number {
     return this.expenseService.getConsumedForCategory(budgetName);

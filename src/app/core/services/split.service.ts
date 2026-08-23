@@ -207,66 +207,32 @@ export class SplitService {
   }
 
   async handleConfirmSettlement(originalSplitId: string, participantId: string): Promise<boolean> {
-    const promises: any[] = [];
-    
-    const pendingPartials = this.splits().filter(
-       (s) => s.parent_expense_id === originalSplitId && s.payer_id === participantId && s.category === 'Pending Settlement'
-    );
-    for (const partial of pendingPartials) {
-       promises.push(this.supabase.client.from('split_expenses').update({ category: 'Settlement' }).eq('id', partial.id));
-    }
+    const { data, error } = await this.supabase.client.rpc('confirm_settlement', {
+      p_original_split_id: originalSplitId,
+      p_participant_id: participantId
+    });
 
-    const split = this.splits().find(s => s.id === originalSplitId);
-    if (split) {
-       const participant = split.participants.find(p => p.userId === participantId);
-       if (participant && participant.status === 'pending') {
-          const updatedParticipants = split.participants.map((p: SplitParticipant) =>
-             p.userId === participantId ? { ...p, status: 'settled' } : p
-          );
-          promises.push(this.supabase.client.from('split_expenses').update({ participants: updatedParticipants }).eq('id', originalSplitId));
-       }
-    }
-
-    if (promises.length > 0) {
-       const results = await Promise.all(promises);
-       if (results.some(r => r.error)) {
-           return false;
-       }
+    if (!error && data) {
        this.loadData(true);
        return true;
     }
+    
+    console.error('Error confirming settlement:', error);
     return false;
   }
 
   async handleCancelOrDisputeSettlement(originalSplitId: string, participantId: string): Promise<boolean> {
-    const promises: any[] = [];
-    
-    const pendingPartials = this.splits().filter(
-       (s) => s.parent_expense_id === originalSplitId && s.payer_id === participantId && s.category === 'Pending Settlement'
-    );
-    for (const partial of pendingPartials) {
-       promises.push(this.supabase.client.from('split_expenses').delete().eq('id', partial.id));
-    }
+    const { data, error } = await this.supabase.client.rpc('cancel_dispute_settlement', {
+      p_original_split_id: originalSplitId,
+      p_participant_id: participantId
+    });
 
-    const split = this.splits().find(s => s.id === originalSplitId);
-    if (split) {
-       const participant = split.participants.find(p => p.userId === participantId);
-       if (participant && participant.status === 'pending') {
-          const updatedParticipants = split.participants.map((p: SplitParticipant) =>
-             p.userId === participantId ? { ...p, status: undefined } : p
-          );
-          promises.push(this.supabase.client.from('split_expenses').update({ participants: updatedParticipants }).eq('id', originalSplitId));
-       }
-    }
-
-    if (promises.length > 0) {
-       const results = await Promise.all(promises);
-       if (results.some(r => r.error)) {
-           return false;
-       }
+    if (!error && data) {
        this.loadData(true);
        return true;
     }
+    
+    console.error('Error cancelling settlement:', error);
     return false;
   }
 

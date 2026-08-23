@@ -11,6 +11,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { DatePickerComponent } from '../date-picker/date-picker.component';
+import { Router } from '@angular/router';
 import { ConfirmService } from '../../../core/services/confirm.service';
 import { LedgerService, LedgerEntry } from '../../../core/services/ledger.service';
 import { SwipeToCloseDirective } from '../swipe-to-close.directive';
@@ -126,12 +127,11 @@ import { SafeInputDirective } from '../safe-input.directive';
                 <button
                   type="button"
                   (click)="setType('in')"
-                  [class.opacity-60]="!!ledgerService.editingEntry()?.id"
-                  class="flex-1 font-bold uppercase tracking-wide rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-xs border-2 shadow-sm"
+                  class="w-1/2 font-bold uppercase tracking-wide rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-3 text-xs border-2 shadow-sm"
                   [ngClass]="
                     ledgerForm.get('type')?.value === 'in'
                       ? 'bg-emerald-500 text-white border-emerald-500 shadow-md shadow-emerald-500/25'
-                      : 'bg-white text-slate-600 border-gray-100'
+                      : 'bg-white text-slate-600 border-ledger-primary/20 shadow-sm'
                   "
                 >
                   I Received Money
@@ -139,12 +139,11 @@ import { SafeInputDirective } from '../safe-input.directive';
                 <button
                   type="button"
                   (click)="setType('out')"
-                  [class.opacity-60]="!!ledgerService.editingEntry()?.id"
-                  class="flex-1 font-bold uppercase tracking-wide rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-xs border-2 shadow-sm"
+                  class="w-1/2 font-bold uppercase tracking-wide rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-3 text-xs border-2 shadow-sm"
                   [ngClass]="
                     ledgerForm.get('type')?.value === 'out'
                       ? 'bg-rose-500 text-white border-rose-500 shadow-md shadow-rose-500/25'
-                      : 'bg-white text-slate-600 border-gray-100'
+                      : 'bg-white text-slate-600 border-ledger-primary/20 shadow-sm'
                   "
                 >
                   I Gave Money
@@ -163,7 +162,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                 type="text"
                 formControlName="person_name"
                 placeholder="e.g. Papa, Rahul, Mom"
-                class="w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl px-4 py-4 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-400 focus:border-ledger-primary focus:ring-4 focus:ring-ledger-primary/15"
+                class="w-full bg-white border-2 border-ledger-primary/20 text-slate-900 font-semibold text-base rounded-2xl px-4 py-3 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-400 focus:border-ledger-primary focus:ring-4 focus:ring-ledger-primary/15"
               />
             </div>
 
@@ -186,7 +185,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                   (keydown)="preventE($event)"
                   [readonly]="!!ledgerService.editingEntry()?.id"
                   [class.opacity-60]="!!ledgerService.editingEntry()?.id"
-                  class="w-full bg-white border-2 border-gray-100 text-slate-900 font-bold text-2xl rounded-2xl pl-10 pr-4 py-4 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-300 focus:border-ledger-primary focus:ring-4 focus:ring-ledger-primary/15"
+                  class="w-full bg-white border-2 border-gray-100 text-slate-900 font-bold text-2xl rounded-2xl pl-10 pr-4 py-3 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-300 focus:border-ledger-primary focus:ring-4 focus:ring-ledger-primary/15"
                 />
               </div>
             </div>
@@ -201,7 +200,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                 type="text"
                 formControlName="purpose"
                 placeholder="e.g. Loan for car repair, rent money"
-                class="w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl px-4 py-4 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-400 focus:border-ledger-primary focus:ring-4 focus:ring-ledger-primary/15"
+                class="w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl px-4 py-3 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-400 focus:border-ledger-primary focus:ring-4 focus:ring-ledger-primary/15"
               />
             </div>
 
@@ -213,7 +212,7 @@ import { SafeInputDirective } from '../safe-input.directive';
               <button
                 type="button"
                 (click)="isDatePickerOpen = true"
-                class="active:scale-[0.98] transition-all duration-200 w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl focus:border-ledger-primary focus:ring-4 focus:ring-ledger-primary/15 flex justify-between items-center px-4 py-4 outline-none touch-manipulation shadow-sm"
+                class="active:scale-[0.98] transition-all duration-200 w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl focus:border-ledger-primary focus:ring-4 focus:ring-ledger-primary/15 flex justify-between items-center px-4 py-3 outline-none touch-manipulation shadow-sm"
               >
                 <span>{{
                   $safeNavigationMigration(ledgerForm.get('date')?.value) | date: 'MMM d, y, h:mm a'
@@ -239,14 +238,14 @@ import { SafeInputDirective } from '../safe-input.directive';
               <button
                 type="button"
                 (click)="close()"
-                class="flex-1 font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-slate-100 text-slate-700 text-center"
+                class="flex-1 font-bold rounded-2xl border-2 border-gray-100 transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-white text-slate-700 text-center shadow-sm"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 [disabled]="!ledgerForm.valid || isSaving() || isDeleting()"
-                class="flex-[2] font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-ledger-primary text-white shadow-md shadow-ledger-primary/30 disabled:opacity-50 disabled:active:scale-100"
+                class="flex-1 font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-ledger-primary text-white shadow-md shadow-ledger-primary/30 disabled:opacity-50 disabled:active:scale-100"
               >
                 @if (isSaving()) {
                   <svg
@@ -294,6 +293,7 @@ export class LedgerSheetComponent implements OnInit {
   confirmService = inject(ConfirmService);
   fb = inject(FormBuilder);
   haptic = inject(HapticService);
+  router = inject(Router);
 
   isSaving = signal(false);
   isDeleting = signal(false);
@@ -343,7 +343,6 @@ export class LedgerSheetComponent implements OnInit {
   }
 
   setType(type: 'in' | 'out') {
-    if (this.ledgerService.editingEntry()?.id) return;
     this.haptic.impactLight();
     this.ledgerForm.patchValue({ type });
   }
@@ -406,6 +405,10 @@ export class LedgerSheetComponent implements OnInit {
         this.isDeleting.set(false);
         if (success) {
           this.close();
+          // Short delay to allow the sheet close animation to start
+          setTimeout(() => {
+            this.router.navigate(['/ledger']);
+          }, 150);
         }
       },
     });

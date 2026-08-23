@@ -8,6 +8,7 @@ export interface ReportExpense {
   amount: number;
   category: string;
   date: string;
+  paid_via?: string;
 }
 
 export interface MonthlySummary {
@@ -19,6 +20,7 @@ export interface MonthlySummary {
   subscription_expenses_total: number;
   split_expenses_total: number;
   breakdown_by_source: Record<string, Record<string, number>>;
+  breakdown_by_payment_method: Record<string, Record<string, number>>;
 }
 
 export type DateRangePreset = 'This Month' | 'Last Month' | 'Last 3 Months' | 'This Year' | 'All Time';
@@ -46,6 +48,7 @@ export class ReportService {
   readonly showGoals = signal<boolean>(true);
   readonly showSubscriptions = signal<boolean>(true);
   readonly showSplits = signal<boolean>(true);
+  readonly showExpenses = signal<boolean>(true);
 
   constructor() {
     effect(() => {
@@ -127,7 +130,7 @@ export class ReportService {
       ] = await Promise.all([
         this.supabaseService.client
           .from('expenses')
-          .select('id, title, amount, category, date, goal_id, subscription_id')
+          .select('id, title, amount, category, date, goal_id, subscription_id, paid_via')
           .gte('date', startDate)
           .lt('date', endDate)
           .order('amount', { ascending: false })
@@ -166,7 +169,7 @@ export class ReportService {
       ] = await Promise.all([
         this.supabaseService.client
           .from('expenses')
-          .select('id, title, amount, category, date, goal_id, subscription_id')
+          .select('id, title, amount, category, date, goal_id, subscription_id, paid_via')
           .gte('date', startDate)
           .lt('date', endDate),
         this.supabaseService.client
@@ -196,11 +199,13 @@ export class ReportService {
   private processRawExpenses(expensesData: any[], ignoreFilters: boolean): ReportExpense[] {
     const showGoals = this.showGoals();
     const showSubs = this.showSubscriptions();
+    const showExp = this.showExpenses();
     
     const filteredExpenses = expensesData.filter(e => {
       if (!ignoreFilters) {
         if (!showGoals && e.category === 'virtual-invest') return false;
         if (!showSubs && e.subscription_id) return false;
+        if (!showExp && e.category !== 'virtual-invest' && !e.subscription_id) return false;
       }
       return true;
     });
@@ -223,7 +228,8 @@ export class ReportService {
             title: s.title,
             amount: myParticipant.amountOwed,
             category: mappedCategory,
-            date: s.date
+            date: s.date,
+            paid_via: s.paid_via || 'UPI'
           };
         }
         return null;
@@ -243,6 +249,11 @@ export class ReportService {
   
   toggleSplitFilter() {
     this.showSplits.set(!this.showSplits());
+    this.fetchReports(this.activePreset());
+  }
+
+  toggleExpenseFilter() {
+    this.showExpenses.set(!this.showExpenses());
     this.fetchReports(this.activePreset());
   }
 }

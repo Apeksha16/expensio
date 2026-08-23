@@ -138,8 +138,8 @@ import { ToastService } from '../../core/services/toast.service';
                       </div>
                       
                       <div class="flex justify-between items-center">
-                        <span class="text-xs font-semibold text-gray-500 truncate">
-                          {{ split.date | date: 'mediumDate' }} • Paid by {{ split.payer_id === currentUser().id ? 'You' : getFriendName(split.payer_id) }}
+                        <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-0.5 truncate">
+                          {{ split.date | date: 'MMM d, h:mm a' }} • Paid by {{ split.payer_id === currentUser().id ? 'You' : getFriendName(split.payer_id) }}
                         </span>
                       </div>
                       

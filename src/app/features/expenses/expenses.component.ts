@@ -21,6 +21,7 @@ import { GoalService } from '../../core/services/goal.service';
 import { SubscriptionService } from '../../core/services/subscription.service';
 import { BudgetService } from '../../core/services/budget.service';
 import { AuthService } from '../../core/services/auth.service';
+import { AccountTrackerService } from '../../core/services/account-tracker.service';
 
 @Component({
   selector: 'app-expenses',
@@ -32,7 +33,7 @@ import { AuthService } from '../../core/services/auth.service';
   changeDetection: ChangeDetectionStrategy.Default,
   template: `
     <div
-      class="h-full bg-[#FAFAFA] flex flex-col overflow-hidden select-none font-sans"
+      class="h-full bg-white flex flex-col overflow-hidden select-none font-sans"
       (touchstart)="onTouchStart($event)"
       (touchmove)="onTouchMove($event)"
       (touchend)="onTouchEnd($event)"
@@ -71,7 +72,7 @@ import { AuthService } from '../../core/services/auth.service';
       <div class="px-5 pt-5 pb-2 shrink-0">
         @if (expenseService.isLoading()) {
           <!-- Skeleton Loader -->
-          <div class="bg-white p-6 rounded-[24px] shadow-sm border border-slate-100 relative overflow-hidden">
+          <div class="bg-slate-50/50 p-6 rounded-[24px] shadow-sm border border-slate-100 relative overflow-hidden">
             <div class="flex flex-col gap-1">
               <div class="h-[14px] bg-slate-200 w-24 animate-pulse rounded-full"></div>
               <div class="h-8 bg-slate-200 w-32 animate-pulse rounded-lg mt-0.5"></div>
@@ -79,57 +80,62 @@ import { AuthService } from '../../core/services/auth.service';
           </div>
         } @else {
           <!-- Total Spend Summary Card -->
-          <div class="bg-expense-primary p-6 rounded-[24px] shadow-lg shadow-expense-primary/30 relative overflow-hidden">
+          <div class="bg-expense-primary/5 text-slate-800 p-6 rounded-[24px] shadow-sm border border-expense-primary/20 transition-all duration-300 relative overflow-hidden">
             <div class="relative z-10 flex flex-col gap-4">
               <!-- Header & Amount -->
-              <div class="flex flex-col gap-1">
-                <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold uppercase tracking-widest text-white/70">Total Spend</span>
-                  <span class="text-xs font-bold text-white bg-white/20 px-2.5 py-1 rounded-full border border-white/10 backdrop-blur-sm">
+              <div class="flex flex-col gap-1 mt-1">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="font-bold text-base text-slate-800">Total Spend</span>
+                  <span class="text-xs font-bold uppercase px-3 py-1 bg-expense-primary/10 text-expense-primary rounded-full">
                     {{ getActiveMonthLabel() }}
                   </span>
                 </div>
-                <div class="flex items-baseline gap-1 mt-1">
-                  <span class="text-[36px] leading-none font-black text-white tracking-tight">
-                    {{ getTotal() | currency:'INR':'symbol':'1.0-0' }}
+                <div class="flex items-baseline justify-center w-full mt-4 mb-2">
+                  <span class="font-bold tracking-tight text-slate-900 leading-none text-center truncate text-[40px]">
+                    {{ getTotal() | currency:'INR':'₹':'1.0-0' }}
                   </span>
-                  @if (monthlySalary() > 0) {
-                    <span class="text-sm font-bold text-white/60">
-                      / {{ monthlySalary() | currency:'INR':'symbol':'1.0-0' }}
-                    </span>
-                  }
                 </div>
               </div>
 
-              <!-- Progress Bar -->
-              @if (monthlySalary() > 0) {
-                <div class="flex flex-col gap-2 mt-2">
-                  <div class="h-2 w-full bg-black/20 rounded-full overflow-hidden flex relative z-10 border border-black/10">
-                    <div
-                      class="h-full bg-emerald-400 transition-all duration-1000 ease-out"
-                      [style.width.%]="animateBars() ? progressWidths().upi : 0"
-                    ></div>
-                    <div
-                      class="h-full bg-yellow-400 transition-all duration-1000 ease-out"
-                      [style.width.%]="animateBars() ? progressWidths().credit : 0"
-                    ></div>
-                    <div
-                      class="h-full bg-pink-400 transition-all duration-1000 ease-out"
-                      [style.width.%]="animateBars() ? progressWidths().cash : 0"
-                    ></div>
-                  </div>
-                  <div class="flex justify-between items-center text-[10.5px] font-semibold mt-1">
-                    <div class="flex gap-3">
-                      <span class="flex items-center gap-1.5 text-white/80"><div class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]"></div> UPI</span>
-                      <span class="flex items-center gap-1.5 text-white/80"><div class="w-2 h-2 rounded-full bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.5)]"></div> Card</span>
-                      <span class="flex items-center gap-1.5 text-white/80"><div class="w-2 h-2 rounded-full bg-pink-400 shadow-[0_0_8px_rgba(244,114,182,0.5)]"></div> Cash</span>
-                    </div>
-                    <span class="text-white/80">
-                      {{ (progressWidths().upi + progressWidths().credit + progressWidths().cash) | number:'1.0-0' }}%
-                    </span>
-                  </div>
+              <!-- Salary Progress -->
+              <div class="flex flex-col gap-1.5 mt-4 pt-4 border-t border-expense-primary/10">
+                <div class="flex justify-between items-end">
+                   <div class="flex flex-col">
+                     <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Salary Account</span>
+                     <span class="text-sm font-bold text-slate-800 tracking-[0.2em] mt-0.5 cursor-pointer active:scale-95 inline-block transition-transform" (click)="toggleMask(); $event.stopPropagation()">{{ isMasked() ? '••••••' : (monthlySalary() - spendData().salary | currency:'INR':'₹':'1.0-0') }} <span class="text-[10px] text-slate-400 font-semibold uppercase tracking-normal ml-0.5">Left</span></span>
+                   </div>
+                   <div class="text-right flex flex-col">
+                     <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Total</span>
+                     <span class="text-xs font-bold text-slate-600 tracking-[0.2em] mt-0.5 cursor-pointer active:scale-95 inline-block transition-transform" (click)="toggleMask(); $event.stopPropagation()">{{ isMasked() ? '••••••' : (monthlySalary() | currency:'INR':'₹':'1.0-0') }}</span>
+                   </div>
                 </div>
-              }
+                <div class="h-2 w-full bg-expense-primary/10 rounded-full overflow-hidden flex relative z-10 shadow-inner mt-1">
+                  <div
+                    class="h-full bg-emerald-500 transition-all duration-1000 ease-out"
+                    [style.width.%]="animateBars() && monthlySalary() > 0 ? (spendData().salary / monthlySalary()) * 100 : 0"
+                  ></div>
+                </div>
+              </div>
+
+              <!-- Cash Progress -->
+              <div class="flex flex-col gap-1.5 mt-3">
+                <div class="flex justify-between items-end">
+                   <div class="flex flex-col">
+                     <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Cash Account</span>
+                     <span class="text-sm font-bold text-slate-800 tracking-[0.2em] mt-0.5 cursor-pointer active:scale-95 inline-block transition-transform" (click)="toggleMask(); $event.stopPropagation()">{{ isMasked() ? '••••••' : (accountTracker.cashBalance() | currency:'INR':'₹':'1.0-0') }} <span class="text-[10px] text-slate-400 font-semibold uppercase tracking-normal ml-0.5">Left</span></span>
+                   </div>
+                   <div class="text-right flex flex-col">
+                     <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Total</span>
+                     <span class="text-xs font-bold text-slate-600 tracking-[0.2em] mt-0.5 cursor-pointer active:scale-95 inline-block transition-transform" (click)="toggleMask(); $event.stopPropagation()">{{ isMasked() ? '••••••' : (accountTracker.cashBalance() + spendData().cash | currency:'INR':'₹':'1.0-0') }}</span>
+                   </div>
+                </div>
+                <div class="h-2 w-full bg-expense-primary/10 rounded-full overflow-hidden flex relative z-10 shadow-inner mt-1">
+                  <div
+                    class="h-full bg-pink-500 transition-all duration-1000 ease-out"
+                    [style.width.%]="animateBars() && (accountTracker.cashBalance() + spendData().cash) > 0 ? (spendData().cash / (accountTracker.cashBalance() + spendData().cash)) * 100 : 0"
+                  ></div>
+                </div>
+              </div>
             </div>
           </div>
         }
@@ -137,9 +143,9 @@ import { AuthService } from '../../core/services/auth.service';
 
       <div #scrollContainer class="flex-1 overflow-y-auto px-5 pb-32">
         @if (expenseService.isLoading()) {
-          <div class="flex flex-col gap-3">
+          <div class="flex flex-col gap-3 mt-4">
             @for (i of [1,2,3,4,5]; track i) {
-              <div class="bg-white border border-slate-100 rounded-[20px] p-4 flex items-center gap-3 shadow-[0_2px_12px_rgb(0,0,0,0.03)]">
+              <div class="bg-slate-50/50 border border-slate-100 rounded-[20px] p-4 flex items-center gap-3 shadow-sm">
                 <div class="w-12 h-12 rounded-full bg-slate-200 animate-pulse shrink-0"></div>
                 <div class="flex flex-col gap-1.5 flex-1 min-w-0">
                   <div class="h-4 bg-slate-200 w-32 animate-pulse rounded-full"></div>
@@ -155,21 +161,21 @@ import { AuthService } from '../../core/services/auth.service';
         } @else {
           <!-- Expense List -->
           @if (expenseService.expenses().length === 0) {
-            <div class="w-full bg-[#FCFCFD] border border-solid border-slate-100 shadow-sm rounded-[24px] p-10 flex flex-col items-center justify-center text-center mt-4">
-              <div class="w-16 h-16 bg-expense-surface rounded-[16px] flex items-center justify-center mb-4">
-                <svg class="w-8 h-8 text-expense-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="w-full bg-white border border-solid border-expense-primary/20 shadow-sm rounded-[24px] p-8 flex flex-col items-center justify-center text-center mt-4">
+              <div class="w-12 h-12 bg-expense-primary/10 rounded-[14px] flex items-center justify-center mb-3">
+                <svg class="w-6 h-6 text-expense-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
               </div>
-              <h4 class="text-base font-bold text-slate-800 mb-2">No expenses found</h4>
-              <p class="text-sm text-slate-500">You haven't added any expenses for this month yet.</p>
+              <h4 class="text-sm font-bold text-slate-800 mb-1">No expenses found</h4>
+              <p class="text-xs text-slate-500">You haven't added any expenses for this month yet.</p>
             </div>
           } @else {
-            <div class="flex flex-col gap-3">
+            <div class="flex flex-col gap-3 mt-4">
               @for (expense of expenseService.expenses(); track trackById($index, expense)) {
                 <button
                   (click)="editExpense(expense)"
-                  class="w-full bg-white border border-slate-100 rounded-[20px] p-4 flex items-center gap-3 text-left transition-all active:scale-[0.99] cursor-pointer shadow-[0_2px_12px_rgb(0,0,0,0.03)]"
+                  class="w-full bg-expense-primary/5 border border-expense-primary/20 rounded-[20px] p-4 flex items-center gap-3 text-left transition-all active:scale-[0.99] cursor-pointer shadow-[0_2px_10px_rgba(0,0,0,0.02)]"
                 >
                   <!-- Icon -->
                   <div class="flex items-center gap-3 shrink-0">
@@ -183,17 +189,9 @@ import { AuthService } from '../../core/services/auth.service';
                   <!-- Details -->
                   <div class="flex flex-col gap-2 min-w-0 flex-1 ml-1">
                     <span class="font-bold text-[17px] text-slate-900 truncate leading-none mt-1">{{ expense.title }}</span>
-                    <div class="flex flex-col gap-1.5">
-                      <div class="flex items-center gap-1.5 text-slate-500">
-                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                          <line x1="16" y1="2" x2="16" y2="6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                          <line x1="8" y1="2" x2="8" y2="6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                          <line x1="3" y1="10" x2="21" y2="10" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        <span class="text-xs font-medium">{{ expense.date | date: 'MMM d, yyyy • hh:mm a' }}</span>
-                      </div>
-                    </div>
+                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-0.5">
+                      {{ expense.date | date: 'MMM d, h:mm a' }}
+                    </span>
                   </div>
 
                   <!-- Amount & Payment Tag -->
@@ -236,44 +234,33 @@ export class Expenses implements OnInit, AfterViewInit, OnDestroy {
   subscriptionService = inject(SubscriptionService);
   budgetService = inject(BudgetService);
   authService = inject(AuthService);
+  accountTracker = inject(AccountTrackerService);
   private monthSub: any;
 
   animateBars = signal(false);
+  maskValues = signal<boolean>(false);
+  isMasked = computed(() => this.maskValues());
 
   monthlySalary = computed(() => this.authService.userProfile().salary || 0);
 
-  spendByMode = computed(() => {
-    // We use allExpenses() so the progress bar reflects every transaction in the month,
-    // not just the paginated subset currently visible on screen.
+  toggleMask() {
+    this.maskValues.update(v => !v);
+  }
+
+  spendData = computed(() => {
     const expenses = this.expenseService.allExpenses();
-    const totals = { cash: 0, credit: 0, upi: 0 };
+    const totals = { cash: 0, salary: 0 };
     for (const exp of expenses) {
-      if (exp.category === 'virtual-invest') continue; // Optional: Exclude internal transfers/investments if needed
+      if (exp.category === 'virtual-invest') continue;
       
-      const mode = exp.paid_via?.toLowerCase() || 'cash';
-      if (mode.includes('credit') || mode.includes('card')) totals.credit += exp.amount;
-      else if (mode.includes('upi')) totals.upi += exp.amount;
-      else totals.cash += exp.amount;
+      const mode = exp.paid_via?.toLowerCase() || 'upi';
+      if (mode.includes('cash')) {
+        totals.cash += exp.amount;
+      } else {
+        totals.salary += exp.amount; // UPI, Card, etc.
+      }
     }
     return totals;
-  });
-
-  progressWidths = computed(() => {
-    const salary = this.monthlySalary();
-    const totals = this.spendByMode();
-    if (!salary || salary === 0) {
-      return { cash: 0, credit: 0, upi: 0 };
-    }
-    // Calculate widths as percentage of total salary
-    const cashPct = (totals.cash / salary) * 100;
-    const creditPct = (totals.credit / salary) * 100;
-    const upiPct = (totals.upi / salary) * 100;
-    
-    return { 
-      cash: Math.max(0, Math.min(cashPct, 100)), 
-      credit: Math.max(0, Math.min(creditPct, 100 - cashPct)), 
-      upi: Math.max(0, Math.min(upiPct, 100 - cashPct - creditPct)) 
-    };
   });
 
   private observer: IntersectionObserver | null = null;
@@ -300,6 +287,9 @@ export class Expenses implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit() {
+    if (this.authService.userProfile().maskValues) {
+      this.maskValues.set(true);
+    }
     const options = { root: null, rootMargin: '0px', threshold: 0.1 };
     this.observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting && this.expenseService.hasMore()) {

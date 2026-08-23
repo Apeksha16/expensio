@@ -458,7 +458,7 @@ export class Layout implements AfterViewInit {
     if (url.includes('/splits')) return 'Splits';
     if (url.includes('/subscriptions')) return 'Subscriptions';
     if (url.includes('/goals')) return 'Goals';
-    if (url.includes('/ledger')) return 'Private Ledger';
+    if (url.includes('/ledger')) return 'Ledger';
     if (url.includes('/tracker')) return 'Accounts Tracker';
     if (url.includes('/reports')) return 'Reports';
     if (url.includes('/profile')) return 'Profile';
@@ -508,7 +508,18 @@ export class Layout implements AfterViewInit {
       this.keyboardService.openKeyboardSync();
     }
 
-    if (this.currentUrl().includes('/budgets')) {
+    if (this.isBudgetExpensesPage()) {
+      const match = this.currentUrl().match(/\/budgets\/(.+)/);
+      const name = match ? decodeURIComponent(match[1]) : null;
+      if (name) {
+        this.expenseService.openBottomSheet({
+          category: name,
+          amount: null,
+          title: '',
+          paid_via: 'UPI'
+        } as any);
+      }
+    } else if (this.currentUrl().includes('/budgets')) {
       this.budgetService.openBottomSheet();
     } else if (this.currentUrl().includes('/friends')) {
       this.friendService.openAddSheet();
@@ -584,7 +595,7 @@ export class Layout implements AfterViewInit {
   }
 
   bottomNavItems = computed(() => {
-    const sequence = ['dashboard', 'expenses', 'budgets', 'friends', 'splits'];
+    const sequence = ['dashboard', 'expenses', 'budgets', 'ledger', 'splits'];
     return sequence
       .map((id) => this.quickActionsService.navItems.find((item) => item.id === id))
       .filter((item): item is NonNullable<typeof item> => item !== undefined);
@@ -632,7 +643,7 @@ export class Layout implements AfterViewInit {
     switch (id) {
       case 'expenses': return 'bg-expense-primary shadow-expense-primary/30';
       case 'budgets': return 'bg-budget-primary shadow-budget-primary/30';
-      case 'friends': return 'bg-friends-primary shadow-friends-primary/30';
+      case 'ledger': return 'bg-ledger-primary shadow-ledger-primary/30';
       case 'splits': return 'bg-splits-primary shadow-splits-primary/30';
       case 'dashboard': return 'bg-slate-900 shadow-slate-900/30';
       default: return 'bg-slate-900 shadow-slate-900/30';

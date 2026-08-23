@@ -7,6 +7,9 @@ import {
   computed,
   untracked,
   ChangeDetectionStrategy,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -97,7 +100,7 @@ import { SafeInputDirective } from '../safe-input.directive';
         </div>
         
         <!-- Content -->
-        <div class="p-6 overflow-y-auto overscroll-none flex-1 pb-6" style="scrollbar-width: none;">
+        <div class="p-6 overflow-y-auto overscroll-none flex-1 pb-6" [ngClass]="theme.surfaceBg" style="scrollbar-width: none;">
           @if (isEditing) {
             <div class="flex justify-center mb-4">
               <span class="text-[10px] font-bold tracking-wide uppercase text-slate-500 bg-slate-100 px-3 py-1 rounded-full border border-slate-200 mt-2">
@@ -105,9 +108,9 @@ import { SafeInputDirective } from '../safe-input.directive';
               </span>
             </div>
           }
-          <form [formGroup]="expenseForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-6">
+          <form [formGroup]="expenseForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
             <!-- Amount -->
-            <div class="flex flex-col gap-2">
+            <div class="flex flex-col gap-1.5">
               <label class="text-[11px] font-bold text-slate-500 tracking-widest uppercase">Amount</label>
               <div class="relative group">
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -121,90 +124,96 @@ import { SafeInputDirective } from '../safe-input.directive';
                   formControlName="amount"
                   placeholder="0.00"
                   (keydown)="preventE($event)"
-                  class="w-full bg-white border-2 border-gray-100 text-slate-900 font-bold text-2xl rounded-2xl pl-11 pr-4 py-4 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-300" [ngClass]="[theme.focusBorder, theme.focusRing]"
+                  class="w-full bg-white border-2 text-slate-900 font-bold text-2xl rounded-2xl pl-11 pr-4 py-3 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-300" [ngClass]="[theme.focusBorder, theme.focusRing, theme.surfaceBorder]"
                 />
               </div>
             </div>
             <!-- Name -->
-            <div class="flex flex-col gap-2">
+            <div class="flex flex-col gap-1.5">
               <label class="text-[11px] font-bold text-slate-500 tracking-widest uppercase">Expense Name</label>
               <div class="relative group">
-                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-slate-400"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
-                </div>
                 <input
                   type="text"
                   formControlName="title"
                   appSafeInput
                   placeholder="What was this for?"
-                  class="w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl pl-11 pr-4 py-4 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-400" [ngClass]="[theme.focusBorder, theme.focusRing]"
+                  class="w-full bg-white border-2 text-slate-900 font-semibold text-base rounded-2xl px-4 py-3 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-400" [ngClass]="[theme.focusBorder, theme.focusRing, theme.surfaceBorder]"
                 />
               </div>
             </div>
             <!-- Budgets -->
             @if (budgetService.isLoading()) {
-              <div class="flex flex-col gap-2">
+              <div class="flex flex-col gap-1.5 relative w-full">
                 <label class="text-[11px] font-bold text-slate-500 tracking-widest uppercase">Category</label>
-                <div class="grid grid-cols-4 gap-2">
-                  @for (i of [1, 2, 3, 4, 5, 6, 7, 8]; track i) {
-                    <div class="flex flex-col items-center justify-center gap-1.5 p-2.5 border border-slate-100 bg-slate-50 rounded-2xl min-h-[64px] animate-pulse">
-                      <div class="w-5 h-5 bg-slate-200 rounded-full"></div>
-                      <div class="w-10 h-2 bg-slate-200 rounded-full mt-0.5"></div>
-                    </div>
+                <div 
+                  #scrollCatLoading 
+                  (scroll)="updateScrollState($event.target, false)" 
+                  class="flex gap-2 overflow-x-auto snap-x snap-mandatory no-scrollbar pb-2 relative z-0 touch-pan-x transition-all duration-300"
+                  [style.-webkit-mask-image]="getMaskImage(false)"
+                  [style.mask-image]="getMaskImage(false)"
+                >
+                  @for (i of [1, 2, 3, 4, 5]; track i) {
+                    <div class="flex items-center gap-2 p-2 px-3 border border-slate-100 bg-slate-50 rounded-full h-[40px] w-[100px] shrink-0 animate-pulse"></div>
                   }
                 </div>
               </div>
             } @else {
-              <div class="flex flex-col gap-2">
+              <div class="flex flex-col gap-1.5 relative w-full">
                 <label class="text-[11px] font-bold text-slate-500 tracking-widest uppercase">Category</label>
-                <div class="grid grid-cols-4 gap-2">
+                <div 
+                  #scrollCat 
+                  (scroll)="updateScrollState($event.target, true)" 
+                  class="flex gap-2 overflow-x-auto snap-x snap-mandatory no-scrollbar pb-2 relative z-0 touch-pan-x transition-all duration-300"
+                  [style.-webkit-mask-image]="getMaskImage(true)"
+                  [style.mask-image]="getMaskImage(true)"
+                >
                   @for (cat of budgetCategories(); track cat) {
                     <button
                       type="button"
                       (click)="selectBudget(cat)"
-                      class="flex flex-col items-center justify-center gap-1.5 p-2.5 border-2 rounded-2xl transition-all min-h-[64px] active:scale-95"
+                      class="flex items-center gap-2 p-2 px-3 border-2 rounded-full transition-all shrink-0 active:scale-95 snap-center"
                       [ngClass]="
                         (expenseForm.get('category')?.value || '').toLowerCase() === cat.name.toLowerCase()
                           ? theme.activeBg
-                          : 'bg-white text-slate-600 border-gray-100 shadow-sm'
+                          : 'bg-white text-slate-600 shadow-sm ' + theme.surfaceBorder
                       "
                     >
-                      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                      <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
                         <path [attr.d]="cat.path"></path>
                       </svg>
-                      <span class="text-[9px] font-bold tracking-wider uppercase text-center line-clamp-1 w-full overflow-hidden text-ellipsis">{{ cat.name }}</span>
+                      <span class="text-xs font-bold tracking-wide whitespace-nowrap">{{ cat.name }}</span>
                     </button>
                   }
                 </div>
               </div>
             }
             <!-- Paid Via -->
-            <div class="flex flex-col gap-2">
+            <div class="flex flex-col gap-1.5">
               <label class="text-[11px] font-bold text-slate-500 tracking-widest uppercase">Paid Via</label>
-              <div class="grid grid-cols-3 gap-2">
+              <div class="flex items-center bg-slate-50 border border-slate-100 rounded-2xl p-1 shadow-inner">
                 @for (method of ['Cash', 'Credit Card', 'UPI']; track method) {
                   <button
                     type="button"
                     (click)="expenseForm.patchValue({ paid_via: method })"
-                    class="flex flex-col items-center justify-center gap-1 p-3 border-2 rounded-2xl transition-all h-[48px] active:scale-95"
+                    class="flex-1 active:scale-[0.98] transition-all duration-200 py-2.5 px-3 text-xs font-bold rounded-xl text-center"
                     [ngClass]="
                       expenseForm.get('paid_via')?.value === method
                         ? theme.activeBg
-                        : 'bg-white text-slate-600 border-gray-100 shadow-sm'
+                        : 'text-slate-600 bg-transparent'
                     "
                   >
-                    <span class="text-xs font-semibold tracking-wide text-center">{{ method === 'Credit Card' ? 'Credit' : method }}</span>
+                    {{ method === 'Credit Card' ? 'Credit' : method }}
                   </button>
                 }
               </div>
             </div>
             <!-- Date -->
-            <div class="flex flex-col gap-2">
+            <div class="flex flex-col gap-1.5">
               <label class="text-[11px] font-bold text-slate-500 tracking-widest uppercase">Date</label>
               <button
                 type="button"
                 (click)="isDatePickerOpen = true"
-                class="active:scale-[0.98] transition-all duration-200 w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-sm rounded-2xl flex justify-between items-center p-4 outline-none transition-all touch-manipulation shadow-sm" [ngClass]="[theme.focusBorder, theme.focusRing]"
+                class="active:scale-[0.98] transition-all duration-200 w-full bg-white border-2 text-slate-900 font-semibold text-sm rounded-2xl flex justify-between items-center p-3 px-4 outline-none transition-all touch-manipulation shadow-sm" [ngClass]="[theme.focusBorder, theme.focusRing, theme.surfaceBorder]"
               >
                 <div class="flex items-center gap-3">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-slate-400"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
@@ -220,7 +229,7 @@ import { SafeInputDirective } from '../safe-input.directive';
               <button
                 type="button"
                 (click)="close()"
-                class="flex-1 font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-slate-100 text-slate-700 text-center"
+                class="flex-1 font-bold rounded-2xl border-2 transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-white text-slate-700 text-center shadow-sm" [ngClass]="theme.surfaceBorder"
               >
                 Cancel
               </button>
@@ -256,20 +265,27 @@ export class BottomSheetComponent implements OnInit {
 
   get theme() {
     const route = this.router.url.split('/')[1] || 'dashboard';
+    const t = (p: string) => ({
+      text: `text-${p}-primary`, bg: `bg-${p}-primary`, border: `border-${p}-primary`, 
+      focusBorder: `focus:border-${p}-primary`, focusRing: `focus:ring-4 focus:ring-${p}-primary/15`, 
+      shadow: `shadow-${p}-primary/20`, 
+      activeBg: `bg-${p}-primary text-white border-${p}-primary shadow-md shadow-${p}-primary/20`,
+      surfaceBg: `bg-white`, surfaceBorder: `border-gray-100`
+    });
     switch (route) {
-      case 'expenses': return { text: 'text-expense-primary', bg: 'bg-expense-primary', border: 'border-expense-primary', focusBorder: 'focus:border-expense-primary', focusRing: 'focus:ring-4 focus:ring-expense-primary/15', shadow: 'shadow-expense-primary/20', activeBg: 'bg-expense-primary text-white border-expense-primary shadow-md shadow-expense-primary/20' };
-      case 'budgets': return { text: 'text-budget-primary', bg: 'bg-budget-primary', border: 'border-budget-primary', focusBorder: 'focus:border-budget-primary', focusRing: 'focus:ring-4 focus:ring-budget-primary/15', shadow: 'shadow-budget-primary/20', activeBg: 'bg-budget-primary text-white border-budget-primary shadow-md shadow-budget-primary/20' };
-      case 'friends': return { text: 'text-friends-primary', bg: 'bg-friends-primary', border: 'border-friends-primary', focusBorder: 'focus:border-friends-primary', focusRing: 'focus:ring-4 focus:ring-friends-primary/15', shadow: 'shadow-friends-primary/20', activeBg: 'bg-friends-primary text-white border-friends-primary shadow-md shadow-friends-primary/20' };
-      case 'splits': return { text: 'text-splits-primary', bg: 'bg-splits-primary', border: 'border-splits-primary', focusBorder: 'focus:border-splits-primary', focusRing: 'focus:ring-4 focus:ring-splits-primary/15', shadow: 'shadow-splits-primary/20', activeBg: 'bg-splits-primary text-white border-splits-primary shadow-md shadow-splits-primary/20' };
-      case 'subscriptions': return { text: 'text-subscriptions-primary', bg: 'bg-subscriptions-primary', border: 'border-subscriptions-primary', focusBorder: 'focus:border-subscriptions-primary', focusRing: 'focus:ring-4 focus:ring-subscriptions-primary/15', shadow: 'shadow-subscriptions-primary/20', activeBg: 'bg-subscriptions-primary text-white border-subscriptions-primary shadow-md shadow-subscriptions-primary/20' };
+      case 'expenses': return t('expense');
+      case 'budgets': return t('budget');
+      case 'friends': return t('friends');
+      case 'splits': return t('splits');
+      case 'subscriptions': return t('subscriptions');
       case 'goals': 
-      case 'goal-transactions': return { text: 'text-goals-primary', bg: 'bg-goals-primary', border: 'border-goals-primary', focusBorder: 'focus:border-goals-primary', focusRing: 'focus:ring-4 focus:ring-goals-primary/15', shadow: 'shadow-goals-primary/20', activeBg: 'bg-goals-primary text-white border-goals-primary shadow-md shadow-goals-primary/20' };
+      case 'goal-transactions': return t('goals');
       case 'ledger': 
-      case 'ledger-details': return { text: 'text-ledger-primary', bg: 'bg-ledger-primary', border: 'border-ledger-primary', focusBorder: 'focus:border-ledger-primary', focusRing: 'focus:ring-4 focus:ring-ledger-primary/15', shadow: 'shadow-ledger-primary/20', activeBg: 'bg-ledger-primary text-white border-ledger-primary shadow-md shadow-ledger-primary/20' };
-      case 'tracker': return { text: 'text-tracker-primary', bg: 'bg-tracker-primary', border: 'border-tracker-primary', focusBorder: 'focus:border-tracker-primary', focusRing: 'focus:ring-4 focus:ring-tracker-primary/15', shadow: 'shadow-tracker-primary/20', activeBg: 'bg-tracker-primary text-white border-tracker-primary shadow-md shadow-tracker-primary/20' };
-      case 'profile': return { text: 'text-profile-primary', bg: 'bg-profile-primary', border: 'border-profile-primary', focusBorder: 'focus:border-profile-primary', focusRing: 'focus:ring-4 focus:ring-profile-primary/15', shadow: 'shadow-profile-primary/20', activeBg: 'bg-profile-primary text-white border-profile-primary shadow-md shadow-profile-primary/20' };
-      case 'reports': return { text: 'text-reports-primary', bg: 'bg-reports-primary', border: 'border-reports-primary', focusBorder: 'focus:border-reports-primary', focusRing: 'focus:ring-4 focus:ring-reports-primary/15', shadow: 'shadow-reports-primary/20', activeBg: 'bg-reports-primary text-white border-reports-primary shadow-md shadow-reports-primary/20' };
-      default: return { text: 'text-expense-primary', bg: 'bg-expense-primary', border: 'border-expense-primary', focusBorder: 'focus:border-expense-primary', focusRing: 'focus:ring-4 focus:ring-expense-primary/15', shadow: 'shadow-expense-primary/20', activeBg: 'bg-expense-primary text-white border-expense-primary shadow-md shadow-expense-primary/20' };
+      case 'ledger-details': return t('ledger');
+      case 'tracker': return t('tracker');
+      case 'profile': return t('profile');
+      case 'reports': return t('reports');
+      default: return t('expense');
     }
   }
 
@@ -288,6 +304,14 @@ export class BottomSheetComponent implements OnInit {
   isSaving = signal(false);
   isDeleting = signal(false);
 
+  @ViewChild('scrollCat') scrollCat?: ElementRef;
+  @ViewChild('scrollCatLoading') scrollCatLoading?: ElementRef;
+
+  showLeftFade = signal(false);
+  showRightFade = signal(false);
+  showLeftFadeLoading = signal(false);
+  showRightFadeLoading = signal(false);
+
   selectedMonth = signal<string>('');
 
   budgetCategories = computed(() => {
@@ -297,6 +321,22 @@ export class BottomSheetComponent implements OnInit {
     const defaultCats = DEFAULT_CATEGORIES;
     if (fetchedBudgets.length === 0) return defaultCats;
     
+    const editing = this.expenseService.editingExpense();
+    if (editing && editing.category) {
+      const exists = fetchedBudgets.some(b => b.name.toLowerCase() === editing.category.toLowerCase());
+      if (!exists) {
+        const defaultCat = DEFAULT_CATEGORIES.find(c => c.name.toLowerCase() === editing.category.toLowerCase());
+        fetchedBudgets.unshift({
+          id: 'virtual-editing',
+          name: editing.category,
+          amount: 0,
+          icon_path: defaultCat ? defaultCat.path : '',
+          month: month,
+          auto_rollover: false,
+        } as any);
+      }
+    }
+
     const hasOthers = fetchedBudgets.some(
       (b: any) => b.name.toLowerCase() === 'others' || b.name.toLowerCase() === 'other'
     );
@@ -312,7 +352,7 @@ export class BottomSheetComponent implements OnInit {
       } as any);
     }
 
-    return fetchedBudgets.map((b) => {
+    return this.budgetService.sortCategories(fetchedBudgets.map((b) => {
       let iconPath = b.icon_path;
       return {
         name: b.name,
@@ -320,7 +360,7 @@ export class BottomSheetComponent implements OnInit {
           iconPath ||
           'M20 12v10H4V12 M2 7h20v5H2z M12 22V7 M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z',
       };
-    });
+    }));
   });
 
   constructor() {
@@ -335,6 +375,14 @@ export class BottomSheetComponent implements OnInit {
     });
 
     effect(() => {
+      const isLoading = this.budgetService.isLoading();
+      // Check scrolls after categories have rendered
+      untracked(() => {
+        setTimeout(() => this.checkScrolls(), 50);
+      });
+    });
+
+    effect(() => {
       const isOpen = this.expenseService.isBottomSheetOpen();
       const editing = this.expenseService.editingExpense();
 
@@ -342,7 +390,7 @@ export class BottomSheetComponent implements OnInit {
         if (!this.expenseForm) {
           this.initForm();
         } else {
-          this.isEditing = !!editing;
+          this.isEditing = !!(editing && editing.id);
           const dateStr = editing?.date ? editing.date : new Date().toISOString();
           const d = editing?.date ? new Date(editing.date) : new Date();
           const y = d.getFullYear();
@@ -356,6 +404,9 @@ export class BottomSheetComponent implements OnInit {
             paid_via: editing?.paid_via || 'UPI',
           });
         }
+        untracked(() => {
+          setTimeout(() => this.checkScrolls(), 100);
+        });
       }
     });
   }
@@ -366,9 +417,52 @@ export class BottomSheetComponent implements OnInit {
     }
   }
 
+  ngAfterViewInit() {
+    setTimeout(() => this.checkScrolls(), 100);
+  }
+
+  checkScrolls() {
+    if (this.scrollCat?.nativeElement) {
+      this.updateScrollState(this.scrollCat.nativeElement, true);
+    }
+    if (this.scrollCatLoading?.nativeElement) {
+      this.updateScrollState(this.scrollCatLoading.nativeElement, false);
+    }
+  }
+
+  updateScrollState(target: any, isLoaded: boolean) {
+    if (!target) return;
+    const isAtStart = target.scrollLeft <= 0;
+    const isAtEnd = target.scrollLeft >= target.scrollWidth - target.clientWidth - 1;
+    const hasScroll = target.scrollWidth > target.clientWidth;
+    
+    if (isLoaded) {
+      this.showLeftFade.set(!isAtStart && hasScroll);
+      this.showRightFade.set(!isAtEnd && hasScroll);
+    } else {
+      this.showLeftFadeLoading.set(!isAtStart && hasScroll);
+      this.showRightFadeLoading.set(!isAtEnd && hasScroll);
+    }
+  }
+
+  getMaskImage(isLoaded: boolean): string {
+    const left = isLoaded ? this.showLeftFade() : this.showLeftFadeLoading();
+    const right = isLoaded ? this.showRightFade() : this.showRightFadeLoading();
+    
+    if (left && right) {
+      return 'linear-gradient(to right, transparent, black 24px, black calc(100% - 24px), transparent)';
+    } else if (left) {
+      return 'linear-gradient(to right, transparent, black 24px, black)';
+    } else if (right) {
+      return 'linear-gradient(to right, black, black calc(100% - 24px), transparent)';
+    } else {
+      return 'none';
+    }
+  }
+
   private initForm() {
     const editing = this.expenseService.editingExpense();
-    this.isEditing = !!editing;
+    this.isEditing = !!(editing && editing.id);
 
     const dateStr = editing?.date ? editing.date : new Date().toISOString();
     const d = editing?.date ? new Date(editing.date) : new Date();

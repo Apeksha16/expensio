@@ -6,6 +6,10 @@ import {
   OnInit,
   effect,
   ChangeDetectionStrategy,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
+  untracked,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -139,7 +143,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
                 type="text"
                 formControlName="title"
                 placeholder="e.g. Netflix, Gym"
-                class="w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl px-4 py-4 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-400 focus:border-subscriptions-primary focus:ring-4 focus:ring-subscriptions-primary/15"
+                class="w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl px-4 py-3 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-400 focus:border-subscriptions-primary focus:ring-4 focus:ring-subscriptions-primary/15"
               />
             </div>
 
@@ -161,7 +165,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
                     formControlName="amount"
                     placeholder="0"
                     (keydown)="preventE($event)"
-                    class="w-full bg-white border-2 border-gray-100 text-slate-900 font-bold text-2xl rounded-2xl pl-10 pr-4 py-4 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-300 focus:border-subscriptions-primary focus:ring-4 focus:ring-subscriptions-primary/15"
+                    class="w-full bg-white border-2 border-gray-100 text-slate-900 font-bold text-2xl rounded-2xl pl-10 pr-4 py-3 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-300 focus:border-subscriptions-primary focus:ring-4 focus:ring-subscriptions-primary/15"
                   />
                 </div>
               </div>
@@ -174,7 +178,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
                 <button
                   type="button"
                   (click)="isDayPickerOpen = true"
-                  class="active:scale-[0.98] transition-all duration-200 w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl focus:border-subscriptions-primary focus:ring-4 focus:ring-subscriptions-primary/15 flex justify-between items-center px-4 py-4 outline-none touch-manipulation shadow-sm"
+                  class="active:scale-[0.98] transition-all duration-200 w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl focus:border-subscriptions-primary focus:ring-4 focus:ring-subscriptions-primary/15 flex justify-between items-center px-4 py-3 outline-none touch-manipulation shadow-sm"
                 >
                   <span>{{ subForm.get('billing_day')?.value || 1 }}</span>
                   <svg
@@ -190,38 +194,33 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
               </div>
             </div>
 
-            <div class="flex flex-col gap-1.5">
+            <div class="flex flex-col gap-1.5 relative w-full">
               <label
                 class="text-[11px] font-bold text-gray-500 tracking-wider uppercase"
                 >Category</label
               >
-              <div class="grid grid-cols-4 gap-2">
+              <div 
+                #scrollCat 
+                (scroll)="updateScrollState($event.target, true)" 
+                class="flex gap-2 overflow-x-auto snap-x snap-mandatory no-scrollbar pb-2 relative z-0 touch-pan-x transition-all duration-300"
+                [style.-webkit-mask-image]="getMaskImage(true)"
+                [style.mask-image]="getMaskImage(true)"
+              >
                 @for (cat of budgetCategories(); track cat.name) {
                   <button
                     type="button"
                     (click)="selectCategory(cat.name)"
-                    class="flex flex-col items-center justify-center gap-1.5 p-2.5 rounded-2xl transition-all min-h-[64px] border-2 active:scale-95 shadow-sm touch-manipulation"
+                    class="flex items-center gap-2 p-2 px-3 border-2 rounded-full transition-all shrink-0 active:scale-95 snap-center"
                     [ngClass]="
                       subForm.get('category')?.value === cat.name
                         ? 'bg-subscriptions-primary text-white border-subscriptions-primary shadow-md shadow-subscriptions-primary/25 font-bold'
-                        : 'bg-white text-slate-600 border-gray-100'
+                        : 'bg-white text-slate-600 border-gray-100 shadow-sm'
                     "
                   >
-                    <svg
-                      class="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      viewBox="0 0 24 24"
-                    >
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
                       <path [attr.d]="cat.path"></path>
                     </svg>
-                    <span
-                      class="text-[10px] font-semibold tracking-wide text-center line-clamp-1 w-full overflow-hidden text-ellipsis"
-                      >{{ cat.name }}</span
-                    >
+                    <span class="text-xs font-bold tracking-wide whitespace-nowrap">{{ cat.name }}</span>
                   </button>
                 }
               </div>
@@ -235,7 +234,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
               <button
                 type="button"
                 (click)="isDatePickerOpen = true"
-                class="active:scale-[0.98] transition-all duration-200 w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl focus:border-subscriptions-primary focus:ring-4 focus:ring-subscriptions-primary/15 px-4 py-4 outline-none touch-manipulation flex justify-between items-center text-left shadow-sm"
+                class="active:scale-[0.98] transition-all duration-200 w-full bg-white border-2 border-subscriptions-primary/20 text-slate-900 font-semibold text-base rounded-2xl focus:border-subscriptions-primary focus:ring-4 focus:ring-subscriptions-primary/15 px-4 py-3 outline-none touch-manipulation flex justify-between items-center text-left shadow-sm"
               >
                 <span>{{
                   $safeNavigationMigration(subForm.get('created_at')?.value)
@@ -261,7 +260,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
               <button
                 type="button"
                 (click)="close()"
-                class="flex-1 font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-slate-100 text-slate-700 text-center"
+                class="flex-1 font-bold rounded-2xl border-2 border-gray-100 transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-white text-slate-700 text-center shadow-sm"
               >
                 Cancel
               </button>
@@ -314,7 +313,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
     ></app-day-picker>
   `,
 })
-export class SubscriptionSheetComponent implements OnInit {
+export class SubscriptionSheetComponent implements OnInit, AfterViewInit {
   subscriptionService = inject(SubscriptionService);
   budgetService = inject(BudgetService);
   confirmService = inject(ConfirmService);
@@ -326,6 +325,11 @@ export class SubscriptionSheetComponent implements OnInit {
   isDatePickerOpen = false;
   isDayPickerOpen = false;
 
+  showLeftFade = signal(false);
+  showRightFade = signal(true);
+  
+  @ViewChild('scrollCat') scrollCat!: ElementRef;
+
   subForm: FormGroup = this.fb.group({
     title: ['', Validators.required],
     amount: ['', [Validators.required, Validators.min(1)]],
@@ -335,7 +339,7 @@ export class SubscriptionSheetComponent implements OnInit {
   });
 
   budgetCategories = computed(() => {
-    return this.budgetService
+    const categories = this.budgetService
       .budgets()
       .filter((b) => b.id !== 'virtual-others')
       .map((b) => ({
@@ -344,28 +348,65 @@ export class SubscriptionSheetComponent implements OnInit {
           b.icon_path ||
           'M20 12v10H4V12 M2 7h20v5H2z M12 22V7 M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z',
       }));
+    return this.budgetService.sortCategories(categories);
   });
 
   constructor() {
     effect(() => {
+      const isOpen = this.subscriptionService.isBottomSheetOpen();
       const editing = this.subscriptionService.editingSubscription();
-      if (editing) {
-        this.subForm.patchValue({
-          title: editing.title,
-          amount: editing.amount.toString(),
-          category: editing.category,
-          billing_day: editing.billing_day,
-          created_at: editing.created_at || new Date().toISOString(),
+      if (isOpen) {
+        if (editing) {
+          this.subForm.patchValue({
+            title: editing.title,
+            amount: editing.amount.toString(),
+            category: editing.category,
+            billing_day: editing.billing_day,
+            created_at: editing.created_at || new Date().toISOString(),
+          });
+        } else {
+          // preserve the originally generated created_at so we don't trigger NG0100
+          const currentCreatedAt = this.subForm?.get('created_at')?.value || new Date().toISOString();
+          this.subForm.reset({ billing_day: 1, category: 'Others', created_at: currentCreatedAt });
+        }
+        
+        untracked(() => {
+          setTimeout(() => {
+            if (this.scrollCat?.nativeElement) {
+              this.updateScrollState(this.scrollCat.nativeElement, true);
+            }
+          }, 100);
         });
-      } else {
-        // preserve the originally generated created_at so we don't trigger NG0100
-        const currentCreatedAt = this.subForm?.get('created_at')?.value || new Date().toISOString();
-        this.subForm.reset({ billing_day: 1, category: 'Others', created_at: currentCreatedAt });
       }
     });
   }
 
   ngOnInit() {}
+
+  ngAfterViewInit() {
+    setTimeout(() => {
+      if (this.scrollCat?.nativeElement) {
+        this.updateScrollState(this.scrollCat.nativeElement, true);
+      }
+    }, 100);
+  }
+
+  getMaskImage(isMain: boolean): string {
+    const left = this.showLeftFade() ? 'transparent 0%' : 'black 0%';
+    const leftTransition = this.showLeftFade() ? 'black 5%' : 'black 0%';
+    const rightTransition = this.showRightFade() ? 'black 95%' : 'black 100%';
+    const right = this.showRightFade() ? 'transparent 100%' : 'black 100%';
+    return `linear-gradient(to right, ${left}, ${leftTransition}, ${rightTransition}, ${right})`;
+  }
+
+  updateScrollState(target: any, isMain: boolean) {
+    if (!target) return;
+    const { scrollLeft, scrollWidth, clientWidth } = target;
+    const isAtStart = scrollLeft <= 0;
+    const isAtEnd = scrollLeft + clientWidth >= scrollWidth - 1;
+    this.showLeftFade.set(!isAtStart);
+    this.showRightFade.set(!isAtEnd);
+  }
 
   isUpdated(): boolean {
     const sub = this.subscriptionService.editingSubscription();

@@ -17,7 +17,6 @@ import { SwipeToCloseDirective } from '../swipe-to-close.directive';
 import { AmountInputDirective } from '../amount-input.directive';
 import { HapticService } from '../../../core/services/haptic.service';
 import { AutofocusDirective } from '../autofocus.directive';
-import { SafeInputDirective } from '../safe-input.directive';
 
 @Component({
   selector: 'app-ledger-sub-sheet',
@@ -28,7 +27,6 @@ import { SafeInputDirective } from '../safe-input.directive';
     SwipeToCloseDirective,
     AmountInputDirective,
     AutofocusDirective,
-    SafeInputDirective,
     DatePickerComponent,
   ],
   animations: [
@@ -69,7 +67,13 @@ import { SafeInputDirective } from '../safe-input.directive';
         <!-- Header -->
         <div class="flex justify-between items-center py-4 px-6 text-white bg-ledger-primary rounded-t-[32px] sticky top-0 z-10 shrink-0 shadow-sm">
           <h2 class="text-lg font-bold tracking-wide">
-            {{ ledgerService.editingSubEntry()?.id ? 'Edit Payment' : 'New Payment' }}
+            @if (ledgerService.editingSubEntry()?.id) {
+              Edit Payment
+            } @else if (ledgerService.settlementData()) {
+              Settle Balance
+            } @else {
+              New Payment
+            }
           </h2>
           @if (ledgerService.editingSubEntry()?.id) {
             <button
@@ -146,37 +150,39 @@ import { SafeInputDirective } from '../safe-input.directive';
             </div>
 
             <!-- Type Toggle -->
-            <div class="flex flex-col gap-1.5">
-              <label class="text-[11px] font-bold text-gray-500 tracking-wider uppercase"
-                >Is this money in or out?</label
-              >
-              <div class="flex gap-2">
-                <button
-                  type="button"
-                  (click)="setType('in')"
-                  class="flex-1 font-bold uppercase tracking-wide rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-xs border-2 shadow-sm"
-                  [ngClass]="
-                    subForm.get('type')?.value === 'in'
-                      ? 'bg-emerald-500 text-white border-emerald-500 shadow-md shadow-emerald-500/25'
-                      : 'bg-white text-slate-600 border-gray-100'
-                  "
+            @if (!ledgerService.settlementData()) {
+              <div class="flex flex-col gap-1.5">
+                <label class="text-[11px] font-bold text-gray-500 tracking-wider uppercase"
+                  >Is this money in or out?</label
                 >
-                  I Received Money
-                </button>
-                <button
-                  type="button"
-                  (click)="setType('out')"
-                  class="flex-1 font-bold uppercase tracking-wide rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-xs border-2 shadow-sm"
-                  [ngClass]="
-                    subForm.get('type')?.value === 'out'
-                      ? 'bg-rose-500 text-white border-rose-500 shadow-md shadow-rose-500/25'
-                      : 'bg-white text-slate-600 border-gray-100'
-                  "
-                >
-                  I Gave Money
-                </button>
+                <div class="flex gap-2">
+                  <button
+                    type="button"
+                    (click)="setType('in')"
+                    class="flex-1 font-bold uppercase tracking-wide rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-3 text-xs border-2 shadow-sm"
+                    [ngClass]="
+                      subForm.get('type')?.value === 'in'
+                        ? 'bg-emerald-500 text-white border-emerald-500 shadow-md shadow-emerald-500/25'
+                        : 'bg-white text-slate-600 border-gray-100'
+                    "
+                  >
+                    I Received Money
+                  </button>
+                  <button
+                    type="button"
+                    (click)="setType('out')"
+                    class="flex-1 font-bold uppercase tracking-wide rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-3 text-xs border-2 shadow-sm"
+                    [ngClass]="
+                      subForm.get('type')?.value === 'out'
+                        ? 'bg-rose-500 text-white border-rose-500 shadow-md shadow-rose-500/25'
+                        : 'bg-white text-slate-600 border-gray-100'
+                    "
+                  >
+                    I Gave Money
+                  </button>
+                </div>
               </div>
-            </div>
+            }
 
             <!-- Amount -->
             <div class="flex flex-col gap-1.5">
@@ -196,24 +202,12 @@ import { SafeInputDirective } from '../safe-input.directive';
                   formControlName="amount"
                   placeholder="0"
                   (keydown)="preventE($event)"
-                  class="w-full bg-white border-2 border-gray-100 text-slate-900 font-bold text-2xl rounded-2xl pl-10 pr-4 py-4 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-300 focus:border-ledger-primary focus:ring-4 focus:ring-ledger-primary/15"
+                  class="w-full bg-white border-2 border-gray-100 text-slate-900 font-bold text-2xl rounded-2xl pl-10 pr-4 py-3 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-300 focus:border-ledger-primary focus:ring-4 focus:ring-ledger-primary/15"
                 />
               </div>
             </div>
 
-            <!-- Purpose -->
-            <div class="flex flex-col gap-1.5">
-              <label class="text-[11px] font-bold text-gray-500 tracking-wider uppercase"
-                >Any notes? (Optional)</label
-              >
-              <input
-                appSafeInput
-                type="text"
-                formControlName="purpose"
-                placeholder="e.g. Partial payment, cleared dues"
-                class="w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl px-4 py-4 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-400 focus:border-ledger-primary focus:ring-4 focus:ring-ledger-primary/15"
-              />
-            </div>
+
 
             <!-- Date -->
             <div class="flex flex-col gap-1.5">
@@ -223,7 +217,7 @@ import { SafeInputDirective } from '../safe-input.directive';
               <button
                 type="button"
                 (click)="isDatePickerOpen = true"
-                class="active:scale-[0.98] transition-all duration-200 w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl focus:border-ledger-primary focus:ring-4 focus:ring-ledger-primary/15 flex justify-between items-center px-4 py-4 outline-none touch-manipulation shadow-sm"
+                class="active:scale-[0.98] transition-all duration-200 w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl focus:border-ledger-primary focus:ring-4 focus:ring-ledger-primary/15 flex justify-between items-center px-4 py-3 outline-none touch-manipulation shadow-sm"
               >
                 <span>{{
                   $safeNavigationMigration(subForm.get('date')?.value) | date: 'MMM d, y, h:mm a'
@@ -256,7 +250,7 @@ import { SafeInputDirective } from '../safe-input.directive';
               <button
                 type="submit"
                 [disabled]="!subForm.valid || isSaving() || isDeleting()"
-                class="flex-[2] font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-ledger-primary text-white shadow-md shadow-ledger-primary/30 disabled:opacity-50 disabled:active:scale-100"
+                class="flex-1 font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-ledger-primary text-white shadow-md shadow-ledger-primary/30 disabled:opacity-50 disabled:active:scale-100"
               >
                 @if (isSaving()) {
                   <svg
@@ -318,12 +312,21 @@ export class LedgerSubSheetComponent implements OnInit {
   constructor() {
     effect(() => {
       const editing = this.ledgerService.editingSubEntry();
+      const settlement = this.ledgerService.settlementData();
+      
       if (editing) {
         this.subForm.patchValue({
           amount: editing.amount.toString(),
           type: editing.type,
           purpose: editing.purpose || '',
           date: editing.date || new Date().toISOString(),
+        });
+      } else if (settlement) {
+        this.subForm.patchValue({
+          amount: settlement.amount.toString(),
+          type: settlement.type,
+          purpose: 'Settled',
+          date: new Date().toISOString(),
         });
       } else {
         const currentCreatedAt = this.subForm?.get('date')?.value || new Date().toISOString();

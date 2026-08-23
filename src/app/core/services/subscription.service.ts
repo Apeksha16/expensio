@@ -210,16 +210,11 @@ export class SubscriptionService {
   }
 
   async markAsPaid(subscription: Subscription): Promise<boolean> {
-    const currentMonth = this.currentMonthStr();
-    
-    // Determine the exact date to record the expense
-    const d = new Date();
-    // Default to the billing day of current month, or today if billing day is in future?
-    // Let's use today's date for accurate expense tracking, but they might be paying early.
-    // It's safer to use the exact time they click "Mark Paid"
     const expenseDate = new Date().toISOString();
 
-    // 1. Create the Expense
+    // 1. Create the Expense. 
+    // The backend trigger (trg_sync_subscription_status) will automatically 
+    // update the subscription's last_paid_month in the exact same transaction.
     const expenseAdded = await this.expenseService.addExpense({
       title: subscription.title,
       amount: subscription.amount,
@@ -233,22 +228,9 @@ export class SubscriptionService {
       return false;
     }
 
-    // 2. Update subscription last_paid_month
-    const updatePayload: any = { last_paid_month: currentMonth };
-    const { error } = await this.supabaseService.client
-      .from('subscriptions')
-      .update(updatePayload)
-      .eq('id', subscription.id);
-
-    if (!error) {
-      this.subscriptions.update(subs => 
-        subs.map(s => s.id === subscription.id ? { ...s, last_paid_month: currentMonth } : s)
-      );
-      this.toastService.showSuccess(`Payment recorded for ${subscription.title}.`);
-      return true;
-    }
-
-    this.toastService.showError("Payment recorded, but subscription status couldn't be updated.");
-    return false;
+    // Since the database trigger updates the subscription, the realtime subscription 
+    // will catch the change and update the UI automatically.
+    this.toastService.showSuccess(`Payment recorded for ${subscription.title}.`);
+    return true;
   }
 }

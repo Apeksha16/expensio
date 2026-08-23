@@ -117,7 +117,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                     name="query"
                     [(ngModel)]="searchQuery"
                     (ngModelChange)="onSearchChange($event)"
-                    class="w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl pl-11 pr-4 py-4 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-400 focus:border-friends-primary focus:ring-4 focus:ring-friends-primary/15"
+                    class="w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl pl-11 pr-4 py-3 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-400 focus:border-friends-primary focus:ring-4 focus:ring-friends-primary/15"
                     placeholder="Username or email..."
                   />
                 </div>

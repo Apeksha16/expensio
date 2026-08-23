@@ -63,7 +63,7 @@ import { ExpenseService } from '../../../core/services/expense.service';
                     </div>
                     <div class="flex flex-col min-w-0">
                       <span class="font-extrabold text-base text-gray-900 truncate">Deposit</span>
-                      <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">{{ tx.date | date: 'MMM d, yyyy' }}</span>
+                      <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-0.5">{{ tx.date | date: 'MMM d, h:mm a' }}</span>
                     </div>
                   </div>
                   <span class="font-extrabold text-lg text-emerald-600">

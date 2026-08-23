@@ -124,12 +124,12 @@ import { SafeInputDirective } from '../safe-input.directive';
               <div class="flex flex-col gap-1">
                 <label class="text-[13px] font-extrabold text-gray-800">What was the expense?</label>
                 <input
-                  appAutofocus
+                  [appAutofocus]="!splitService.editingSplit()?.id"
                   appSafeInput
                   type="text"
                   formControlName="title"
                   placeholder="e.g. Dinner, Trip"
-                  class="w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl px-4 py-4 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-400 focus:border-splits-primary focus:ring-4 focus:ring-splits-primary/15"
+                  class="w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl px-4 py-3 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-400 focus:border-splits-primary focus:ring-4 focus:ring-splits-primary/15"
                 />
               </div>
               <div class="flex flex-col gap-1 mt-4">
@@ -146,7 +146,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                     formControlName="totalAmount"
                     placeholder="0.00"
                     (keydown)="preventE($event)"
-                    class="w-full bg-white border-2 border-gray-100 text-slate-900 font-bold text-2xl rounded-2xl pl-10 pr-4 py-4 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-300 focus:border-splits-primary focus:ring-4 focus:ring-splits-primary/15"
+                    class="w-full bg-white border-2 border-gray-100 text-slate-900 font-bold text-2xl rounded-2xl pl-10 pr-4 py-3 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-300 focus:border-splits-primary focus:ring-4 focus:ring-splits-primary/15"
                   />
                 </div>
               </div>
@@ -156,7 +156,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                   <button
                     type="button"
                     (click)="isDropdownOpen.set(!isDropdownOpen())"
-                    class="active:scale-[0.98] transition-all duration-200 w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl focus:border-splits-primary focus:ring-4 focus:ring-splits-primary/15 px-4 py-4 outline-none touch-manipulation flex justify-between items-center text-left cursor-pointer shadow-sm"
+                    class="active:scale-[0.98] transition-all duration-200 w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl focus:border-splits-primary focus:ring-4 focus:ring-splits-primary/15 px-4 py-3 outline-none touch-manipulation flex justify-between items-center text-left cursor-pointer shadow-sm"
                   >
                     <span class="truncate font-bold">{{ getPayerName() }}</span>
                     <svg
@@ -181,7 +181,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                       <button
                         type="button"
                         (click)="selectPayer(currentUser().id)"
-                        class="active:scale-[0.98] transition-all duration-200 w-full text-left px-4 py-4 text-slate-900 text-base font-semibold transition-colors flex items-center justify-between border-b border-gray-100 last:border-0"
+                        class="active:scale-[0.98] transition-all duration-200 w-full text-left px-4 py-3 text-slate-900 text-base font-semibold transition-colors flex items-center justify-between border-b border-gray-100 last:border-0"
                         [class.bg-slate-50]="splitForm.get('payerId')?.value === currentUser().id"
                       >
                         <span>Me ({{ currentUser().name }})</span>
@@ -205,7 +205,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                         <button
                           type="button"
                           (click)="selectPayer(friend.profile.id)"
-                          class="active:scale-[0.98] transition-all duration-200 w-full text-left px-4 py-4 text-slate-900 text-base font-semibold transition-colors flex items-center justify-between border-b border-gray-100 last:border-0"
+                          class="active:scale-[0.98] transition-all duration-200 w-full text-left px-4 py-3 text-slate-900 text-base font-semibold transition-colors flex items-center justify-between border-b border-gray-100 last:border-0"
                           [class.bg-slate-50]="splitForm.get('payerId')?.value === friend.profile.id"
                         >
                           <span>{{ friend.profile.name }}</span>
@@ -280,7 +280,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                       [ngClass]="
                         splitStrategy() === 'EQUAL'
                           ? 'bg-splits-primary text-white border-splits-primary shadow-md shadow-splits-primary/25'
-                          : 'bg-white text-gray-700 border-gray-200'
+                          : 'bg-white text-gray-700 border-gray-100'
                       "
                     >
                       Equally
@@ -292,7 +292,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                       [ngClass]="
                         splitStrategy() === 'CUSTOM'
                           ? 'bg-splits-primary text-white border-splits-primary shadow-md shadow-splits-primary/25'
-                          : 'bg-white text-gray-700 border-gray-200'
+                          : 'bg-white text-gray-700 border-gray-100'
                       "
                     >
                       Custom
@@ -355,7 +355,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                 <button
                   type="button"
                   (click)="close()"
-                  class="flex-1 font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-slate-100 text-slate-700 text-center"
+                  class="flex-1 font-bold rounded-2xl border-2 border-gray-100 transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-white text-slate-700 text-center shadow-sm"
                 >
                   Cancel
                 </button>

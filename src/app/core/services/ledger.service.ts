@@ -47,6 +47,7 @@ export class LedgerService {
   readonly isSubBottomSheetOpen = signal(false);
   readonly activeLedgerForSub = signal<LedgerEntry | null>(null);
   readonly editingSubEntry = signal<LedgerSubTransaction | null>(null);
+  readonly settlementData = signal<{ amount: number; type: 'in' | 'out' } | null>(null);
 
   private ledgerChannel: any = null;
   private subLedgerChannel: any = null;
@@ -54,23 +55,19 @@ export class LedgerService {
 
   // Computeds for convenience
   readonly totalReceived = computed(() => {
-    const parentIn = this.ledgerEntries()
-      .filter((e) => e.type === 'in')
-      .reduce((sum, e) => sum + e.amount, 0);
-    const subIn = this.subTransactions()
-      .filter((s) => s.type === 'in')
-      .reduce((sum, s) => sum + s.amount, 0);
-    return parentIn + subIn;
+    // Sum of all negative outstanding balances (money I received)
+    return this.ledgerEntries().reduce((sum, ledger) => {
+      const bal = this.getLedgerBalance(ledger);
+      return bal < 0 ? sum + Math.abs(bal) : sum;
+    }, 0);
   });
 
   readonly totalGiven = computed(() => {
-    const parentOut = this.ledgerEntries()
-      .filter((e) => e.type === 'out')
-      .reduce((sum, e) => sum + e.amount, 0);
-    const subOut = this.subTransactions()
-      .filter((s) => s.type === 'out')
-      .reduce((sum, s) => sum + s.amount, 0);
-    return parentOut + subOut;
+    // Sum of all positive outstanding balances (money I gave)
+    return this.ledgerEntries().reduce((sum, ledger) => {
+      const bal = this.getLedgerBalance(ledger);
+      return bal > 0 ? sum + bal : sum;
+    }, 0);
   });
 
   readonly netBalance = computed(() => this.totalReceived() - this.totalGiven());
@@ -100,8 +97,8 @@ export class LedgerService {
 
   getLedgerBalance(ledger: LedgerEntry): number {
     const subs = this.subTransactions().filter((s) => s.ledger_id === ledger.id);
-    const parentVal = ledger.type === 'in' ? ledger.amount : -ledger.amount;
-    const subsVal = subs.reduce((sum, s) => sum + (s.type === 'in' ? s.amount : -s.amount), 0);
+    const parentVal = ledger.type === 'out' ? ledger.amount : -ledger.amount;
+    const subsVal = subs.reduce((sum, s) => sum + (s.type === 'out' ? s.amount : -s.amount), 0);
     return parentVal + subsVal;
   }
 
@@ -186,12 +183,20 @@ export class LedgerService {
     this.document.body.classList.add('overflow-hidden');
   }
 
+  openSubBottomSheetForSettlement(parent: LedgerEntry, amount: number, type: 'in' | 'out') {
+    this.activeLedgerForSub.set(parent);
+    this.settlementData.set({ amount, type });
+    this.isSubBottomSheetOpen.set(true);
+    this.document.body.classList.add('overflow-hidden');
+  }
+
   closeSubBottomSheet() {
     this.isSubBottomSheetOpen.set(false);
     this.document.body.classList.remove('overflow-hidden');
     setTimeout(() => {
       this.activeLedgerForSub.set(null);
       this.editingSubEntry.set(null);
+      this.settlementData.set(null);
     }, 300); // Clear after animation
   }
 
@@ -218,16 +223,23 @@ export class LedgerService {
         const updated = [data as LedgerEntry, ...entries];
         return updated.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       });
-      this.toastService.showSuccess('Record added ✓');
+      const msg = entry.type === 'in'
+        ? `Payment received from ${entry.person_name} ₹${entry.amount}`
+        : `Payment given to ${entry.person_name} ₹${entry.amount}`;
+      this.toastService.showSuccess(msg);
       return true;
     } else {
-      console.error('Error adding ledger entry', error);
+      console.error('Error adding ledger entry:', error);
       this.toastService.showError('Couldn\'t save. Try again?');
       return false;
     }
   }
 
   async updateEntry(id: string, entry: Partial<LedgerEntry>): Promise<boolean> {
+    const oldEntry = this.ledgerEntries().find((e) => e.id === id);
+    const amountChanged = oldEntry && oldEntry.amount !== entry.amount;
+    const typeChanged = oldEntry && oldEntry.type !== entry.type;
+
     const { data, error } = await this.supabaseService.client
       .from('ledger_entries')
       .update({
@@ -252,16 +264,35 @@ export class LedgerService {
         }
         return entries;
       });
-      this.toastService.showSuccess('Record updated ✓');
+      let msg = 'Record updated ✓';
+      if (amountChanged || typeChanged) {
+        msg = entry.type === 'in'
+          ? `Payment received from ${entry.person_name} ₹${entry.amount}`
+          : `Payment given to ${entry.person_name} ₹${entry.amount}`;
+      }
+      this.toastService.showSuccess(msg);
       return true;
     } else {
-      console.error('Error updating ledger entry', error);
+      console.error('Error updating ledger entry:', error);
       this.toastService.showError('Couldn\'t update. Try again?');
       return false;
     }
   }
 
   async deleteEntry(id: string): Promise<boolean> {
+    // First, delete all sub-transactions associated with this ledger account
+    const { error: subsError } = await this.supabaseService.client
+      .from('ledger_sub_transactions')
+      .delete()
+      .eq('ledger_id', id);
+
+    if (subsError) {
+      console.error('Error deleting associated transactions', subsError);
+      this.toastService.showError('Couldn\'t delete associated transactions.');
+      return false;
+    }
+
+    // Once sub-transactions are deleted, delete the main account record
     const { error } = await this.supabaseService.client
       .from('ledger_entries')
       .delete()
@@ -299,16 +330,25 @@ export class LedgerService {
         const updated = [data as LedgerSubTransaction, ...subs];
         return updated.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       });
-      this.toastService.showSuccess('Payment recorded ✓');
+      const parent = this.ledgerEntries().find((e) => e.id === entry.ledger_id);
+      const personName = parent?.person_name || 'Person';
+      const msg = entry.type === 'in'
+        ? `Payment received from ${personName} ₹${entry.amount}`
+        : `Payment given to ${personName} ₹${entry.amount}`;
+      this.toastService.showSuccess(msg);
       return true;
     } else {
-      console.error('Error adding ledger sub transaction', error);
+      console.error('Error adding ledger sub transaction:', error);
       this.toastService.showError('Couldn\'t save payment. Try again?');
       return false;
     }
   }
 
   async updateSubEntry(id: string, entry: Partial<LedgerSubTransaction>): Promise<boolean> {
+    const oldSub = this.subTransactions().find((s) => s.id === id);
+    const amountChanged = oldSub && oldSub.amount !== entry.amount;
+    const typeChanged = oldSub && oldSub.type !== entry.type;
+
     const { data, error } = await this.supabaseService.client
       .from('ledger_sub_transactions')
       .update({
@@ -332,10 +372,20 @@ export class LedgerService {
         }
         return subs;
       });
-      this.toastService.showSuccess('Payment updated ✓');
+      
+      const subEntry = data as LedgerSubTransaction;
+      const parent = this.ledgerEntries().find((e) => e.id === subEntry.ledger_id);
+      const personName = parent?.person_name || 'Person';
+      let msg = 'Payment record updated ✓';
+      if (amountChanged || typeChanged) {
+        msg = entry.type === 'in'
+          ? `Payment received from ${personName} ₹${entry.amount}`
+          : `Payment given to ${personName} ₹${entry.amount}`;
+      }
+      this.toastService.showSuccess(msg);
       return true;
     } else {
-      console.error('Error updating ledger sub transaction', error);
+      console.error('Error updating ledger sub transaction:', error);
       this.toastService.showError('Couldn\'t update payment. Try again?');
       return false;
     }

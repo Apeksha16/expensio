@@ -1,4 +1,4 @@
-import { Component, inject, effect, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, effect, ChangeDetectionStrategy, signal, ViewChild, ElementRef, AfterViewInit, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -99,70 +99,59 @@ import { SafeInputDirective } from '../safe-input.directive';
             </div>
           }
           <form [formGroup]="budgetForm" (ngSubmit)="onSubmit()" class="space-y-4 text-left">
-            <!-- Icon/Category Picker -->
-            <div class="flex flex-col gap-2">
-              <label class="text-[11px] font-bold text-slate-500 tracking-widest uppercase"
-                >Choose Icon & Preset</label
+            <div class="flex flex-col gap-1.5 relative w-full">
+              <label class="text-[11px] font-bold text-slate-500 tracking-widest uppercase">Choose Icon & Preset</label>
+              <div 
+                #scrollCat 
+                (scroll)="updateScrollState($event.target, true)" 
+                class="flex gap-2 overflow-x-auto snap-x snap-mandatory no-scrollbar pb-2 relative z-0 touch-pan-x transition-all duration-300"
+                [style.-webkit-mask-image]="getMaskImage(true)"
+                [style.mask-image]="getMaskImage(true)"
               >
-              <div class="grid grid-cols-4 gap-2">
                 @for (cat of categories; track cat) {
                   <button
                     type="button"
                     (click)="selectCategory(cat)"
-                    class="flex flex-col items-center justify-center gap-1.5 p-2.5 border-2 rounded-2xl transition-all min-h-[64px] active:scale-95"
+                    class="flex items-center gap-2 p-2 px-3 border-2 rounded-full transition-all shrink-0 active:scale-95 snap-center"
                     [ngClass]="
                       budgetForm.get('icon_path')?.value === cat.path
                         ? theme.activeBg
                         : 'bg-white text-slate-600 border-gray-100 shadow-sm'
                     "
                   >
-                    <svg
-                      class="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      viewBox="0 0 24 24"
-                    >
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
                       <path [attr.d]="cat.path"></path>
                     </svg>
-                    <span
-                      class="text-[10px] font-semibold tracking-wide text-center line-clamp-1 w-full overflow-hidden text-ellipsis"
-                      >{{ cat.name }}</span
-                    >
+                    <span class="text-xs font-bold tracking-wide whitespace-nowrap">{{ cat.name }}</span>
                   </button>
                 }
               </div>
             </div>
             <!-- Budget Name -->
-            <div class="flex flex-col gap-2">
+            <div class="flex flex-col gap-1.5">
               <label class="text-[11px] font-bold text-slate-500 tracking-widest uppercase">Budget Name</label>
               <div class="relative group">
-                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-slate-400"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
-                </div>
                 <input
-                  appAutofocus
+                  [appAutofocus]="!budgetService.editingBudget()?.id"
                   appSafeInput
                   type="text"
                   formControlName="name"
-                  class="w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl pl-11 pr-4 py-4 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-400" [ngClass]="[theme.focusBorder, theme.focusRing]"
+                  class="w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl px-4 py-3 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-400" [ngClass]="[theme.focusBorder, theme.focusRing]"
                   placeholder="e.g. Groceries"
                 />
               </div>
             </div>
             <!-- Allocated Amount -->
-            <div class="flex flex-col gap-2">
+            <div class="flex flex-col gap-1.5">
               <div class="flex justify-between items-end">
                 <label class="text-[11px] font-bold text-slate-500 tracking-widest uppercase">Allocated Amount</label>
                 <span class="text-[11px] font-semibold text-blue-600">
-                  Max Available: {{ maxAllowedAmount | currency: 'INR' : 'symbol' : '1.0-0' }}
+                  Max Available: {{ maxAllowedAmount | currency:'INR':'₹':'1.0-0' }}
                 </span>
               </div>
               <div class="relative group">
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <span class="font-bold text-xl" [ngClass]="theme.text">₹</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5" [ngClass]="theme.text"><path d="M6 3h12"/><path d="M6 8h12"/><path d="m6 13 8.5 8"/><path d="M6 13h3"/><path d="M9 13c6.667 0 6.667-10 0-10"/></svg>
                 </div>
                 <input
                   type="text"
@@ -171,7 +160,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                   formControlName="amount"
                   placeholder="0.00"
                   (keydown)="preventE($event)"
-                  class="w-full bg-white border-2 border-gray-100 text-slate-900 font-bold text-2xl rounded-2xl pl-11 pr-4 py-4 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-300" [ngClass]="[theme.focusBorder, theme.focusRing]"
+                  class="w-full bg-white border-2 border-gray-100 text-slate-900 font-bold text-2xl rounded-2xl pl-11 pr-4 py-3 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-300" [ngClass]="[theme.focusBorder, theme.focusRing]"
                 />
               </div>
             </div>
@@ -227,7 +216,7 @@ import { SafeInputDirective } from '../safe-input.directive';
     }
   `,
 })
-export class BudgetSheetComponent {
+export class BudgetSheetComponent implements AfterViewInit {
   router = inject(Router);
 
   get theme() {
@@ -257,6 +246,11 @@ export class BudgetSheetComponent {
   budgetForm: FormGroup;
   maxAllowedAmount = 0;
 
+  showLeftFade = signal(false);
+  showRightFade = signal(true);
+  
+  @ViewChild('scrollCat') scrollCat!: ElementRef;
+
   constructor() {
     this.budgetForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2)]],
@@ -268,8 +262,42 @@ export class BudgetSheetComponent {
     effect(() => {
       if (this.budgetService.isBottomSheetOpen()) {
         this.setupForm();
+        untracked(() => {
+          setTimeout(() => {
+            if (this.scrollCat?.nativeElement) {
+              this.updateScrollState(this.scrollCat.nativeElement, true);
+            }
+          }, 100);
+        });
       }
     });
+    
+    this.categories = this.budgetService.sortCategories(this.categories);
+  }
+
+  ngAfterViewInit() {
+    setTimeout(() => {
+      if (this.scrollCat?.nativeElement) {
+        this.updateScrollState(this.scrollCat.nativeElement, true);
+      }
+    }, 100);
+  }
+
+  getMaskImage(isMain: boolean): string {
+    const left = this.showLeftFade() ? 'transparent 0%' : 'black 0%';
+    const leftTransition = this.showLeftFade() ? 'black 5%' : 'black 0%';
+    const rightTransition = this.showRightFade() ? 'black 95%' : 'black 100%';
+    const right = this.showRightFade() ? 'transparent 100%' : 'black 100%';
+    return `linear-gradient(to right, ${left}, ${leftTransition}, ${rightTransition}, ${right})`;
+  }
+
+  updateScrollState(target: any, isMain: boolean) {
+    if (!target) return;
+    const { scrollLeft, scrollWidth, clientWidth } = target;
+    const isAtStart = scrollLeft <= 0;
+    const isAtEnd = scrollLeft + clientWidth >= scrollWidth - 1;
+    this.showLeftFade.set(!isAtStart);
+    this.showRightFade.set(!isAtEnd);
   }
 
   categories = [

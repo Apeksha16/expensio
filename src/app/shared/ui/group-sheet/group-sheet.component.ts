@@ -104,12 +104,12 @@ import { SafeInputDirective } from '../safe-input.directive';
                   >Group Name</label
                 >
                 <input
-                  appAutofocus
+                  [appAutofocus]="!splitService.editingGroup()?.id"
                   appSafeInput
                   type="text"
                   formControlName="name"
                   placeholder="e.g. Goa Trip"
-                  class="w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl px-4 py-4 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-400 focus:border-splits-primary focus:ring-4 focus:ring-splits-primary/15"
+                  class="w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl px-4 py-3 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-400 focus:border-splits-primary focus:ring-4 focus:ring-splits-primary/15"
                 />
               </div>
               <div class="flex flex-col gap-1.5">

@@ -330,7 +330,7 @@ export class AccountTrackerService {
     try {
       this.isLoading.set(true);
 
-      // Insert transaction record
+      // Insert transaction record. The database trigger will automatically update account balances.
       const { error: txErr } = await this.supabaseService.client
         .from('account_transactions')
         .insert({
@@ -345,16 +345,6 @@ export class AccountTrackerService {
         });
 
       if (txErr) throw txErr;
-
-      // Update account balances
-      if (params.transaction_type === 'Income') {
-        await this.updateAccountBalance(params.account_type, params.amount);
-      } else if (params.transaction_type === 'Expense') {
-        await this.updateAccountBalance(params.account_type, -params.amount);
-      } else if (params.transaction_type === 'Transfer' && params.target_account_type) {
-        await this.updateAccountBalance(params.account_type, -params.amount);
-        await this.updateAccountBalance(params.target_account_type, params.amount);
-      }
 
       this.toastService.show('Transaction added successfully!', 'success');
       this.closeBottomSheet();
@@ -403,7 +393,7 @@ export class AccountTrackerService {
 
       if (rollErr) throw rollErr;
 
-      // 2. Insert Transfer Transaction
+      // 2. Insert Transfer Transaction. The DB trigger handles the balance update.
       const { error: txErr } = await this.supabaseService.client
         .from('account_transactions')
         .insert({
@@ -418,10 +408,6 @@ export class AccountTrackerService {
         });
 
       if (txErr) throw txErr;
-
-      // 3. Move balance from Salary to Savings
-      await this.updateAccountBalance('Salary', -remainingAmount);
-      await this.updateAccountBalance('Savings', remainingAmount);
 
       this.toastService.show(
         `Rolled over remaining ₹${remainingAmount.toLocaleString()} from Salary into Savings! 🎉`,
