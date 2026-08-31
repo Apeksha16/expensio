@@ -233,9 +233,9 @@ export class BudgetExpenses implements OnInit {
         : expense.title;
       const goal = this.goalService.goals().find((g) => g.name === goalName);
       if (goal) {
-        this.goalService.openAddFundsSheet(goal, expense);
+        this.goalService.openAddFundsSheet(goal, null, expense);
       } else {
-        this.toastService.showError('Goal not found.');
+        this.toastService.showError('Goal Not Found', 'This goal is no longer available.');
       }
       return;
     }

@@ -107,9 +107,10 @@ import { AutofocusDirective } from '../autofocus.directive';
               <button
                 type="button"
                 (click)="setMode('installment')"
-                class="flex-1 py-3 px-2 rounded-2xl text-xs font-bold uppercase tracking-wide transition-all active:scale-95 border-2 shadow-sm touch-manipulation"
+                class="flex-1 py-3 px-2 rounded-2xl text-xs font-bold uppercase tracking-wide transition-all active:scale-95 border-2 shadow-sm touch-manipulation disabled:opacity-50 disabled:active:scale-100 disabled:cursor-not-allowed"
+                [disabled]="!!goalService.editingFund()"
                 [ngClass]="
-                  fundMode() === 'installment'
+                  goalService.fundMode() === 'installment'
                     ? 'bg-goals-primary text-white border-goals-primary shadow-md shadow-goals-primary/25'
                     : 'bg-white text-slate-600 border-gray-100'
                 "
@@ -121,7 +122,7 @@ import { AutofocusDirective } from '../autofocus.directive';
                 (click)="setMode('custom')"
                 class="flex-1 py-3 px-2 rounded-2xl text-xs font-bold uppercase tracking-wide transition-all active:scale-95 border-2 shadow-sm touch-manipulation"
                 [ngClass]="
-                  fundMode() === 'custom'
+                  goalService.fundMode() === 'custom'
                     ? 'bg-goals-primary text-white border-goals-primary shadow-md shadow-goals-primary/25'
                     : 'bg-white text-slate-600 border-gray-100'
                 "
@@ -131,7 +132,7 @@ import { AutofocusDirective } from '../autofocus.directive';
             </div>
 
             <div class="h-[120px] flex flex-col justify-center">
-              @if (fundMode() === 'installment') {
+              @if (goalService.fundMode() === 'installment') {
                 <div
                   class="text-center py-6 border border-goals-primary/20 bg-goals-surface rounded-xl w-full shadow-sm"
                 >
@@ -164,8 +165,12 @@ import { AutofocusDirective } from '../autofocus.directive';
                       placeholder="0"
                       (keydown)="preventE($event)"
                       class="w-full bg-white border-2 border-gray-100 text-slate-900 font-bold text-2xl rounded-2xl pl-10 pr-4 py-3 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-300 focus:border-goals-primary focus:ring-4 focus:ring-goals-primary/15"
+                      [ngClass]="parsedCustomAmount > maxAllowedAmount ? 'border-red-400 focus:border-red-500 focus:ring-red-500/15' : ''"
                     />
                   </div>
+                  @if (parsedCustomAmount > maxAllowedAmount) {
+                    <p class="text-[10px] text-red-500 font-bold mt-1 px-1">Cannot exceed maximum allowed amount (₹{{ maxAllowedAmount | number:'1.0-0' }}).</p>
+                  }
                 </div>
               }
             </div>
@@ -182,7 +187,7 @@ import { AutofocusDirective } from '../autofocus.directive';
                 type="button"
                 (click)="submit()"
                 [disabled]="
-                  isSaving() || isDeleting() || (fundMode() === 'custom' && customAmount.invalid)
+                  isSaving() || isDeleting() || (goalService.fundMode() === 'custom' && (customAmount.invalid || parsedCustomAmount > maxAllowedAmount))
                 "
                 class="flex-1 font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-goals-primary text-white shadow-md shadow-goals-primary/30 disabled:opacity-50 disabled:active:scale-100"
               >
@@ -226,7 +231,6 @@ export class AddFundsSheetComponent {
 
   isSaving = signal(false);
   isDeleting = signal(false);
-  fundMode = signal<'installment' | 'custom'>('installment');
   customAmount = new FormControl('', [Validators.required, Validators.min(1)]);
 
   constructor() {
@@ -234,23 +238,56 @@ export class AddFundsSheetComponent {
       const isOpen = this.goalService.isAddFundsSheetOpen();
       const editingFund = this.goalService.editingFund();
       if (!isOpen) {
-        this.fundMode.set('installment');
         this.customAmount.reset();
       } else if (editingFund) {
-        this.fundMode.set('custom');
         this.customAmount.setValue(Math.round(editingFund.amount).toString());
       }
     });
   }
 
   setMode(mode: 'installment' | 'custom') {
+    if (this.goalService.editingFund() && mode === 'installment') return;
     this.haptic.impactLight();
-    this.fundMode.set(mode);
+    this.goalService.fundMode.set(mode);
+  }
+
+  get maxAllowedAmount(): number {
+    const goal = this.goalService.activeGoalForFunds();
+    if (!goal) return Infinity;
+
+    const emi = this.goalService.activeEmiForFunds();
+    const editing = this.goalService.editingFund();
+
+    let maxForGoal = goal.total_amount - goal.saved_amount;
+    if (editing) {
+      maxForGoal += editing.amount; // Add back the amount we are currently editing
+    }
+
+    if (emi && emi.expected_amount) {
+      const expenses = this.expenseService.allExpenses().filter(e => e.goal_emi_id === emi.id);
+      let paidForEmi = expenses.reduce((sum, e) => sum + e.amount, 0);
+      if (editing) {
+        paidForEmi -= editing.amount;
+      }
+      const maxForEmi = emi.expected_amount - paidForEmi;
+      return Math.min(maxForGoal, Math.max(0, maxForEmi));
+    }
+    
+    return maxForGoal;
+  }
+
+  get parsedCustomAmount(): number {
+    const val = this.customAmount.value;
+    if (!val) return 0;
+    return Number(val);
   }
 
   getRemainingInstallment(): number {
     const goal = this.goalService.activeGoalForFunds();
     if (!goal) return 0;
+    
+    const emi = this.goalService.activeEmiForFunds();
+    const baseInstallment = emi ? emi.expected_amount : goal.calculated_installment;
 
     const activeMonth = this.expenseService.activeMonth();
     const paidThisMonth = this.expenseService
@@ -262,7 +299,7 @@ export class AddFundsSheetComponent {
       })
       .reduce((sum, e) => sum + e.amount, 0);
 
-    return Math.max(0, goal.calculated_installment - paidThisMonth);
+    return Math.max(0, baseInstallment - paidThisMonth);
   }
 
   preventE(event: KeyboardEvent) {
@@ -299,10 +336,10 @@ export class AddFundsSheetComponent {
             },
             true,
           );
-          this.toastService.showSuccess('Funds removed successfully.');
+          this.toastService.showSuccess('Funds Removed', 'Funds removed. Your goal balance has been updated.');
           this.close();
         } else {
-          this.toastService.showError("Couldn't remove funds.");
+          this.toastService.showError("Couldn't Remove Funds", 'We couldn\'t remove these funds. Please try again.');
         }
         this.isDeleting.set(false);
       },
@@ -314,7 +351,7 @@ export class AddFundsSheetComponent {
     if (!goal) return;
 
     let amountToAdd = 0;
-    if (this.fundMode() === 'installment') {
+    if (this.goalService.fundMode() === 'installment') {
       amountToAdd = Math.round(this.getRemainingInstallment());
     } else {
       amountToAdd = Math.round(Number(this.customAmount.value));
@@ -354,82 +391,47 @@ export class AddFundsSheetComponent {
           if (!goalSuccess) throw new Error("Couldn't update goal.");
         }
 
-        this.toastService.showSuccess(`Goal balance updated to ₹${amountToAdd}.`);
+        this.toastService.showSuccess('Payment Updated', `Your payment is now updated to ₹${amountToAdd}.`);
         this.close();
       } else {
-        // Add new or update existing for this month
-        const activeMonth = this.expenseService.activeMonth();
-        const existingExpense = this.expenseService.expenses().find((e) => {
-          const isGoal = e.category === 'virtual-invest' && e.date.startsWith(activeMonth);
-          const isMatch = e.title === goal.name || e.title === `Goal: ${goal.name}`;
-          return isGoal && isMatch;
-        });
+        // Create new distinct transaction
+        const activeEmi = this.goalService.activeEmiForFunds();
+        const expenseSuccess = await this.expenseService.addExpense(
+          {
+            amount: amountToAdd,
+            category: 'virtual-invest',
+            title: `Goal: ${goal.name}`,
+            date: new Date().toISOString(),
+            paid_via: 'UPI',
+            goal_id: goal.id,
+            goal_emi_id: activeEmi ? activeEmi.id : undefined,
+          },
+          true,
+        );
 
-        if (existingExpense) {
-          // Append to existing expense
-          const updateSuccess = await this.expenseService.updateExpense(
-            existingExpense.id,
-            {
-              ...existingExpense,
-              amount: existingExpense.amount + amountToAdd,
-            },
-            true,
-          );
+        if (!expenseSuccess) {
+          throw new Error('Failed to create expense');
+        }
 
-          if (!updateSuccess) throw new Error('Failed to update existing expense');
+        const updatedSavedAmount = goal.saved_amount + amountToAdd;
+        const goalSuccess = await this.goalService.updateGoal(
+          goal.id,
+          {
+            saved_amount: updatedSavedAmount,
+          },
+          true,
+        );
 
-          const updatedSavedAmount = goal.saved_amount + amountToAdd;
-          const goalSuccess = await this.goalService.updateGoal(
-            goal.id,
-            {
-              saved_amount: updatedSavedAmount,
-            },
-            true,
-          );
-
-          if (goalSuccess) {
-            this.toastService.showSuccess(`₹${amountToAdd} added to ${goal.name}.`);
-            this.close();
-          } else {
-            throw new Error("Couldn't update goal.");
-          }
+        if (goalSuccess) {
+          this.toastService.showSuccess('Funds Added', `₹${amountToAdd.toLocaleString('en-IN')} added to ${goal.name}.`);
+          this.close();
         } else {
-          // Create new
-          const expenseSuccess = await this.expenseService.addExpense(
-            {
-              amount: amountToAdd,
-              category: 'virtual-invest',
-              title: goal.name,
-              date: new Date().toISOString(),
-              goal_id: goal.id,
-            },
-            true,
-          );
-
-          if (!expenseSuccess) {
-            throw new Error('Failed to create expense');
-          }
-
-          const updatedSavedAmount = goal.saved_amount + amountToAdd;
-          const goalSuccess = await this.goalService.updateGoal(
-            goal.id,
-            {
-              saved_amount: updatedSavedAmount,
-            },
-            true,
-          );
-
-          if (goalSuccess) {
-            this.toastService.showSuccess(`₹${amountToAdd} added to ${goal.name}.`);
-            this.close();
-          } else {
-            throw new Error("Couldn't update goal.");
-          }
+          throw new Error("Couldn't update goal.");
         }
       }
     } catch (e) {
       console.error(e);
-      this.toastService.showError("Couldn't add funds. Please try again.");
+      this.toastService.showError("Couldn't Add Funds", 'We couldn\'t update your goal funds. Please try again.');
     } finally {
       this.isSaving.set(false);
     }

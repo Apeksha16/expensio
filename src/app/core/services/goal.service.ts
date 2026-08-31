@@ -20,6 +20,15 @@ export interface Goal {
   updated_at?: string;
 }
 
+export interface GoalEmi {
+  id: string;
+  goal_id: string;
+  expected_amount: number;
+  due_date: string;
+  status: 'pending' | 'partially_paid' | 'paid' | 'skipped';
+  created_at: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -39,11 +48,14 @@ export class GoalService {
   // Global bottom sheet state
   readonly isBottomSheetOpen = signal(false);
   readonly editingGoal = signal<Goal | null>(null);
+  readonly currentMonthEmis = signal<GoalEmi[]>([]);
 
   // Add funds sheet state
   readonly isAddFundsSheetOpen = signal(false);
   readonly activeGoalForFunds = signal<Goal | null>(null);
+  readonly activeEmiForFunds = signal<GoalEmi | null>(null);
   readonly editingFund = signal<any | null>(null);
+  readonly fundMode = signal<'installment' | 'custom'>('installment');
 
   private realtimeChannel: any = null;
   private fetchGoalsTimeout: any;
@@ -98,6 +110,38 @@ export class GoalService {
     this.isLoading.set(false);
   }
 
+  async fetchGoalEmis(goalId: string): Promise<GoalEmi[]> {
+    const { data, error } = await this.supabaseService.client
+      .from('goal_emis')
+      .select('*')
+      .eq('goal_id', goalId)
+      .order('due_date', { ascending: true });
+
+    if (!error && data) {
+      return data as GoalEmi[];
+    }
+    return [];
+  }
+
+  async fetchCurrentMonthEmis(monthStr: string) {
+    // monthStr is 'YYYY-MM'
+    const startOfMonth = `${monthStr}-01`;
+    const endOfMonth = new Date(parseInt(monthStr.split('-')[0]), parseInt(monthStr.split('-')[1]), 0).toISOString().split('T')[0];
+
+    const { data, error } = await this.supabaseService.client
+      .from('goal_emis')
+      .select('*')
+      .gte('due_date', startOfMonth)
+      .lte('due_date', endOfMonth)
+      .order('due_date', { ascending: true });
+
+    if (!error && data) {
+      this.currentMonthEmis.set(data as GoalEmi[]);
+    } else {
+      this.currentMonthEmis.set([]);
+    }
+  }
+
   openBottomSheet(goal?: Goal) {
     if (goal) {
       this.editingGoal.set(goal);
@@ -114,9 +158,21 @@ export class GoalService {
     setTimeout(() => this.editingGoal.set(null), 300); // Clear after animation
   }
 
-  openAddFundsSheet(goal: Goal, expense?: any) {
+  openAddFundsSheet(goal: Goal, emi?: GoalEmi | null, expense?: any) {
     this.activeGoalForFunds.set(goal);
-    this.editingFund.set(expense || null);
+    // Backward compatibility: if 2nd arg is an expense instead of an EMI
+    let isEditing = false;
+    if (emi && !('expected_amount' in emi) && !expense) {
+      this.activeEmiForFunds.set(null);
+      this.editingFund.set(emi);
+      isEditing = true;
+    } else {
+      this.activeEmiForFunds.set(emi || null);
+      this.editingFund.set(expense || null);
+      if (expense) isEditing = true;
+    }
+    
+    this.fundMode.set(isEditing ? 'custom' : 'installment');
     this.isAddFundsSheetOpen.set(true);
     this.document.body.classList.add('overflow-hidden');
   }
@@ -126,23 +182,16 @@ export class GoalService {
     this.document.body.classList.remove('overflow-hidden');
     setTimeout(() => {
       this.activeGoalForFunds.set(null);
+      this.activeEmiForFunds.set(null);
       this.editingFund.set(null);
     }, 300); // Clear after animation
   }
 
   isGoalDueThisMonth(goal: Goal): boolean {
-    const createdDate = new Date(goal.created_at || new Date().toISOString());
-    const currentDate = new Date();
-    
-    const monthDiff = (currentDate.getFullYear() - createdDate.getFullYear()) * 12 + (currentDate.getMonth() - createdDate.getMonth());
-    
-    if (monthDiff < 0) return false;
-    
-    let interval = 1;
-    if (goal.frequency === 'alternate') interval = 2;
-    if (goal.frequency === 'quarterly') interval = 3;
-    
-    return monthDiff % interval === 0;
+    if (goal.saved_amount >= goal.total_amount) return false;
+    // An EMI is considered due this month if there is an active (pending/partially_paid) 
+    // EMI for this goal currently loaded in the currentMonthEmis list.
+    return this.currentMonthEmis().some(emi => emi.goal_id === goal.id && (emi.status === 'pending' || emi.status === 'partially_paid'));
   }
 
   calculateInstallment(total: number, saved: number, targetDate: string, frequency: 'monthly' | 'alternate' | 'quarterly'): number {
@@ -191,13 +240,13 @@ export class GoalService {
         const updated = [data as Goal, ...g];
         return updated.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
       });
-      this.toastService.showSuccess('Goal created successfully.');
+      this.toastService.showSuccess('Goal Set Up', 'Your goal is set! Plan your spending to stay on track.');
       return true;
     }
     
     if (error) {
       console.error('Supabase addGoal error:', error);
-      this.toastService.showError("Couldn't create goal. Please try again.");
+      this.toastService.showError("Couldn't Set Goal", 'We couldn\'t set up your goal. Please try again.');
     }
     return false;
   }
@@ -234,7 +283,7 @@ export class GoalService {
       this.goals.update(goalsList => 
         goalsList.map(g => g.id === id ? { ...g, ...updates } : g)
       );
-      if (!silent) this.toastService.showSuccess('Goal updated successfully.');
+      if (!silent) this.toastService.showSuccess('Goal Updated', 'Your goal has been updated.');
       return true;
     }
 
@@ -252,12 +301,24 @@ export class GoalService {
         this.goals.update(goalsList => 
           goalsList.map(g => g.id === id ? { ...g, ...updates } : g)
         );
-        if (!silent) this.toastService.showSuccess('Goal updated successfully.');
+        if (!silent) this.toastService.showSuccess('Goal Updated', 'Your goal has been updated.');
         return true;
       }
     }
 
-    this.toastService.showError("Couldn't update goal.");
+    this.toastService.showError("Couldn't Update Goal", 'We couldn\'t update your goal. Please try again.');
+    return false;
+  }
+
+  async updateGoalEmi(emiId: string, updates: Partial<GoalEmi>): Promise<boolean> {
+    const { error } = await this.supabaseService.client
+      .from('goal_emis')
+      .update(updates)
+      .eq('id', emiId);
+
+    if (!error) {
+      return true;
+    }
     return false;
   }
 
@@ -269,11 +330,11 @@ export class GoalService {
 
     if (!error) {
       this.goals.update(goalsList => goalsList.filter(g => g.id !== id));
-      this.toastService.showSuccess('Goal deleted successfully.');
+      this.toastService.showSuccess('Goal Removed', 'Your goal has been removed, you can relax for your expenses.');
       return true;
     }
 
-    this.toastService.showError("Couldn't delete goal.");
+    this.toastService.showError("Couldn't Remove Goal", 'We couldn\'t remove your goal. Please try again.');
     return false;
   }
 

@@ -14,6 +14,7 @@ export interface Expense {
   category: string;
   date: string;
   goal_id?: string;
+  goal_emi_id?: string;
   subscription_id?: string;
   paid_via?: 'Cash' | 'Credit Card' | 'UPI';
   created_at?: string;
@@ -116,14 +117,16 @@ export class ExpenseService {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'expenses', filter: `user_id=eq.${user.id}` }, () => {
         if (this.fetchDebounceTimeout) clearTimeout(this.fetchDebounceTimeout);
         this.fetchDebounceTimeout = setTimeout(() => {
-          this.fetchExpenses(this.activeMonth(), true);
+          this.fetchExpenses(this.activeMonth(), true, true);
         }, 150);
       })
       .subscribe();
   }
 
-  async fetchExpenses(monthStr?: string, force = false) {
-    this.isLoading.set(true);
+  async fetchExpenses(monthStr?: string, force = false, background = false) {
+    if (!background) {
+      this.isLoading.set(true);
+    }
     const month = monthStr || this.activeMonth();
 
     const [year, m] = month.split('-');
@@ -271,6 +274,7 @@ export class ExpenseService {
         date: expense.date,
         paid_via: expense.paid_via || 'UPI',
         goal_id: expense.goal_id || null,
+        goal_emi_id: expense.goal_emi_id || null,
         subscription_id: expense.subscription_id || null
       })
       .select()

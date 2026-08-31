@@ -89,14 +89,9 @@ import { trigger, transition, style, animate } from '@angular/animations';
 
         <!-- Content -->
         <div class="flex-1 flex flex-col justify-center min-w-0">
-          <div class="text-[15px] font-bold text-gray-900 line-clamp-3 text-ellipsis">
-            {{ toast.title }}
+          <div class="text-[14px] font-semibold text-gray-900 line-clamp-3 text-ellipsis">
+            {{ toast.message }}
           </div>
-          @if (toast.subtitle) {
-            <div class="text-[13px] font-medium text-gray-500 line-clamp-3 text-ellipsis mt-0.5">
-              {{ toast.subtitle }}
-            </div>
-          }
         </div>
 
         <!-- Right Action -->

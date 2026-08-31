@@ -55,11 +55,11 @@
   --color-subscriptions-light: #e879f9;
   --color-subscriptions-surface: #fdf4ff;
 
-  /* Goals Module - Slate/Navy (Formerly Ledger) */
-  --color-goals-primary: #475569;
-  --color-goals-dark: #334155;
-  --color-goals-light: #64748b;
-  --color-goals-surface: #f8fafc;
+  /* Goals Module - Teal */
+  --color-goals-primary: #0d9488;
+  --color-goals-dark: #0f766e;
+  --color-goals-light: #14b8a6;
+  --color-goals-surface: #f0fdfa;
 
   /* Ledger Module - Blue (Formerly Goals) */
   --color-ledger-primary: #2563eb;

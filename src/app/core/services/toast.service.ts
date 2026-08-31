@@ -10,13 +10,11 @@ export interface ToastAction {
 export interface Toast {
   id: string;
   type: ToastType;
-  title: string;
-  subtitle?: string;
+  message: string;
   action?: ToastAction;
 }
 
 export interface ToastOptions {
-  subtitle?: string;
   type?: ToastType;
   duration?: number;
   action?: ToastAction;
@@ -28,7 +26,7 @@ export interface ToastOptions {
 export class ToastService {
   readonly toasts = signal<Toast[]>([]);
 
-  show(title: string, typeOrOptions: ToastType | ToastOptions = 'info', duration: number = 3000) {
+  show(message: string, typeOrOptions: ToastType | ToastOptions = 'info', duration: number = 3000) {
     const id = Math.random().toString(36).substring(2, 9);
     
     let options: ToastOptions = {};
@@ -40,17 +38,16 @@ export class ToastService {
     
     const type = options.type || 'info';
     
-    // Prevent duplicate active toasts with exactly the same title and type
+    // Prevent duplicate active toasts with exactly the same message and type
     const currentToasts = untracked(() => this.toasts());
-    if (currentToasts.some(t => t.title === title && t.type === type && t.subtitle === options.subtitle)) {
+    if (currentToasts.some(t => t.message === message && t.type === type)) {
       return '';
     }
     
     this.toasts.update(current => [...current, { 
       id, 
       type, 
-      title, 
-      subtitle: options.subtitle,
+      message, 
       action: options.action
     }]);
 
@@ -62,51 +59,55 @@ export class ToastService {
     return id; // Return ID in case caller wants to remove it manually (e.g. loading)
   }
 
-  showSuccess(title: string, subtitleOrDuration?: string | number, duration?: number) {
-    let sub: string | undefined;
+  showSuccess(titleOrMsg: string, subtitleOrDuration?: string | number, duration?: number) {
+    let msg = titleOrMsg;
     let dur = 3000;
     if (typeof subtitleOrDuration === 'number') {
       dur = subtitleOrDuration;
     } else if (typeof subtitleOrDuration === 'string') {
-      sub = subtitleOrDuration;
+      msg = subtitleOrDuration; // Prefer subtitle as the main message if provided
       if (typeof duration === 'number') dur = duration;
     }
-    this.show(title, { subtitle: sub, type: 'success', duration: dur });
+    this.show(msg, { type: 'success', duration: dur });
   }
 
-  showError(title: string, subtitleOrDuration?: string | number, action?: ToastAction) {
-    let sub: string | undefined;
+  showError(titleOrMsg: string, subtitleOrDuration?: string | number, action?: ToastAction) {
+    let msg = titleOrMsg;
     let dur = 4000;
     if (typeof subtitleOrDuration === 'number') {
       dur = subtitleOrDuration;
     } else if (typeof subtitleOrDuration === 'string') {
-      sub = subtitleOrDuration;
+      msg = subtitleOrDuration;
     }
-    this.show(title, { subtitle: sub, type: 'error', duration: dur, action });
+    this.show(msg, { type: 'error', duration: dur, action });
   }
 
-  showInfo(title: string, subtitle?: string, action?: ToastAction) {
-    this.show(title, { subtitle, type: 'info', action });
+  showInfo(titleOrMsg: string, subtitle?: string, action?: ToastAction) {
+    const msg = subtitle ? subtitle : titleOrMsg;
+    this.show(msg, { type: 'info', action });
   }
 
-  showWarning(title: string, subtitle?: string) {
-    this.show(title, { subtitle, type: 'warning' });
+  showWarning(titleOrMsg: string, subtitle?: string) {
+    const msg = subtitle ? subtitle : titleOrMsg;
+    this.show(msg, { type: 'warning' });
   }
 
-  showOffline(title: string = 'Working Offline', subtitle: string = 'Changes will sync when you\'re back online') {
-    this.show(title, { subtitle, type: 'offline' });
+  showOffline(titleOrMsg: string = 'Working Offline', subtitle: string = 'Changes will sync when you\'re back online') {
+    this.show(subtitle, { type: 'offline' });
   }
 
-  showSyncSuccess(title: string = 'All changes synced', subtitle: string = 'Everything is up to date') {
-    this.show(title, { subtitle, type: 'sync_success' });
+  showSyncSuccess(titleOrMsg: string = 'All changes synced', subtitle: string = 'Everything is up to date') {
+    this.show(subtitle, { type: 'sync_success', duration: 2000 });
   }
 
   showLoading(title: string = 'Saving changes...', subtitle: string = 'Please don\'t close the app') {
-    return this.show(title, { subtitle, type: 'loading', duration: 0 }); // indefinite until removed
+    const msg = subtitle ? subtitle : title;
+    return this.show(msg, { type: 'loading', duration: 0 }); // indefinite until removed
   }
 
-  showBanner(title: string, subtitle: string, action?: ToastAction) {
-    this.show(title, { subtitle, type: 'banner', action });
+  showBanner(titleOrMsg: string, subtitle?: string, action?: ToastAction) {
+    const msg = subtitle ? subtitle : titleOrMsg;
+    this.show(msg, { type: 'banner', action });
   }
 
   remove(id: string) {

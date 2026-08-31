@@ -342,11 +342,14 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
             </div>
 
             @if (combinedUpcomingPayments().length > 0) {
-              <div class="flex gap-3 overflow-x-auto pb-2 pt-1 px-1 snap-x snap-mandatory no-scrollbar">
+              <div class="flex gap-3 overflow-x-auto pb-3 pt-2 px-5 -mx-5 snap-x snap-mandatory no-scrollbar after:content-[''] after:w-1 after:shrink-0">
                 @for (payment of combinedUpcomingPayments(); track payment.id; let i = $index) {
                   <div
-                    class="snap-start shrink-0 w-[240px] bg-slate-50/50 border border-slate-100 rounded-[20px] p-3 flex items-center gap-3 transition-transform active:scale-95 cursor-pointer shadow-sm"
+                    class="snap-start shrink-0 w-[240px] bg-slate-50/50 border border-slate-100 rounded-[20px] p-3 flex items-center gap-3 transition-transform active:scale-95 cursor-pointer shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-goals-primary"
+                    role="button"
+                    tabindex="0"
                     (click)="payUpcoming(payment)"
+                    (keydown.enter)="payUpcoming(payment)"
                   >
                     <!-- Icon -->
                     <div class="flex items-center justify-center w-10 h-10 rounded-[14px] shrink-0" [ngClass]="payment.type === 'sub' ? 'bg-subscriptions-primary/10 text-subscriptions-primary' : 'bg-goals-primary/10 text-goals-primary'">
@@ -355,8 +358,8 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                         </svg>
                       } @else {
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-                          <path [attr.d]="getGoalIconPath(payment.original.icon)"></path>
+                        <svg class="w-6 h-6 drop-shadow-[0_4px_8px_rgba(0,0,0,0.15)] transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                          <path [attr.d]="getGoalIconPath(payment.goal.icon)"></path>
                         </svg>
                       }
                     </div>
@@ -813,44 +816,31 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
       };
     });
 
-    const activeMonth = this.expenseService.activeMonth();
-    const thisMonthGoalExpenses = this.expenseService
-      .expenses()
-      .filter((e) => e.category === 'virtual-invest' && e.date.startsWith(activeMonth));
+    const upcomingEmis = this.goalService.currentMonthEmis().filter(emi => emi.status === 'pending' || emi.status === 'partially_paid').map((emi) => {
+      const g = this.goalService.goals().find(g => g.id === emi.goal_id);
+      if (!g) return null;
+      
+      const dueDay = parseInt(emi.due_date.split('-')[2]);
+      let diff = dueDay - today;
+      if (diff < 0) {
+        const d = new Date();
+        const daysInMonth = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+        diff = daysInMonth - today + dueDay;
+      }
+      
+      return {
+        id: 'goal_emi_' + emi.id,
+        type: 'goal' as const,
+        title: g.name,
+        amount: emi.expected_amount,
+        dueDay: dueDay,
+        diff: diff,
+        original: emi,
+        goal: g
+      };
+    }).filter(x => x !== null);
 
-    const goals = this.goalService
-      .goals()
-      .filter((g) => g.calculated_installment > 0)
-      .filter((g) => this.goalService.isGoalDueThisMonth(g))
-      .map((g) => {
-        const goalExpenses = thisMonthGoalExpenses.filter((e) => {
-          const goalName = e.title.startsWith('Goal: ') ? e.title.replace('Goal: ', '') : e.title;
-          return goalName === g.name;
-        });
-        const paidThisMonth = goalExpenses.reduce((sum, e) => sum + e.amount, 0);
-        return { goal: g, remaining: g.calculated_installment - paidThisMonth };
-      })
-      .filter((x) => x.remaining > 0)
-      .map((x) => {
-        const g = x.goal;
-        let diff = g.installment_date - today;
-        if (diff < 0) {
-          const d = new Date();
-          const daysInMonth = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
-          diff = daysInMonth - today + g.installment_date;
-        }
-        return {
-          id: 'goal_' + g.id,
-          type: 'goal' as const,
-          title: g.name,
-          amount: x.remaining,
-          dueDay: g.installment_date,
-          diff: diff,
-          original: g,
-        };
-      });
-
-    return [...subs, ...goals].sort((a, b) => a.diff - b.diff).slice(0, 5);
+    return [...subs, ...upcomingEmis].sort((a, b) => a.diff - b.diff).slice(0, 5);
   });
 
   getOrdinalSuffix(i: number): string {
@@ -872,6 +862,11 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
     effect(() => {
       const shouldMask = this.authService.userProfile().maskValues;
       this.isMasked.set(shouldMask);
+    });
+
+    effect(() => {
+      const activeMonth = this.expenseService.activeMonth();
+      this.goalService.fetchCurrentMonthEmis(activeMonth);
     });
   }
 
@@ -928,9 +923,9 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
         : expense.title;
       const goal = this.goalService.goals().find((g) => g.name === goalName);
       if (goal) {
-        this.goalService.openAddFundsSheet(goal, expense);
+        this.goalService.openAddFundsSheet(goal, null, expense);
       } else {
-        this.toastService.showError('Goal not found.');
+        this.toastService.showError('Goal Not Found', 'This goal is no longer available.');
       }
       return;
     }
@@ -981,7 +976,7 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
         },
       });
     } else if (payment.type === 'goal') {
-      this.goalService.openAddFundsSheet(payment.original);
+      this.goalService.openAddFundsSheet(payment.goal, payment.original);
     }
   }
 }
