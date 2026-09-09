@@ -155,7 +155,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
 
                 <div class="flex flex-col items-center justify-center relative mt-3">
                   <svg viewBox="0 0 100 55" class="w-full max-w-[250px]">
-                    <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#F1F5F9" stroke-width="10" stroke-linecap="round" />
+                    <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#3B82F6" stroke-opacity="0.15" stroke-width="10" stroke-linecap="round" />
                     <path
                       d="M 10 50 A 40 40 0 0 1 90 50"
                       fill="none"
@@ -211,7 +211,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
 
                 <div class="flex flex-col items-center justify-center relative mt-3">
                   <svg viewBox="0 0 100 55" class="w-full max-w-[250px]">
-                    <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#F1F5F9" stroke-width="10" stroke-linecap="round" />
+                    <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#F59E0B" stroke-opacity="0.15" stroke-width="10" stroke-linecap="round" />
                     <path
                       d="M 10 50 A 40 40 0 0 1 90 50"
                       fill="none"
@@ -265,6 +265,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
 
                 <div class="flex flex-col items-center justify-center relative mt-3">
                   <svg viewBox="0 0 100 55" class="w-full max-w-[250px]">
+                    <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="#0891b2" stroke-opacity="0.15" stroke-width="10" stroke-linecap="round" />
                     <path
                       d="M 10 50 A 40 40 0 0 1 90 50"
                       fill="none"
@@ -342,40 +343,43 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
             </div>
 
             @if (combinedUpcomingPayments().length > 0) {
-              <div class="flex gap-3 overflow-x-auto pb-3 pt-2 px-5 -mx-5 snap-x snap-mandatory no-scrollbar after:content-[''] after:w-1 after:shrink-0">
+              <div class="flex gap-3 overflow-x-auto pb-3 pt-2 px-5 -mx-5 snap-x snap-mandatory no-scrollbar scroll-pl-5 after:content-[''] after:w-4 after:shrink-0">
                 @for (payment of combinedUpcomingPayments(); track payment.id; let i = $index) {
                   <div
-                    class="snap-start shrink-0 w-[240px] bg-slate-50/50 border border-slate-100 rounded-[20px] p-3 flex items-center gap-3 transition-transform active:scale-95 cursor-pointer shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-goals-primary"
+                    class="snap-start shrink-0 w-[220px] bg-white border border-slate-100 rounded-[24px] p-5 flex flex-col transition-transform active:scale-95 cursor-pointer shadow-[0_2px_16px_rgba(0,0,0,0.03)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-goals-primary"
                     role="button"
                     tabindex="0"
                     (click)="payUpcoming(payment)"
                     (keydown.enter)="payUpcoming(payment)"
                   >
-                    <!-- Icon -->
-                    <div class="flex items-center justify-center w-10 h-10 rounded-[14px] shrink-0" [ngClass]="payment.type === 'sub' ? 'bg-subscriptions-primary/10 text-subscriptions-primary' : 'bg-goals-primary/10 text-goals-primary'">
-                      @if (payment.type === 'sub') {
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                        </svg>
-                      } @else {
-                        <svg class="w-6 h-6 drop-shadow-[0_4px_8px_rgba(0,0,0,0.15)] transition-transform duration-300 group-hover:scale-110" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                          <path [attr.d]="getGoalIconPath(payment.goal.icon)"></path>
-                        </svg>
-                      }
+                    <!-- Top: Icon and Amount -->
+                    <div class="flex items-start justify-between w-full">
+                      <div class="flex items-center justify-center w-12 h-12 rounded-[16px] shrink-0" [ngClass]="payment.type === 'sub' ? 'bg-subscriptions-primary/10 text-subscriptions-primary' : 'bg-goals-primary/10 text-goals-primary'">
+                        @if (payment.type === 'sub') {
+                          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                          </svg>
+                        } @else {
+                          <svg class="w-6 h-6 drop-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path [attr.d]="getGoalIconPath(payment.goal.icon)"></path>
+                          </svg>
+                        }
+                      </div>
+                      <span class="font-extrabold text-[17px] text-slate-900 mt-1">₹{{ payment.amount | number: '1.0-0' }}</span>
                     </div>
 
-                    <!-- Details -->
-                    <div class="flex flex-col flex-1 min-w-0">
-                      <div class="flex justify-between items-start gap-2 min-w-0">
-                        <span class="font-semibold text-sm text-slate-800 truncate flex-1" [title]="payment.title">{{ payment.title }}</span>
-                        <span class="font-bold text-sm text-slate-800 shrink-0 truncate max-w-[90px] text-right" [title]="'₹' + (payment.amount | number: '1.0-0')">₹{{ payment.amount | number: '1.0-0' }}</span>
-                      </div>
-                      <div class="flex items-center gap-1.5 mt-1 min-w-0">
-                        <span class="text-[9px] font-bold uppercase px-1.5 py-0.5 bg-slate-200 text-slate-600 rounded-md shrink-0">
+                    <!-- Bottom: Title and Meta -->
+                    <div class="flex flex-col mt-4">
+                      <span class="font-bold text-[16px] text-slate-800 truncate" [title]="payment.title">{{ payment.title }}</span>
+                      <div class="flex items-center gap-2 mt-1.5">
+                        <span class="text-[9px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-md"
+                              [ngClass]="payment.type === 'sub' ? 'bg-subscriptions-primary/10 text-subscriptions-primary' : 'bg-goals-primary/10 text-goals-primary'">
                           {{ payment.type === 'sub' ? 'Sub' : 'Goal' }}
                         </span>
-                        <span class="text-xs font-semibold text-slate-500 truncate">
-                          Due {{ payment.dueDay }}{{ getOrdinalSuffix(payment.dueDay) }}
+                        <span class="w-1 h-1 rounded-full bg-slate-300"></span>
+                        <span class="text-[10px] font-bold tracking-wide px-2 py-0.5 rounded-md"
+                              [ngClass]="getDaysPillClass(payment.diff)">
+                          {{ getDaysText(payment.diff) }}
                         </span>
                       </div>
                     </div>
@@ -842,6 +846,39 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
 
     return [...subs, ...upcomingEmis].sort((a, b) => a.diff - b.diff).slice(0, 5);
   });
+
+  getDaysText(diff: number): string {
+    if (diff === 0) return 'Today';
+    if (diff === 1) return 'Tomorrow';
+    if (diff === -1) return 'Yesterday';
+
+    if (diff < -1) {
+      const absDiff = Math.abs(diff);
+      if (absDiff <= 9) return `${absDiff} days ago`;
+      if (absDiff <= 27) {
+        const weeks = Math.round(absDiff / 7);
+        return `${weeks} week${weeks > 1 ? 's' : ''} ago`;
+      }
+      const months = Math.round(absDiff / 30) || 1;
+      return `${months} month${months > 1 ? 's' : ''} ago`;
+    }
+
+    if (diff >= 2 && diff <= 9) return `In ${diff} days`;
+    if (diff >= 10 && diff <= 27) {
+      const weeks = Math.round(diff / 7);
+      return `In ${weeks} week${weeks > 1 ? 's' : ''}`;
+    }
+    const months = Math.round(diff / 30) || 1;
+    return `In ${months} month${months > 1 ? 's' : ''}`;
+  }
+
+  getDaysPillClass(diff: number): string {
+    if (diff < 0) return 'bg-rose-100 text-rose-700 font-black';
+    if (diff === 0) return 'bg-amber-100 text-amber-700 font-black';
+    if (diff <= 3) return 'bg-purple-100 text-purple-700';
+    if (diff <= 8) return 'bg-pink-100 text-pink-700';
+    return 'bg-blue-100 text-blue-700';
+  }
 
   getOrdinalSuffix(i: number): string {
     const j = i % 10,

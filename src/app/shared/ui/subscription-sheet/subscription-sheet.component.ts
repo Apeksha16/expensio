@@ -138,7 +138,6 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
                 >Name</label
               >
               <input
-                [appAutofocus]="!subscriptionService.editingSubscription()?.id"
                 appSafeInput
                 type="text"
                 formControlName="title"
@@ -226,48 +225,19 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
               </div>
             </div>
 
-            <div class="flex flex-col gap-1.5">
-              <label
-                class="text-[11px] font-bold text-gray-500 tracking-wider uppercase"
-                >Date added</label
-              >
-              <button
-                type="button"
-                (click)="isDatePickerOpen = true"
-                class="active:scale-[0.98] transition-all duration-200 w-full bg-white border-2 border-subscriptions-primary/20 text-slate-900 font-semibold text-base rounded-2xl focus:border-subscriptions-primary focus:ring-4 focus:ring-subscriptions-primary/15 px-4 py-3 outline-none touch-manipulation flex justify-between items-center text-left shadow-sm"
-              >
-                <span>{{
-                  $safeNavigationMigration(subForm.get('created_at')?.value)
-                    | date: 'MMM d, y, h:mm a'
-                }}</span>
-                <svg
-                  class="w-5 h-5 text-gray-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
-              </button>
-            </div>
 
             <div class="mt-6 flex gap-3">
               <button
                 type="button"
                 (click)="close()"
-                class="flex-1 font-bold rounded-2xl border-2 border-gray-100 transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-white text-slate-700 text-center shadow-sm"
+                class="flex-1 font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-transparent text-slate-500 text-center hover:bg-slate-50"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 [disabled]="!subForm.valid || isSaving() || isDeleting()"
-                class="flex-[2] font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-subscriptions-primary text-white shadow-md shadow-subscriptions-primary/30 disabled:opacity-50 disabled:active:scale-100"
+                class="flex-1 font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-subscriptions-primary text-white shadow-md shadow-subscriptions-primary/30 disabled:opacity-50 disabled:active:scale-100"
               >
                 @if (isSaving()) {
                   <svg
@@ -299,15 +269,11 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
       </div>
     }
 
-    <app-date-picker
-      [isOpen]="isDatePickerOpen"
-      [initialDate]="$safeNavigationMigration(subForm.get('created_at')?.value)"
-      (dateSelected)="onDateSelected($event)"
-      (closed)="isDatePickerOpen = false"
-    ></app-date-picker>
+
     <app-day-picker
       [isOpen]="isDayPickerOpen"
       [initialDay]="$safeNavigationMigration(subForm.get('billing_day')?.value)"
+      themeClass="bg-subscriptions-primary text-white shadow-subscriptions-primary/30"
       (daySelected)="subForm.patchValue({ billing_day: $event }); isDayPickerOpen = false"
       (closed)="isDayPickerOpen = false"
     ></app-day-picker>
@@ -322,7 +288,6 @@ export class SubscriptionSheetComponent implements OnInit, AfterViewInit {
 
   isSaving = signal(false);
   isDeleting = signal(false);
-  isDatePickerOpen = false;
   isDayPickerOpen = false;
 
   showLeftFade = signal(false);
@@ -419,11 +384,6 @@ export class SubscriptionSheetComponent implements OnInit, AfterViewInit {
     if (['e', 'E', '+', '-'].includes(event.key)) {
       event.preventDefault();
     }
-  }
-
-  onDateSelected(date: string) {
-    this.subForm.patchValue({ created_at: date });
-    this.isDatePickerOpen = false;
   }
 
   selectCategory(categoryName: string) {

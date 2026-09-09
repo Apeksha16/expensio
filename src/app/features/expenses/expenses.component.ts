@@ -109,7 +109,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
                      <span class="text-xs font-bold text-slate-600 tracking-[0.2em] mt-0.5 cursor-pointer active:scale-95 inline-block transition-transform" (click)="toggleMask(); $event.stopPropagation()">{{ isMasked() ? '••••••' : (monthlySalary() | currency:'INR':'₹':'1.0-0') }}</span>
                    </div>
                 </div>
-                <div class="h-2 w-full bg-expense-primary/10 rounded-full overflow-hidden flex relative z-10 shadow-inner mt-1">
+                <div class="h-2 w-full bg-emerald-500/15 rounded-full overflow-hidden flex relative z-10 shadow-inner mt-1">
                   <div
                     class="h-full bg-emerald-500 transition-all duration-1000 ease-out"
                     [style.width.%]="animateBars() && monthlySalary() > 0 ? (spendData().salary / monthlySalary()) * 100 : 0"
@@ -129,7 +129,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
                      <span class="text-xs font-bold text-slate-600 tracking-[0.2em] mt-0.5 cursor-pointer active:scale-95 inline-block transition-transform" (click)="toggleMask(); $event.stopPropagation()">{{ isMasked() ? '••••••' : (accountTracker.cashBalance() + spendData().cash | currency:'INR':'₹':'1.0-0') }}</span>
                    </div>
                 </div>
-                <div class="h-2 w-full bg-expense-primary/10 rounded-full overflow-hidden flex relative z-10 shadow-inner mt-1">
+                <div class="h-2 w-full bg-pink-500/15 rounded-full overflow-hidden flex relative z-10 shadow-inner mt-1">
                   <div
                     class="h-full bg-pink-500 transition-all duration-1000 ease-out"
                     [style.width.%]="animateBars() && (accountTracker.cashBalance() + spendData().cash) > 0 ? (spendData().cash / (accountTracker.cashBalance() + spendData().cash)) * 100 : 0"

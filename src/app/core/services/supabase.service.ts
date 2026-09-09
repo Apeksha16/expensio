@@ -1,7 +1,8 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject } from '@angular/core';
 import { createClient, SupabaseClient, User } from '@supabase/supabase-js';
 import { environment } from '../../../environments/environment';
 import emailjs from '@emailjs/browser';
+import { ToastService } from './toast.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,6 +11,9 @@ export class SupabaseService {
   private supabase: SupabaseClient;
 
   constructor() {
+    const toastService = inject(ToastService);
+    let lastErrorToastTime = 0;
+
     const customFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = typeof input === 'string' ? input : (input as any).url || input.toString();
       
@@ -27,7 +31,59 @@ export class SupabaseService {
       console.log('%cURL:', 'font-weight: bold;', url);
       if (parsedBody) console.log('%cRequest Body:', 'font-weight: bold;', parsedBody);
       
-      const response = await fetch(input, init);
+      let response;
+      let lastErr: any;
+      const maxRetries = 3;
+      const timeoutMs = 8000;
+      
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+        
+        // Listen to parent abort signal if provided
+        if (init?.signal) {
+          init.signal.addEventListener('abort', () => controller.abort());
+        }
+
+        try {
+          response = await fetch(input, {
+            ...init,
+            signal: controller.signal as any
+          });
+          clearTimeout(timeoutId);
+          break; // Success
+        } catch (err: any) {
+          clearTimeout(timeoutId);
+          lastErr = err;
+          
+          const isTimeout = err.name === 'AbortError' && !init?.signal?.aborted;
+          const errMsg = isTimeout ? 'Request timeout' : err.message;
+          
+          console.warn(`%cAttempt ${attempt}/${maxRetries} failed: %c${errMsg}`, 'font-weight: bold;', 'color: #f59e0b;');
+          
+          if (attempt === maxRetries) {
+            console.log(`%cNetwork Error (Failed after 3 attempts): %c${errMsg}`, 'font-weight: bold;', 'color: #ef4444; font-weight: bold;');
+            console.groupEnd();
+            
+            // Notify user globally, throttled to once every 5 seconds to prevent spam
+            const now = Date.now();
+            if (now - lastErrorToastTime > 5000) {
+              lastErrorToastTime = now;
+              toastService.showError('Database connection failed. Is your Supabase project running?');
+            }
+            
+            throw new Error(`Network request failed after ${maxRetries} attempts: ${errMsg}`);
+          }
+          
+          // Wait before retrying (exponential backoff: 1s, 2s)
+          await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+        }
+      }
+      
+      if (!response) {
+        throw new Error('Network request failed');
+      }
+
       const cloned = response.clone();
       
       try {

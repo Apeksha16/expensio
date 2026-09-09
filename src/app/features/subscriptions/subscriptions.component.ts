@@ -2,6 +2,7 @@ import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { SubscriptionService, Subscription } from '../../core/services/subscription.service';
 import { ConfirmService } from '../../core/services/confirm.service';
+import { BudgetService } from '../../core/services/budget.service';
 
 @Component({
   selector: 'app-subscriptions',
@@ -77,29 +78,41 @@ import { ConfirmService } from '../../core/services/confirm.service';
                 @for (sub of subscriptionService.upcomingSubscriptions(); track sub.id) {
                   <button
                     (click)="subscriptionService.openBottomSheet(sub)"
-                    class="w-full bg-subscriptions-surface border border-subscriptions-primary/20 rounded-2xl p-4 flex flex-col gap-3 text-left shadow-sm transition-all active:scale-[0.99]"
+                    class="w-full bg-white border border-slate-100 rounded-2xl p-3 flex items-center gap-4 text-left shadow-sm transition-transform active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-subscriptions-primary"
                   >
-                    <div class="flex justify-between items-start gap-4">
-                      <div class="flex flex-col gap-0.5 flex-1 min-w-0 pr-4">
-                        <span class="font-extrabold text-lg text-gray-900 truncate">{{ sub.title }}</span>
-                        <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">{{ sub.category }}</span>
-                      </div>
-                      <span class="font-extrabold text-lg text-gray-900 flex-shrink-0">
-                        ₹{{ sub.amount | number: '1.0-2' }}
-                      </span>
+                    <!-- Icon -->
+                    <div class="flex items-center justify-center w-12 h-12 rounded-xl shrink-0" [ngClass]="budgetService.getCategoryTheme(sub.category).bg + ' ' + budgetService.getCategoryTheme(sub.category).text">
+                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path [attr.d]="budgetService.getCategoryIconPath(sub.category)"></path>
+                      </svg>
                     </div>
-                    <div class="flex justify-between items-center mt-2 pt-3 border-t border-subscriptions-primary/20 border-dashed w-full gap-2">
-                      <span class="text-xs font-extrabold uppercase tracking-wider min-w-0">
-                        <span [ngClass]="getDueMessageClass(sub.billing_day)" class="px-2.5 py-1 rounded-lg border">
+                    
+                    <!-- Details & Due Pill -->
+                    <div class="flex flex-col gap-1.5 flex-1 min-w-0">
+                      <div class="flex items-center gap-2">
+                        <span class="font-extrabold text-base text-slate-900 truncate">{{ sub.title }}</span>
+                      </div>
+                      <div class="flex items-center">
+                        <span class="text-[10px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded-md min-w-0 truncate" [ngClass]="getDueMessageClass(sub.billing_day).replace('border', '')">
                           {{ getDueMessage(sub.billing_day) }}
                         </span>
+                      </div>
+                    </div>
+                    
+                    <!-- Amount & Action -->
+                    <div class="flex flex-col items-end gap-1.5 shrink-0">
+                      <span class="font-extrabold text-base text-slate-900">
+                        ₹{{ sub.amount | number: '1.0-0' }}
                       </span>
-                      <button
+                      <div
                         (click)="markAsPaid($event, sub)"
-                        class="bg-subscriptions-primary text-white px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-widest shadow-md active:scale-[0.95] transition-all flex items-center gap-2"
+                        class="bg-subscriptions-primary/10 text-subscriptions-primary px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest active:scale-[0.95] transition-transform flex items-center gap-1"
                       >
-                        Mark Paid
-                      </button>
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                        Paid
+                      </div>
                     </div>
                   </button>
                 }
@@ -121,22 +134,29 @@ import { ConfirmService } from '../../core/services/confirm.service';
                 @for (sub of subscriptionService.nextMonthSubscriptions(); track sub.id) {
                   <button
                     (click)="subscriptionService.openBottomSheet(sub)"
-                    class="w-full bg-white border border-slate-100 rounded-2xl p-4 flex flex-col gap-3 text-left shadow-sm transition-all active:scale-[0.99] opacity-80"
+                    class="w-full bg-white border border-slate-100 rounded-2xl p-3 flex items-center gap-4 text-left shadow-sm transition-transform active:scale-[0.99] opacity-80"
                   >
-                    <div class="flex justify-between items-start gap-4">
-                      <div class="flex flex-col gap-0.5 flex-1 min-w-0 pr-4">
-                        <span class="font-extrabold text-lg text-gray-900 truncate">{{ sub.title }}</span>
-                        <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">{{ sub.category }}</span>
-                      </div>
-                      <span class="font-extrabold text-lg text-gray-900 flex-shrink-0">
-                        ₹{{ sub.amount | number: '1.0-2' }}
-                      </span>
+                    <!-- Icon -->
+                    <div class="flex items-center justify-center w-12 h-12 rounded-xl shrink-0" [ngClass]="budgetService.getCategoryTheme(sub.category).bg + ' ' + budgetService.getCategoryTheme(sub.category).text">
+                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path [attr.d]="budgetService.getCategoryIconPath(sub.category)"></path>
+                      </svg>
                     </div>
-                    <div class="flex justify-between items-center mt-2 pt-3 border-t border-slate-100 border-dashed w-full gap-2">
-                      <span class="text-xs font-extrabold uppercase tracking-wider min-w-0">
-                        <span class="px-2.5 py-1 bg-slate-200 text-slate-700 border border-slate-300 rounded-lg">
+                    
+                    <!-- Details & Due Pill -->
+                    <div class="flex flex-col gap-1.5 flex-1 min-w-0">
+                      <span class="font-extrabold text-base text-slate-900 truncate">{{ sub.title }}</span>
+                      <div class="flex items-center">
+                        <span class="text-[10px] font-bold tracking-widest px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 uppercase min-w-0 truncate">
                           {{ getNextMonthDueMessage(sub.billing_day) }}
                         </span>
+                      </div>
+                    </div>
+                    
+                    <!-- Amount -->
+                    <div class="flex flex-col items-end shrink-0">
+                      <span class="font-extrabold text-base text-slate-900">
+                        ₹{{ sub.amount | number: '1.0-0' }}
                       </span>
                     </div>
                   </button>
@@ -159,23 +179,32 @@ import { ConfirmService } from '../../core/services/confirm.service';
               @for (sub of subscriptionService.paidSubscriptions(); track sub.id) {
                 <button
                   (click)="subscriptionService.openBottomSheet(sub)"
-                  class="w-full bg-subscriptions-light/50 border border-subscriptions-primary/10 rounded-2xl p-4 flex flex-col gap-3 text-left shadow-sm transition-all active:scale-[0.99]"
+                  class="w-full bg-slate-50 border border-slate-100 rounded-2xl p-3 flex items-center gap-4 text-left transition-transform active:scale-[0.99] opacity-70"
                 >
-                  <div class="flex justify-between items-start gap-4">
-                    <div class="flex flex-col gap-0.5 flex-1 min-w-0 pr-4">
-                      <span class="font-extrabold text-lg text-gray-900 truncate">{{ sub.title }}</span>
-                      <span class="text-xs font-bold text-gray-500 uppercase tracking-widest">{{ sub.category }}</span>
-                    </div>
-                    <span class="font-extrabold text-lg text-gray-900 flex-shrink-0 opacity-50 line-through">
-                      ₹{{ sub.amount | number: '1.0-2' }}
-                    </span>
+                  <!-- Icon -->
+                  <div class="flex items-center justify-center w-12 h-12 rounded-xl shrink-0 bg-slate-200 text-slate-500">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <path [attr.d]="budgetService.getCategoryIconPath(sub.category)"></path>
+                    </svg>
                   </div>
-                  <div class="flex justify-between items-center mt-2 pt-3 border-t border-subscriptions-primary/20 border-dashed w-full gap-2">
-                    <span class="text-xs font-bold text-emerald-600 uppercase tracking-widest min-w-0 flex items-center gap-1">
-                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
-                      </svg>
-                      Paid for this month
+                  
+                  <!-- Details & Paid Pill -->
+                  <div class="flex flex-col gap-1.5 flex-1 min-w-0">
+                    <span class="font-extrabold text-base text-slate-900 truncate line-through">{{ sub.title }}</span>
+                    <div class="flex items-center">
+                      <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md uppercase tracking-widest min-w-0 flex items-center gap-1">
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                        </svg>
+                        Paid
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Amount -->
+                  <div class="flex flex-col items-end shrink-0">
+                    <span class="font-extrabold text-base text-slate-900 line-through">
+                      ₹{{ sub.amount | number: '1.0-0' }}
                     </span>
                   </div>
                 </button>
@@ -202,6 +231,7 @@ import { ConfirmService } from '../../core/services/confirm.service';
 export class SubscriptionsComponent {
   subscriptionService = inject(SubscriptionService);
   confirmService = inject(ConfirmService);
+  budgetService = inject(BudgetService);
   activeTab = signal<'upcoming' | 'paid'>('upcoming');
 
   markAsPaid(event: Event, sub: Subscription) {

@@ -45,19 +45,19 @@ export type MpinStep = 'login' | 'forgot' | 'reset' | 'set-mpin' | 'confirm-mpin
         </div>
 
         <div class="flex flex-col w-full items-center mt-8">
-          <div class="relative w-full pb-8 flex flex-col items-center">
+          <div class="w-full flex flex-col items-center">
             <app-pin-input
               [ngModel]="step() === 'reset' && resetStage() === 'confirm' ? pin2() : pin1()"
               (ngModelChange)="onPinChange()"
             ></app-pin-input>
             
-            @if (mpinError()) {
-              <p
-                class="text-red-500 text-xs font-bold absolute bottom-1 text-center"
-              >
-                {{ mpinError() }}
-              </p>
-            }
+            <div class="h-10 mt-3 flex items-start justify-center w-full px-6">
+              @if (mpinError()) {
+                <p class="text-red-500 text-xs font-bold text-center leading-tight">
+                  {{ mpinError() }}
+                </p>
+              }
+            </div>
           </div>
 
           <app-numeric-keypad (keyPress)="onKeypadPress($event)"></app-numeric-keypad>
@@ -280,6 +280,11 @@ export class MpinFlowComponent implements OnInit {
         // Schema hasn't been applied to DB yet, skipping to avoid 400 errors
         // await this.supabaseService.client.rpc('reset_failed_login', { p_email: this.email() });
       } catch (authError: any) {
+        if (authError.message === 'Failed to fetch' || authError.message?.includes('fetch') || authError.message?.includes('Network')) {
+          this.mpinError.set('Network error. Please check your connection or try again later.');
+          return;
+        }
+        
         const failStatus = await this.supabaseService.recordFailedLogin(this.email());
         if (failStatus.success) {
           if (failStatus.failed_attempts! >= 3) {

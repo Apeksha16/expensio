@@ -25,7 +25,7 @@ import { Mail01Icon, UserIcon } from '@hugeicons/core-free-icons';
     <app-auth-layout [isMpinScreen]="false" [showBackButton]="false">
       <div class="w-full flex flex-col h-full">
         @if (cachedName()) {
-          <div class="mt-auto mb-8">
+          <div class="mb-8">
             <h2 class="text-4xl font-bold text-black mb-2">
               Welcome back, <br />
               <span class="text-indigo-600">{{ cachedName() }}</span>!
@@ -48,7 +48,7 @@ import { Mail01Icon, UserIcon } from '@hugeicons/core-free-icons';
             </button>
           </div>
         } @else {
-          <div class="mt-auto mb-8">
+          <div class="mb-8">
             <h2 class="text-4xl font-bold text-black mb-2">
               Welcome to <br />
               <span class="text-indigo-600">Expensio</span>

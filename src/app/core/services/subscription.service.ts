@@ -102,7 +102,11 @@ export class SubscriptionService {
   }
 
   async fetchSubscriptions() {
-    this.isLoading.set(true);
+    // Only show shimmer on initial load or when list is empty
+    if (this.subscriptions().length === 0) {
+      this.isLoading.set(true);
+    }
+    
     const { data, error } = await this.supabaseService.client
       .from('subscriptions')
       .select('*')
