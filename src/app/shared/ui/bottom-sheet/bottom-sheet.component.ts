@@ -22,6 +22,8 @@ import { ConfirmService } from '../../../core/services/confirm.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { SupabaseService } from '../../../core/services/supabase.service';
 import { DatePickerComponent } from '../date-picker/date-picker.component';
+
+import { IconService } from '../../../core/services/icon.service';
 import { SwipeToCloseDirective } from '../swipe-to-close.directive';
 import { AmountInputDirective } from '../amount-input.directive';
 import { HapticService } from '../../../core/services/haptic.service';
@@ -104,7 +106,7 @@ import { SafeInputDirective } from '../safe-input.directive';
           @if (isEditing) {
             <div class="flex justify-center mb-4">
               <span class="text-[10px] font-bold tracking-wide uppercase text-slate-500 bg-slate-100 px-3 py-1 rounded-full border border-slate-200 mt-2">
-                Added {{ $safeNavigationMigration(expenseService.editingExpense()?.created_at) | date: 'medium' }}
+                Added {{ expenseService.editingExpense()?.created_at | date: 'medium' }}
               </span>
             </div>
           }
@@ -141,6 +143,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                 />
               </div>
             </div>
+
             <!-- Budgets -->
             @if (budgetService.isLoading()) {
               <div class="flex flex-col gap-1.5 relative w-full">
@@ -217,7 +220,7 @@ import { SafeInputDirective } from '../safe-input.directive';
               >
                 <div class="flex items-center gap-3">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-slate-400"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
-                  <span>{{ $safeNavigationMigration(expenseForm.get('date')?.value) | date: 'MMM d, y, h:mm a' }}</span>
+                  <span>{{ expenseForm.get('date')?.value | date: 'MMM d, y, h:mm a' }}</span>
                 </div>
                 <svg class="w-4 h-4 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
               </button>
@@ -252,7 +255,7 @@ import { SafeInputDirective } from '../safe-input.directive';
     <!-- Global Date Picker for Form -->
     <app-date-picker
       [isOpen]="isDatePickerOpen"
-      [initialDate]="$safeNavigationMigration(expenseForm.get('date')?.value)"
+      [initialDate]="expenseForm.get('date')?.value"
       (dateSelected)="onDateSelected($event)"
       (closed)="isDatePickerOpen = false"
     >
@@ -289,16 +292,36 @@ export class BottomSheetComponent implements OnInit {
     }
   }
 
+  get themeColorStr(): 'subscriptions' | 'goals' | 'expenses' | 'splits' | 'budgets' {
+    const route = this.router.url.split('/')[1];
+    switch (route) {
+      case 'goals':
+      case 'goal-transactions': return 'goals';
+      case 'budgets': return 'budgets';
+      case 'splits': return 'splits';
+      case 'subscriptions': return 'subscriptions';
+      default: return 'expenses';
+    }
+  }
+
   expenseService = inject(ExpenseService);
   budgetService = inject(BudgetService);
   goalService = inject(GoalService);
+  iconService = inject(IconService);
   private confirmService = inject(ConfirmService);
   private toastService = inject(ToastService);
   private haptic = inject(HapticService);
   private fb = inject(FormBuilder);
   private supabaseService = inject(SupabaseService);
 
-  expenseForm!: FormGroup;
+  expenseForm: FormGroup = this.fb.group({
+    title: ['', Validators.required],
+    amount: [null, [Validators.required, Validators.min(0.01)]],
+    category: ['Others', Validators.required],
+    icon: [null as string | null],
+    paid_via: ['UPI', Validators.required],
+    date: [new Date().toISOString(), Validators.required],
+  });
   isEditing = false;
   isDatePickerOpen = false;
   isSaving = signal(false);
@@ -387,23 +410,21 @@ export class BottomSheetComponent implements OnInit {
       const editing = this.expenseService.editingExpense();
 
       if (isOpen) {
-        if (!this.expenseForm) {
-          this.initForm();
-        } else {
-          this.isEditing = !!(editing && editing.id);
-          const dateStr = editing?.date ? editing.date : new Date().toISOString();
-          const d = editing?.date ? new Date(editing.date) : new Date();
-          const y = d.getFullYear();
-          const m = (d.getMonth() + 1).toString().padStart(2, '0');
-          this.selectedMonth.set(`${y}-${m}`);
-          this.expenseForm.reset({
-            title: editing?.title || '',
-            amount: editing?.amount || null,
-            category: editing?.category || 'Others',
-            date: dateStr,
-            paid_via: editing?.paid_via || 'UPI',
-          });
-        }
+        this.isEditing = !!(editing && editing.id);
+        const dateStr = editing?.date ? editing.date : new Date().toISOString();
+        const d = editing?.date ? new Date(editing.date) : new Date();
+        const y = d.getFullYear();
+        const m = (d.getMonth() + 1).toString().padStart(2, '0');
+        this.selectedMonth.set(`${y}-${m}`);
+        this.expenseForm.reset({
+          title: editing?.title || '',
+          amount: editing?.amount || null,
+          category: editing?.category || 'Others',
+          icon: editing?.icon || null,
+          date: dateStr,
+          paid_via: editing?.paid_via || 'UPI',
+        });
+        
         untracked(() => {
           setTimeout(() => this.checkScrolls(), 100);
         });
@@ -411,11 +432,7 @@ export class BottomSheetComponent implements OnInit {
     });
   }
 
-  ngOnInit() {
-    if (!this.expenseForm) {
-      this.initForm();
-    }
-  }
+  ngOnInit() {}
 
   ngAfterViewInit() {
     setTimeout(() => this.checkScrolls(), 100);
@@ -458,31 +475,6 @@ export class BottomSheetComponent implements OnInit {
     } else {
       return 'none';
     }
-  }
-
-  private initForm() {
-    const editing = this.expenseService.editingExpense();
-    this.isEditing = !!(editing && editing.id);
-
-    const dateStr = editing?.date ? editing.date : new Date().toISOString();
-    const d = editing?.date ? new Date(editing.date) : new Date();
-    const y = d.getFullYear();
-    const m = (d.getMonth() + 1).toString().padStart(2, '0');
-    this.selectedMonth.set(`${y}-${m}`);
-
-    this.expenseForm = this.fb.group({
-      title: [
-        { value: editing?.title || '', disabled: editing?.category === 'virtual-invest' },
-        Validators.required,
-      ],
-      amount: [editing?.amount || null, [Validators.required, Validators.min(0.01)]],
-      category: [
-        { value: editing?.category || 'Others', disabled: editing?.category === 'virtual-invest' },
-        Validators.required,
-      ],
-      paid_via: [editing?.paid_via || 'UPI', Validators.required],
-      date: [dateStr, Validators.required],
-    });
   }
 
   preventE(event: KeyboardEvent) {
@@ -530,15 +522,7 @@ export class BottomSheetComponent implements OnInit {
 
           if (success) {
             if (original.category === 'virtual-invest') {
-              const goalName = original.title.replace('Goal: ', '');
-              const goal = this.goalService.goals().find((g) => g.name === goalName);
-              if (goal) {
-                await this.goalService.updateGoal(
-                  goal.id,
-                  { saved_amount: goal.saved_amount - original.amount },
-                  true,
-                );
-              }
+              // Sync handled by Postgres trigger `trg_sync_goal_progress`
             }
             this.haptic.success();
             this.close();
@@ -553,11 +537,16 @@ export class BottomSheetComponent implements OnInit {
   async onSubmit() {
     if (this.expenseForm.valid && !this.isSaving()) {
       this.isSaving.set(true);
-      const formValue = this.expenseForm.getRawValue();
+      const formValue = this.expenseForm.value;
+      
+      // The user can explicitly pick an icon from the suggester, or leave it blank to fall back to the category icon.
+      const selectedIconId = formValue.icon || null;
+
       const expenseData = {
         title: formValue.title,
         amount: Number(formValue.amount),
         category: formValue.category || 'Others',
+        icon: formValue.icon,
         paid_via: formValue.paid_via || 'UPI',
         date: new Date(formValue.date).toISOString(),
       };
@@ -568,18 +557,7 @@ export class BottomSheetComponent implements OnInit {
         const id = original.id;
         success = await this.expenseService.updateExpense(id, expenseData);
         if (success && original.category === 'virtual-invest') {
-          const goalName = original.title.replace('Goal: ', '');
-          const goal = this.goalService.goals().find((g) => g.name === goalName);
-          if (goal) {
-            const diff = expenseData.amount - original.amount;
-            if (diff !== 0) {
-              await this.goalService.updateGoal(
-                goal.id,
-                { saved_amount: goal.saved_amount + diff },
-                true,
-              );
-            }
-          }
+          // Sync handled by Postgres trigger `trg_sync_goal_progress`
         }
       } else {
         success = await this.expenseService.addExpense(expenseData);

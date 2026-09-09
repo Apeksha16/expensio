@@ -22,12 +22,14 @@ import { FriendService } from '../../../core/services/friend.service';
 import { ConfirmService } from '../../../core/services/confirm.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { SupabaseService } from '../../../core/services/supabase.service';
+import { IconService } from '../../../core/services/icon.service';
+import { HapticService } from '../../../core/services/haptic.service';
 
 import { SwipeToCloseDirective } from '../swipe-to-close.directive';
 import { AmountInputDirective } from '../amount-input.directive';
-import { HapticService } from '../../../core/services/haptic.service';
 import { AutofocusDirective } from '../autofocus.directive';
 import { SafeInputDirective } from '../safe-input.directive';
+import { IconSuggesterComponent } from '../icon-suggester/icon-suggester.component';
 
 @Component({
   selector: 'app-split-sheet',
@@ -39,6 +41,7 @@ import { SafeInputDirective } from '../safe-input.directive';
     AmountInputDirective,
     AutofocusDirective,
     SafeInputDirective,
+    IconSuggesterComponent,
   ],
   animations: [
     trigger('slideUp', [
@@ -108,13 +111,10 @@ import { SafeInputDirective } from '../safe-input.directive';
               >
                 @if (isUpdated()) {
                   Updated
-                  {{ $safeNavigationMigration(splitService.editingSplit()?.date) | date: 'medium' }}
+                  {{ splitService.editingSplit()?.date | date: 'medium' }}
                 } @else {
                   Added
-                  {{
-                    $safeNavigationMigration(splitService.editingSplit()?.created_at)
-                      | date: 'medium'
-                  }}
+                  {{ splitService.editingSplit()?.created_at | date: 'medium' }}
                 }
               </span>
             </div>
@@ -132,6 +132,14 @@ import { SafeInputDirective } from '../safe-input.directive';
                   class="w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl px-4 py-3 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-400 focus:border-splits-primary focus:ring-4 focus:ring-splits-primary/15"
                 />
               </div>
+              <!-- Icon -->
+              <app-icon-suggester
+                themeColor="splits"
+                [inputText]="splitForm.get('title')?.value || ''"
+                [selectedIconId]="splitForm.get('icon')?.value"
+                (iconSelected)="splitForm.patchValue({ icon: $event })"
+                (iconCleared)="splitForm.patchValue({ icon: null })"
+              ></app-icon-suggester>
               <div class="flex flex-col gap-1 mt-4">
                 <label class="text-[13px] font-extrabold text-gray-800">How much?</label>
                 <div class="relative">
@@ -433,6 +441,7 @@ export class SplitSheetComponent implements OnInit {
   splitService = inject(SplitService);
   friendService = inject(FriendService);
   authService = inject(AuthService);
+  iconService = inject(IconService);
   confirmService = inject(ConfirmService);
   fb = inject(FormBuilder);
 
@@ -504,6 +513,7 @@ export class SplitSheetComponent implements OnInit {
         if (split && split.id) {
           this.splitForm.patchValue({
             title: split.title,
+            icon: split.icon || null,
             totalAmount: split.total_amount,
             payerId: split.payer_id,
             category: split.category || '',
@@ -532,6 +542,7 @@ export class SplitSheetComponent implements OnInit {
           const currentUserProfile = this.currentUser();
           this.splitForm.patchValue({
             title: '',
+            icon: null,
             totalAmount: null,
             payerId: currentUserProfile?.id,
             category: '',
@@ -569,6 +580,7 @@ export class SplitSheetComponent implements OnInit {
   initForms() {
     this.splitForm = this.fb.group({
       title: ['', Validators.required],
+      icon: [null as string | null],
       totalAmount: [null, [Validators.required, Validators.min(1)]],
       payerId: [this.currentUser()?.id, Validators.required],
       category: [''],
@@ -670,6 +682,7 @@ export class SplitSheetComponent implements OnInit {
     this.isSaving.set(true);
 
     const v = this.splitForm.value;
+    const icon = v.icon || this.iconService.getSuggestedIcons(v.title)[0]?.id || null;
 
     const participants: SplitParticipant[] = this.selectedParticipants().map((p) => {
       let amount = 0;
@@ -691,6 +704,7 @@ export class SplitSheetComponent implements OnInit {
       const updatedSplit: SplitExpense = {
         ...splitContext,
         title: v.title,
+        icon: icon,
         total_amount: v.totalAmount,
         payer_id: v.payerId,
         participants: participants,
@@ -708,6 +722,7 @@ export class SplitSheetComponent implements OnInit {
 
       const split: Omit<SplitExpense, 'id' | 'created_at'> = {
         title: v.title,
+        icon: icon,
         total_amount: v.totalAmount,
         payer_id: v.payerId,
         participants: participants,

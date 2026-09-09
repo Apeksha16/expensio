@@ -13,6 +13,7 @@ export interface Expense {
   amount: number;
   category: string;
   date: string;
+  icon?: string;
   goal_id?: string;
   goal_emi_id?: string;
   subscription_id?: string;
@@ -275,7 +276,8 @@ export class ExpenseService {
         paid_via: expense.paid_via || 'UPI',
         goal_id: expense.goal_id || null,
         goal_emi_id: expense.goal_emi_id || null,
-        subscription_id: expense.subscription_id || null
+        subscription_id: expense.subscription_id || null,
+        icon: expense.icon || null
       })
       .select()
       .single();
@@ -319,7 +321,8 @@ export class ExpenseService {
         amount: data.amount,
         category: data.category,
         date: data.date,
-        paid_via: data.paid_via || 'UPI'
+        paid_via: data.paid_via || 'UPI',
+        icon: data.icon || null
       })
       .eq('id', id);
 

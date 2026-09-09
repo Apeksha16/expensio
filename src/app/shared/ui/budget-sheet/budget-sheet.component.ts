@@ -12,6 +12,8 @@ import { HapticService } from '../../../core/services/haptic.service';
 import { AmountInputDirective } from '../amount-input.directive';
 import { AutofocusDirective } from '../autofocus.directive';
 import { SafeInputDirective } from '../safe-input.directive';
+import { IconSuggesterComponent } from '../icon-suggester/icon-suggester.component';
+import { IconService } from '../../../core/services/icon.service';
 
 @Component({
   selector: 'app-budget-sheet',
@@ -23,6 +25,7 @@ import { SafeInputDirective } from '../safe-input.directive';
     AmountInputDirective,
     AutofocusDirective,
     SafeInputDirective,
+    IconSuggesterComponent,
   ],
   animations: [
     trigger('slideUp', [
@@ -99,34 +102,13 @@ import { SafeInputDirective } from '../safe-input.directive';
             </div>
           }
           <form [formGroup]="budgetForm" (ngSubmit)="onSubmit()" class="space-y-4 text-left">
-            <div class="flex flex-col gap-1.5 relative w-full">
-              <label class="text-[11px] font-bold text-slate-500 tracking-widest uppercase">Choose Icon & Preset</label>
-              <div 
-                #scrollCat 
-                (scroll)="updateScrollState($event.target, true)" 
-                class="flex gap-2 overflow-x-auto snap-x snap-mandatory no-scrollbar pb-2 relative z-0 touch-pan-x transition-all duration-300"
-                [style.-webkit-mask-image]="getMaskImage(true)"
-                [style.mask-image]="getMaskImage(true)"
-              >
-                @for (cat of categories; track cat) {
-                  <button
-                    type="button"
-                    (click)="selectCategory(cat)"
-                    class="flex items-center gap-2 p-2 px-3 border-2 rounded-full transition-all shrink-0 active:scale-95 snap-center"
-                    [ngClass]="
-                      budgetForm.get('icon_path')?.value === cat.path
-                        ? theme.activeBg
-                        : 'bg-white text-slate-600 border-gray-100 shadow-sm'
-                    "
-                  >
-                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-                      <path [attr.d]="cat.path"></path>
-                    </svg>
-                    <span class="text-xs font-bold tracking-wide whitespace-nowrap">{{ cat.name }}</span>
-                  </button>
-                }
-              </div>
-            </div>
+            <app-icon-suggester
+              themeColor="budgets"
+              [inputText]="budgetForm.get('name')?.value || ''"
+              [selectedIconId]="budgetForm.get('icon')?.value"
+              (iconSelected)="budgetForm.patchValue({ icon: $event })"
+              (iconCleared)="budgetForm.patchValue({ icon: null })"
+            ></app-icon-suggester>
             <!-- Budget Name -->
             <div class="flex flex-col gap-1.5">
               <label class="text-[11px] font-bold text-slate-500 tracking-widest uppercase">Budget Name</label>
@@ -240,104 +222,28 @@ export class BudgetSheetComponent implements AfterViewInit {
 
   haptic = inject(HapticService);
   budgetService = inject(BudgetService);
+  iconService = inject(IconService);
   private fb = inject(FormBuilder);
   private confirmService = inject(ConfirmService);
 
-  budgetForm: FormGroup;
+  budgetForm: FormGroup = this.fb.group({
+    name: ['', [Validators.required, Validators.minLength(2)]],
+    amount: ['', [Validators.required, Validators.min(1)]],
+    icon: [null as string | null],
+    auto_rollover: [false],
+    created_at: [new Date().toISOString(), Validators.required],
+  });
   maxAllowedAmount = 0;
 
-  showLeftFade = signal(false);
-  showRightFade = signal(true);
-  
-  @ViewChild('scrollCat') scrollCat!: ElementRef;
-
   constructor() {
-    this.budgetForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(2)]],
-      amount: ['', [Validators.required, Validators.min(1)]],
-      icon_path: ['', Validators.required],
-      auto_rollover: [false],
-    });
-
     effect(() => {
       if (this.budgetService.isBottomSheetOpen()) {
         this.setupForm();
-        untracked(() => {
-          setTimeout(() => {
-            if (this.scrollCat?.nativeElement) {
-              this.updateScrollState(this.scrollCat.nativeElement, true);
-            }
-          }, 100);
-        });
       }
     });
-    
-    this.categories = this.budgetService.sortCategories(this.categories);
   }
 
-  ngAfterViewInit() {
-    setTimeout(() => {
-      if (this.scrollCat?.nativeElement) {
-        this.updateScrollState(this.scrollCat.nativeElement, true);
-      }
-    }, 100);
-  }
-
-  getMaskImage(isMain: boolean): string {
-    const left = this.showLeftFade() ? 'transparent 0%' : 'black 0%';
-    const leftTransition = this.showLeftFade() ? 'black 5%' : 'black 0%';
-    const rightTransition = this.showRightFade() ? 'black 95%' : 'black 100%';
-    const right = this.showRightFade() ? 'transparent 100%' : 'black 100%';
-    return `linear-gradient(to right, ${left}, ${leftTransition}, ${rightTransition}, ${right})`;
-  }
-
-  updateScrollState(target: any, isMain: boolean) {
-    if (!target) return;
-    const { scrollLeft, scrollWidth, clientWidth } = target;
-    const isAtStart = scrollLeft <= 0;
-    const isAtEnd = scrollLeft + clientWidth >= scrollWidth - 1;
-    this.showLeftFade.set(!isAtStart);
-    this.showRightFade.set(!isAtEnd);
-  }
-
-  categories = [
-    {
-      name: 'Food',
-      path: 'M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2 M7 2v20 M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7',
-    },
-    {
-      name: 'Transport',
-      path: 'M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2 M7 17a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm10 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z',
-    },
-    {
-      name: 'Shopping',
-      path: 'M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z M3 6h18 M16 10a4 4 0 0 1-8 0',
-    },
-    { name: 'Utilities', path: 'M13 2L3 14h9l-1 8 10-12h-9l1-8z' },
-    {
-      name: 'Entertain',
-      path: 'M2 10h20 M8 2v4 M16 2v4 M2 14h20 M2 18h20 M2 6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6z',
-    },
-    { name: 'Health', path: 'M22 12h-4l-3 9L9 3l-3 9H2' },
-    { name: 'Travel', path: 'M22 2 11 13 M22 2l-7 20-4-9-9-4Z' },
-    {
-      name: 'Education',
-      path: 'M4 19.5A2.5 2.5 0 0 1 6.5 17H20 M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z',
-    },
-    {
-      name: 'Bills',
-      path: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8',
-    },
-    {
-      name: 'Gifts',
-      path: 'M20 12v10H4V12 M2 7h20v5H2z M12 22V7 M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z',
-    },
-    { name: 'Invest', path: 'M23 6l-9.5 9.5-5-5L1 18 M17 6h6v6' },
-    {
-      name: 'Other',
-      path: 'M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0-2 0 M19 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0-2 0 M5 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0-2 0',
-    },
-  ];
+  ngAfterViewInit() {}
 
   get isEditing(): boolean {
     return !!this.budgetService.editingBudget();
@@ -362,25 +268,18 @@ export class BudgetSheetComponent implements AfterViewInit {
       this.budgetForm.patchValue({
         name: editing.name,
         amount: editing.amount,
-        icon_path: editing.icon_path,
+        icon: editing.icon,
         auto_rollover: editing.auto_rollover || false,
+        created_at: editing.created_at
       });
     } else {
       this.budgetForm.reset({
         name: '',
         amount: '',
-        icon_path: '',
+        icon: null,
         auto_rollover: false,
+        created_at: new Date().toISOString()
       });
-    }
-  }
-
-  selectCategory(cat: { name: string; path: string }) {
-    const currentName = this.budgetForm.get('name')?.value;
-    if (!currentName || currentName.trim() === '') {
-      this.budgetForm.patchValue({ icon_path: cat.path, name: cat.name });
-    } else {
-      this.budgetForm.patchValue({ icon_path: cat.path });
     }
   }
 
@@ -392,8 +291,20 @@ export class BudgetSheetComponent implements AfterViewInit {
   async onSubmit() {
     if (this.budgetForm.invalid || !this.isAmountValid) return;
 
-    const data = this.budgetForm.value;
+    const formValue = this.budgetForm.value;
     const editing = this.budgetService.editingBudget();
+
+    const selectedIconId = formValue.icon;
+    let assignedIcon = this.iconService.getIconById(selectedIconId || '');
+    if (!selectedIconId) {
+      assignedIcon = this.iconService.getSuggestedIcons(formValue.name)[0];
+      formValue.icon = assignedIcon?.id || null;
+    }
+
+    const data = {
+      ...formValue,
+      amount: Number(formValue.amount)
+    };
 
     let success = false;
     if (editing) {

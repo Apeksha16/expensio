@@ -10,6 +10,7 @@ export interface Budget {
   name: string;
   amount: number;
   icon_path: string;
+  icon?: string;
   month: string;
   auto_rollover: boolean;
   rollover_amount?: number;

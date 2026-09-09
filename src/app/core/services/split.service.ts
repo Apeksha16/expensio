@@ -20,6 +20,7 @@ export interface SplitExpense {
   participant_ids: string[];
   group_id?: string | null;
   category?: string | null;
+  icon?: string | null;
   date: string;
   parent_expense_id?: string | null;
   paid_via?: 'Cash' | 'Credit Card' | 'UPI';

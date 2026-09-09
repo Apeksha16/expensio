@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { GoalService, Goal } from '../../core/services/goal.service';
 import { ExpenseService } from '../../core/services/expense.service';
 import { ConfirmService } from '../../core/services/confirm.service';
+import { IconService } from '../../core/services/icon.service';
 import { AddFundsSheetComponent } from '../../shared/ui/add-funds-sheet/add-funds-sheet.component';
 
 @Component({
@@ -220,18 +221,13 @@ export class GoalsComponent {
     return Math.min(100, Math.round((goal.saved_amount / goal.total_amount) * 100));
   }
 
-  getGoalIconPath(iconPath: string): string {
-    const defaultPremiumPath =
-      'M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zm-7.518-.267A8.25 8.25 0 1120.25 10.5M8.288 14.212A5.25 5.25 0 1117.25 10.5';
-    // Automatically upgrade old, generic icons (gift box or line chart) to the new premium Target icon
-    if (
-      !iconPath ||
-      iconPath.startsWith('M20 12v10H4V12') ||
-      iconPath.startsWith('M2.25 18L9 11.25')
-    ) {
-      return defaultPremiumPath;
-    }
-    return iconPath;
+  iconService = inject(IconService);
+
+  getGoalIconPath(iconId: string | null | undefined): string {
+    if (!iconId) return this.iconService.DEFAULT_ICON.svg;
+    // For backward compatibility: if the database has an old raw SVG path stored, return it
+    if (iconId.includes('M') || iconId.includes('m')) return iconId;
+    return this.iconService.getIconById(iconId).svg;
   }
 
   addFunds(event: Event, goal: Goal) {

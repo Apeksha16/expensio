@@ -30,6 +30,8 @@ import { HapticService } from '../../../core/services/haptic.service';
 import { AutofocusDirective } from '../autofocus.directive';
 import { SafeInputDirective } from '../safe-input.directive';
 import { DayPickerComponent } from '../day-picker/day-picker.component';
+import { IconSuggesterComponent } from '../icon-suggester/icon-suggester.component';
+import { IconService } from '../../../core/services/icon.service';
 
 @Component({
   selector: 'app-subscription-sheet',
@@ -43,6 +45,7 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
     SafeInputDirective,
     DatePickerComponent,
     DayPickerComponent,
+    IconSuggesterComponent,
   ],
   animations: [
     trigger('slideUp', [
@@ -193,38 +196,12 @@ import { DayPickerComponent } from '../day-picker/day-picker.component';
               </div>
             </div>
 
-            <div class="flex flex-col gap-1.5 relative w-full">
-              <label
-                class="text-[11px] font-bold text-gray-500 tracking-wider uppercase"
-                >Category</label
-              >
-              <div 
-                #scrollCat 
-                (scroll)="updateScrollState($event.target, true)" 
-                class="flex gap-2 overflow-x-auto snap-x snap-mandatory no-scrollbar pb-2 relative z-0 touch-pan-x transition-all duration-300"
-                [style.-webkit-mask-image]="getMaskImage(true)"
-                [style.mask-image]="getMaskImage(true)"
-              >
-                @for (cat of budgetCategories(); track cat.name) {
-                  <button
-                    type="button"
-                    (click)="selectCategory(cat.name)"
-                    class="flex items-center gap-2 p-2 px-3 border-2 rounded-full transition-all shrink-0 active:scale-95 snap-center"
-                    [ngClass]="
-                      subForm.get('category')?.value === cat.name
-                        ? 'bg-subscriptions-primary text-white border-subscriptions-primary shadow-md shadow-subscriptions-primary/25 font-bold'
-                        : 'bg-white text-slate-600 border-gray-100 shadow-sm'
-                    "
-                  >
-                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-                      <path [attr.d]="cat.path"></path>
-                    </svg>
-                    <span class="text-xs font-bold tracking-wide whitespace-nowrap">{{ cat.name }}</span>
-                  </button>
-                }
-              </div>
-            </div>
-
+            <app-icon-suggester
+              [inputText]="subForm.get('title')?.value || ''"
+              [selectedIconId]="subForm.get('icon')?.value"
+              (iconSelected)="subForm.patchValue({ icon: $event })"
+              (iconCleared)="subForm.patchValue({ icon: null })"
+            ></app-icon-suggester>
 
             <div class="mt-6 flex gap-3">
               <button
@@ -283,15 +260,13 @@ export class SubscriptionSheetComponent implements OnInit, AfterViewInit {
   subscriptionService = inject(SubscriptionService);
   budgetService = inject(BudgetService);
   confirmService = inject(ConfirmService);
+  iconService = inject(IconService);
   fb = inject(FormBuilder);
   haptic = inject(HapticService);
 
   isSaving = signal(false);
   isDeleting = signal(false);
   isDayPickerOpen = false;
-
-  showLeftFade = signal(false);
-  showRightFade = signal(true);
   
   @ViewChild('scrollCat') scrollCat!: ElementRef;
 
@@ -299,6 +274,7 @@ export class SubscriptionSheetComponent implements OnInit, AfterViewInit {
     title: ['', Validators.required],
     amount: ['', [Validators.required, Validators.min(1)]],
     category: ['Others'],
+    icon: [null as string | null],
     billing_day: [1, [Validators.required, Validators.min(1), Validators.max(31)]],
     created_at: [new Date().toISOString(), Validators.required],
   });
@@ -326,52 +302,21 @@ export class SubscriptionSheetComponent implements OnInit, AfterViewInit {
             title: editing.title,
             amount: editing.amount.toString(),
             category: editing.category,
+            icon: editing.icon || null,
             billing_day: editing.billing_day,
             created_at: editing.created_at || new Date().toISOString(),
           });
         } else {
-          // preserve the originally generated created_at so we don't trigger NG0100
           const currentCreatedAt = this.subForm?.get('created_at')?.value || new Date().toISOString();
-          this.subForm.reset({ billing_day: 1, category: 'Others', created_at: currentCreatedAt });
+          this.subForm.reset({ billing_day: 1, category: 'Others', icon: null, created_at: currentCreatedAt });
         }
-        
-        untracked(() => {
-          setTimeout(() => {
-            if (this.scrollCat?.nativeElement) {
-              this.updateScrollState(this.scrollCat.nativeElement, true);
-            }
-          }, 100);
-        });
       }
     });
   }
 
   ngOnInit() {}
 
-  ngAfterViewInit() {
-    setTimeout(() => {
-      if (this.scrollCat?.nativeElement) {
-        this.updateScrollState(this.scrollCat.nativeElement, true);
-      }
-    }, 100);
-  }
-
-  getMaskImage(isMain: boolean): string {
-    const left = this.showLeftFade() ? 'transparent 0%' : 'black 0%';
-    const leftTransition = this.showLeftFade() ? 'black 5%' : 'black 0%';
-    const rightTransition = this.showRightFade() ? 'black 95%' : 'black 100%';
-    const right = this.showRightFade() ? 'transparent 100%' : 'black 100%';
-    return `linear-gradient(to right, ${left}, ${leftTransition}, ${rightTransition}, ${right})`;
-  }
-
-  updateScrollState(target: any, isMain: boolean) {
-    if (!target) return;
-    const { scrollLeft, scrollWidth, clientWidth } = target;
-    const isAtStart = scrollLeft <= 0;
-    const isAtEnd = scrollLeft + clientWidth >= scrollWidth - 1;
-    this.showLeftFade.set(!isAtStart);
-    this.showRightFade.set(!isAtEnd);
-  }
+  ngAfterViewInit() {}
 
   isUpdated(): boolean {
     const sub = this.subscriptionService.editingSubscription();
@@ -386,15 +331,11 @@ export class SubscriptionSheetComponent implements OnInit, AfterViewInit {
     }
   }
 
-  selectCategory(categoryName: string) {
-    this.haptic.impactLight();
-    this.subForm.patchValue({ category: categoryName });
-  }
-
   close() {
     this.subForm.reset({
       billing_day: 1,
       category: 'Others',
+      icon: null,
       created_at: new Date().toISOString(),
     });
     this.subscriptionService.closeBottomSheet();
@@ -405,26 +346,38 @@ export class SubscriptionSheetComponent implements OnInit, AfterViewInit {
     this.haptic.impactLight();
     this.isSaving.set(true);
 
-    const val = this.subForm.value;
+    const subData = this.subForm.value;
+    
+    // Auto-assign icon and category if not explicitly selected
+    const selectedIconId = subData.icon;
+    let assignedIcon = this.iconService.getIconById(selectedIconId || '');
+    if (!selectedIconId) {
+      assignedIcon = this.iconService.getSuggestedIcons(subData.title)[0];
+      subData.icon = assignedIcon?.id || null;
+    }
+    // Update category to match the icon's generic name for budgeting
+    subData.category = assignedIcon?.name || 'Others';
+
     const editing = this.subscriptionService.editingSubscription();
 
     let success = false;
     if (editing?.id) {
       success = await this.subscriptionService.updateSubscription(editing.id, {
-        title: val.title,
-        amount: Number(val.amount),
-        category: val.category || 'Others',
-        billing_day: Number(val.billing_day),
-        created_at: val.created_at,
-        updated_at: new Date().toISOString(),
+        title: subData.title,
+        amount: Number(subData.amount),
+        category: subData.category || 'Others',
+        icon: subData.icon || null,
+        billing_day: Number(subData.billing_day),
+        created_at: subData.created_at,
       });
     } else {
       success = await this.subscriptionService.addSubscription({
-        title: val.title,
-        amount: Number(val.amount),
-        category: val.category || 'Others',
-        billing_day: Number(val.billing_day),
-        created_at: val.created_at,
+        title: subData.title,
+        amount: Number(subData.amount),
+        category: subData.category || 'Others',
+        icon: subData.icon || null,
+        billing_day: Number(subData.billing_day),
+        created_at: subData.created_at,
       });
     }
 

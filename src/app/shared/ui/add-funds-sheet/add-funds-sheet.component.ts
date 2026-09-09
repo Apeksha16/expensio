@@ -329,13 +329,7 @@ export class AddFundsSheetComponent {
         const success = await this.expenseService.deleteExpense(editing.id);
 
         if (success) {
-          await this.goalService.updateGoal(
-            goal.id,
-            {
-              saved_amount: goal.saved_amount - editing.amount,
-            },
-            true,
-          );
+          // Sync handled by Postgres trigger `trg_sync_goal_progress`
           this.toastService.showSuccess('Funds Removed', 'Funds removed. Your goal balance has been updated.');
           this.close();
         } else {
@@ -380,15 +374,7 @@ export class AddFundsSheetComponent {
         if (!updateSuccess) throw new Error('Failed to update expense');
 
         if (difference !== 0) {
-          const updatedSavedAmount = goal.saved_amount + difference;
-          const goalSuccess = await this.goalService.updateGoal(
-            goal.id,
-            {
-              saved_amount: updatedSavedAmount,
-            },
-            true,
-          );
-          if (!goalSuccess) throw new Error("Couldn't update goal.");
+          // Sync handled by Postgres trigger `trg_sync_goal_progress`
         }
 
         this.toastService.showSuccess('Payment Updated', `Your payment is now updated to ₹${amountToAdd}.`);
@@ -413,21 +399,9 @@ export class AddFundsSheetComponent {
           throw new Error('Failed to create expense');
         }
 
-        const updatedSavedAmount = goal.saved_amount + amountToAdd;
-        const goalSuccess = await this.goalService.updateGoal(
-          goal.id,
-          {
-            saved_amount: updatedSavedAmount,
-          },
-          true,
-        );
-
-        if (goalSuccess) {
-          this.toastService.showSuccess('Funds Added', `₹${amountToAdd.toLocaleString('en-IN')} added to ${goal.name}.`);
-          this.close();
-        } else {
-          throw new Error("Couldn't update goal.");
-        }
+        // Sync handled by Postgres trigger `trg_sync_goal_progress`
+        this.toastService.showSuccess('Funds Added', `₹${amountToAdd.toLocaleString('en-IN')} added to ${goal.name}.`);
+        this.close();
       }
     } catch (e) {
       console.error(e);

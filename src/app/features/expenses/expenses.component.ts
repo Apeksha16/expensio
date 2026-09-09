@@ -22,6 +22,7 @@ import { SubscriptionService } from '../../core/services/subscription.service';
 import { BudgetService } from '../../core/services/budget.service';
 import { AuthService } from '../../core/services/auth.service';
 import { AccountTrackerService } from '../../core/services/account-tracker.service';
+import { IconService } from '../../core/services/icon.service';
 
 @Component({
   selector: 'app-expenses',
@@ -181,7 +182,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
                   <div class="flex items-center gap-3 shrink-0">
                     <div class="w-12 h-12 rounded-full flex items-center justify-center" [ngClass]="budgetService.getCategoryTheme(expense.category).bg + ' ' + budgetService.getCategoryTheme(expense.category).text">
                       <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path [attr.d]="budgetService.getCategoryIconPath(expense.category)"></path>
+                        <path [attr.d]="expense.icon ? iconService.getIconById(expense.icon).svg : budgetService.getCategoryIconPath(expense.category)"></path>
                       </svg>
                     </div>
                   </div>
@@ -235,6 +236,7 @@ export class Expenses implements OnInit, AfterViewInit, OnDestroy {
   budgetService = inject(BudgetService);
   authService = inject(AuthService);
   accountTracker = inject(AccountTrackerService);
+  iconService = inject(IconService);
   private monthSub: any;
 
   animateBars = signal(false);

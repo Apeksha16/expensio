@@ -10,6 +10,7 @@ export interface Subscription {
   title: string;
   amount: number;
   category: string;
+  icon?: string;
   billing_day: number;
   last_paid_month: string | null;
   created_at?: string;

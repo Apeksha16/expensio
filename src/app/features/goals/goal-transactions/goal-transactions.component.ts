@@ -375,7 +375,7 @@ export class GoalTransactionsComponent {
             goal_emi_id: emi.id
           };
           await this.expenseService.addExpense(expense, true);
-          await this.goalService.updateGoal(g.id, { saved_amount: g.saved_amount + remainingToPay }, true);
+          // Sync handled by Postgres trigger `trg_sync_goal_progress`
           // Refresh EMIs
           await this.loadEmis(g.id);
           this.toastService.showSuccess('Installment Settled', `₹${remainingToPay.toLocaleString('en-IN')} added to ${g.name}. You're one step closer to your goal.`);

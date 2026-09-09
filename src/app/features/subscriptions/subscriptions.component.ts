@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { SubscriptionService, Subscription } from '../../core/services/subscription.service';
 import { ConfirmService } from '../../core/services/confirm.service';
 import { BudgetService } from '../../core/services/budget.service';
+import { IconService } from '../../core/services/icon.service';
 
 @Component({
   selector: 'app-subscriptions',
@@ -83,7 +84,7 @@ import { BudgetService } from '../../core/services/budget.service';
                     <!-- Icon -->
                     <div class="flex items-center justify-center w-12 h-12 rounded-xl shrink-0" [ngClass]="budgetService.getCategoryTheme(sub.category).bg + ' ' + budgetService.getCategoryTheme(sub.category).text">
                       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path [attr.d]="budgetService.getCategoryIconPath(sub.category)"></path>
+                        <path [attr.d]="sub.icon ? iconService.getIconById(sub.icon).svg : budgetService.getCategoryIconPath(sub.category)"></path>
                       </svg>
                     </div>
                     
@@ -139,7 +140,7 @@ import { BudgetService } from '../../core/services/budget.service';
                     <!-- Icon -->
                     <div class="flex items-center justify-center w-12 h-12 rounded-xl shrink-0" [ngClass]="budgetService.getCategoryTheme(sub.category).bg + ' ' + budgetService.getCategoryTheme(sub.category).text">
                       <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path [attr.d]="budgetService.getCategoryIconPath(sub.category)"></path>
+                        <path [attr.d]="sub.icon ? iconService.getIconById(sub.icon).svg : budgetService.getCategoryIconPath(sub.category)"></path>
                       </svg>
                     </div>
                     
@@ -184,7 +185,7 @@ import { BudgetService } from '../../core/services/budget.service';
                   <!-- Icon -->
                   <div class="flex items-center justify-center w-12 h-12 rounded-xl shrink-0 bg-slate-200 text-slate-500">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                      <path [attr.d]="budgetService.getCategoryIconPath(sub.category)"></path>
+                      <path [attr.d]="sub.icon ? iconService.getIconById(sub.icon).svg : budgetService.getCategoryIconPath(sub.category)"></path>
                     </svg>
                   </div>
                   
@@ -232,6 +233,7 @@ export class SubscriptionsComponent {
   subscriptionService = inject(SubscriptionService);
   confirmService = inject(ConfirmService);
   budgetService = inject(BudgetService);
+  iconService = inject(IconService);
   activeTab = signal<'upcoming' | 'paid'>('upcoming');
 
   markAsPaid(event: Event, sub: Subscription) {
