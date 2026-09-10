@@ -6,6 +6,7 @@ import {
   ViewChild,
   ElementRef,
   AfterViewInit,
+  OnInit,
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { KeyboardService } from '../services/keyboard.service';
@@ -46,6 +47,8 @@ import { LedgerSubSheetComponent } from '../../shared/ui/ledger-sub-sheet/ledger
 import { AccountSheetComponent } from '../../shared/ui/account-sheet/account-sheet.component';
 import { AccountTrackerService } from '../services/account-tracker.service';
 import { MonthPickerService } from '../services/month-picker.service';
+import { BalancePromptComponent } from '../../shared/ui/balance-prompt/balance-prompt.component';
+import { BalancePromptService } from '../services/balance-prompt.service';
 
 @Component({
   selector: 'app-layout',
@@ -67,6 +70,7 @@ import { MonthPickerService } from '../services/month-picker.service';
     LedgerSheetComponent,
     LedgerSubSheetComponent,
     AccountSheetComponent,
+    BalancePromptComponent,
   ],
   animations: [slideInAnimation],
   changeDetection: ChangeDetectionStrategy.Default,
@@ -354,10 +358,11 @@ import { MonthPickerService } from '../services/month-picker.service';
       <app-ledger-sheet></app-ledger-sheet>
       <app-ledger-sub-sheet></app-ledger-sub-sheet>
       <app-account-sheet></app-account-sheet>
+      <app-balance-prompt></app-balance-prompt>
     </div>
   `,
 })
-export class Layout implements AfterViewInit {
+export class Layout implements AfterViewInit, OnInit {
   isSidebarOpen = signal(false);
   authService = inject(AuthService);
   private confirmService = inject(ConfirmService);
@@ -378,6 +383,7 @@ export class Layout implements AfterViewInit {
   ledgerService = inject(LedgerService);
   accountTrackerService = inject(AccountTrackerService);
   monthPicker = inject(MonthPickerService);
+  balancePromptService = inject(BalancePromptService);
 
   currentUrl = signal(this.router.url);
 
@@ -479,6 +485,24 @@ export class Layout implements AfterViewInit {
         this.currentUrl.set(event.urlAfterRedirects);
       }
     });
+  }
+
+  ngOnInit() {
+    this.checkMonthlyBalancePrompt();
+  }
+
+  private checkMonthlyBalancePrompt() {
+    setTimeout(() => {
+      const now = new Date();
+      const currentMonth = `${now.getFullYear()}-${now.getMonth()}`;
+      
+      const lastPromptMonth = localStorage.getItem('lastBalancePromptMonth');
+      if (lastPromptMonth === currentMonth) {
+        return;
+      }
+
+      this.balancePromptService.open();
+    }, 1500); // Small delay to let the app finish loading
   }
 
   toggleSidebar(open: boolean) {

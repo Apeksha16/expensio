@@ -5,10 +5,13 @@ export interface ConfirmConfig {
   message: string;
   confirmText?: string;
   cancelText?: string;
+  thirdText?: string;
   showInput?: boolean;
   inputValue?: number;
   inputMax?: number;
   onConfirm: (value?: number) => void | Promise<void>;
+  onThird?: () => void | Promise<void>;
+  onCancel?: () => void | Promise<void>;
 }
 
 @Injectable({ providedIn: 'root' })

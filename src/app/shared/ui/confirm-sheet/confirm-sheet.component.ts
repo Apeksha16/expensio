@@ -80,15 +80,25 @@ import { SafeInputDirective } from '../safe-input.directive';
             </div>
           }
         </div>
-        <div class="flex gap-3 mt-2">
-          <button
-            (click)="close()"
-            class="flex-1 font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-slate-100 text-slate-700 text-center"
-          >
-            {{ confirmService.config()?.cancelText }}
-          </button>
-          <button
-            (click)="confirm()"
+        <div class="flex flex-col gap-3 mt-2">
+          @if (confirmService.config()?.thirdText) {
+            <button
+              (click)="thirdAction()"
+              [disabled]="isProcessing()"
+              class="w-full font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-indigo-600 text-white shadow-md shadow-indigo-600/30 disabled:opacity-50 disabled:active:scale-100"
+            >
+              {{ confirmService.config()?.thirdText }}
+            </button>
+          }
+          <div class="flex gap-3">
+            <button
+              (click)="cancelAction()"
+              class="flex-1 font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-slate-100 text-slate-700 text-center"
+            >
+              {{ confirmService.config()?.cancelText }}
+            </button>
+            <button
+              (click)="confirm()"
             [disabled]="isProcessing()"
             class="flex-1 font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-red-600 text-white shadow-md shadow-red-600/30 disabled:opacity-50 disabled:active:scale-100"
           >
@@ -116,6 +126,7 @@ import { SafeInputDirective } from '../safe-input.directive';
             }
             {{ confirmService.config()?.confirmText }}
           </button>
+          </div>
         </div>
       </div>
     }
@@ -150,6 +161,26 @@ export class ConfirmSheetComponent {
     this.haptic.impactLight();
     this.currentAmount = undefined;
     this.confirmService.close();
+  }
+
+  async cancelAction() {
+    const config = this.confirmService.config();
+    if (config && config.onCancel) {
+      this.isProcessing.set(true);
+      await config.onCancel();
+      this.isProcessing.set(false);
+    }
+    this.close();
+  }
+
+  async thirdAction() {
+    const config = this.confirmService.config();
+    if (config && config.onThird) {
+      this.isProcessing.set(true);
+      await config.onThird();
+      this.isProcessing.set(false);
+    }
+    this.close();
   }
 
   async confirm() {

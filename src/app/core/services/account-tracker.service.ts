@@ -308,6 +308,26 @@ export class AccountTrackerService {
     this.isSheetOpen.set(false);
   }
 
+  async adjustBalanceAbsolute(accountType: AccountType, newBalance: number) {
+    const user = this.authService.currentUser();
+    if (!user) return;
+    
+    const acc = this.accounts().find(a => a.account_type === accountType);
+    if (!acc) return;
+    
+    if (acc.balance === newBalance) return;
+    
+    const delta = newBalance - acc.balance;
+    const txType: TransactionType = delta > 0 ? 'Income' : 'Expense';
+    
+    await this.addTransaction({
+      account_type: accountType,
+      transaction_type: txType,
+      amount: Math.abs(delta),
+      description: 'Manual Balance Adjustment'
+    });
+  }
+
   async addTransaction(params: {
     account_type: AccountType;
     transaction_type: TransactionType;
