@@ -317,15 +317,35 @@ export class AccountTrackerService {
     
     if (acc.balance === newBalance) return;
     
-    const delta = newBalance - acc.balance;
-    const txType: TransactionType = delta > 0 ? 'Income' : 'Expense';
-    
-    await this.addTransaction({
-      account_type: accountType,
-      transaction_type: txType,
-      amount: Math.abs(delta),
-      description: 'Manual Balance Adjustment'
-    });
+    try {
+      this.isLoading.set(true);
+      
+      // Update DB first via RPC (POST) to avoid PATCH request CORS/Network blockages
+      if (this.userAccountsTableAvailable && acc.id && !acc.id.startsWith('acc_')) {
+        const { error } = await this.supabaseService.client
+          .rpc('update_user_account_balance', {
+            p_account_id: acc.id,
+            p_new_balance: newBalance
+          });
+          
+        if (error) throw error;
+      }
+
+      // Update local storage and state
+      const balances = this.getStoredFallbackBalances();
+      balances[accountType] = newBalance;
+      try { localStorage.setItem('expensio_account_balances', JSON.stringify(balances)); } catch (e) {}
+      
+      this.accounts.update(accs => accs.map(a => a.account_type === accountType ? { ...a, balance: newBalance } : a));
+
+    } catch (err: any) {
+      console.error('Error adjusting balance:', err);
+      // Suppress the toast here because it will be handled by the component, or we can just throw
+      // to avoid multiple toasts. 
+      throw err; 
+    } finally {
+      this.isLoading.set(false);
+    }
   }
 
   async addTransaction(params: {
