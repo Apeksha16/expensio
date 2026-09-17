@@ -89,7 +89,7 @@ import { AutofocusDirective } from '../autofocus.directive';
                         />
                       </div>
                     } @else {
-                      <span class="text-lg font-bold text-gray-900 ml-1">₹{{ (editedBalances()[account.id] ?? account.balance || 0).toLocaleString('en-IN') }}</span>
+                      <span class="text-lg font-bold text-gray-900 ml-1">₹{{ ((editedBalances()[account.id] ?? account.balance) || 0).toLocaleString('en-IN') }}</span>
                     }
                   </div>
                 </div>

@@ -170,7 +170,12 @@ import { UserProfile } from '../../core/services/auth.service';
                             class="w-12 h-12 rounded-full bg-slate-50 object-cover shrink-0"
                           />
                           <div class="flex flex-col gap-1">
-                            <span class="font-extrabold text-[15px] text-gray-900">{{ friend.profile.name }}</span>
+                            <div class="flex items-center gap-2">
+                              <span class="font-extrabold text-[15px] text-gray-900">{{ friend.profile.name }}</span>
+                              @if (friend.profile.isGuest) {
+                                <span class="bg-indigo-50 text-indigo-600 border border-indigo-100 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">Guest</span>
+                              }
+                            </div>
                             <span class="text-xs font-semibold text-gray-500 truncate">
                               {{ '@' + friend.profile.username }}
                             </span>

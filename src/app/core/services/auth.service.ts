@@ -12,6 +12,8 @@ export interface UserProfile {
   salary: number;
   avatarId: number;
   maskValues: boolean;
+  isGuest?: boolean;
+  createdBy?: string;
   quickActions?: string[];
   emailReportFrequency?: 'none' | 'twice_daily' | 'weekly' | 'monthly';
 }

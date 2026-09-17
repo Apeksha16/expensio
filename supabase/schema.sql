@@ -7,6 +7,8 @@ create table if not exists public.profiles (
   avatar_id integer default 1,
   failed_attempts int default 0,
   locked_until timestamp with time zone,
+  is_guest boolean default false,
+  created_by uuid references public.profiles(id) on delete cascade,
   updated_at timestamp with time zone default timezone('utc'::text, now())
 );
 
@@ -186,6 +188,7 @@ begin
   select p.*
   from public.profiles p
   where p.id != current_user_uuid
+    and p.is_guest = false
     and (p.username ilike '%' || search_query || '%' or p.name ilike '%' || search_query || '%')
     and (
       -- Target user must have < max_friends
@@ -367,13 +370,15 @@ declare
   cash_balance numeric;
   savings_balance numeric;
 begin
-  insert into public.profiles (id, username, name, salary, avatar_id)
+  insert into public.profiles (id, username, name, salary, avatar_id, is_guest, created_by)
   values (
     new.id,
     new.raw_user_meta_data->>'username',
     new.raw_user_meta_data->>'full_name',
     coalesce((new.raw_user_meta_data->>'salary')::numeric, 0),
-    1
+    1,
+    coalesce((new.raw_user_meta_data->>'is_guest')::boolean, false),
+    (new.raw_user_meta_data->>'created_by')::uuid
   );
 
   cash_balance := coalesce((new.raw_user_meta_data->>'cash_balance')::numeric, 0);
@@ -541,6 +546,49 @@ NOTIFY pgrst, 'reload schema';
 -- Revoke execute from public/anon/authenticated on internal triggers
 REVOKE EXECUTE ON FUNCTION public.handle_new_user FROM PUBLIC;
 REVOKE EXECUTE ON FUNCTION public.handle_new_user FROM anon, authenticated;
+
+-- Create create_guest_user RPC
+CREATE OR REPLACE FUNCTION public.create_guest_user(p_name text, p_username text)
+RETURNS uuid
+LANGUAGE plpgsql
+SECURITY DEFINER SET search_path = public, auth, extensions
+AS $$
+DECLARE
+  new_guest_id uuid;
+  current_user_id uuid;
+  guest_count int;
+BEGIN
+  current_user_id := auth.uid();
+  IF current_user_id IS NULL THEN
+    RAISE EXCEPTION 'Not authenticated';
+  END IF;
+
+  -- Limit to 5 guests per user
+  SELECT count(*) INTO guest_count FROM public.profiles WHERE created_by = current_user_id;
+  IF guest_count >= 5 THEN
+    RAISE EXCEPTION 'Maximum limit of 5 guest users reached.';
+  END IF;
+
+  new_guest_id := gen_random_uuid();
+  
+  -- Insert into auth.users with a dummy email and password
+  INSERT INTO auth.users (id, instance_id, email, encrypted_password, email_confirmed_at, raw_user_meta_data)
+  VALUES (
+    new_guest_id,
+    '00000000-0000-0000-0000-000000000000',
+    new_guest_id::text || '@guest.expensio',
+    extensions.crypt('dummy_password123!', extensions.gen_salt('bf')),
+    now(),
+    jsonb_build_object('username', p_username, 'full_name', p_name, 'is_guest', true, 'created_by', current_user_id)
+  );
+
+  -- Add to friends automatically
+  INSERT INTO public.friends (requester_id, addressee_id, status)
+  VALUES (current_user_id, new_guest_id, 'accepted');
+
+  RETURN new_guest_id;
+END;
+$$;
 
 -- Create ledger_entries table
 create table if not exists public.ledger_entries (

@@ -27,7 +27,7 @@ import {
 import { SwipeToCloseDirective } from '../swipe-to-close.directive';
 import { HapticService } from '../../../core/services/haptic.service';
 import { AutofocusDirective } from '../autofocus.directive';
-import { SafeInputDirective } from '../safe-input.directive';
+
 
 @Component({
   selector: 'app-friend-sheet',
@@ -37,7 +37,6 @@ import { SafeInputDirective } from '../safe-input.directive';
     FormsModule,
     SwipeToCloseDirective,
     AutofocusDirective,
-    SafeInputDirective,
   ],
   animations: [
     trigger('slideUp', [
@@ -89,140 +88,154 @@ import { SafeInputDirective } from '../safe-input.directive';
         <div class="p-6 flex flex-col gap-6 overflow-y-auto overscroll-none bg-white flex-1 overflow-y-auto overscroll-none pb-6" style="scrollbar-width: none;">
           <!-- ADD MODE -->
           @if (isAddMode) {
-            <form (submit)="$event.preventDefault(); sendRequest()" class="space-y-4">
-              <div class="flex flex-col gap-1.5 shrink-0">
-                <label class="text-[11px] font-bold text-gray-500 tracking-wider uppercase"
-                  >Search User</label
-                >
-                <div class="relative group">
-                  <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <svg
-                      class="w-5 h-5 text-gray-400"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                      />
-                    </svg>
-                  </div>
-                  <input
-                    appAutofocus
-                    appSafeInput
-                    type="text"
-                    name="query"
-                    [(ngModel)]="searchQuery"
-                    (ngModelChange)="onSearchChange($event)"
-                    class="w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl pl-11 pr-4 py-3 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-400 focus:border-friends-primary focus:ring-4 focus:ring-friends-primary/15"
-                    placeholder="Username or email..."
-                  />
-                </div>
-              </div>
-              <!-- Search Results -->
-              <div
-                class="flex flex-col gap-2 min-h-[150px] max-h-[40vh] overflow-y-auto pr-2 relative"
+            <div class="flex bg-slate-100 p-1 rounded-2xl mb-4 shrink-0">
+              <button
+                type="button"
+                (click)="addModeTab = 'search'"
+                class="flex-1 py-2 text-sm font-bold rounded-xl transition-all"
+                [ngClass]="addModeTab === 'search' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'"
               >
-                @if (isSearching) {
-                  <div class="text-center p-4 flex justify-center items-center gap-2">
-                    <svg
-                      class="animate-spin h-5 w-5 text-friends-primary"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        class="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        stroke-width="4"
-                      ></circle>
-                      <path
-                        class="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">
-                      Searching...
-                    </p>
+                Search User
+              </button>
+              <button
+                type="button"
+                (click)="addModeTab = 'guest'"
+                class="flex-1 py-2 text-sm font-bold rounded-xl transition-all"
+                [ngClass]="addModeTab === 'guest' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'"
+              >
+                Create Guest
+              </button>
+            </div>
+
+            <div class="min-h-[340px] grid">
+              @if (addModeTab === 'search') {
+                <form @fadeIn (submit)="$event.preventDefault(); sendRequest()" class="[grid-area:1/1] space-y-4 flex flex-col w-full h-full">
+                  <div class="flex flex-col gap-1.5 shrink-0">
+                    <label class="text-[11px] font-bold text-gray-500 tracking-wider uppercase">Search User</label>
+                    <div class="relative group">
+                      <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                      </div>
+                      <input
+                        appAutofocus
+                        type="text"
+                        name="query"
+                        [(ngModel)]="searchQuery"
+                        (ngModelChange)="onSearchChange($event)"
+                        class="w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl pl-11 pr-4 py-3 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-400 focus:border-friends-primary focus:ring-4 focus:ring-friends-primary/15"
+                        placeholder="Username or email..."
+                      />
+                    </div>
                   </div>
-                }
-                @for (user of searchResults; track user) {
-                  <button
-                    type="button"
-                    (click)="selectUser(user)"
-                    class="flex items-center gap-4 p-4 border-2 rounded-2xl transition-all text-left shrink-0 active:scale-95 shadow-sm mb-2"
-                    [ngClass]="
-                      selectedUser?.username === user.username
-                        ? 'border-friends-primary bg-friends-primary text-white shadow-md shadow-friends-primary/25'
-                        : 'bg-white border-gray-100'
-                    "
-                  >
-                    <div
-                      class="w-10 h-10 rounded-full flex items-center justify-center font-extrabold text-lg shrink-0 border"
-                      [ngClass]="
-                        selectedUser?.username === user.username
-                          ? 'bg-white text-friends-primary border-transparent'
-                          : 'bg-gray-100 text-gray-800 border-gray-100'
-                      "
+                  <!-- Search Results -->
+                  <div class="flex flex-col gap-2 flex-1 min-h-[150px] max-h-[40vh] overflow-y-auto pr-2 relative">
+                    @if (isSearching) {
+                      <div class="text-center p-4 flex justify-center items-center gap-2">
+                        <svg class="animate-spin h-5 w-5 text-friends-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Searching...</p>
+                      </div>
+                    }
+                    @for (user of searchResults; track user) {
+                      <button
+                        type="button"
+                        (click)="selectUser(user)"
+                        class="flex items-center gap-4 p-4 border-2 rounded-2xl transition-all text-left shrink-0 active:scale-95 shadow-sm mb-2"
+                        [ngClass]="
+                          selectedUser?.username === user.username
+                            ? 'border-friends-primary bg-friends-primary text-white shadow-md shadow-friends-primary/25'
+                            : 'bg-white border-gray-100'
+                        "
+                      >
+                        <div
+                          class="w-10 h-10 rounded-full flex items-center justify-center font-extrabold text-lg shrink-0 border"
+                          [ngClass]="
+                            selectedUser?.username === user.username
+                              ? 'bg-white text-friends-primary border-transparent'
+                              : 'bg-gray-100 text-gray-800 border-gray-100'
+                          "
+                        >
+                          {{ user.name.charAt(0) }}
+                        </div>
+                        <div class="flex flex-col flex-1">
+                          <span class="font-bold text-sm" [ngClass]="selectedUser?.username === user.username ? 'text-white' : 'text-gray-900'">{{ user.name }}</span>
+                          <span class="text-xs font-semibold" [ngClass]="selectedUser?.username === user.username ? 'text-white/80' : 'text-gray-500'">{{ '@' + user.username }}</span>
+                        </div>
+                      </button>
+                    }
+                  </div>
+                  <!-- Actions for Add Mode -->
+                  <div class="mt-auto pt-4 flex gap-3 shrink-0">
+                    <button
+                      type="button"
+                      (click)="close()"
+                      class="flex-1 font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-slate-100 text-slate-700 text-center"
                     >
-                      {{ user.name.charAt(0) }}
-                    </div>
-                    <div class="flex flex-col flex-1">
-                      <span class="font-bold text-sm" [ngClass]="selectedUser?.username === user.username ? 'text-white' : 'text-gray-900'">{{ user.name }}</span>
-                      <span class="text-xs font-semibold" [ngClass]="selectedUser?.username === user.username ? 'text-white/80' : 'text-gray-500'">{{
-                        '@' + user.username
-                      }}</span>
-                    </div>
-                  </button>
-                }
-              </div>
-              <!-- Actions for Add Mode -->
-              <div class="mt-6 flex gap-3 shrink-0">
-                <button
-                  type="button"
-                  (click)="close()"
-                  class="flex-1 font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-slate-100 text-slate-700 text-center"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  [disabled]="!selectedUser || isSending"
-                  class="flex-1 font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-friends-primary text-white shadow-md shadow-friends-primary/30 disabled:opacity-50 disabled:active:scale-100"
-                >
-                  @if (isSending) {
-                    <svg
-                      class="animate-spin h-5 w-5 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      [disabled]="!selectedUser || isSending"
+                      class="flex-1 font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-friends-primary text-white shadow-md shadow-friends-primary/30 disabled:opacity-50 disabled:active:scale-100"
                     >
-                      <circle
-                        class="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        stroke-width="4"
-                      ></circle>
-                      <path
-                        class="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                  }
-                  <span>{{ isSending ? 'Sending...' : 'Send Request' }}</span>
-                </button>
-              </div>
-            </form>
+                      @if (isSending) {
+                        <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                      }
+                      <span>{{ isSending ? 'Sending...' : 'Send Request' }}</span>
+                    </button>
+                  </div>
+                </form>
+              }
+              @if (addModeTab === 'guest') {
+                <form @fadeIn (submit)="$event.preventDefault(); createGuest()" class="[grid-area:1/1] space-y-4 flex flex-col w-full h-full bg-white z-10 relative">
+                  <div class="flex flex-col gap-1.5 shrink-0">
+                    <label class="text-[11px] font-bold text-gray-500 tracking-wider uppercase">Guest Name</label>
+                    <input
+                      type="text"
+                      name="guestName"
+                      [(ngModel)]="guestName"
+                      required
+                      class="w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl px-4 py-3 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-400 focus:border-friends-primary focus:ring-4 focus:ring-friends-primary/15"
+                      placeholder="e.g. John Doe"
+                    />
+                  </div>
+                  <div class="flex flex-col gap-1.5 shrink-0">
+                    <label class="text-[11px] font-bold text-gray-500 tracking-wider uppercase">Username</label>
+                    <input
+                      type="text"
+                      name="guestUsername"
+                      [(ngModel)]="guestUsername"
+                      required
+                      class="w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl px-4 py-3 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-400 focus:border-friends-primary focus:ring-4 focus:ring-friends-primary/15"
+                      placeholder="e.g. john_guest"
+                    />
+                  </div>
+                  <div class="mt-auto pt-4 flex gap-3 shrink-0">
+                    <button
+                      type="button"
+                      (click)="close()"
+                      class="flex-1 font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-slate-100 text-slate-700 text-center"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      [disabled]="!guestName || !guestUsername || isSending"
+                      class="flex-1 font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-friends-primary text-white shadow-md shadow-friends-primary/30 disabled:opacity-50 disabled:active:scale-100"
+                    >
+                      @if (isSending) {
+                        <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                      }
+                      <span>{{ isSending ? 'Creating...' : 'Create Guest' }}</span>
+                    </button>
+                  </div>
+                </form>
+              }
+            </div>
           }
           <!-- REMOVE MODE -->
           @if (!isAddMode && targetFriend) {
@@ -278,6 +291,9 @@ export class FriendSheetComponent implements OnInit, OnDestroy {
   selectedUser: UserProfile | null = null;
   isSearching = false;
   isSending = false;
+  addModeTab: 'search' | 'guest' = 'search';
+  guestName = '';
+  guestUsername = '';
 
   private searchSubject = new Subject<string>();
   private searchSubscription!: Subscription;
@@ -293,6 +309,9 @@ export class FriendSheetComponent implements OnInit, OnDestroy {
         this.selectedUser = null;
         this.isSearching = false;
         this.isSending = false;
+        this.addModeTab = 'search';
+        this.guestName = '';
+        this.guestUsername = '';
       }
     });
   }
@@ -349,6 +368,19 @@ export class FriendSheetComponent implements OnInit, OnDestroy {
       await this.friendService.sendRequest(this.selectedUser);
       this.isSending = false;
       this.close();
+    }
+  }
+
+  async createGuest() {
+    if (this.guestName && this.guestUsername) {
+      this.isSending = true;
+      const success = await this.friendService.createGuestFriend(this.guestName, this.guestUsername);
+      this.isSending = false;
+      if (success) {
+        this.close();
+      } else {
+        // optionally show toast here if failed
+      }
     }
   }
 

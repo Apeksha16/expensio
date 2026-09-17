@@ -90,11 +90,17 @@ export class FriendService {
     if (!error && data) {
       const allData: FriendData[] = data.map((row: any) => {
         const isIncoming = row.addressee_id === user.id;
+        const p = isIncoming ? row.requester : row.addressee;
         return {
           id: row.id,
           status: row.status,
           isIncoming,
-          profile: isIncoming ? row.requester : row.addressee
+          profile: {
+            ...p,
+            avatarId: p.avatar_id,
+            isGuest: p.is_guest,
+            createdBy: p.created_by
+          }
         };
       });
 
@@ -113,9 +119,30 @@ export class FriendService {
       
     if (!error && data) {
       const currentUserId = this.authService.currentUser()?.id;
-      return (data as UserProfile[]).filter(user => user.id !== currentUserId);
+      return (data as any[]).filter(user => user.id !== currentUserId).map(p => ({
+        ...p,
+        avatarId: p.avatar_id,
+        isGuest: p.is_guest,
+        createdBy: p.created_by
+      } as UserProfile));
     }
     return [];
+  }
+
+  async createGuestFriend(name: string, username: string): Promise<boolean> {
+    const user = this.authService.currentUser();
+    if (!user) return false;
+
+    const { error } = await this.supabaseService.client
+      .rpc('create_guest_user', { p_name: name, p_username: username });
+
+    if (error) {
+      console.error('Error creating guest user:', error);
+      return false;
+    } else {
+      this.fetchFriends();
+      return true;
+    }
   }
 
   async sendRequest(targetUser: UserProfile) {

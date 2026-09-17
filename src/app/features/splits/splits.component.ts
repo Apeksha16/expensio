@@ -108,7 +108,7 @@ import { ToastService } from '../../core/services/toast.service';
                 </h3>
                 <button
                   (click)="settleUp()"
-                  class="px-3 py-1.5 border border-slate-100 bg-white text-gray-700 font-bold text-xs uppercase tracking-widest transition-colors rounded-xl shadow-sm active:scale-95"
+                  class="px-4 py-1.5 bg-splits-primary text-white font-bold text-xs uppercase tracking-widest transition-all rounded-xl shadow-md shadow-splits-primary/30 active:scale-95"
                 >
                   Settle Up
                 </button>

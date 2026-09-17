@@ -347,6 +347,11 @@ export class OnboardingProfileComponent implements OnInit {
           console.warn('Auto-login failed, but account was created:', loginErr);
         }
 
+        // Prevent balance prompt immediately after signup
+        const now = new Date();
+        const currentMonth = `${now.getFullYear()}-${now.getMonth()}`;
+        localStorage.setItem('lastBalancePromptMonth', currentMonth);
+
         this.toastService.showSuccess('Welcome to Expensio!', 'Your account is ready.');
         this.state.clearAll();
 

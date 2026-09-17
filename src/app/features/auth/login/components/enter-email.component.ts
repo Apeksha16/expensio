@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { AuthLayoutComponent } from './auth-layout.component';
 import { FormsModule } from '@angular/forms';
 import { AutofocusDirective } from '../../../../shared/ui/autofocus.directive';
-import { SafeInputDirective } from '../../../../shared/ui/safe-input.directive';
+
 
 import { Button } from '../../../../shared/ui/button/button.component';
 import { SupabaseService } from '../../../../core/services/supabase.service';
@@ -16,7 +16,7 @@ import { Mail01Icon, UserIcon } from '@hugeicons/core-free-icons';
 @Component({
   selector: 'app-enter-email',
   standalone: true,
-  imports: [FormsModule, AuthLayoutComponent, AutofocusDirective, SafeInputDirective, AppIconComponent],
+  imports: [FormsModule, AuthLayoutComponent, AutofocusDirective, AppIconComponent],
   host: {
     class: 'block w-full h-full',
   },
@@ -76,10 +76,10 @@ import { Mail01Icon, UserIcon } from '@hugeicons/core-free-icons';
                   inputmode="email"
                   [(ngModel)]="emailProxy"
                   (ngModelChange)="clearError()"
+                  (keydown.enter)="onEmailSubmit()"
                   placeholder="Enter username or email"
                   class="w-full pl-2 pr-4 py-4 bg-transparent text-black placeholder-gray-400 font-medium focus:outline-none border-0 focus:ring-0 m-0"
                   appAutofocus
-                  appSafeInput
                 />
               </div>
 

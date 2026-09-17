@@ -29,7 +29,7 @@ import { SwipeToCloseDirective } from '../swipe-to-close.directive';
 import { AmountInputDirective } from '../amount-input.directive';
 import { AutofocusDirective } from '../autofocus.directive';
 import { SafeInputDirective } from '../safe-input.directive';
-import { IconSuggesterComponent } from '../icon-suggester/icon-suggester.component';
+
 
 @Component({
   selector: 'app-split-sheet',
@@ -41,7 +41,6 @@ import { IconSuggesterComponent } from '../icon-suggester/icon-suggester.compone
     AmountInputDirective,
     AutofocusDirective,
     SafeInputDirective,
-    IconSuggesterComponent,
   ],
   animations: [
     trigger('slideUp', [
@@ -132,14 +131,7 @@ import { IconSuggesterComponent } from '../icon-suggester/icon-suggester.compone
                   class="w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl px-4 py-3 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-400 focus:border-splits-primary focus:ring-4 focus:ring-splits-primary/15"
                 />
               </div>
-              <!-- Icon -->
-              <app-icon-suggester
-                themeColor="splits"
-                [inputText]="splitForm.get('title')?.value || ''"
-                [selectedIconId]="splitForm.get('icon')?.value"
-                (iconSelected)="splitForm.patchValue({ icon: $event })"
-                (iconCleared)="splitForm.patchValue({ icon: null })"
-              ></app-icon-suggester>
+
               <div class="flex flex-col gap-1 mt-4">
                 <label class="text-[13px] font-extrabold text-gray-800">How much?</label>
                 <div class="relative">
@@ -370,7 +362,7 @@ import { IconSuggesterComponent } from '../icon-suggester/icon-suggester.compone
                 <button
                   type="submit"
                   [disabled]="!splitForm.valid || isSaving() || isDeleting()"
-                  class="flex-[2] font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-splits-primary text-white shadow-md shadow-splits-primary/30 disabled:opacity-50 disabled:active:scale-100"
+                  class="flex-1 font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-4 text-sm bg-splits-primary text-white shadow-md shadow-splits-primary/30 disabled:opacity-50 disabled:active:scale-100"
                 >
                   @if (isSaving()) {
                     <svg
