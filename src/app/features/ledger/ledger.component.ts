@@ -115,7 +115,7 @@ import { ConfirmService } from '../../core/services/confirm.service';
                         [class.text-red-600]="ledgerService.getLedgerBalance(entry) < 0"
                         [class.text-gray-900]="ledgerService.getLedgerBalance(entry) === 0"
                       >
-                        ₹{{ (ledgerService.getLedgerBalance(entry) < 0 ? -ledgerService.getLedgerBalance(entry) : ledgerService.getLedgerBalance(entry)) | number: '1.0-0' }}
+                        ₹{{ (ledgerService.getLedgerBalance(entry) === 0 ? entry.amount : (ledgerService.getLedgerBalance(entry) < 0 ? -ledgerService.getLedgerBalance(entry) : ledgerService.getLedgerBalance(entry))) | number: '1.0-0' }}
                       </span>
                     </div>
                   </div>

@@ -145,6 +145,21 @@ export class FriendService {
     }
   }
 
+  async updateGuestAvatar(guestId: string, avatarId: number): Promise<boolean> {
+    const { error } = await this.supabaseService.client
+      .from('profiles')
+      .update({ avatar_id: avatarId })
+      .eq('id', guestId);
+    
+    if (error) {
+      console.error('Error updating guest avatar:', error);
+      return false;
+    } else {
+      this.fetchFriends();
+      return true;
+    }
+  }
+
   async sendRequest(targetUser: UserProfile) {
     const user = this.authService.currentUser();
     if (!user) return;

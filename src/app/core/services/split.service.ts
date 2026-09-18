@@ -69,9 +69,16 @@ export class SplitService {
   private groupChannel: any = null;
   private expenseChannel: any = null;
   private loadDataTimeout: any;
+  private dummyInput: HTMLInputElement | null = null;
 
   constructor() {
     if (isPlatformBrowser(this.platformId)) {
+      // Create a dummy input to synchronously focus on iOS to bring up the keyboard
+      this.dummyInput = document.createElement('input');
+      this.dummyInput.type = 'text';
+      this.dummyInput.setAttribute('style', 'position: absolute; top: -1000px; left: -1000px; opacity: 0; pointer-events: none;');
+      document.body.appendChild(this.dummyInput);
+
       effect(() => {
         const user = this.authService.currentUser();
         if (user) {
@@ -556,8 +563,17 @@ export class SplitService {
   });
 
   // --- Sheet Controls ---
+  
+  private prepareKeyboard() {
+    if (this.dummyInput) {
+      this.dummyInput.focus();
+    }
+  }
 
   openAddSplitSheet(split?: SplitExpense) {
+    if (!split || !split.id) {
+      this.prepareKeyboard(); // Only focus for new splits
+    }
     if (split && split.id) {
       const hasSettlements = split.participants?.some(p => p.status === 'settled' || p.status === 'pending');
       const hasPartialSettlements = this.splits().some(s => s.parent_expense_id === split.id);
@@ -572,6 +588,9 @@ export class SplitService {
   }
 
   openGroupSheet(group?: SplitGroup) {
+    if (!group || !group.id) {
+      this.prepareKeyboard(); // Only focus for new groups
+    }
     this.editingGroup.set(group || null);
     this.isGroupSheetOpen.set(true);
   }
