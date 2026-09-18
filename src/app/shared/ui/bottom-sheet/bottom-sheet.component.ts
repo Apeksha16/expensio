@@ -103,11 +103,39 @@ import { SafeInputDirective } from '../safe-input.directive';
         
         <!-- Content -->
         <div class="p-6 overflow-y-auto overscroll-none flex-1 pb-6" [ngClass]="theme.surfaceBg" style="scrollbar-width: none;">
-          @if (isEditing) {
-            <div class="flex justify-center mb-4">
-              <span class="text-[10px] font-bold tracking-wide uppercase text-slate-500 bg-slate-100 px-3 py-1 rounded-full border border-slate-200 mt-2">
-                Added {{ expenseService.editingExpense()?.created_at | date: 'medium' }}
-              </span>
+          @if (expenseService.editingExpense()?.id) {
+            <div class="flex justify-center mb-5">
+              <div class="relative inline-flex items-center justify-center group">
+                <input 
+                  type="datetime-local" 
+                  [value]="getDatetimeLocal(selectedDate())"
+                  (change)="onDateChange($event)"
+                  class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                />
+                <span class="text-[10px] font-bold tracking-wide uppercase text-slate-500 bg-slate-100 px-3 py-1 rounded-full border border-slate-200 flex items-center gap-1 group-active:scale-95 transition-transform mt-2">
+                  <svg class="w-3 h-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  Updated at {{ selectedDate() | date: 'medium' }}
+                </span>
+              </div>
+            </div>
+          } @else {
+            <div class="flex justify-center mb-5">
+              <div class="relative inline-flex items-center justify-center group">
+                <input 
+                  type="datetime-local" 
+                  [value]="getDatetimeLocal(selectedDate())"
+                  (change)="onDateChange($event)"
+                  class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                />
+                <span class="text-[10px] font-bold tracking-wide uppercase text-slate-500 bg-slate-100 px-3 py-1 rounded-full border border-slate-200 flex items-center gap-1 group-active:scale-95 transition-transform mt-2">
+                  <svg class="w-3 h-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  Adding at {{ selectedDate() | date: 'medium' }}
+                </span>
+              </div>
             </div>
           }
           <form [formGroup]="expenseForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
@@ -326,6 +354,7 @@ export class BottomSheetComponent implements OnInit {
   isDatePickerOpen = false;
   isSaving = signal(false);
   isDeleting = signal(false);
+  selectedDate = signal<string>(new Date().toISOString());
 
   @ViewChild('scrollCat') scrollCat?: ElementRef;
   @ViewChild('scrollCatLoading') scrollCatLoading?: ElementRef;
@@ -411,7 +440,8 @@ export class BottomSheetComponent implements OnInit {
 
       if (isOpen) {
         this.isEditing = !!(editing && editing.id);
-        const dateStr = editing?.date ? editing.date : new Date().toISOString();
+        const dateStr = editing?.date || editing?.created_at || new Date().toISOString();
+        this.selectedDate.set(dateStr);
         const d = editing?.date ? new Date(editing.date) : new Date();
         const y = d.getFullYear();
         const m = (d.getMonth() + 1).toString().padStart(2, '0');
@@ -474,6 +504,20 @@ export class BottomSheetComponent implements OnInit {
       return 'linear-gradient(to right, black, black calc(100% - 24px), transparent)';
     } else {
       return 'none';
+    }
+  }
+
+  getDatetimeLocal(isoString: string): string {
+    if (!isoString) return '';
+    const d = new Date(isoString);
+    const tzoffset = (new Date()).getTimezoneOffset() * 60000;
+    return new Date(d.getTime() - tzoffset).toISOString().slice(0, 16);
+  }
+
+  onDateChange(event: any) {
+    const val = event.target.value;
+    if (val) {
+      this.selectedDate.set(new Date(val).toISOString());
     }
   }
 
@@ -548,7 +592,7 @@ export class BottomSheetComponent implements OnInit {
         category: formValue.category || 'Others',
         icon: formValue.icon,
         paid_via: formValue.paid_via || 'UPI',
-        date: new Date(formValue.date).toISOString(),
+        date: this.selectedDate(),
       };
 
       let success = false;

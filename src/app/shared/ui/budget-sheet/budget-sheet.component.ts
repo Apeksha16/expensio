@@ -90,15 +90,37 @@ import { IconService } from '../../../core/services/icon.service';
         <div class="p-6 bg-white flex-1 overflow-y-auto overscroll-none pb-6" style="scrollbar-width: none;">
           @if (isEditing) {
             <div class="flex justify-center mb-5">
-              <span
-                class="text-[10px] font-bold tracking-wide uppercase text-budget-dark bg-budget-surface px-3 py-1 rounded-full border border-budget-primary/10"
-              >
-                Added
-                {{
-                  $safeNavigationMigration(budgetService.editingBudget()?.created_at)
-                    | date: 'medium'
-                }}
-              </span>
+              <div class="relative inline-flex items-center justify-center group">
+                <input 
+                  type="datetime-local" 
+                  [value]="getDatetimeLocal(selectedDate())"
+                  (change)="onDateChange($event)"
+                  class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                />
+                <span class="text-[10px] font-bold tracking-wide uppercase text-budget-dark bg-budget-surface px-3 py-1 rounded-full border border-budget-primary/10 flex items-center gap-1 group-active:scale-95 transition-transform">
+                  <svg class="w-3 h-3 text-budget-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  Updated at {{ selectedDate() | date: 'medium' }}
+                </span>
+              </div>
+            </div>
+          } @else {
+            <div class="flex justify-center mb-5">
+              <div class="relative inline-flex items-center justify-center group">
+                <input 
+                  type="datetime-local" 
+                  [value]="getDatetimeLocal(selectedDate())"
+                  (change)="onDateChange($event)"
+                  class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                />
+                <span class="text-[10px] font-bold tracking-wide uppercase text-budget-dark bg-budget-surface px-3 py-1 rounded-full border border-budget-primary/10 flex items-center gap-1 group-active:scale-95 transition-transform">
+                  <svg class="w-3 h-3 text-budget-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  Adding at {{ selectedDate() | date: 'medium' }}
+                </span>
+              </div>
             </div>
           }
           <form [formGroup]="budgetForm" (ngSubmit)="onSubmit()" class="space-y-4 text-left">
@@ -237,6 +259,7 @@ export class BudgetSheetComponent implements AfterViewInit {
     created_at: [new Date().toISOString(), Validators.required],
   });
   maxAllowedAmount = 0;
+  selectedDate = signal<string>(new Date().toISOString());
 
   constructor() {
     effect(() => {
@@ -275,6 +298,7 @@ export class BudgetSheetComponent implements AfterViewInit {
         auto_rollover: editing.auto_rollover || false,
         created_at: editing.created_at
       });
+      this.selectedDate.set(editing.created_at || new Date().toISOString());
     } else {
       this.budgetForm.reset({
         name: '',
@@ -283,6 +307,21 @@ export class BudgetSheetComponent implements AfterViewInit {
         auto_rollover: false,
         created_at: new Date().toISOString()
       });
+      this.selectedDate.set(new Date().toISOString());
+    }
+  }
+
+  getDatetimeLocal(isoString: string): string {
+    if (!isoString) return '';
+    const d = new Date(isoString);
+    const tzoffset = (new Date()).getTimezoneOffset() * 60000;
+    return new Date(d.getTime() - tzoffset).toISOString().slice(0, 16);
+  }
+
+  onDateChange(event: any) {
+    const val = event.target.value;
+    if (val) {
+      this.selectedDate.set(new Date(val).toISOString());
     }
   }
 
@@ -306,7 +345,8 @@ export class BudgetSheetComponent implements AfterViewInit {
 
     const data = {
       ...formValue,
-      amount: Number(formValue.amount)
+      amount: Number(formValue.amount),
+      created_at: this.selectedDate()
     };
 
     let success = false;

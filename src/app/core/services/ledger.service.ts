@@ -248,6 +248,7 @@ export class LedgerService {
         type: entry.type,
         purpose: entry.purpose,
         date: entry.date,
+        created_at: entry.created_at,
         updated_at: new Date().toISOString()
       })
       .eq('id', id)
@@ -356,6 +357,7 @@ export class LedgerService {
         type: entry.type,
         purpose: entry.purpose,
         date: entry.date,
+        created_at: entry.created_at,
         updated_at: new Date().toISOString()
       })
       .eq('id', id)

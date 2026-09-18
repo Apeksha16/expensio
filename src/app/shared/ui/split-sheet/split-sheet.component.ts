@@ -103,21 +103,32 @@ import { SafeInputDirective } from '../safe-input.directive';
           }
         </div>
         <div class="p-6 bg-white flex-1 overflow-y-auto overscroll-none pb-6" style="scrollbar-width: none;">
-          @if (splitService.editingSplit()?.id) {
-            <div class="flex justify-center mb-5">
+          <div class="flex justify-center mb-5">
+            <div class="relative inline-flex items-center justify-center group">
+              <input 
+                type="datetime-local" 
+                [value]="getDatetimeLocal(selectedDate())"
+                (change)="onDateChange($event)"
+                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+              />
               <span
-                class="text-[10px] font-bold tracking-wide uppercase text-splits-dark bg-splits-surface px-3 py-1 rounded-full border border-splits-primary/10"
+                class="text-[10px] font-bold tracking-wide uppercase text-splits-dark bg-splits-surface px-3 py-1 rounded-full border border-splits-primary/10 flex items-center gap-1 group-active:scale-95 transition-transform"
               >
-                @if (isUpdated()) {
-                  Updated
-                  {{ splitService.editingSplit()?.date | date: 'medium' }}
+                <svg class="w-3 h-3 text-splits-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                @if (splitService.editingSplit()?.id) {
+                  @if (isUpdated()) {
+                    Updated at {{ selectedDate() | date: 'medium' }}
+                  } @else {
+                    Added at {{ selectedDate() | date: 'medium' }}
+                  }
                 } @else {
-                  Added
-                  {{ splitService.editingSplit()?.created_at | date: 'medium' }}
+                  Adding at {{ selectedDate() | date: 'medium' }}
                 }
               </span>
             </div>
-          }
+          </div>
           @if (friendService.acceptedFriends().length > 0) {
             <form [formGroup]="splitForm" (ngSubmit)="onSubmit()" class="space-y-4">
               <div class="flex flex-col gap-1">
@@ -452,6 +463,7 @@ export class SplitSheetComponent implements OnInit {
   splitStrategy = signal<'EQUAL' | 'CUSTOM'>('EQUAL');
   selectedParticipants = signal<string[]>([]);
   customAmounts: Record<string, FormControl> = {};
+  selectedDate = signal<string>(new Date().toISOString());
 
   isDropdownOpen = signal(false);
 
@@ -508,6 +520,7 @@ export class SplitSheetComponent implements OnInit {
           this.loadCategories();
         });
         if (split && split.id) {
+          this.selectedDate.set(split.date || split.created_at || new Date().toISOString());
           this.splitForm.patchValue({
             title: split.title,
             icon: split.icon || null,
@@ -545,6 +558,7 @@ export class SplitSheetComponent implements OnInit {
             category: '',
             paid_via: 'UPI',
           });
+          this.selectedDate.set(new Date().toISOString());
           this.selectedParticipants.set([]);
           this.customAmounts = {};
           this.splitStrategy.set('EQUAL');
@@ -670,8 +684,23 @@ export class SplitSheetComponent implements OnInit {
   isUpdated(): boolean {
     const split = this.splitService.editingSplit();
     if (!split || !split.created_at || !split.date) return false;
-    const diff = Math.abs(new Date(split.date).getTime() - new Date(split.created_at).getTime());
+    // Check if the current selected date is different from created_at
+    const diff = Math.abs(new Date(this.selectedDate()).getTime() - new Date(split.created_at).getTime());
     return diff > 5000;
+  }
+
+  getDatetimeLocal(isoString: string): string {
+    if (!isoString) return '';
+    const d = new Date(isoString);
+    const tzoffset = (new Date()).getTimezoneOffset() * 60000;
+    return new Date(d.getTime() - tzoffset).toISOString().slice(0, 16);
+  }
+
+  onDateChange(event: any) {
+    const val = event.target.value;
+    if (val) {
+      this.selectedDate.set(new Date(val).toISOString());
+    }
   }
 
   async onSubmit() {
@@ -708,7 +737,7 @@ export class SplitSheetComponent implements OnInit {
         participant_ids: participants.map((p) => p.userId),
         category: v.category || 'Others',
         paid_via: v.paid_via || 'UPI',
-        date: new Date().toISOString(),
+        date: this.selectedDate(),
       };
       await this.splitService.updateSplit(updatedSplit);
     } else {
@@ -727,7 +756,7 @@ export class SplitSheetComponent implements OnInit {
         group_id: groupId,
         category: v.category || 'Others',
         paid_via: v.paid_via || 'UPI',
-        date: new Date().toISOString(),
+        date: this.selectedDate(),
       };
       await this.splitService.addSplit(split);
     }

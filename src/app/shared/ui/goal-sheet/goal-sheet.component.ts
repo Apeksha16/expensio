@@ -107,21 +107,41 @@ import { IconService } from '../../../core/services/icon.service';
         <div class="p-6 bg-white flex-1 overflow-y-auto overscroll-none pb-6" style="scrollbar-width: none;">
           @if (goalService.editingGoal()?.id) {
             <div class="flex justify-center mb-5">
-              <span
-                class="text-[10px] font-bold tracking-wide uppercase text-goals-dark bg-goals-surface px-3 py-1 rounded-full border border-goals-primary/10"
-              >
-                @if (isUpdated()) {
-                  Updated
-                  {{
-                    $safeNavigationMigration(goalService.editingGoal()?.updated_at) | date: 'medium'
-                  }}
-                } @else {
-                  Added
-                  {{
-                    $safeNavigationMigration(goalService.editingGoal()?.created_at) | date: 'medium'
-                  }}
-                }
-              </span>
+              <div class="relative inline-flex items-center justify-center group">
+                <input 
+                  type="datetime-local" 
+                  [value]="getDatetimeLocal(selectedDate())"
+                  (change)="onDateChange($event)"
+                  class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                />
+                <span class="text-[10px] font-bold tracking-wide uppercase text-goals-dark bg-goals-surface px-3 py-1 rounded-full border border-goals-primary/10 flex items-center gap-1 group-active:scale-95 transition-transform">
+                  <svg class="w-3 h-3 text-goals-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  @if (isUpdated()) {
+                    Updated at {{ selectedDate() | date: 'medium' }}
+                  } @else {
+                    Added at {{ selectedDate() | date: 'medium' }}
+                  }
+                </span>
+              </div>
+            </div>
+          } @else {
+            <div class="flex justify-center mb-5">
+              <div class="relative inline-flex items-center justify-center group">
+                <input 
+                  type="datetime-local" 
+                  [value]="getDatetimeLocal(selectedDate())"
+                  (change)="onDateChange($event)"
+                  class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                />
+                <span class="text-[10px] font-bold tracking-wide uppercase text-goals-dark bg-goals-surface px-3 py-1 rounded-full border border-goals-primary/10 flex items-center gap-1 group-active:scale-95 transition-transform">
+                  <svg class="w-3 h-3 text-goals-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  Adding at {{ selectedDate() | date: 'medium' }}
+                </span>
+              </div>
             </div>
           }
           <form [formGroup]="goalForm" (ngSubmit)="onSubmit()" class="space-y-4 text-left">
@@ -420,6 +440,7 @@ export class GoalSheetComponent implements OnInit, AfterViewInit {
 
   isSaving = signal(false);
   isDeleting = signal(false);
+  selectedDate = signal<string>(new Date().toISOString());
   isInstallmentsOpen = signal(false);
   goalInstallments = computed(() => {
     const goalId = this.goalService.editingGoal()?.id;
@@ -452,16 +473,17 @@ export class GoalSheetComponent implements OnInit, AfterViewInit {
 
   constructor() {
     effect(() => {
-      const editing = this.goalService.editingGoal();
-      if (editing) {
+      const goal = this.goalService.editingGoal();
+      if (goal) {
+        this.selectedDate.set(goal.created_at || goal.updated_at || new Date().toISOString());
         this.goalForm.patchValue({
-          name: editing.name,
-          total_amount: editing.total_amount.toString(),
-          saved_amount: editing.saved_amount.toString(),
-          target_date: editing.target_date || this.getDefaultTargetDate(),
-          frequency: editing.frequency || 'monthly',
-          installment_date: editing.installment_date || 1,
-          icon: editing.icon,
+          name: goal.name,
+          total_amount: goal.total_amount.toString(),
+          saved_amount: goal.saved_amount.toString(),
+          target_date: goal.target_date || this.getDefaultTargetDate(),
+          frequency: goal.frequency || 'monthly',
+          installment_date: goal.installment_date || 1,
+          icon: goal.icon,
         });
       } else {
         const currentCreatedAt = new Date().toISOString();
@@ -492,9 +514,23 @@ export class GoalSheetComponent implements OnInit, AfterViewInit {
     const goal = this.goalService.editingGoal();
     if (!goal || !goal.created_at || !goal.updated_at) return false;
     const diff = Math.abs(
-      new Date(goal.updated_at).getTime() - new Date(goal.created_at).getTime(),
+      new Date(this.selectedDate()).getTime() - new Date(goal.created_at).getTime(),
     );
     return diff > 5000;
+  }
+
+  getDatetimeLocal(isoString: string): string {
+    if (!isoString) return '';
+    const d = new Date(isoString);
+    const tzoffset = (new Date()).getTimezoneOffset() * 60000;
+    return new Date(d.getTime() - tzoffset).toISOString().slice(0, 16);
+  }
+
+  onDateChange(event: any) {
+    const val = event.target.value;
+    if (val) {
+      this.selectedDate.set(new Date(val).toISOString());
+    }
   }
 
   preventE(event: KeyboardEvent) {
@@ -545,7 +581,8 @@ export class GoalSheetComponent implements OnInit, AfterViewInit {
         frequency: formValue.frequency,
         installment_date: Number(formValue.installment_date),
         icon: formValue.icon,
-        updated_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(), // We might want to keep updated_at as now, and maybe explicitly patch created_at if we modified it?
+        created_at: this.selectedDate(),
       });
 
       // If name changed, update associated transactions
@@ -561,7 +598,7 @@ export class GoalSheetComponent implements OnInit, AfterViewInit {
         frequency: formValue.frequency,
         installment_date: Number(formValue.installment_date),
         icon: formValue.icon,
-        created_at: new Date().toISOString(),
+        created_at: this.selectedDate(),
       });
     }
 

@@ -87,14 +87,37 @@ import { SafeInputDirective } from '../safe-input.directive';
         <div class="p-6 bg-white flex-1 overflow-y-auto overscroll-none pb-6" style="scrollbar-width: none;">
           @if (isEditing) {
             <div class="flex justify-center mb-5">
-              <span
-                class="text-[10px] font-bold tracking-wide uppercase text-splits-dark bg-splits-surface px-3 py-1 rounded-full border border-splits-primary/10"
-              >
-                Added
-                {{
-                  $safeNavigationMigration(splitService.editingGroup()?.created_at) | date: 'medium'
-                }}
-              </span>
+              <div class="relative inline-flex items-center justify-center group">
+                <input 
+                  type="datetime-local" 
+                  [value]="getDatetimeLocal(selectedDate())"
+                  (change)="onDateChange($event)"
+                  class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                />
+                <span class="text-[10px] font-bold tracking-wide uppercase text-splits-dark bg-splits-surface px-3 py-1 rounded-full border border-splits-primary/10 flex items-center gap-1 group-active:scale-95 transition-transform">
+                  <svg class="w-3 h-3 text-splits-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  Updated at {{ selectedDate() | date: 'medium' }}
+                </span>
+              </div>
+            </div>
+          } @else {
+            <div class="flex justify-center mb-5">
+              <div class="relative inline-flex items-center justify-center group">
+                <input 
+                  type="datetime-local" 
+                  [value]="getDatetimeLocal(selectedDate())"
+                  (change)="onDateChange($event)"
+                  class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                />
+                <span class="text-[10px] font-bold tracking-wide uppercase text-splits-dark bg-splits-surface px-3 py-1 rounded-full border border-splits-primary/10 flex items-center gap-1 group-active:scale-95 transition-transform">
+                  <svg class="w-3 h-3 text-splits-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  Adding at {{ selectedDate() | date: 'medium' }}
+                </span>
+              </div>
             </div>
           }
           @if (friendService.acceptedFriends().length > 0) {
@@ -260,6 +283,7 @@ export class GroupSheetComponent implements OnInit {
   isSaving = signal(false);
   isDeleting = signal(false);
   selectedGroupMembers = signal<string[]>([]);
+  selectedDate = signal<string>(new Date().toISOString());
 
   constructor() {
     effect(() => {
@@ -271,12 +295,14 @@ export class GroupSheetComponent implements OnInit {
           name: group.name,
         });
         this.selectedGroupMembers.set(group.members.filter((m) => m !== currentUserId));
+        this.selectedDate.set(group.created_at || new Date().toISOString());
       } else {
         this.isEditing = false;
         if (this.groupForm) {
           this.groupForm.reset();
         }
         this.selectedGroupMembers.set([]);
+        this.selectedDate.set(new Date().toISOString());
       }
     });
   }
@@ -298,6 +324,20 @@ export class GroupSheetComponent implements OnInit {
 
   isGroupMember(id: string) {
     return this.selectedGroupMembers().includes(id);
+  }
+
+  getDatetimeLocal(isoString: string): string {
+    if (!isoString) return '';
+    const d = new Date(isoString);
+    const tzoffset = (new Date()).getTimezoneOffset() * 60000;
+    return new Date(d.getTime() - tzoffset).toISOString().slice(0, 16);
+  }
+
+  onDateChange(event: any) {
+    const val = event.target.value;
+    if (val) {
+      this.selectedDate.set(new Date(val).toISOString());
+    }
   }
 
   close() {
@@ -336,13 +376,15 @@ export class GroupSheetComponent implements OnInit {
         ...this.splitService.editingGroup()!,
         name: v.name,
         members: [currentUserId, ...this.selectedGroupMembers()],
+        created_at: this.selectedDate(),
       };
       await this.splitService.updateGroup(group);
     } else {
-      const group: Omit<SplitGroup, 'id' | 'created_at'> = {
+      const group: Omit<SplitGroup, 'id'> = {
         name: v.name,
         creator_id: currentUserId,
         members: [currentUserId, ...this.selectedGroupMembers()],
+        created_at: this.selectedDate(),
       };
       await this.splitService.createGroup(group);
     }

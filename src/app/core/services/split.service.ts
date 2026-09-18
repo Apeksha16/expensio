@@ -333,7 +333,7 @@ export class SplitService {
     await this.addSplit(split);
   }
 
-  async createGroup(group: Omit<SplitGroup, 'id' | 'created_at'>) {
+  async createGroup(group: Omit<SplitGroup, 'id'>) {
     const { data, error } = await this.supabase.client
       .from('split_groups')
       .insert([group])

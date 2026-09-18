@@ -101,23 +101,41 @@ import { AutofocusDirective } from '../autofocus.directive';
         <div class="p-6 bg-white flex-1 overflow-y-auto overscroll-none pb-6" style="scrollbar-width: none;">
           @if (ledgerService.editingSubEntry()?.id) {
             <div class="flex justify-center mb-5">
-              <span
-                class="text-[10px] font-bold tracking-wide uppercase text-ledger-dark bg-ledger-surface px-3 py-1 rounded-full border border-ledger-primary/10"
-              >
-                @if (isUpdated()) {
-                  Updated
-                  {{
-                    $safeNavigationMigration(ledgerService.editingSubEntry()?.updated_at)
-                      | date: 'medium'
-                  }}
-                } @else {
-                  Added
-                  {{
-                    $safeNavigationMigration(ledgerService.editingSubEntry()?.created_at)
-                      | date: 'medium'
-                  }}
-                }
-              </span>
+              <div class="relative inline-flex items-center justify-center group">
+                <input 
+                  type="datetime-local" 
+                  [value]="getDatetimeLocal(selectedDate())"
+                  (change)="onDateChange($event)"
+                  class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                />
+                <span class="text-[10px] font-bold tracking-wide uppercase text-ledger-dark bg-ledger-surface px-3 py-1 rounded-full border border-ledger-primary/10 flex items-center gap-1 group-active:scale-95 transition-transform">
+                  <svg class="w-3 h-3 text-ledger-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  @if (isUpdated()) {
+                    Updated at {{ selectedDate() | date: 'medium' }}
+                  } @else {
+                    Added at {{ selectedDate() | date: 'medium' }}
+                  }
+                </span>
+              </div>
+            </div>
+          } @else {
+            <div class="flex justify-center mb-5">
+              <div class="relative inline-flex items-center justify-center group">
+                <input 
+                  type="datetime-local" 
+                  [value]="getDatetimeLocal(selectedDate())"
+                  (change)="onDateChange($event)"
+                  class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                />
+                <span class="text-[10px] font-bold tracking-wide uppercase text-ledger-dark bg-ledger-surface px-3 py-1 rounded-full border border-ledger-primary/10 flex items-center gap-1 group-active:scale-95 transition-transform">
+                  <svg class="w-3 h-3 text-ledger-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  Adding at {{ selectedDate() | date: 'medium' }}
+                </span>
+              </div>
             </div>
           }
 
@@ -301,6 +319,7 @@ export class LedgerSubSheetComponent implements OnInit {
   isSaving = signal(false);
   isDeleting = signal(false);
   isDatePickerOpen = false;
+  selectedDate = signal<string>(new Date().toISOString());
 
   subForm: FormGroup = this.fb.group({
     amount: ['', [Validators.required, Validators.min(1)]],
@@ -321,6 +340,7 @@ export class LedgerSubSheetComponent implements OnInit {
           purpose: editing.purpose || '',
           date: editing.date || new Date().toISOString(),
         });
+        this.selectedDate.set(editing.created_at || editing.updated_at || new Date().toISOString());
       } else if (settlement) {
         this.subForm.patchValue({
           amount: settlement.amount.toString(),
@@ -328,9 +348,11 @@ export class LedgerSubSheetComponent implements OnInit {
           purpose: 'Settled',
           date: new Date().toISOString(),
         });
+        this.selectedDate.set(new Date().toISOString());
       } else {
         const currentCreatedAt = this.subForm?.get('date')?.value || new Date().toISOString();
         this.subForm.reset({ type: 'in', purpose: '', date: currentCreatedAt });
+        this.selectedDate.set(new Date().toISOString());
       }
     });
   }
@@ -340,8 +362,22 @@ export class LedgerSubSheetComponent implements OnInit {
   isUpdated(): boolean {
     const sub = this.ledgerService.editingSubEntry();
     if (!sub || !sub.created_at || !sub.updated_at) return false;
-    const diff = Math.abs(new Date(sub.updated_at).getTime() - new Date(sub.created_at).getTime());
+    const diff = Math.abs(new Date(this.selectedDate()).getTime() - new Date(sub.created_at).getTime());
     return diff > 5000;
+  }
+
+  getDatetimeLocal(isoString: string): string {
+    if (!isoString) return '';
+    const d = new Date(isoString);
+    const tzoffset = (new Date()).getTimezoneOffset() * 60000;
+    return new Date(d.getTime() - tzoffset).toISOString().slice(0, 16);
+  }
+
+  onDateChange(event: any) {
+    const val = event.target.value;
+    if (val) {
+      this.selectedDate.set(new Date(val).toISOString());
+    }
   }
 
   preventE(event: KeyboardEvent) {
@@ -386,6 +422,7 @@ export class LedgerSubSheetComponent implements OnInit {
         type: val.type,
         purpose: val.purpose || '',
         date: val.date,
+        created_at: this.selectedDate(),
       });
     } else {
       success = await this.ledgerService.addSubEntry({
@@ -394,6 +431,7 @@ export class LedgerSubSheetComponent implements OnInit {
         type: val.type,
         purpose: val.purpose || '',
         date: val.date,
+        created_at: this.selectedDate(),
       });
     }
 

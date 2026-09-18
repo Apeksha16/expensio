@@ -266,7 +266,9 @@ export class BudgetService {
         name: budget.name,
         amount: budget.amount,
         icon_path: budget.icon_path,
+        icon: budget.icon,
         month: month,
+        created_at: budget.created_at,
         auto_rollover: budget.auto_rollover
       })
       .select()
@@ -293,7 +295,9 @@ export class BudgetService {
         name: data.name,
         amount: data.amount,
         icon_path: data.icon_path,
-        auto_rollover: data.auto_rollover
+        icon: data.icon,
+        auto_rollover: data.auto_rollover,
+        created_at: data.created_at
       })
       .eq('id', id);
 
