@@ -148,21 +148,24 @@ import { IconService } from '../../../core/services/icon.service';
             </div>
             <!-- Auto Rollover -->
             <label
-              class="flex items-center gap-3 p-3.5 bg-white border-2 border-gray-100 rounded-xl transition-all cursor-pointer w-full mt-2 shadow-sm relative group"
+              class="flex items-center gap-3 p-3.5 rounded-xl transition-all cursor-pointer w-full mt-2 shadow-sm relative group active:scale-[0.98]"
+              [ngClass]="budgetForm.get('auto_rollover')?.value ? 'bg-slate-50 border-2 ' + theme.border : 'bg-white border-2 border-slate-100'"
             >
-              <div class="relative flex items-center justify-center w-[22px] h-[22px] shrink-0">
+              <div class="relative flex items-center justify-center w-5 h-5 shrink-0 rounded-md border transition-colors"
+                [ngClass]="budgetForm.get('auto_rollover')?.value ? theme.activeBg : 'bg-white border-slate-300 text-transparent'"
+              >
                 <input
                   type="checkbox"
                   formControlName="auto_rollover"
                   class="peer sr-only"
                 />
-                <div class="absolute inset-0 rounded-full border-2 transition-all" [ngClass]="budgetForm.get('auto_rollover')?.value ? theme.activeBg : 'border-gray-200 bg-white'"></div>
-                <svg class="absolute w-3.5 h-3.5 text-white pointer-events-none opacity-0 transition-opacity drop-shadow-sm" [class.opacity-100]="budgetForm.get('auto_rollover')?.value" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3.5">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                <svg class="w-3.5 h-3.5 transition-colors" [ngClass]="budgetForm.get('auto_rollover')?.value ? 'text-white' : 'text-transparent'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
                 </svg>
               </div>
               <span
-                class="text-[11px] font-bold text-gray-700 tracking-wider uppercase select-none mt-0.5"
+                class="text-[11px] font-bold tracking-wider uppercase select-none mt-0.5"
+                [ngClass]="budgetForm.get('auto_rollover')?.value ? theme.text : 'text-gray-700'"
               >
                 Auto-add for next month
               </span>

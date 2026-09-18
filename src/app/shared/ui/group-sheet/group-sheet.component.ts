@@ -98,54 +98,80 @@ import { SafeInputDirective } from '../safe-input.directive';
             </div>
           }
           @if (friendService.acceptedFriends().length > 0) {
-            <form [formGroup]="groupForm" (ngSubmit)="onSubmit()" class="space-y-4">
+            <form [formGroup]="groupForm" (ngSubmit)="onSubmit()" class="space-y-5">
               <div class="flex flex-col gap-1.5">
-                <label class="text-[11px] font-bold text-gray-500 tracking-wider uppercase"
+                <label class="text-[11px] font-bold text-gray-500 tracking-wider uppercase ml-1"
                   >Group Name</label
                 >
-                <input
-                  [appAutofocus]="!splitService.editingGroup()?.id"
-                  appSafeInput
-                  type="text"
-                  formControlName="name"
-                  placeholder="e.g. Goa Trip"
-                  class="w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-base rounded-2xl px-4 py-3 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-400 focus:border-splits-primary focus:ring-4 focus:ring-splits-primary/15"
-                />
+                <div class="relative flex items-center">
+                  <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                  </div>
+                  <input
+                    [appAutofocus]="!splitService.editingGroup()?.id"
+                    appSafeInput
+                    type="text"
+                    formControlName="name"
+                    placeholder="e.g. Goa Trip"
+                    class="w-full bg-slate-50 border-2 border-slate-100 text-slate-900 font-bold text-base rounded-2xl pl-11 pr-4 py-3 outline-none transition-all touch-manipulation shadow-sm placeholder-slate-400 focus:border-splits-primary focus:ring-4 focus:ring-splits-primary/15 focus:bg-white"
+                  />
+                </div>
               </div>
               <div class="flex flex-col gap-1.5">
-                <label class="text-[11px] font-bold text-gray-500 tracking-wider uppercase"
+                <label class="text-[11px] font-bold text-gray-500 tracking-wider uppercase ml-1"
                   >Group Members</label
                 >
                 <div class="flex flex-col gap-2">
                   <label
-                    class="flex items-center gap-3 p-3 bg-gray-100 border border-gray-200 rounded-xl cursor-not-allowed opacity-80"
+                    class="flex items-center gap-3 p-3 bg-slate-50 border border-slate-100 rounded-xl cursor-not-allowed opacity-70"
                   >
-                    <input
-                      type="checkbox"
-                      checked
-                      disabled
-                      class="w-5 h-5 accent-splits-primary border border-gray-300 rounded-md"
-                    />
-                    <span class="font-bold text-sm text-gray-600">Me (Admin)</span>
+                    <div class="w-5 h-5 rounded-md border bg-slate-300 border-slate-300 text-white flex items-center justify-center">
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <div
+                      class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center font-bold text-sm text-slate-500 shrink-0"
+                    >
+                      Me
+                    </div>
+                    <span class="font-bold text-sm text-slate-600">Me (Admin)</span>
                   </label>
                   @for (friend of friendService.acceptedFriends(); track friend.id) {
-                    <label
-                      class="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-xl cursor-pointer transition-all shadow-sm active:scale-95"
+                    <div
+                      (click)="toggleGroupMember(friend.profile.id)"
+                      class="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all shadow-sm active:scale-[0.98]"
+                      [ngClass]="isGroupMember(friend.profile.id) ? 'bg-splits-primary/5 border-2 border-splits-primary/30' : 'bg-white border-2 border-slate-100'"
                     >
-                      <input
-                        type="checkbox"
-                        (change)="toggleGroupMember(friend.profile.id)"
-                        [checked]="isGroupMember(friend.profile.id)"
-                        class="w-5 h-5 accent-splits-primary border border-gray-300 rounded-md"
-                      />
-                      <span class="font-bold text-sm text-gray-900 truncate">{{
-                        friend.profile.name.split(' ')[0]
-                      }}</span>
-                    </label>
+                      <div 
+                        class="w-5 h-5 rounded-md border flex items-center justify-center transition-colors"
+                        [ngClass]="isGroupMember(friend.profile.id) ? 'bg-splits-primary border-splits-primary text-white' : 'bg-white border-slate-300 text-transparent'"
+                      >
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                      <div
+                        class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0 transition-colors"
+                        [ngClass]="isGroupMember(friend.profile.id) ? 'bg-splits-primary text-white' : 'bg-slate-100 text-slate-600'"
+                      >
+                        {{ friend.profile.name.charAt(0) }}
+                      </div>
+                      <div class="flex flex-col flex-1 min-w-0">
+                        <span class="font-bold text-sm text-gray-900 truncate">{{
+                          friend.profile.name
+                        }}</span>
+                        <span class="text-[10px] font-semibold text-gray-500 truncate">{{
+                          '@' + friend.profile.username
+                        }}</span>
+                      </div>
+                    </div>
                   }
                 </div>
               </div>
-              <div class="mt-6 flex gap-3">
+              <div class="mt-6 flex gap-3 pt-2">
                 <button
                   type="button"
                   (click)="close()"
@@ -185,10 +211,10 @@ import { SafeInputDirective } from '../safe-input.directive';
               </div>
             </form>
           } @else {
-            <div class="flex flex-col items-center justify-center py-8 text-center gap-4">
-              <div class="w-16 h-16 rounded-full bg-splits-surface border border-splits-primary/20 flex items-center justify-center shadow-inner">
+            <div class="flex flex-col items-center justify-center py-10 text-center gap-4">
+              <div class="w-20 h-20 rounded-full bg-splits-surface border-4 border-white shadow-sm flex items-center justify-center">
                 <svg
-                  class="w-8 h-8 text-splits-primary"
+                  class="w-10 h-10 text-splits-primary"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -202,17 +228,17 @@ import { SafeInputDirective } from '../safe-input.directive';
                 </svg>
               </div>
               <div>
-                <h3 class="text-lg font-bold text-gray-900 mb-1">No friends yet</h3>
-                <p class="text-sm text-gray-500">
-                  You need to add friends before you can create a group.
+                <h3 class="text-xl font-extrabold text-gray-900 mb-1">No friends yet</h3>
+                <p class="text-sm font-medium text-gray-500 max-w-[240px] mx-auto">
+                  You need to add friends before you can create a group to share expenses with.
                 </p>
               </div>
               <button
                 type="button"
                 (click)="close()"
-                class="mt-4 font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-6 py-4 text-sm bg-splits-primary text-white shadow-md shadow-splits-primary/30"
+                class="mt-6 font-bold rounded-2xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-8 py-3 text-sm bg-splits-primary text-white shadow-md shadow-splits-primary/30"
               >
-                Okay
+                Got it
               </button>
             </div>
           }

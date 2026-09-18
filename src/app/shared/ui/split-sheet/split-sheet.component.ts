@@ -235,34 +235,39 @@ import { SafeInputDirective } from '../safe-input.directive';
               </div>
               <div class="flex flex-col gap-2 mt-4">
                 <label class="text-[13px] font-extrabold text-gray-800">Split with</label>
-                <div class="flex flex-col gap-3">
+                <div class="flex flex-col gap-2">
                   @for (friend of friendService.acceptedFriends(); track friend.id) {
-                    <label
+                    <div
                       (click)="toggleParticipant(friend.profile.id)"
-                      class="active:scale-[0.98] transition-all duration-200 flex items-center justify-between cursor-pointer"
+                      class="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all shadow-sm active:scale-[0.98]"
+                      [ngClass]="isParticipant(friend.profile.id) ? 'bg-splits-primary/5 border-2 border-splits-primary/30' : 'bg-white border-2 border-slate-100'"
                     >
-                      <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden shrink-0">
-                          <img
-                            [src]="authService.getAvatarUrl(friend.profile.avatarId)"
-                            alt="Avatar" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-                          <div style="display: none;" class="w-full h-full bg-indigo-100 text-splits-primary items-center justify-center font-bold text-sm uppercase">
-                            {{ friend.profile.name.charAt(0) }}
-                          </div>
-                        </div>
-                        <span class="text-sm font-bold text-gray-900">{{ friend.profile.name.split(' ')[0] }}</span>
+                      <div 
+                        class="w-5 h-5 rounded-md border flex items-center justify-center transition-colors shrink-0"
+                        [ngClass]="isParticipant(friend.profile.id) ? 'bg-splits-primary border-splits-primary text-white' : 'bg-white border-slate-300 text-transparent'"
+                      >
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                        </svg>
                       </div>
-                      
-                      <!-- Curved Checkbox -->
-                      <div class="w-6 h-6 rounded-full border-[2px] flex items-center justify-center transition-all"
-                           [ngClass]="isParticipant(friend.profile.id) ? 'bg-splits-primary border-splits-primary' : 'border-gray-300'">
-                        @if (isParticipant(friend.profile.id)) {
-                          <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
-                          </svg>
-                        }
+                      <div
+                        class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0 transition-colors overflow-hidden"
+                        [ngClass]="isParticipant(friend.profile.id) ? 'bg-splits-primary text-white' : 'bg-slate-100 text-slate-600'"
+                      >
+                         <img [src]="authService.getAvatarUrl(friend.profile.avatarId)" alt="Avatar" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                         <div style="display: none;" class="w-full h-full items-center justify-center font-bold text-sm uppercase">
+                           {{ friend.profile.name.charAt(0) }}
+                         </div>
                       </div>
-                    </label>
+                      <div class="flex flex-col flex-1 min-w-0">
+                        <span class="font-bold text-sm text-gray-900 truncate">{{
+                          friend.profile.name
+                        }}</span>
+                        <span class="text-[10px] font-semibold text-gray-500 truncate">{{
+                          '@' + friend.profile.username
+                        }}</span>
+                      </div>
+                    </div>
                   }
                 </div>
               </div>

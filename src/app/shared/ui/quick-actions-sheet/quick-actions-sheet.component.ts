@@ -76,8 +76,10 @@ interface SelectableNavItem {
             @for (item of items(); track item.navItem.id) {
               <div
                 cdkDrag
-                class="flex items-center gap-3 p-3 bg-white border border-gray-200 cursor-grab shadow-sm transition-all rounded-xl select-none touch-manipulation active:cursor-grabbing"
+                (click)="toggleSelection(item)"
+                class="flex items-center gap-3 p-3 cursor-grab shadow-sm transition-all rounded-xl select-none touch-manipulation active:scale-[0.98]"
                 [class.opacity-50]="!item.selected && selectedCount() >= 4"
+                [ngClass]="item.selected ? 'bg-slate-900/5 border-2 border-slate-900/30' : 'bg-white border-2 border-slate-100'"
               >
                 <!-- Custom Drag Preview (shown while dragging) -->
                 <div
@@ -105,12 +107,11 @@ interface SelectableNavItem {
                   <div class="flex-1 font-bold text-sm text-gray-900 truncate">
                     {{ item.navItem.name }}
                   </div>
-                  <input
-                    type="checkbox"
-                    [checked]="item.selected"
-                    class="w-5 h-5 accent-slate-900 border border-gray-300 rounded-md focus:ring-0 mr-2"
-                    readonly
-                  />
+                  <div class="w-5 h-5 rounded-md border flex items-center justify-center transition-colors mr-2" [ngClass]="item.selected ? 'bg-slate-900 border-slate-900 text-white' : 'bg-white border-slate-300 text-transparent'">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
                 </div>
 
                 <!-- Drag Handle SVG for Visual Indicator -->
@@ -141,13 +142,11 @@ interface SelectableNavItem {
                 </div>
 
                 <!-- Checkbox -->
-                <input
-                  type="checkbox"
-                  [checked]="item.selected"
-                  [disabled]="!item.selected && selectedCount() >= 4"
-                  (change)="toggleSelection(item)"
-                  class="w-5 h-5 accent-slate-900 border border-gray-300 rounded-md focus:ring-0 mr-2 cursor-pointer"
-                />
+                <div class="w-5 h-5 rounded-md border flex items-center justify-center transition-colors mr-2" [ngClass]="item.selected ? 'bg-slate-900 border-slate-900 text-white' : 'bg-white border-slate-300 text-transparent'">
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
               </div>
             }
           </div>
