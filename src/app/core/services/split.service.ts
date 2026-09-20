@@ -4,6 +4,7 @@ import { AuthService } from './auth.service';
 import { SupabaseService } from './supabase.service';
 import { ToastService } from './toast.service';
 import { ExpenseService } from './expense.service';
+import { MonthPickerService } from './month-picker.service';
 
 export interface SplitParticipant {
   userId: string;
@@ -24,6 +25,7 @@ export interface SplitExpense {
   date: string;
   parent_expense_id?: string | null;
   paid_via?: 'Cash' | 'Credit Card' | 'UPI';
+  created_by?: string;
   created_at: string;
 }
 
@@ -45,15 +47,23 @@ export class SplitService {
   private supabase = inject(SupabaseService);
   private toastService = inject(ToastService);
   private expenseService = inject(ExpenseService);
+  private monthPicker = inject(MonthPickerService);
 
   // Sheet state
   readonly isSheetOpen = signal<boolean>(false);
   readonly isGroupSheetOpen = signal<boolean>(false);
+  readonly isGroupSummarySheetOpen = signal<boolean>(false);
+  readonly isSplitsSummarySheetOpen = signal<boolean>(false);
+  readonly splitsSummaryMode = signal<'get' | 'owe'>('get');
   readonly editingGroup = signal<SplitGroup | null>(null);
   readonly editingSplit = signal<SplitExpense | null>(null);
   
   readonly activeTab = signal<'expenses' | 'groups'>('expenses');
   readonly activeGroupId = signal<string | null>(null);
+  readonly activeMonth = signal<string>('');
+  
+  readonly isLoadingData = signal<boolean>(false);
+  readonly hasAnyExpensesAcrossMonths = signal<boolean>(false);
 
   // Data state
   readonly splits = signal<SplitExpense[]>([]);
@@ -72,6 +82,23 @@ export class SplitService {
   private dummyInput: HTMLInputElement | null = null;
 
   constructor() {
+    this.activeMonth.set(this.getCurrentMonthString());
+    
+    // Subscribe to month picker changes
+    this.monthPicker.monthSelected$.subscribe(month => {
+      this.activeMonth.set(month);
+      this.triggerLoadData(false);
+    });
+
+    effect(() => {
+      const groupId = this.activeGroupId();
+      if (groupId) {
+        this.checkIfGroupHasExpenses(groupId);
+      } else {
+        this.hasAnyExpensesAcrossMonths.set(false);
+      }
+    }, { allowSignalWrites: true });
+
     if (isPlatformBrowser(this.platformId)) {
       // Create a dummy input to synchronously focus on iOS to bring up the keyboard
       this.dummyInput = document.createElement('input');
@@ -110,6 +137,8 @@ export class SplitService {
     const user = this.authService.userProfile();
     if (!user) return;
 
+    this.isLoadingData.set(true);
+
     // Load Groups
     const { data: groupsData } = await this.supabase.client
       .from('split_groups')
@@ -118,48 +147,78 @@ export class SplitService {
     if (groupsData) this.groups.set(groupsData);
 
     // Load Expenses
-    const { data: expensesData } = await this.supabase.client
+    let expensesQuery = this.supabase.client
       .from('split_expenses')
       .select('*')
-      .order('date', { ascending: false })
-      .limit(50);
+      .order('date', { ascending: false });
+
+    const month = this.activeMonth();
+    if (month) {
+      const start = `${month}-01T00:00:00.000Z`;
+      const end = new Date(new Date(start).setMonth(new Date(start).getMonth() + 1)).toISOString();
+      expensesQuery = expensesQuery.gte('date', start).lt('date', end);
+    } else {
+      expensesQuery = expensesQuery.limit(50);
+    }
+
+    const { data: expensesData } = await expensesQuery;
       
     let allSplits = expensesData || [];
 
     const currentGroupId = this.activeGroupId();
-    if (currentGroupId) {
-       const { data: groupData } = await this.supabase.client
+    if (currentGroupId && !month) {
+       let groupQuery = this.supabase.client
           .from('split_expenses')
           .select('*')
           .eq('group_id', currentGroupId)
           .order('date', { ascending: false });
           
-       if (groupData) {
-          const map = new Map(allSplits.map(s => [s.id, s]));
-          groupData.forEach(s => map.set(s.id, s));
-          allSplits = Array.from(map.values()).sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+       if (month) {
+          const start = `${month}-01T00:00:00.000Z`;
+          const end = new Date(new Date(start).setMonth(new Date(start).getMonth() + 1)).toISOString();
+          groupQuery = groupQuery.gte('date', start).lt('date', end);
        }
+          
+       const { data: groupData } = await groupQuery;
+          
+       if (groupData) {
+          const existingIds = new Set(allSplits.map(s => s.id));
+          const missingGroupSplits = groupData.filter(s => !existingIds.has(s.id));
+          allSplits = [...allSplits, ...missingGroupSplits].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+       }
+
+       this.checkIfGroupHasExpenses(currentGroupId);
     }
     
     this.splits.set(allSplits);
 
-    // Call RPC for global balances
-    const { data: rpcData, error: rpcError } = await this.supabase.client.rpc('calculate_user_balances', { p_user_id: user.id });
-    if (!rpcError && rpcData) {
-      const balances: Record<string, number> = {};
-      rpcData.forEach((row: any) => {
-        balances[row.partner_id] = row.net_balance;
-      });
-      this.globalRpcBalances.set(balances);
-      this.rpcFailed.set(false);
-    } else {
-      this.rpcFailed.set(true);
+    // Call RPC for global balances only if needed (realtime update or first load)
+    if (syncExpenses || Object.keys(this.globalRpcBalances()).length === 0) {
+      const { data: rpcData, error: rpcError } = await this.supabase.client.rpc('calculate_user_balances', { target_user_id: user.id });
+      if (!rpcError && rpcData) {
+        const balances: Record<string, number> = {};
+        rpcData.forEach((row: any) => {
+          balances[row.partner_id] = row.net_balance;
+        });
+        this.globalRpcBalances.set(balances);
+        this.rpcFailed.set(false);
+      } else {
+        this.rpcFailed.set(true);
+      }
     }
-
     // Sync expense service so splits show up immediately in expenses list
     if (syncExpenses) {
       this.expenseService.refreshExpenses();
     }
+    
+    this.isLoadingData.set(false);
+  }
+
+  getCurrentMonthString(): string {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = (d.getMonth() + 1).toString().padStart(2, '0');
+    return `${y}-${m}`;
   }
 
   triggerLoadData(syncExpenses: boolean = false) {
@@ -192,7 +251,11 @@ export class SplitService {
   // --- Actions ---
 
   async addSplit(split: Omit<SplitExpense, 'id' | 'created_at'>) {
-    const splitData = { ...split, paid_via: split.paid_via || 'UPI' };
+    const splitData = { 
+      ...split, 
+      paid_via: split.paid_via || 'UPI',
+      created_by: split.created_by || this.authService.userProfile()?.id
+    };
     const { data, error } = await this.supabase.client
       .from('split_expenses')
       .insert([splitData])
@@ -211,6 +274,19 @@ export class SplitService {
         this.toastService.showSuccess('Split expense created successfully.');
       }
       this.loadData(true);
+    }
+  }
+
+  private async checkIfGroupHasExpenses(groupId: string) {
+    const { count, error } = await this.supabase.client
+      .from('split_expenses')
+      .select('*', { count: 'exact', head: true })
+      .eq('group_id', groupId);
+      
+    if (!error && count !== null) {
+      this.hasAnyExpensesAcrossMonths.set(count > 0);
+    } else {
+      this.hasAnyExpensesAcrossMonths.set(false);
     }
   }
 
@@ -258,18 +334,7 @@ export class SplitService {
     }
     const { data, error } = await this.supabase.client
       .from('split_expenses')
-      .update({
-        title: split.title,
-        total_amount: split.total_amount,
-        payer_id: split.payer_id,
-        participants: split.participants,
-        participant_ids: split.participant_ids,
-        category: split.category,
-        group_id: split.group_id,
-        date: split.date,
-        paid_via: split.paid_via || 'UPI'
-      })
-      .eq('id', split.id)
+      .upsert(split)
       .select()
       .single();
 
@@ -380,8 +445,7 @@ export class SplitService {
 
     const { data, error } = await this.supabase.client
       .from('split_groups')
-      .update({ name: group.name, members: group.members })
-      .eq('id', group.id)
+      .upsert(group)
       .select()
       .single();
 
@@ -395,10 +459,12 @@ export class SplitService {
   }
 
   async archiveGroup(groupId: string, archive = true) {
+    const group = this.groups().find(g => g.id === groupId);
+    if (!group) return;
+
     const { error } = await this.supabase.client
       .from('split_groups')
-      .update({ is_archived: archive })
-      .eq('id', groupId);
+      .upsert({ ...group, is_archived: archive });
 
     if (error) {
       this.toastService.showError(`Couldn't ${archive ? 'archive' : 'restore'} group.`);
@@ -538,12 +604,14 @@ export class SplitService {
 
   // Calculate simplified balances for dashboard and group summaries.
   simplifiedBalances = computed(() => {
-    if (this.rpcFailed()) {
-      const currentUser = this.authService.userProfile()?.id;
-      if (!currentUser) return {};
-      return this.simplifyDebts(this.splits(), currentUser);
+    // Always use global balances if the RPC succeeded so that totals reflect all time
+    if (!this.rpcFailed()) {
+      return this.globalRpcBalances();
     }
-    return this.globalRpcBalances();
+    // Fallback to local calculation (only includes current month's splits)
+    const currentUser = this.authService.userProfile()?.id;
+    if (!currentUser) return {};
+    return this.simplifyDebts(this.splits(), currentUser);
   });
 
   totalOwedToYou = computed(() => {
@@ -566,7 +634,7 @@ export class SplitService {
   
   private prepareKeyboard() {
     if (this.dummyInput) {
-      this.dummyInput.focus();
+      this.dummyInput.focus({ preventScroll: true });
     }
   }
 

@@ -7,23 +7,19 @@
 </main>
 
 @if (!appInitService.isReady()) {
-  <div @fadeOut class="fixed inset-0 z-[10000] bg-[#FAFAFA] flex flex-col justify-end items-center pointer-events-none font-sans pb-[12vh]">
+  <div @fadeOut class="fixed inset-0 z-[10000] bg-white flex flex-col justify-center items-center pointer-events-none font-sans">
     
     <!-- Content container -->
-    <div class="flex flex-col items-center">
+    <div class="flex flex-col items-center justify-center -mt-16">
       
-      <!-- Premium Logo Container -->
-      <div class="relative w-24 h-24 mb-8 rounded-[28px] bg-white shadow-[0_16px_40px_rgba(79,70,229,0.15)] flex items-center justify-center border border-indigo-50/50">
-        <!-- Subtle inner glow -->
-        <div class="absolute inset-0 rounded-[28px] shadow-inner bg-gradient-to-tr from-indigo-50/50 to-transparent"></div>
-        <img src="expensio-logo-2.png" alt="Expensio Logo" width="80" height="80" class="w-[80%] h-[80%] object-contain drop-shadow-sm z-10" />
-      </div>
+      <!-- Logo -->
+      <img src="expensio-logo-2.png" alt="Expensio Logo" width="110" height="110" class="w-[110px] h-[110px] object-contain drop-shadow-xl animate-[native-pop_0.7s_cubic-bezier(0.175,0.885,0.32,1.275)_both] mb-6" />
       
-      <!-- Premium Typography -->
-      <h1 class="text-[40px] font-[800] text-slate-900 tracking-tight mb-2">
+      <!-- Brand Typography -->
+      <h1 class="text-5xl font-[900] text-slate-900 tracking-tighter mb-2 animate-[title-slide-up_0.5s_ease-out_0.3s_both]">
         Expensio
       </h1>
-      <p class="text-indigo-600/80 font-bold text-[12px] tracking-[0.2em] uppercase">
+      <p class="text-blue-600 font-bold text-xs tracking-[0.3em] uppercase animate-[title-slide-up_0.5s_ease-out_0.45s_both]">
         Expenses made simple
       </p>
       

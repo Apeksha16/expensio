@@ -16,10 +16,10 @@ import { UserProfile } from '../../core/services/auth.service';
   template: `
     <div class="h-full bg-white flex flex-col relative w-full overflow-hidden">
       <!-- Fixed Header Container -->
-      <div class="px-4 pt-4 shrink-0 flex flex-col gap-4">
+      <div class="px-5 pt-5 pb-2 shrink-0 flex flex-col gap-4">
         @if (isInitialLoading()) {
           <!-- Top Summary Box Shimmer -->
-          <div class="bg-slate-50 border border-slate-100 rounded-2xl h-[100px] animate-pulse"></div>
+          <div class="bg-friends-primary/5 border border-friends-primary/20 rounded-[24px] h-[160px] animate-pulse"></div>
         } @else {
           @if (
             friendService.acceptedFriends().length > 0 ||
@@ -27,18 +27,25 @@ import { UserProfile } from '../../core/services/auth.service';
             friendService.outgoingRequests().length > 0
           ) {
             <!-- Summary Card -->
-            <div class="flex gap-4 w-full">
-              <div class="flex-1 bg-[#F4F2FF] rounded-3xl p-5 flex flex-col items-start relative overflow-hidden shadow-sm">
-                <div class="w-10 h-10 rounded-full bg-[#E8E4FF] flex items-center justify-center mb-4">
-                  <svg class="w-5 h-5 text-friends-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                  </svg>
+            <div class="bg-friends-primary/5 text-slate-800 p-6 rounded-[24px] shadow-sm border border-friends-primary/20 transition-all duration-300 relative overflow-hidden">
+              <div class="relative z-10 flex flex-col gap-4">
+                <div class="flex flex-col gap-1 mt-1">
+                  <div class="flex items-center justify-between mb-1">
+                    <span class="font-bold text-base text-slate-800">Total Friends</span>
+                    <span class="text-xs font-bold uppercase px-3 py-1 bg-friends-primary/10 text-friends-primary rounded-full flex items-center gap-1.5">
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                      </svg>
+                      Network
+                    </span>
+                  </div>
+                  <div class="flex flex-col items-center justify-center w-full mt-2 mb-2">
+                    <span class="font-bold tracking-tight text-slate-900 leading-none text-center truncate text-[48px] mb-2">
+                      {{ friendService.acceptedFriends().length }}
+                    </span>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Connected Accounts</span>
+                  </div>
                 </div>
-                <span class="text-xs font-bold text-gray-500 mb-1">Total Friends</span>
-                <span class="text-2xl font-extrabold text-gray-900 tracking-tight">
-                  {{ friendService.acceptedFriends().length }}
-                </span>
-                <span class="text-xs font-bold text-gray-500 mt-1">connected to your account</span>
               </div>
             </div>
           }

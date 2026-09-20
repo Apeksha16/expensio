@@ -67,7 +67,7 @@ interface SelectableNavItem {
           <h2 class="text-lg font-bold tracking-wide">Configure Quick Actions</h2>
         </div>
 
-        <div class="p-6 flex flex-col gap-6 overflow-y-auto overscroll-none bg-white flex-1 overflow-y-auto overscroll-none pb-6" style="scrollbar-width: none;">
+        <div class="p-6 flex flex-col gap-6 overflow-y-auto scroll-smooth overscroll-none bg-white flex-1 overflow-y-auto scroll-smooth overscroll-none pb-6" style="scrollbar-width: none;">
           <p class="text-[11px] font-bold text-gray-500 tracking-wider uppercase">
             Select up to 4 items. Drag to reorder.
           </p>

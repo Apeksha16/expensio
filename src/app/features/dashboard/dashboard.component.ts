@@ -412,11 +412,11 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
             </div>
 
             @if (hasFriends()) {
-              <div class="bg-splits-primary/5 p-6 rounded-[24px] border border-splits-primary/20 shadow-[0_2px_10px_rgba(0,0,0,0.02)] flex flex-col gap-6 relative">
+              <div class="bg-slate-100 p-6 rounded-[24px] border border-slate-200 shadow-[0_2px_10px_rgba(0,0,0,0.02)] flex flex-col gap-6 relative">
                 <!-- Totals Header -->
                 <div class="flex justify-between items-center relative">
                   <!-- Left Column -->
-                  <div class="flex flex-col flex-1 pr-4 relative">
+                  <button (click)="openSummarySheet('get')" class="flex flex-col flex-1 pr-4 relative text-left outline-none cursor-pointer active:opacity-70 transition-opacity">
                     <span class="text-xs font-bold uppercase tracking-widest text-emerald-500 mb-2">You Are Owed</span>
                     <div class="flex items-center justify-between gap-2">
                       <div class="min-w-0 flex-1">
@@ -434,11 +434,11 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
                       </div>
                     </div>
                     <!-- Vertical Divider Line -->
-                    <div class="absolute right-0 top-0 bottom-0 w-px bg-slate-50"></div>
-                  </div>
+                    <div class="absolute right-0 top-0 bottom-0 w-px bg-slate-200"></div>
+                  </button>
 
                   <!-- Right Column -->
-                  <div class="flex flex-col flex-1 pl-4">
+                  <button (click)="openSummarySheet('owe')" class="flex flex-col flex-1 pl-4 text-left outline-none cursor-pointer active:opacity-70 transition-opacity">
                     <span class="text-xs font-bold uppercase tracking-widest text-red-500 mb-2">You Owe</span>
                     <div class="flex items-center justify-between gap-2">
                       <div class="min-w-0 flex-1">
@@ -455,7 +455,7 @@ import { AccountTrackerService } from '../../core/services/account-tracker.servi
                         </svg>
                       </div>
                     </div>
-                  </div>
+                  </button>
                 </div>
 
                 <!-- Top Balances List or Settle Button -->
@@ -947,6 +947,15 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
     if (this.authService.userProfile().maskValues) {
       this.isMasked.update((v) => !v);
     }
+  }
+
+  quickAddGoal() {
+    this.goalService.openBottomSheet();
+  }
+
+  openSummarySheet(mode: 'get' | 'owe') {
+    this.splitService.splitsSummaryMode.set(mode);
+    this.splitService.isSplitsSummarySheetOpen.set(true);
   }
 
   openAddExpense() {

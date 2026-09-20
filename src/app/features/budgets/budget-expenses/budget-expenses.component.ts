@@ -30,61 +30,69 @@ import { AuthService } from '../../../core/services/auth.service';
     <div class="h-full bg-white flex flex-col relative w-full overflow-hidden">
       <!-- Content Area -->
       <main class="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar px-4 pb-28 pt-4 flex flex-col gap-3">
-        <!-- Top Summary Box -->
-        <div class="bg-budget-primary/5 text-slate-800 p-6 rounded-[24px] shadow-sm border border-budget-primary/20 transition-all duration-300 relative overflow-hidden mb-2">
-          <div class="relative z-10 flex flex-col gap-4">
-            <!-- Header & Amount -->
-            <div class="flex flex-col gap-1 mt-1">
-              <div class="flex items-center justify-between mb-1">
-                <span class="font-bold text-base text-slate-800">Total Spent</span>
-                @if (!isVirtualOthers()) {
-                  <span class="text-xs font-bold uppercase px-3 py-1 bg-budget-primary/10 text-budget-primary rounded-full">
-                    Limit: {{ budgetAmount() | currency:'INR':'₹':'1.0-0' }}
-                  </span>
-                } @else {
-                  <span class="text-xs font-bold uppercase px-3 py-1 bg-budget-primary/10 text-budget-primary rounded-full">
-                    Unbudgeted
-                  </span>
-                }
-              </div>
-              <div class="flex items-baseline justify-center w-full mt-4">
+            <!-- Top Summary Box -->
+            @if (isVirtualOthers()) {
+              <div class="bg-budget-primary/5 p-6 rounded-[24px] shadow-sm border border-budget-primary/20 mb-2 text-center">
+                <span class="inline-block px-3 py-1 mb-3 text-[11px] font-bold uppercase tracking-wider bg-budget-primary/10 text-budget-primary rounded-full">
+                  Unbudgeted
+                </span>
+                <h3 class="text-slate-500 text-sm font-medium mb-1">Total Spent</h3>
                 @if (budgetService.isLoading()) {
-                  <div class="h-10 w-48 bg-slate-200 animate-pulse rounded-lg"></div>
+                  <div class="h-10 w-32 bg-slate-200 animate-pulse rounded-lg mx-auto"></div>
                 } @else {
-                  <span class="font-bold tracking-tight text-slate-900 leading-none text-center truncate text-[36px]">
+                  <div class="text-[40px] font-bold text-slate-900 leading-none tracking-tight">
                     {{ consumed() | currency:'INR':'₹':'1.0-0' }}
-                  </span>
+                  </div>
                 }
               </div>
-            </div>
+            } @else {
+              <div class="bg-budget-primary/5 text-slate-800 p-6 rounded-[24px] shadow-sm border border-budget-primary/20 transition-all duration-300 relative overflow-hidden mb-2">
+                <div class="relative z-10 flex flex-col gap-4">
+                  <!-- Standard Header & Amount -->
+                  <div class="flex flex-col gap-1 mt-1">
+                    <div class="flex items-center justify-between mb-1">
+                      <span class="font-bold text-base text-slate-800">Total Spent</span>
+                      <span class="text-xs font-bold uppercase px-3 py-1 bg-budget-primary/10 text-budget-primary rounded-full">
+                        Limit: {{ budgetAmount() | currency:'INR':'₹':'1.0-0' }}
+                      </span>
+                    </div>
+                    <div class="flex items-baseline justify-center w-full mt-4">
+                      @if (budgetService.isLoading()) {
+                        <div class="h-10 w-48 bg-slate-200 animate-pulse rounded-lg"></div>
+                      } @else {
+                        <span class="font-bold tracking-tight text-slate-900 leading-none text-center truncate text-[36px]">
+                          {{ consumed() | currency:'INR':'₹':'1.0-0' }}
+                        </span>
+                      }
+                    </div>
+                  </div>
 
-            <!-- Progress Bar -->
-            @if (!isVirtualOthers()) {
-              <div class="flex flex-col gap-2 mt-4 pt-4 border-t border-budget-primary/10">
-                <div class="flex justify-between items-center mb-1">
-                   <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Consumed</p>
-                   <span class="text-xs font-bold text-slate-800">
-                     {{ getPercent() | number:'1.0-0' }}%
-                   </span>
-                </div>
-                <div class="h-2.5 w-full bg-budget-primary/10 rounded-full overflow-hidden flex relative z-10 shadow-inner">
-                  <div
-                    class="h-full transition-all duration-1000 ease-out rounded-full"
-                    [style.width.%]="!budgetService.isLoading() && animateBars() ? getPercent() : 0"
-                    [ngClass]="getColorClass()"
-                  ></div>
-                </div>
-                <div class="flex justify-between items-center text-[10.5px] font-semibold mt-2">
-                  @if (budgetAmount() - consumed() < 0) {
-                    <span class="text-red-500">Overspent: {{ (consumed() - budgetAmount()) | currency:'INR':'₹':'1.0-0' }}</span>
-                  } @else {
-                    <span class="text-slate-600">Left: {{ (budgetAmount() - consumed()) | currency:'INR':'₹':'1.0-0' }}</span>
-                  }
+                  <!-- Progress Bar -->
+                  <div class="flex flex-col gap-2 mt-4 pt-4 border-t border-budget-primary/10">
+                    <div class="flex justify-between items-center mb-1">
+                       <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Consumed</p>
+                       <span class="text-xs font-bold text-slate-800">
+                         {{ getPercent() | number:'1.0-0' }}%
+                       </span>
+                    </div>
+                    <div class="h-2.5 w-full bg-budget-primary/10 rounded-full overflow-hidden flex relative z-10 shadow-inner">
+                      <div
+                        class="h-full transition-all duration-1000 ease-out rounded-full"
+                        [style.width.%]="!budgetService.isLoading() && animateBars() ? getPercent() : 0"
+                        [ngClass]="getColorClass()"
+                      ></div>
+                    </div>
+                    <div class="flex justify-between items-center text-[10.5px] font-semibold mt-2">
+                      @if (budgetAmount() - consumed() < 0) {
+                        <span class="text-red-500">Overspent: {{ (consumed() - budgetAmount()) | currency:'INR':'₹':'1.0-0' }}</span>
+                      } @else {
+                        <span class="text-slate-600">Left: {{ (budgetAmount() - consumed()) | currency:'INR':'₹':'1.0-0' }}</span>
+                      }
+                    </div>
+                  </div>
                 </div>
               </div>
             }
-          </div>
-        </div>
 
         @if (expenseService.isLoading() || budgetService.isLoading()) {
           @for (i of [1, 2, 3, 4, 5]; track i) {

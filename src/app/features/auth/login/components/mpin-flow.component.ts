@@ -34,24 +34,29 @@ export type MpinStep = 'login' | 'forgot' | 'reset' | 'set-mpin' | 'confirm-mpin
   changeDetection: ChangeDetectionStrategy.Default,
   template: `
     <app-auth-layout [isMpinScreen]="true" [showBackButton]="true">
-      <div class="w-full flex flex-col h-full items-center mt-4">
-        <div class="w-20 h-20 rounded-full bg-indigo-50 flex items-center justify-center mb-6">
-          <app-icon [icon]="LockPasswordIcon" size="40" class="text-indigo-600"></app-icon>
+      <div class="w-full flex flex-col h-full pb-2">
+        
+        <!-- Top Branding Area -->
+        <div class="flex-1 flex flex-col items-center justify-center pb-10 animate-[title-slide-up_0.5s_ease-out_both]">
+          <div class="w-24 h-24 bg-white rounded-[28px] shadow-sm flex items-center justify-center mb-6 border border-slate-100 shrink-0">
+            <div class="w-16 h-16 bg-violet-50 rounded-full flex items-center justify-center text-violet-600">
+              <app-icon [icon]="LockPasswordIcon" size="32"></app-icon>
+            </div>
+          </div>
+          <h1 class="text-3xl font-[900] text-slate-900 tracking-tight mb-2 text-center" [innerHTML]="heading()"></h1>
+          <p class="text-slate-500 font-medium text-sm text-center leading-relaxed max-w-[280px]" [innerHTML]="subheading()"></p>
         </div>
 
-        <div class="flex flex-col items-center">
-          <h3 class="text-black font-semibold text-center text-2xl mb-3" [innerHTML]="heading()"></h3>
-          <p class="text-gray-500 text-center font-medium text-sm leading-relaxed max-w-[280px]" [innerHTML]="subheading()"></p>
-        </div>
-
-        <div class="flex flex-col w-full items-center mt-8">
-          <div class="w-full flex flex-col items-center">
+        <!-- Bottom Action Card -->
+        <div class="w-full bg-white p-6 sm:p-8 rounded-[32px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 flex flex-col items-center animate-[title-slide-up_0.6s_ease-out_0.1s_both]">
+          
+          <div class="w-full flex flex-col items-center mb-6">
             <app-pin-input
               [ngModel]="step() === 'reset' && resetStage() === 'confirm' ? pin2() : pin1()"
               (ngModelChange)="onPinChange()"
             ></app-pin-input>
             
-            <div class="h-10 mt-3 flex items-start justify-center w-full px-6">
+            <div class="h-8 mt-4 flex items-start justify-center w-full px-6">
               @if (mpinError()) {
                 <p class="text-red-500 text-xs font-bold text-center leading-tight">
                   {{ mpinError() }}
@@ -65,7 +70,7 @@ export type MpinStep = 'login' | 'forgot' | 'reset' | 'set-mpin' | 'confirm-mpin
           @if (step() === 'login') {
             <button
               (click)="startForgotMpin()"
-              class="active:scale-[0.98] transition-all duration-200 mt-4 text-sm font-semibold text-indigo-600 block w-full text-center"
+              class="active:scale-[0.98] transition-all duration-200 mt-6 text-sm font-semibold text-violet-600 block w-full text-center"
             >
               Forgot mPIN?
             </button>

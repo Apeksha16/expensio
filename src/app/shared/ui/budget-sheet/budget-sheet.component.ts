@@ -87,7 +87,7 @@ import { IconService } from '../../../core/services/icon.service';
           }
         </div>
 
-        <div class="p-6 bg-white flex-1 overflow-y-auto overscroll-none pb-6" style="scrollbar-width: none;">
+        <div class="p-6 bg-white flex-1 overflow-y-auto scroll-smooth overscroll-none pb-6" style="scrollbar-width: none;">
           @if (isEditing) {
             <div class="flex justify-center mb-5">
               <div class="relative inline-flex items-center justify-center group">
@@ -95,7 +95,7 @@ import { IconService } from '../../../core/services/icon.service';
                   type="datetime-local" 
                   [value]="getDatetimeLocal(selectedDate())"
                   (change)="onDateChange($event)"
-                  class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                  class="absolute inset-0 w-full h-full opacity-[0.01] cursor-pointer z-10"
                 />
                 <span class="text-[10px] font-bold tracking-wide uppercase text-budget-dark bg-budget-surface px-3 py-1 rounded-full border border-budget-primary/10 flex items-center gap-1 group-active:scale-95 transition-transform">
                   <svg class="w-3 h-3 text-budget-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -112,7 +112,7 @@ import { IconService } from '../../../core/services/icon.service';
                   type="datetime-local" 
                   [value]="getDatetimeLocal(selectedDate())"
                   (change)="onDateChange($event)"
-                  class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                  class="absolute inset-0 w-full h-full opacity-[0.01] cursor-pointer z-10"
                 />
                 <span class="text-[10px] font-bold tracking-wide uppercase text-budget-dark bg-budget-surface px-3 py-1 rounded-full border border-budget-primary/10 flex items-center gap-1 group-active:scale-95 transition-transform">
                   <svg class="w-3 h-3 text-budget-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -60,7 +60,7 @@ import { HapticService } from '../../../core/services/haptic.service';
           <div
             appSwipeToClose
             (closeSwipe)="close()"
-            class="pointer-events-auto bg-white rounded-t-[32px] shadow-2xl flex flex-col max-h-[90vh] overflow-y-auto" style="padding-bottom: calc(env(safe-area-inset-bottom) + 1.5rem);"
+            class="pointer-events-auto bg-white rounded-t-[32px] shadow-2xl flex flex-col max-h-[90vh] overflow-y-auto scroll-smooth" style="padding-bottom: calc(env(safe-area-inset-bottom) + 1.5rem);"
           >
             <!-- Header -->
             <div class="flex justify-between items-center py-4 px-6 text-white bg-slate-900 rounded-t-[32px] sticky top-0 z-10 shrink-0 shadow-sm">

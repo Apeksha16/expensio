@@ -78,7 +78,7 @@ import { SafeInputDirective } from '../safe-input.directive';
       >
         <!-- Header -->
         <div class="flex justify-between items-center py-4 px-6 text-white rounded-t-[32px] sticky top-0 z-10 shrink-0 shadow-sm" [ngClass]="theme.bg">
-          <h2 class="text-lg font-bold tracking-wide">
+          <h2 class="text-lg font-bold tracking-wide truncate pr-4 flex-1">
             {{ isEditing ? 'Edit Expense' : 'Add Expense' }}
           </h2>
           @if (isEditing) {
@@ -86,7 +86,7 @@ import { SafeInputDirective } from '../safe-input.directive';
               type="button"
               (click)="delete()"
               [disabled]="isDeleting() || isSaving()"
-              class="w-8 h-8 text-white/80 hover:text-white bg-black/10 hover:bg-black/20 transition-all rounded-full flex items-center justify-center disabled:opacity-50 active:scale-95"
+              class="w-8 h-8 text-white/80 hover:text-white bg-black/10 hover:bg-black/20 transition-all rounded-full flex items-center justify-center disabled:opacity-50 active:scale-95 shrink-0"
             >
               @if (!isDeleting()) {
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
@@ -102,7 +102,7 @@ import { SafeInputDirective } from '../safe-input.directive';
         </div>
         
         <!-- Content -->
-        <div class="p-6 overflow-y-auto overscroll-none flex-1 pb-6" [ngClass]="theme.surfaceBg" style="scrollbar-width: none;">
+        <div class="p-6 overflow-y-auto scroll-smooth overscroll-none flex-1 pb-6" [ngClass]="theme.surfaceBg" style="scrollbar-width: none;">
           @if (expenseService.editingExpense()?.id) {
             <div class="flex justify-center mb-5">
               <div class="relative inline-flex items-center justify-center group">
@@ -110,7 +110,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                   type="datetime-local" 
                   [value]="getDatetimeLocal(selectedDate())"
                   (change)="onDateChange($event)"
-                  class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                  class="absolute inset-0 w-full h-full opacity-[0.01] cursor-pointer z-10"
                 />
                 <span class="text-[10px] font-bold tracking-wide uppercase text-slate-500 bg-slate-100 px-3 py-1 rounded-full border border-slate-200 flex items-center gap-1 group-active:scale-95 transition-transform mt-2">
                   <svg class="w-3 h-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -127,7 +127,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                   type="datetime-local" 
                   [value]="getDatetimeLocal(selectedDate())"
                   (change)="onDateChange($event)"
-                  class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                  class="absolute inset-0 w-full h-full opacity-[0.01] cursor-pointer z-10"
                 />
                 <span class="text-[10px] font-bold tracking-wide uppercase text-slate-500 bg-slate-100 px-3 py-1 rounded-full border border-slate-200 flex items-center gap-1 group-active:scale-95 transition-transform mt-2">
                   <svg class="w-3 h-3 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -201,7 +201,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                   @for (cat of budgetCategories(); track cat) {
                     <button
                       type="button"
-                      (click)="selectBudget(cat)"
+                      (click)="selectBudget(cat, $event)"
                       class="flex items-center gap-2 p-2 px-3 border-2 rounded-full transition-all shrink-0 active:scale-95 snap-center"
                       [ngClass]="
                         (expenseForm.get('category')?.value || '').toLowerCase() === cat.name.toLowerCase()
@@ -546,8 +546,14 @@ export class BottomSheetComponent implements OnInit {
     this.expenseForm.patchValue({ date: dateObj.toISOString() });
   }
 
-  selectBudget(cat: { name: string; path: string }) {
+  selectBudget(cat: { name: string; path: string }, event?: MouseEvent) {
     this.expenseForm.patchValue({ category: cat.name });
+    if (event && event.target) {
+      const el = (event.target as HTMLElement).closest('button');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      }
+    }
   }
 
   delete() {

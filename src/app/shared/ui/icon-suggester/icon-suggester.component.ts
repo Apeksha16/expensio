@@ -29,7 +29,7 @@ import { HapticService } from '../../../core/services/haptic.service';
         @for (icon of suggestedIcons(); track icon.id) {
           <button
             type="button"
-            (click)="selectIcon(icon.id)"
+            (click)="selectIcon(icon.id, $event)"
             class="relative shrink-0 w-14 h-14 rounded-2xl flex flex-col items-center justify-center gap-1 transition-all active:scale-90 snap-start"
             [ngClass]="isSelected(icon.id) ? themeClasses().activeBtn : 'bg-slate-50 text-slate-500 border border-slate-100 hover:bg-slate-100'"
           >
@@ -129,9 +129,15 @@ export class IconSuggesterComponent {
     return this.selectedIconId() === id;
   }
 
-  selectIcon(id: string) {
+  selectIcon(id: string, event?: MouseEvent) {
     this.haptic.impactLight();
     this.iconSelected.emit(id);
+    if (event && event.target) {
+      const el = (event.target as HTMLElement).closest('button');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      }
+    }
   }
 
   clearSelection() {

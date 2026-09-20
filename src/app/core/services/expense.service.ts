@@ -147,8 +147,7 @@ export class ExpenseService {
 
     const [
       { data: expensesData, error: expensesError },
-      { data: splitsData, error: splitsError },
-      { data: spendData, error: spendError }
+      { data: splitsData, error: splitsError }
     ] = await Promise.all([
       this.supabaseService.client
         .from('expenses')
@@ -159,12 +158,7 @@ export class ExpenseService {
         .from('split_expenses')
         .select('*')
         .gte('date', startDate)
-        .lt('date', nextMonthStr),
-      this.supabaseService.client
-        .rpc('calculate_monthly_spend', {
-          p_user_id: this.authService.currentUser()?.id,
-          p_month: month
-        })
+        .lt('date', nextMonthStr)
     ]);
 
     let all: Expense[] = [];

@@ -21,163 +21,175 @@ import { LoginStateService } from '../login-state.service';
   changeDetection: ChangeDetectionStrategy.Default,
   template: `
     <app-auth-layout [isMpinScreen]="true" [showBackButton]="true">
-      <div class="w-full flex flex-col h-full">
-        <div class="w-full flex flex-col items-center mt-auto mb-6">
-          <div class="w-20 h-20 rounded-full bg-indigo-50 flex items-center justify-center mb-6">
-            <app-icon [icon]="UserIcon" size="40" class="text-indigo-600"></app-icon>
+      <div class="w-full flex flex-col h-full pb-2">
+        
+        <!-- Top Branding Area -->
+        <div class="flex-1 flex flex-col items-center justify-center pb-10 animate-[title-slide-up_0.5s_ease-out_both]">
+          <div class="w-24 h-24 bg-white rounded-[28px] shadow-sm flex items-center justify-center mb-6 border border-slate-100 shrink-0">
+            <div class="w-16 h-16 bg-violet-50 rounded-full flex items-center justify-center text-violet-600">
+              <app-icon [icon]="UserIcon" size="32"></app-icon>
+            </div>
           </div>
-
-          <div class="flex flex-col items-center">
-            <h3 class="text-black font-semibold text-[22px] mb-2 tracking-tight">Tell us about yourself</h3>
-            <p class="text-gray-500 text-center text-sm leading-relaxed">
-              We'll personalize your experience.
-            </p>
-          </div>
+          <h3 class="text-3xl font-[900] text-slate-900 tracking-tight mb-2 text-center">Tell us about yourself</h3>
+          <p class="text-slate-500 font-medium text-sm text-center leading-relaxed">
+            We'll personalize your experience.
+          </p>
         </div>
 
-        <form (ngSubmit)="onFinalSubmit()" class="flex flex-col w-full pb-2">
-          
-          <div class="w-full mb-1 px-1">
-            <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Personal</span>
-          </div>
-
-          <!-- Name Field -->
-          <div class="relative w-full pb-4">
-            <div
-              class="w-full h-14 bg-white border rounded-2xl flex items-center overflow-hidden transition-colors"
-              [class.border-indigo-600]="profileName"
-              [class.border-gray-300]="!profileName && !nameError()"
-              [class.border-red-500]="nameError()"
-            >
-              <div class="pl-4 pr-2 h-full flex items-center justify-center text-gray-500">
-                <app-icon [icon]="UserIcon" size="20"></app-icon>
-              </div>
-              <input
-                type="text"
-                [(ngModel)]="profileName"
-                name="name"
-                placeholder="Enter your name"
-                class="w-full h-full bg-transparent outline-none text-black font-medium px-2"
-                appSafeInput
-              />
+        <!-- Bottom Action Card -->
+        <div class="w-full bg-white p-6 sm:p-8 rounded-[32px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 flex flex-col animate-[title-slide-up_0.6s_ease-out_0.1s_both]">
+          <form (ngSubmit)="onFinalSubmit()" class="flex flex-col w-full pb-2">
+            
+            <div class="w-full mb-1 px-1">
+              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Personal</span>
             </div>
-            <p
-              class="text-red-500 text-xs font-medium absolute bottom-1 left-2 transition-opacity duration-200"
-              [class.opacity-0]="!nameError()"
-            >
-              {{ nameError() || 'Error' }}
-            </p>
-          </div>
 
-          <div class="w-full mt-2 mb-3 px-1">
-            <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-1">Financial</span>
-            <span class="text-xs text-gray-500">Used to suggest budgets and calculate your net worth.</span>
-          </div>
-
-          <!-- Salary Field -->
-          <div class="relative w-full pb-6">
-            <div
-              class="w-full h-14 bg-white border rounded-2xl flex items-center overflow-hidden transition-colors"
-              [class.border-indigo-600]="profileSalary"
-              [class.border-gray-300]="!profileSalary && !salaryError()"
-              [class.border-red-500]="salaryError()"
-            >
-              <div class="pl-4 pr-2 h-full flex items-center justify-center text-gray-500">
-                <app-icon [icon]="RupeeIcon" size="20"></app-icon>
+            <!-- Name Field -->
+            <div class="relative w-full pb-4">
+              <div
+                class="w-full h-14 bg-slate-50 border rounded-2xl flex items-center overflow-hidden transition-colors"
+                [class.border-violet-600]="profileName"
+                [class.border-slate-200]="!profileName && !nameError()"
+                [class.bg-white]="profileName || nameError()"
+                [class.border-red-500]="nameError()"
+                [class.bg-red-50]="nameError()"
+              >
+                <div class="pl-4 pr-2 h-full flex items-center justify-center text-slate-400">
+                  <app-icon [icon]="UserIcon" size="20"></app-icon>
+                </div>
+                <input
+                  type="text"
+                  [(ngModel)]="profileName"
+                  name="name"
+                  placeholder="Enter your name"
+                  class="w-full h-full bg-transparent outline-none text-slate-900 font-medium px-2 text-[16px]"
+                  appSafeInput
+                />
               </div>
-              <input
-                type="text"
-                [(ngModel)]="salaryStr"
-                name="salary"
-                placeholder="Monthly salary"
-                inputmode="numeric"
-                class="w-full h-full bg-transparent outline-none text-black font-medium px-2"
-                appSafeInput
-              />
+              <p
+                class="text-red-500 text-xs font-medium absolute bottom-1 left-2 transition-opacity duration-200"
+                [class.opacity-0]="!nameError()"
+              >
+                {{ nameError() || 'Error' }}
+              </p>
             </div>
-            <p
-              class="text-red-500 text-xs font-medium absolute bottom-1 left-2 transition-opacity duration-200"
-              [class.opacity-0]="!salaryError()"
-            >
-              {{ salaryError() || 'Error' }}
-            </p>
-          </div>
 
-          <!-- Cash Balance Field -->
-          <div class="relative w-full pb-6">
-            <div
-              class="w-full h-14 bg-white border rounded-2xl flex items-center overflow-hidden transition-colors"
-              [class.border-indigo-600]="profileCashBalance !== null"
-              [class.border-gray-300]="profileCashBalance === null && !cashError()"
-              [class.border-red-500]="cashError()"
-            >
-              <div class="pl-4 pr-2 h-full flex items-center justify-center text-gray-500">
-                <app-icon [icon]="Wallet01Icon" size="20"></app-icon>
+            <div class="w-full mt-2 mb-3 px-1">
+              <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">Financial</span>
+              <span class="text-xs text-slate-400">Used to suggest budgets and calculate your net worth.</span>
+            </div>
+
+            <!-- Salary Field -->
+            <div class="relative w-full pb-6">
+              <div
+                class="w-full h-14 bg-slate-50 border rounded-2xl flex items-center overflow-hidden transition-colors"
+                [class.border-violet-600]="profileSalary"
+                [class.border-slate-200]="!profileSalary && !salaryError()"
+                [class.bg-white]="profileSalary || salaryError()"
+                [class.border-red-500]="salaryError()"
+                [class.bg-red-50]="salaryError()"
+              >
+                <div class="pl-4 pr-2 h-full flex items-center justify-center text-slate-400">
+                  <app-icon [icon]="RupeeIcon" size="20"></app-icon>
+                </div>
+                <input
+                  type="text"
+                  [(ngModel)]="salaryStr"
+                  name="salary"
+                  placeholder="Monthly salary"
+                  inputmode="numeric"
+                  class="w-full h-full bg-transparent outline-none text-slate-900 font-medium px-2 text-[16px]"
+                  appSafeInput
+                />
               </div>
-              <input
-                type="text"
-                [(ngModel)]="cashStr"
-                name="cash"
-                placeholder="Cash balance"
-                inputmode="numeric"
-                class="w-full h-full bg-transparent outline-none text-black font-medium px-2"
-                appSafeInput
-              />
+              <p
+                class="text-red-500 text-xs font-medium absolute bottom-1 left-2 transition-opacity duration-200"
+                [class.opacity-0]="!salaryError()"
+              >
+                {{ salaryError() || 'Error' }}
+              </p>
             </div>
-            <p
-              class="text-red-500 text-xs font-medium absolute bottom-1 left-2 transition-opacity duration-200"
-              [class.opacity-0]="!cashError()"
-            >
-              {{ cashError() || 'Error' }}
-            </p>
-          </div>
 
-          <!-- Savings Balance Field -->
-          <div class="relative w-full pb-5">
-            <div
-              class="w-full h-14 bg-white border rounded-2xl flex items-center overflow-hidden transition-colors"
-              [class.border-indigo-600]="profileSavingsBalance !== null"
-              [class.border-gray-300]="profileSavingsBalance === null && !savingsError()"
-              [class.border-red-500]="savingsError()"
-            >
-              <div class="pl-4 pr-2 h-full flex items-center justify-center text-gray-500">
-                <app-icon [icon]="PiggyBankIcon" size="20"></app-icon>
+            <!-- Cash Balance Field -->
+            <div class="relative w-full pb-6">
+              <div
+                class="w-full h-14 bg-slate-50 border rounded-2xl flex items-center overflow-hidden transition-colors"
+                [class.border-violet-600]="profileCashBalance !== null"
+                [class.border-slate-200]="profileCashBalance === null && !cashError()"
+                [class.bg-white]="profileCashBalance !== null || cashError()"
+                [class.border-red-500]="cashError()"
+                [class.bg-red-50]="cashError()"
+              >
+                <div class="pl-4 pr-2 h-full flex items-center justify-center text-slate-400">
+                  <app-icon [icon]="Wallet01Icon" size="20"></app-icon>
+                </div>
+                <input
+                  type="text"
+                  [(ngModel)]="cashStr"
+                  name="cash"
+                  placeholder="Cash balance"
+                  inputmode="numeric"
+                  class="w-full h-full bg-transparent outline-none text-slate-900 font-medium px-2 text-[16px]"
+                  appSafeInput
+                />
               </div>
-              <input
-                type="text"
-                [(ngModel)]="savingsStr"
-                name="savings"
-                placeholder="Savings balance"
-                inputmode="numeric"
-                class="w-full h-full bg-transparent outline-none text-black font-medium px-2"
-                appSafeInput
-              />
+              <p
+                class="text-red-500 text-xs font-medium absolute bottom-1 left-2 transition-opacity duration-200"
+                [class.opacity-0]="!cashError()"
+              >
+                {{ cashError() || 'Error' }}
+              </p>
             </div>
-            <p
-              class="text-red-500 text-xs font-medium absolute bottom-1 left-2 transition-opacity duration-200"
-              [class.opacity-0]="!savingsError()"
-            >
-              {{ savingsError() || 'Error' }}
-            </p>
-          </div>
 
-          <div class="mt-2 w-full">
-            <button
-              type="submit"
-              [disabled]="isLoading()"
-              class="w-full h-14 bg-[#4F46E5] text-white rounded-[14px] font-semibold text-[15px] transition-colors flex justify-center items-center active:scale-[0.98]"
-            >
-              @if (isLoading()) {
-                <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-              } @else {
-                Continue
-              }
-            </button>
-          </div>
-        </form>
+            <!-- Savings Balance Field -->
+            <div class="relative w-full pb-5">
+              <div
+                class="w-full h-14 bg-slate-50 border rounded-2xl flex items-center overflow-hidden transition-colors"
+                [class.border-violet-600]="profileSavingsBalance !== null"
+                [class.border-slate-200]="profileSavingsBalance === null && !savingsError()"
+                [class.bg-white]="profileSavingsBalance !== null || savingsError()"
+                [class.border-red-500]="savingsError()"
+                [class.bg-red-50]="savingsError()"
+              >
+                <div class="pl-4 pr-2 h-full flex items-center justify-center text-slate-400">
+                  <app-icon [icon]="PiggyBankIcon" size="20"></app-icon>
+                </div>
+                <input
+                  type="text"
+                  [(ngModel)]="savingsStr"
+                  name="savings"
+                  placeholder="Savings balance"
+                  inputmode="numeric"
+                  class="w-full h-full bg-transparent outline-none text-slate-900 font-medium px-2 text-[16px]"
+                  appSafeInput
+                />
+              </div>
+              <p
+                class="text-red-500 text-xs font-medium absolute bottom-1 left-2 transition-opacity duration-200"
+                [class.opacity-0]="!savingsError()"
+              >
+                {{ savingsError() || 'Error' }}
+              </p>
+            </div>
+
+            <div class="mt-4 w-full">
+              <button
+                type="submit"
+                [disabled]="isLoading()"
+                class="active:scale-[0.98] transition-all duration-200 w-full h-[56px] bg-violet-600 text-white rounded-2xl font-bold text-[17px] shadow-sm flex justify-center items-center"
+              >
+                @if (isLoading()) {
+                  <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                } @else {
+                  Continue
+                }
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </app-auth-layout>
   `,

@@ -10,6 +10,7 @@ import { SupabaseService } from '../../../../core/services/supabase.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { LoginStateService } from '../login-state.service';
 import { KeyboardService } from '../../../../core/services/keyboard.service';
+import { AuthService } from '../../../../core/services/auth.service';
 import { AppIconComponent } from '../../../../shared/ui/icon/app-icon.component';
 import { Mail01Icon, UserIcon } from '@hugeicons/core-free-icons';
 
@@ -23,109 +24,133 @@ import { Mail01Icon, UserIcon } from '@hugeicons/core-free-icons';
   changeDetection: ChangeDetectionStrategy.Default,
   template: `
     <app-auth-layout [isMpinScreen]="false" [showBackButton]="false">
-      <div class="w-full flex flex-col h-full">
-        @if (cachedName()) {
-          <div class="mb-8">
-            <h2 class="text-4xl font-bold text-black mb-2">
-              Welcome back, <br />
-              <span class="text-indigo-600">{{ cachedName() }}</span>!
-            </h2>
-            <p class="text-gray-500 font-medium">{{ email() }}</p>
+      <div class="w-full flex flex-col h-full pb-2">
+        
+        <!-- Top Branding / Logo Area -->
+        <div class="flex-1 flex flex-col items-center justify-center pb-10 animate-[title-slide-up_0.5s_ease-out_both]">
+          <div class="w-24 h-24 bg-white rounded-[28px] shadow-sm flex items-center justify-center mb-6 border border-slate-100 shrink-0">
+            <img src="expensio-logo-2.png" alt="Expensio" class="w-14 h-14 object-contain" />
           </div>
+          <h1 class="text-3xl font-[900] text-slate-900 tracking-tight mb-1">Expensio</h1>
+          <p class="text-violet-600 font-bold text-[10px] tracking-[0.25em] uppercase">Expenses made simple</p>
+        </div>
+
+        <!-- Bottom Action Card -->
+        <div class="w-full bg-white p-6 sm:p-8 rounded-[32px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 flex flex-col animate-[title-slide-up_0.6s_ease-out_0.1s_both]">
           
-          <div class="flex flex-col gap-4 w-full mb-4">
-            <button
-              (click)="onCachedLogin()"
-              class="active:scale-[0.98] transition-all duration-200 w-full h-[60px] bg-indigo-600 text-white rounded-xl font-bold text-lg transition-colors flex justify-center items-center"
-            >
-              Log in with MPIN
-            </button>
-            <button
-              (click)="loginWithOther()"
-              class="active:scale-[0.98] transition-all duration-200 text-sm font-semibold text-indigo-600 text-center w-full"
-            >
-              Log in with another account
-            </button>
-          </div>
-        } @else {
-          <div class="mb-8">
-            <h2 class="text-4xl font-bold text-black mb-2">
-              Welcome to <br />
-              <span class="text-indigo-600">Expensio</span>
-            </h2>
-            <p class="text-gray-500 font-medium">
-              Your personal space, secured and private.
-            </p>
-          </div>
-
-          <div class="flex flex-col gap-6">
-            <div class="relative w-full pb-6">
-              <div
-                class="flex items-center bg-white border border-slate-100 rounded-2xl focus-within:border-indigo-600 transition-colors overflow-hidden"
-                [class.border-red-500]="emailError()"
-              >
-                <div class="pl-4 pr-1 text-gray-500 flex items-center justify-center">
-                  @if (emailProxy.includes('@')) {
-                    <app-icon [icon]="Mail01Icon" size="22"></app-icon>
-                  } @else {
-                    <app-icon [icon]="UserIcon" size="22"></app-icon>
-                  }
-                </div>
-                <input
-                  type="text"
-                  inputmode="email"
-                  [(ngModel)]="emailProxy"
-                  (ngModelChange)="clearError()"
-                  (keydown.enter)="onEmailSubmit()"
-                  placeholder="Enter username or email"
-                  class="w-full pl-2 pr-4 py-4 bg-transparent text-black placeholder-gray-400 font-medium focus:outline-none border-0 focus:ring-0 m-0"
-                  appAutofocus
-                />
+          @if (cachedName()) {
+            <div class="mb-8 text-center">
+              <div class="w-16 h-16 bg-violet-50 rounded-full flex items-center justify-center text-violet-600 text-2xl font-bold mx-auto mb-4 border border-violet-100 shadow-sm overflow-hidden">
+                @if (cachedAvatarId()) {
+                  <img [src]="authService.getAvatarUrl(cachedAvatarId())" alt="Profile" class="w-full h-full object-cover" />
+                } @else {
+                  {{ cachedName().charAt(0).toUpperCase() }}
+                }
               </div>
-
-              @if (suggestedDomains.length > 0) {
-                <div class="absolute top-[62px] left-0 w-full flex gap-2.5 overflow-x-auto no-scrollbar z-10 py-1 px-0.5">
-                  @for (domain of suggestedDomains; track domain) {
-                    <button 
-                      type="button" 
-                      (click)="selectDomain(domain)" 
-                      class="active:scale-[0.98] transition-all duration-200 px-4 py-1.5 bg-white border border-slate-100 text-gray-600 text-sm font-medium rounded-full whitespace-nowrap transition-all shadow-sm"
-                    >
-                      <span class="text-gray-500 font-normal">&#64;</span>{{ domain }}
-                    </button>
-                  }
-                </div>
-              }
-
-              <p
-                class="text-red-500 text-xs font-medium absolute bottom-0 left-1 transition-opacity duration-200"
-                [class.opacity-0]="!emailError()"
-              >
-                {{ emailError() || 'Error' }}
-              </p>
+              <h2 class="text-2xl font-bold text-slate-900 mb-1">
+                Welcome back, <span class="text-violet-600">{{ cachedName() }}</span>!
+              </h2>
+              <p class="text-slate-500 font-medium text-sm">{{ email() }}</p>
             </div>
             
-            <button
-              (click)="onEmailSubmit()"
-              [disabled]="isLoading()"
-              class="active:scale-[0.98] transition-all duration-200 w-full mt-4 h-[60px] bg-indigo-600 text-white rounded-xl font-bold text-lg transition-colors flex justify-center items-center"
-            >
-              @if (isLoading()) {
-                <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-              } @else {
-                Continue
-              }
-            </button>
-          </div>
+            <div class="flex flex-col gap-3 w-full mb-2">
+              <button
+                (click)="onCachedLogin()"
+                class="active:scale-[0.98] transition-all duration-200 w-full h-[56px] bg-violet-600 text-white rounded-2xl font-bold text-[17px] shadow-sm flex justify-center items-center"
+              >
+                Log in with MPIN
+              </button>
+              <button
+                (click)="loginWithOther()"
+                class="active:scale-[0.98] transition-all duration-200 h-[48px] text-sm font-semibold text-violet-600 text-center w-full mt-1 bg-violet-50 rounded-xl"
+              >
+                Log in with another account
+              </button>
+            </div>
+          } @else {
+            <div class="mb-6 text-center">
+              <h2 class="text-2xl font-extrabold text-slate-900 mb-1">Let's get started</h2>
+              <p class="text-slate-500 font-medium text-sm">
+                Enter your email to log in or create an account
+              </p>
+            </div>
 
-          <div class="mt-8 mb-4 text-center">
-             <!-- As per design, there is "New to Memoriq? Create Account" text but we don't need a separate route for it as we just use email to continue/create -->
-             <p class="text-sm text-gray-500 font-medium">New to Expensio? <span class="text-indigo-600 font-semibold">Enter email above</span></p>
-          </div>
-        }
+            <div class="flex flex-col gap-4">
+              <div class="flex flex-col w-full">
+                <div
+                  class="flex items-center bg-slate-50 border border-slate-200 rounded-[20px] focus-within:border-violet-600 focus-within:bg-white transition-colors overflow-hidden"
+                  [class.border-red-500]="emailError()"
+                  [class.bg-red-50]="emailError()"
+                >
+                  <div class="pl-4 pr-1 text-slate-400 flex items-center justify-center">
+                    @if (emailProxy.includes('@')) {
+                      <app-icon [icon]="Mail01Icon" size="22"></app-icon>
+                    } @else {
+                      <app-icon [icon]="UserIcon" size="22"></app-icon>
+                    }
+                  </div>
+                  <input
+                    type="text"
+                    inputmode="email"
+                    [(ngModel)]="emailProxy"
+                    (ngModelChange)="clearError()"
+                    (keydown.enter)="onEmailSubmit()"
+                    placeholder="Enter username or email"
+                    class="w-full pl-2 pr-4 py-4 bg-transparent text-slate-900 placeholder-slate-400 font-medium focus:outline-none border-0 focus:ring-0 m-0 text-[16px]"
+                    appAutofocus
+                  />
+                </div>
+
+                <div 
+                  class="grid transition-all duration-300 ease-out"
+                  [style.grid-template-rows]="suggestedDomains.length > 0 ? '1fr' : '0fr'"
+                  [style.opacity]="suggestedDomains.length > 0 ? '1' : '0'"
+                >
+                  <div class="overflow-hidden">
+                    <div class="w-full flex gap-2 overflow-x-auto no-scrollbar pt-3 pb-1">
+                      @for (domain of suggestedDomains; track domain) {
+                        <button 
+                          type="button" 
+                          (click)="selectDomain(domain)" 
+                          class="active:scale-[0.98] px-4 py-1.5 bg-white border border-slate-200 text-slate-600 text-sm font-semibold rounded-full whitespace-nowrap transition-all shadow-sm shrink-0"
+                        >
+                          <span class="text-slate-400 font-medium">&#64;</span>{{ domain }}
+                        </button>
+                      }
+                    </div>
+                  </div>
+                </div>
+
+                <div 
+                  class="grid transition-all duration-300 ease-out"
+                  [style.grid-template-rows]="emailError() ? '1fr' : '0fr'"
+                  [style.opacity]="emailError() ? '1' : '0'"
+                >
+                  <div class="overflow-hidden">
+                    <p class="text-red-500 text-xs font-semibold mt-2 pl-1 pb-1">
+                      {{ emailError() }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <button
+                (click)="onEmailSubmit()"
+                [disabled]="isLoading()"
+                class="active:scale-[0.98] transition-all duration-200 w-full h-[56px] bg-violet-600 text-white rounded-2xl font-bold text-[17px] shadow-sm flex justify-center items-center"
+              >
+                @if (isLoading()) {
+                  <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                } @else {
+                  Continue
+                }
+              </button>
+            </div>
+          }
+        </div>
       </div>
     </app-auth-layout>
   `,
@@ -139,11 +164,13 @@ export class EnterEmailComponent implements OnInit {
   private toastService = inject(ToastService);
   private state = inject(LoginStateService);
   private keyboardService = inject(KeyboardService);
+  authService = inject(AuthService);
 
   isLoading = signal(false);
   emailError = signal('');
 
   cachedName = signal('');
+  cachedAvatarId = signal<number | undefined>(undefined);
   email = signal('');
   emailProxy = '';
 
@@ -153,7 +180,8 @@ export class EnterEmailComponent implements OnInit {
 
   get suggestedDomains(): string[] {
     const parts = this.emailProxy.split('@');
-    if (parts.length === 2 && !parts[1].includes('.')) {
+    // Only show suggestions if there is text before the '@' symbol
+    if (parts.length === 2 && parts[0].trim().length > 0 && !parts[1].includes('.')) {
       const search = parts[1].toLowerCase();
       const domains = ['gmail.com', 'zohomail.in'];
       return domains.filter(d => d.startsWith(search));
@@ -174,6 +202,7 @@ export class EnterEmailComponent implements OnInit {
         const user = JSON.parse(cached);
         if (user && user.email) {
           this.cachedName.set(user.name || 'User');
+          this.cachedAvatarId.set(user.avatarId);
           this.email.set(user.email);
           this.state.email.set(user.email);
           return;

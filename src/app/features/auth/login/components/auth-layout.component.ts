@@ -8,12 +8,12 @@ import { ArrowLeft01Icon } from '@hugeicons/core-free-icons';
   standalone: true,
   imports: [AppIconComponent],
   host: {
-    class: 'block w-full h-full bg-white',
+    class: 'block w-full h-full bg-slate-50',
   },
   changeDetection: ChangeDetectionStrategy.Default,
   template: `
     <div
-      class="min-h-[100dvh] flex flex-col px-6 py-8 bg-white relative w-full h-full"
+      class="min-h-[100dvh] flex flex-col px-6 py-8 bg-slate-50 relative w-full h-full overflow-y-auto"
     >
       @if (showBackButton()) {
         <button

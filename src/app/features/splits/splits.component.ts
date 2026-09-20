@@ -37,7 +37,10 @@ import { ToastService } from '../../core/services/toast.service';
           <!-- Summary Cards -->
           <div class="flex gap-4 w-full">
             <!-- You'll Get -->
-            <div class="flex-1 bg-[#F4F2FF] rounded-3xl p-5 flex flex-col items-start relative overflow-hidden shadow-sm">
+            <button 
+              (click)="openSummarySheet('get')"
+              class="flex-1 bg-[#F4F2FF] rounded-3xl p-5 flex flex-col items-start relative overflow-hidden shadow-sm active:scale-95 transition-all text-left"
+            >
               <div class="w-10 h-10 rounded-full bg-[#E8E4FF] flex items-center justify-center mb-4">
                 <svg class="w-5 h-5 text-splits-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
@@ -48,10 +51,13 @@ import { ToastService } from '../../core/services/toast.service';
                 ₹{{ splitService.totalOwedToYou() | number: '1.0-0' }}
               </span>
               <span class="text-xs font-bold text-gray-500 mt-1">from {{ splitService.peopleOwedToYou() }} people</span>
-            </div>
+            </button>
 
             <!-- You Owe -->
-            <div class="flex-1 bg-[#FFF0F4] rounded-3xl p-5 flex flex-col items-start relative overflow-hidden shadow-sm">
+            <button 
+              (click)="openSummarySheet('owe')"
+              class="flex-1 bg-[#FFF0F4] rounded-3xl p-5 flex flex-col items-start relative overflow-hidden shadow-sm active:scale-95 transition-all text-left"
+            >
               <div class="w-10 h-10 rounded-full bg-[#FFE4EC] flex items-center justify-center mb-4">
                 <svg class="w-5 h-5 text-[#E11D48]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18" />
@@ -62,7 +68,7 @@ import { ToastService } from '../../core/services/toast.service';
                 ₹{{ splitService.totalYouOwe() | number: '1.0-0' }}
               </span>
               <span class="text-xs font-bold text-gray-500 mt-1">to {{ splitService.peopleYouOwe() }} people</span>
-            </div>
+            </button>
           </div>
 
           <!-- Tabs -->
@@ -92,7 +98,7 @@ import { ToastService } from '../../core/services/toast.service';
       </div>
 
       <!-- Scrollable Area -->
-      <div class="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar px-4 pb-28 mt-4">
+      <div class="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar px-4 pb-40 mt-4">
         @if (isInitialLoading()) {
           <div class="flex flex-col gap-3">
             @for (i of [1, 2, 3]; track i) {
@@ -144,28 +150,35 @@ import { ToastService } from '../../core/services/toast.service';
                       </div>
                       
                       @if (getExpenseBalances(split).length > 0) {
-                        <div class="flex flex-col gap-2 mt-2 pt-2 border-t border-slate-100 border-dashed">
+                        <div class="w-full flex flex-col gap-2 mt-3">
                           @for (bal of getExpenseBalances(split); track bal.participantId) {
-                            <div class="flex justify-between items-center w-full gap-2">
-                              <span class="text-xs font-bold px-2 py-0.5 rounded-full" [ngClass]="bal.type === 'owed' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'">
-                                {{ bal.type === 'owed' ? 'You get' : 'You owe' }} ₹{{ bal.amount % 1 === 0 ? (bal.amount | number: '1.0-0') : (bal.amount | number: '1.2-2') }}
-                              </span>
-                              
-                              <!-- Actions -->
+                            <div class="flex items-center justify-between w-full bg-slate-50/70 rounded-xl px-3 py-2 border border-slate-100">
                               <div class="flex items-center gap-2">
                                 @if (bal.pending) {
-                                  <span class="text-xs font-bold text-orange-500 uppercase tracking-wider mr-1">Pending</span>
+                                  <div class="w-1.5 h-1.5 rounded-full bg-orange-400"></div>
+                                }
+                                <span class="text-[12px] font-extrabold" [ngClass]="bal.type === 'owed' ? 'text-emerald-600' : 'text-red-600'">
+                                  {{ bal.type === 'owed' ? 'You get' : 'You owe' }} ₹{{ bal.amount % 1 === 0 ? (bal.amount | number: '1.0-0') : (bal.amount | number: '1.2-2') }}
+                                </span>
+                              </div>
+                              
+                              <!-- Actions -->
+                              <div class="flex items-center gap-2 shrink-0">
+                                @if (bal.pending) {
                                   @if (bal.type === 'owed') {
-                                    <button (click)="confirmSettlement($event, split.id, bal.participantId)" [disabled]="processingIds().has('confirm_' + split.id + '_' + bal.participantId)" class="active:scale-[0.98] transition-all duration-200 bg-emerald-500 text-white px-3 py-1 rounded-full text-xs font-bold tracking-wide shadow-sm transition-colors disabled:opacity-50 flex items-center gap-1">
+                                    <button (click)="confirmSettlement($event, split.id, bal.participantId)" [disabled]="processingIds().has('confirm_' + split.id + '_' + bal.participantId)" class="active:scale-[0.98] transition-all duration-200 bg-emerald-500 text-white border border-emerald-500 px-3 py-1 rounded-full text-[11px] font-extrabold tracking-wide shadow-sm transition-colors disabled:opacity-50 flex items-center gap-1">
+                                      @if (processingIds().has('confirm_' + split.id + '_' + bal.participantId)) {
+                                        <svg class="animate-spin h-3 w-3 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                      }
                                       Confirm
                                     </button>
                                   } @else {
-                                    <button (click)="cancelSettlement($event, split.id)" class="active:scale-[0.98] transition-all duration-200 bg-slate-50 text-gray-600 px-3 py-1 rounded-full text-xs font-bold tracking-wide shadow-sm transition-colors">
+                                    <button (click)="cancelSettlement($event, split.id)" class="active:scale-[0.98] transition-all duration-200 bg-white text-gray-700 border border-slate-200 px-3 py-1 rounded-full text-[11px] font-extrabold tracking-wide shadow-sm transition-colors">
                                       Cancel
                                     </button>
                                   }
                                 } @else {
-                                  <button (click)="settleIndividualSplit($event, split, bal)" class="active:scale-[0.98] transition-all duration-200 bg-slate-50 text-gray-700 px-3 py-1 rounded-full text-xs font-bold tracking-wide transition-colors">
+                                  <button (click)="settleIndividualSplit($event, split, bal)" class="active:scale-[0.98] transition-all duration-200 bg-white text-gray-700 border border-slate-200 px-3 py-1 rounded-full text-[11px] font-extrabold tracking-wide shadow-sm transition-colors">
                                     Settle
                                   </button>
                                 }
@@ -218,7 +231,7 @@ import { ToastService } from '../../core/services/toast.service';
                     <div class="flex flex-col flex-1 min-w-0 justify-center gap-1">
                       <div class="flex justify-between items-start">
                         <span class="font-extrabold text-[15px] text-gray-900 truncate pr-2">{{ group.name }}</span>
-                        <button (click)="archiveGroup($event, group.id)" class="active:scale-[0.98] transition-all duration-200 text-xs font-bold text-gray-500 border border-slate-100 rounded-md uppercase tracking-wider px-1.5 py-0.5 transition-colors flex-shrink-0 mt-0.5">
+                        <button (click)="archiveGroup($event, group.id)" class="active:scale-[0.98] transition-all duration-200 text-[10px] font-extrabold text-gray-400 bg-gray-50 rounded-md uppercase tracking-widest px-2 py-1 transition-colors flex-shrink-0 mt-0.5 hover:bg-gray-100 hover:text-gray-600">
                           Archive
                         </button>
                       </div>
@@ -227,17 +240,15 @@ import { ToastService } from '../../core/services/toast.service';
                         {{ group.members.length }} members
                       </span>
                       
-                      <div class="flex flex-wrap gap-1 mt-1">
+                      <div class="flex items-center gap-1.5 mt-1 whitespace-nowrap">
                         @if (getGroupBalance(group.id).net > 0) {
-                          <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600">
-                            You get ₹{{ getGroupBalance(group.id).net | number: '1.0-0' }}
-                          </span>
+                          <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">You get</span>
+                          <span class="text-[14px] font-extrabold text-emerald-600">₹{{ getGroupBalance(group.id).net | number: '1.0-0' }}</span>
                         } @else if (getGroupBalance(group.id).net < 0) {
-                          <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-red-50 text-red-600">
-                            You owe ₹{{ 0 - getGroupBalance(group.id).net | number: '1.0-0' }}
-                          </span>
+                          <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">You owe</span>
+                          <span class="text-[14px] font-extrabold text-red-600">₹{{ 0 - getGroupBalance(group.id).net | number: '1.0-0' }}</span>
                         } @else {
-                          <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-slate-50 text-gray-500">Settled</span>
+                          <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Settled</span>
                         }
                       </div>
                     </div>
@@ -267,7 +278,10 @@ import { ToastService } from '../../core/services/toast.service';
                   <div class="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 flex flex-col gap-2 opacity-70">
                     <div class="flex justify-between items-center w-full">
                       <span class="font-extrabold text-sm text-gray-500 truncate">{{ group.name }}</span>
-                      <button (click)="restoreGroup($event, group.id)" class="active:scale-[0.98] transition-all duration-200 text-xs font-bold text-gray-500 border border-gray-300 rounded-md uppercase tracking-wider px-1.5 py-0.5 transition-colors">
+                      <button (click)="restoreGroup($event, group.id)" [disabled]="processingIds().has('restore_' + group.id)" class="active:scale-[0.98] transition-all duration-200 text-[10px] font-extrabold text-gray-400 bg-gray-50 border border-gray-200 rounded-md uppercase tracking-widest px-2 py-1 transition-colors hover:bg-gray-100 hover:text-gray-600 disabled:opacity-50">
+                        @if (processingIds().has('restore_' + group.id)) {
+                          <svg class="animate-spin h-3 w-3 inline mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        }
                         Restore
                       </button>
                     </div>
@@ -284,7 +298,7 @@ import { ToastService } from '../../core/services/toast.service';
     </div>
   `,
 })
-export class Splits implements OnInit {
+export class Splits {
   splitService = inject(SplitService);
   friendService = inject(FriendService);
   authService = inject(AuthService);
@@ -294,7 +308,7 @@ export class Splits implements OnInit {
   router = inject(Router);
   currentUser = this.authService.userProfile;
 
-  isInitialLoading = signal(true);
+  isInitialLoading = computed(() => this.splitService.isLoadingData());
   processingIds = signal<Set<string>>(new Set());
   Math = Math; // for template
 
@@ -302,15 +316,15 @@ export class Splits implements OnInit {
     return this.splitService.splits().filter((s) => !s.group_id && !s.parent_expense_id);
   });
 
-  ngOnInit() {
-    setTimeout(() => {
-      this.isInitialLoading.set(false);
-    }, 2000);
-  }
 
   getFriendName(id: string): string {
     const f = this.friendService.acceptedFriends().find((x: any) => x.profile.id === id);
     return f ? f.profile.name.split(' ')[0] : id;
+  }
+
+  isGuest(id: string): boolean {
+    const f = this.friendService.acceptedFriends().find((x: any) => x.profile.id === id);
+    return f ? !!f.profile.isGuest : false;
   }
 
   getExpenseBalances(
@@ -422,10 +436,23 @@ export class Splits implements OnInit {
     return balances;
   }
 
+  getMonthLabel(monthString: string): string {
+    if (!monthString) return '';
+    const [year, month] = monthString.split('-');
+    const date = new Date(parseInt(year), parseInt(month) - 1, 1);
+    return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  }
+
   settleUp() {
+    const month = this.splitService.activeMonth();
+    const title = month ? `Settle ${this.getMonthLabel(month)} Expenses` : 'Settle All Expenses';
+    const message = month 
+      ? `Are you sure you want to settle all your expenses for ${this.getMonthLabel(month)} with everyone?`
+      : 'Are you sure you want to settle all your expenses with everyone?';
+
     this.confirmService.open({
-      title: 'Settle All Expenses',
-      message: 'Are you sure you want to settle all your expenses with everyone?',
+      title: title,
+      message: message,
       confirmText: 'Settle All',
       cancelText: 'Cancel',
       onConfirm: async () => {
@@ -445,10 +472,11 @@ export class Splits implements OnInit {
               return p;
             });
           } else {
+            const payerIsGuest = this.isGuest(split.payer_id);
             updatedSplit.participants = updatedSplit.participants.map((p: any) => {
               if (p.userId === currentUserId && p.status !== 'settled' && p.status !== 'pending') {
                 changed = true;
-                return { ...p, status: 'pending' };
+                return { ...p, status: payerIsGuest ? 'settled' : 'pending' };
               }
               return p;
             });
@@ -489,16 +517,19 @@ export class Splits implements OnInit {
         const settleAmount = amount ?? bal.amount;
         const isFullSettlement = settleAmount >= bal.amount;
         const myId = this.currentUser()!.id;
+        const targetIsGuest = this.isGuest(targetId);
 
         if (isFullSettlement) {
           const updatedSplit = { ...split };
           if (!isOwed) {
             updatedSplit.participants = updatedSplit.participants.map((p: any) =>
-              p.userId === myId ? { ...p, status: 'pending' } : p,
+              p.userId === myId ? { ...p, status: targetIsGuest ? 'settled' : 'pending' } : p,
             );
             const success = await this.splitService.updateSplit(updatedSplit as any, true, true);
-            if (success)
-              this.toastService.showSuccess('Settlement request sent. Waiting for confirmation.');
+            if (success) {
+              if (targetIsGuest) this.toastService.showSuccess('Expense settled successfully.');
+              else this.toastService.showSuccess('Settlement request sent. Waiting for confirmation.');
+            }
           } else {
             updatedSplit.participants = updatedSplit.participants.map((p: any) =>
               (targetId === 'all' ? p.userId !== myId && p.amountOwed > 0 : p.userId === targetId)
@@ -537,7 +568,7 @@ export class Splits implements OnInit {
             ],
             participant_ids: [participantId, payerId],
             date: new Date().toISOString(),
-            category: isOwed ? 'Settlement' : 'Pending Settlement',
+            category: isOwed ? 'Settlement' : (targetIsGuest ? 'Settlement' : 'Pending Settlement'),
             group_id: split.group_id || null,
             parent_expense_id: split.id,
           };
@@ -618,11 +649,20 @@ export class Splits implements OnInit {
 
   editSplit(split: SplitExpense) {
     if (split.category === 'Settlement' || split.category === 'Pending Settlement') return;
-    if (split.payer_id !== this.currentUser()?.id) {
-      this.toastService.showError('You can only edit expenses you created.');
+    
+    // Permission check
+    const currentUserId = this.currentUser()?.id;
+    if (currentUserId && split.payer_id !== currentUserId && split.created_by !== currentUserId) {
+      this.toastService.showError("You can only edit splits you paid for or created.");
       return;
     }
+
     this.splitService.openAddSplitSheet(split);
+  }
+
+  openSummarySheet(mode: 'get' | 'owe') {
+    this.splitService.splitsSummaryMode.set(mode);
+    this.splitService.isSplitsSummarySheetOpen.set(true);
   }
 
   getGroupBalance(groupId: string) {
@@ -659,8 +699,19 @@ export class Splits implements OnInit {
     });
   }
 
-  restoreGroup(event: Event, groupId: string) {
+  async restoreGroup(event: Event, groupId: string) {
     event.stopPropagation();
-    this.splitService.archiveGroup(groupId, false);
+    const key = 'restore_' + groupId;
+    const current = new Set(this.processingIds());
+    current.add(key);
+    this.processingIds.set(current);
+
+    try {
+      await this.splitService.archiveGroup(groupId, false);
+    } finally {
+      const after = new Set(this.processingIds());
+      after.delete(key);
+      this.processingIds.set(after);
+    }
   }
 }

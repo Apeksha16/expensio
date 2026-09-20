@@ -13,7 +13,7 @@ export class KeyboardService {
   openKeyboardSync() {
     if (this.hiddenInput) {
       // Execute focus synchronously to trick iOS into opening the keyboard
-      this.hiddenInput.focus();
+      this.hiddenInput.focus({ preventScroll: true });
     }
   }
 

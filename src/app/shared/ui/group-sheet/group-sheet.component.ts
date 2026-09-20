@@ -7,6 +7,7 @@ import { SplitService, SplitGroup } from '../../../core/services/split.service';
 import { ConfirmService } from '../../../core/services/confirm.service';
 import { FriendService } from '../../../core/services/friend.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 import { SwipeToCloseDirective } from '../swipe-to-close.directive';
 import { HapticService } from '../../../core/services/haptic.service';
@@ -84,7 +85,7 @@ import { SafeInputDirective } from '../safe-input.directive';
           }
         </div>
 
-        <div class="p-6 bg-white flex-1 overflow-y-auto overscroll-none pb-6" style="scrollbar-width: none;">
+        <div class="p-6 bg-white flex-1 overflow-y-auto scroll-smooth overscroll-none pb-6" style="scrollbar-width: none;">
           @if (isEditing) {
             <div class="flex justify-center mb-5">
               <div class="relative inline-flex items-center justify-center group">
@@ -92,7 +93,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                   type="datetime-local" 
                   [value]="getDatetimeLocal(selectedDate())"
                   (change)="onDateChange($event)"
-                  class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                  class="absolute inset-0 w-full h-full opacity-[0.01] cursor-pointer z-10"
                 />
                 <span class="text-[10px] font-bold tracking-wide uppercase text-splits-dark bg-splits-surface px-3 py-1 rounded-full border border-splits-primary/10 flex items-center gap-1 group-active:scale-95 transition-transform">
                   <svg class="w-3 h-3 text-splits-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -109,7 +110,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                   type="datetime-local" 
                   [value]="getDatetimeLocal(selectedDate())"
                   (change)="onDateChange($event)"
-                  class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                  class="absolute inset-0 w-full h-full opacity-[0.01] cursor-pointer z-10"
                 />
                 <span class="text-[10px] font-bold tracking-wide uppercase text-splits-dark bg-splits-surface px-3 py-1 rounded-full border border-splits-primary/10 flex items-center gap-1 group-active:scale-95 transition-transform">
                   <svg class="w-3 h-3 text-splits-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -276,6 +277,7 @@ export class GroupSheetComponent implements OnInit {
   friendService = inject(FriendService);
   confirmService = inject(ConfirmService);
   authService = inject(AuthService);
+  toastService = inject(ToastService);
   fb = inject(FormBuilder);
 
   groupForm!: FormGroup;
@@ -372,13 +374,39 @@ export class GroupSheetComponent implements OnInit {
     const currentUserId = this.authService.userProfile().id;
 
     if (this.isEditing) {
-      const group: SplitGroup = {
-        ...this.splitService.editingGroup()!,
+      const group = this.splitService.editingGroup()!;
+      const newMembers = [currentUserId, ...this.selectedGroupMembers()];
+      const removedMembers = group.members.filter(m => !newMembers.includes(m));
+
+      if (removedMembers.length > 0) {
+        const groupExpenses = this.splitService.splits().filter(s => s.group_id === group.id && !s.parent_expense_id);
+        
+        for (const removedId of removedMembers) {
+          const hasUnsettled = groupExpenses.some((split) => {
+            if (split.payer_id === removedId) {
+              return split.participants.some(p => p.userId !== removedId && p.status !== 'settled' && p.amountOwed > 0);
+            } else {
+              const p = split.participants.find(p => p.userId === removedId);
+              return p && p.status !== 'settled' && p.amountOwed > 0;
+            }
+          });
+
+          if (hasUnsettled) {
+            const removedName = this.friendService.acceptedFriends().find((f: any) => f.profile.id === removedId)?.profile.name || 'A user';
+            this.toastService.showError(`${removedName} has unsettled expenses and cannot be removed.`);
+            this.isSaving.set(false);
+            return;
+          }
+        }
+      }
+
+      const updatedGroup: SplitGroup = {
+        ...group,
         name: v.name,
-        members: [currentUserId, ...this.selectedGroupMembers()],
+        members: newMembers,
         created_at: this.selectedDate(),
       };
-      await this.splitService.updateGroup(group);
+      await this.splitService.updateGroup(updatedGroup);
     } else {
       const group: Omit<SplitGroup, 'id'> = {
         name: v.name,

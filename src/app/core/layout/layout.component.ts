@@ -9,6 +9,7 @@ import {
   OnInit,
   ChangeDetectionStrategy,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { KeyboardService } from '../services/keyboard.service';
 import {
   Router,
@@ -27,6 +28,8 @@ import { ConfirmSheetComponent } from '../../shared/ui/confirm-sheet/confirm-she
 import { BudgetSheetComponent } from '../../shared/ui/budget-sheet/budget-sheet.component';
 import { FriendSheetComponent } from '../../shared/ui/friend-sheet/friend-sheet.component';
 import { SplitSheetComponent } from '../../shared/ui/split-sheet/split-sheet.component';
+import { GroupSummarySheetComponent } from '../../shared/ui/group-summary-sheet/group-summary-sheet.component';
+import { SplitsSummarySheetComponent } from '../../shared/ui/splits-summary-sheet/splits-summary-sheet.component';
 import { GroupSheetComponent } from '../../shared/ui/group-sheet/group-sheet.component';
 import { ExpenseService } from '../services/expense.service';
 import { BudgetService } from '../services/budget.service';
@@ -61,7 +64,9 @@ import { BalancePromptService } from '../services/balance-prompt.service';
     BudgetSheetComponent,
     FriendSheetComponent,
     SplitSheetComponent,
-    GroupSheetComponent,
+    GroupSheetComponent, 
+    GroupSummarySheetComponent,
+    SplitsSummarySheetComponent,
     MonthPickerComponent,
     QuickActionsSheetComponent,
     SubscriptionSheetComponent,
@@ -88,8 +93,12 @@ import { BalancePromptService } from '../services/balance-prompt.service';
         class="fixed top-0 w-full z-30 flex items-center justify-between px-4 h-14 transition-colors duration-300"
         [ngClass]="getThemeClasses().bg + ' ' + (getThemeClasses().bg === 'bg-white' || getThemeClasses().bg === 'bg-gray-50' ? 'text-black' : 'text-white')"
       >
-        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <span class="text-lg font-extrabold tracking-tight truncate max-w-[200px] text-center">{{ pageTitle() }}</span>
+        <div 
+          class="absolute inset-y-0 flex items-center justify-center pointer-events-none"
+          [style.left.px]="52"
+          [style.right.px]="isGroupExpensesPage() ? 132 : 52"
+        >
+          <span class="text-lg font-extrabold tracking-tight truncate w-full text-center">{{ pageTitle() }}</span>
         </div>
         @if (
           isGroupExpensesPage() ||
@@ -128,19 +137,39 @@ import { BalancePromptService } from '../services/balance-prompt.service';
         
 
         @if (isGroupExpensesPage()) {
-          <button
-            (click)="editGroup()"
-            class="active:scale-[0.98] transition-all duration-200 p-2 -mr-2 opacity-80 relative z-10 focus:outline-none transition-opacity"
-          >
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5z"
-              />
-            </svg>
-          </button>
+          <div class="flex items-center gap-1">
+            <button
+              (click)="splitService.isGroupSummarySheetOpen.set(true)"
+              class="active:scale-[0.98] transition-all duration-200 p-2 opacity-80 relative z-10 focus:outline-none transition-opacity"
+            >
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </button>
+            @if (splitService.hasAnyExpensesAcrossMonths()) {
+              <button
+                (click)="openMonthPicker()"
+                class="active:scale-[0.98] transition-all duration-200 p-2 opacity-80 relative z-10 focus:outline-none transition-opacity"
+              >
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                </svg>
+              </button>
+            }
+            <button
+              (click)="editGroup()"
+              class="active:scale-[0.98] transition-all duration-200 p-2 -mr-2 opacity-80 relative z-10 focus:outline-none transition-opacity"
+            >
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5z"
+                />
+              </svg>
+            </button>
+          </div>
         } @else if (isBudgetExpensesPage() && !isVirtualOthersBudget()) {
           <button
             (click)="editBudget()"
@@ -183,7 +212,7 @@ import { BalancePromptService } from '../services/balance-prompt.service';
               />
             </svg>
           </button>
-        } @else if (isExpensesPage() || isBudgetsPage()) {
+        } @else if (isExpensesPage() || isBudgetsPage() || (isSplitsPage() && splitService.activeTab() === 'expenses')) {
           <button
             (click)="openMonthPicker()"
             class="active:scale-[0.98] transition-all duration-200 p-2 -mr-2 relative z-10 focus:outline-none transition-opacity"
@@ -278,6 +307,17 @@ import { BalancePromptService } from '../services/balance-prompt.service';
               </svg>
             </button>
             <button
+              (click)="shareApp()"
+              title="Share App"
+              class="active:scale-[0.98] transition-all duration-200 w-11 h-11 rounded-2xl flex items-center justify-center bg-blue-50 text-blue-500 transition-colors"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+                <polyline points="16 6 12 2 8 6"></polyline>
+                <line x1="12" y1="2" x2="12" y2="15"></line>
+              </svg>
+            </button>
+            <button
               (click)="logout()"
               title="Logout"
               class="active:scale-[0.98] transition-all duration-200 w-11 h-11 rounded-2xl flex items-center justify-center bg-red-50 text-red-500 transition-colors"
@@ -350,6 +390,8 @@ import { BalancePromptService } from '../services/balance-prompt.service';
       <app-friend-sheet></app-friend-sheet>
       <app-split-sheet></app-split-sheet>
       <app-group-sheet></app-group-sheet>
+      <app-group-summary-sheet></app-group-summary-sheet>
+      <app-splits-summary-sheet></app-splits-summary-sheet>
       <app-month-picker></app-month-picker>
       <app-quick-actions-sheet></app-quick-actions-sheet>
       <app-subscription-sheet></app-subscription-sheet>
@@ -398,6 +440,7 @@ export class Layout implements AfterViewInit, OnInit {
 
   isExpensesPage = computed(() => this.currentUrl().includes('/expenses'));
   isBudgetsPage = computed(() => this.currentUrl().includes('/budgets') && !this.isBudgetExpensesPage());
+  isSplitsPage = computed(() => this.currentUrl().includes('/splits') && !this.isGroupExpensesPage());
 
   activeLedger = computed(() => {
     if (this.isLedgerDetailsPage()) {
@@ -480,7 +523,7 @@ export class Layout implements AfterViewInit, OnInit {
   }
 
   constructor() {
-    this.router.events.subscribe((event) => {
+    this.router.events.pipe(takeUntilDestroyed()).subscribe((event) => {
       if (event instanceof NavigationEnd) {
         this.currentUrl.set(event.urlAfterRedirects);
       }
@@ -601,7 +644,11 @@ export class Layout implements AfterViewInit, OnInit {
   }
 
   openMonthPicker() {
-    this.monthPicker.open(this.expenseService.activeMonth());
+    if (this.isSplitsPage() || this.isGroupExpensesPage()) {
+      this.monthPicker.open(this.splitService.activeMonth());
+    } else {
+      this.monthPicker.open(this.expenseService.activeMonth());
+    }
   }
 
   editGoal() {
@@ -689,5 +736,17 @@ export class Layout implements AfterViewInit, OnInit {
         this.router.navigate(['/login']);
       },
     });
+  }
+
+  shareApp() {
+    if (navigator.share) {
+      navigator.share({
+        title: 'Expensio',
+        text: 'Check out Expensio, the best way to track expenses and split bills with friends!',
+        url: window.location.origin
+      }).catch(console.error);
+    } else {
+      console.error('Sharing is not supported on this device/browser.');
+    }
   }
 }

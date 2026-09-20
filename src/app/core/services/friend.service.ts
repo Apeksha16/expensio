@@ -147,9 +147,7 @@ export class FriendService {
 
   async updateGuestAvatar(guestId: string, avatarId: number): Promise<boolean> {
     const { error } = await this.supabaseService.client
-      .from('profiles')
-      .update({ avatar_id: avatarId })
-      .eq('id', guestId);
+      .rpc('update_guest_avatar', { p_guest_id: guestId, p_avatar_id: avatarId });
     
     if (error) {
       console.error('Error updating guest avatar:', error);

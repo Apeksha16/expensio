@@ -21,9 +21,9 @@ import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
       @for (digit of digitsArray; track $index) {
         <div 
           class="w-5 h-5 rounded-full transition-all duration-200"
-          [class.bg-indigo-600]="digit"
+          [class.bg-violet-600]="digit"
           [class.border-2]="!digit"
-          [class.border-indigo-200]="!digit"
+          [class.border-violet-200]="!digit"
           [class.border-transparent]="digit"
         ></div>
       }

@@ -30,29 +30,19 @@ import { IconService } from '../../../core/services/icon.service';
       <!-- Fixed Header Container -->
       <div class="px-4 pt-4 shrink-0 flex flex-col gap-4">
         <!-- Summary Cards -->
-        <div class="flex gap-4 w-full">
+        <div class="flex gap-3 w-full">
           <!-- You'll Get -->
-          <div class="flex-1 bg-[#F4F2FF] rounded-3xl p-5 flex flex-col items-start relative overflow-hidden shadow-sm">
-            <div class="w-10 h-10 rounded-full bg-[#E8E4FF] flex items-center justify-center mb-4">
-              <svg class="w-5 h-5 text-splits-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-              </svg>
-            </div>
-            <span class="text-xs font-bold text-gray-500 mb-1">You'll Get</span>
-            <span class="text-2xl font-extrabold text-gray-900 tracking-tight">
+          <div class="flex-1 bg-emerald-50/50 border border-emerald-100 rounded-2xl p-4 flex flex-col items-center text-center shadow-sm">
+            <span class="text-[10px] font-bold text-emerald-600/70 uppercase tracking-widest mb-0.5">You Get</span>
+            <span class="text-xl font-extrabold text-emerald-600 tracking-tight">
               ₹{{ groupBalance().owed | number: '1.0-0' }}
             </span>
           </div>
 
           <!-- You Owe -->
-          <div class="flex-1 bg-[#FFF0F4] rounded-3xl p-5 flex flex-col items-start relative overflow-hidden shadow-sm">
-            <div class="w-10 h-10 rounded-full bg-[#FFE4EC] flex items-center justify-center mb-4">
-              <svg class="w-5 h-5 text-[#E11D48]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-              </svg>
-            </div>
-            <span class="text-xs font-bold text-gray-500 mb-1">You Owe</span>
-            <span class="text-2xl font-extrabold text-gray-900 tracking-tight">
+          <div class="flex-1 bg-red-50/50 border border-red-100 rounded-2xl p-4 flex flex-col items-center text-center shadow-sm">
+            <span class="text-[10px] font-bold text-red-600/70 uppercase tracking-widest mb-0.5">You Owe</span>
+            <span class="text-xl font-extrabold text-red-600 tracking-tight">
               ₹{{ groupBalance().owe | number: '1.0-0' }}
             </span>
           </div>
@@ -60,76 +50,90 @@ import { IconService } from '../../../core/services/icon.service';
       </div>
 
       <!-- Content Area -->
-      <main class="flex-1 overflow-y-auto no-scrollbar px-4 pb-28 mt-4">
-        @if (groupExpenses().length > 0) {
+      <main class="flex-1 overflow-y-auto no-scrollbar px-4 pb-40 mt-4">
+        @if (isInitialLoading()) {
           <div class="flex flex-col gap-3">
-            @for (split of groupExpenses(); track split.id) {
-              <button
-                (click)="editSplit(split)"
-                class="w-full bg-white border border-slate-100 rounded-3xl p-4 flex gap-4 text-left shadow-sm transition-all active:scale-[0.99] items-center"
-              >
-                <!-- Category Icon -->
-                <div class="w-12 h-12 rounded-full bg-[#F4F2FF] flex items-center justify-center shrink-0">
-                  <svg class="w-6 h-6 text-splits-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="split.icon ? iconService.getIconById(split.icon).svg : 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z'"></path>
-                  </svg>
-                </div>
-
-                <!-- Details -->
-                <div class="flex flex-col flex-1 min-w-0 justify-center gap-1">
-                  <div class="flex justify-between items-start">
-                    <span class="font-extrabold text-[15px] text-gray-900 truncate pr-2">{{ split.title }}</span>
-                    <span class="font-extrabold text-[15px] text-gray-900 shrink-0">
-                      ₹{{ split.total_amount % 1 === 0 ? (split.total_amount | number: '1.0-0') : (split.total_amount | number: '1.2-2') }}
-                    </span>
-                  </div>
-                  
-                  <div class="flex justify-between items-center">
-                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-0.5 truncate">
-                      {{ split.date | date: 'MMM d, h:mm a' }} • Paid by {{ split.payer_id === currentUser().id ? 'You' : getFriendName(split.payer_id) }}
-                    </span>
-                  </div>
-                  
-                  @if (getExpenseBalances(split).length > 0) {
-                    <div class="flex flex-col gap-2 mt-2 pt-2 border-t border-slate-100 border-dashed">
-                      @for (bal of getExpenseBalances(split); track bal.participantId) {
-                        <div class="flex justify-between items-center w-full gap-2">
-                          <span class="text-xs font-bold px-2 py-0.5 rounded-full" [ngClass]="bal.type === 'owed' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'">
-                            {{ bal.type === 'owed' ? 'You get' : 'You owe' }} ₹{{ bal.amount % 1 === 0 ? (bal.amount | number: '1.0-0') : (bal.amount | number: '1.2-2') }}
-                          </span>
-                          
-                          <!-- Actions -->
-                          <div class="flex items-center gap-2">
-                            @if (bal.pending) {
-                              <span class="text-xs font-bold text-orange-500 uppercase tracking-wider mr-1">Pending</span>
-                              @if (bal.type === 'owed') {
-                                <button (click)="confirmSettlement($event, split.id, bal.participantId)" [disabled]="processingIds().has('confirm_' + split.id + '_' + bal.participantId)" class="active:scale-[0.98] transition-all duration-200 bg-emerald-500 text-white px-3 py-1 rounded-full text-xs font-bold tracking-wide shadow-sm transition-colors disabled:opacity-50 flex items-center gap-1">
-                                  Confirm
-                                </button>
-                              } @else {
-                                <button (click)="cancelSettlement($event, split.id)" class="active:scale-[0.98] transition-all duration-200 bg-slate-50 text-gray-600 px-3 py-1 rounded-full text-xs font-bold tracking-wide shadow-sm transition-colors">
-                                  Cancel
-                                </button>
-                              }
-                            } @else {
-                              <button (click)="settleIndividualSplit($event, split, bal)" class="active:scale-[0.98] transition-all duration-200 bg-slate-50 text-gray-700 px-3 py-1 rounded-full text-xs font-bold tracking-wide transition-colors">
-                                Settle
-                              </button>
-                            }
-                          </div>
-                        </div>
-                      }
-                    </div>
-                  } @else {
-                    <div class="flex mt-1">
-                      <span class="text-xs font-bold text-gray-500 uppercase tracking-wider border border-slate-100 px-2 py-0.5 rounded-md">Settled</span>
-                    </div>
-                  }
-                </div>
-              </button>
+            @for (i of [1, 2, 3]; track i) {
+              <div class="w-full bg-slate-50 border border-slate-100 rounded-2xl h-[76px] animate-pulse"></div>
             }
           </div>
         } @else {
+          @if (groupExpenses().length > 0) {
+            <div class="flex flex-col gap-3">
+              @for (split of groupExpenses(); track split.id) {
+                <button
+                  (click)="editSplit(split)"
+                  class="w-full bg-white border border-slate-100 rounded-3xl p-4 flex gap-4 text-left shadow-sm transition-all active:scale-[0.99] items-center"
+                >
+                  <!-- Category Icon -->
+                  <div class="w-12 h-12 rounded-full bg-[#F4F2FF] flex items-center justify-center shrink-0">
+                    <svg class="w-6 h-6 text-splits-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="split.icon ? iconService.getIconById(split.icon).svg : 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z'"></path>
+                    </svg>
+                  </div>
+
+                  <!-- Details -->
+                  <div class="flex flex-col flex-1 min-w-0 justify-center gap-1">
+                    <div class="flex justify-between items-start">
+                      <span class="font-extrabold text-[15px] text-gray-900 truncate pr-2">{{ split.title }}</span>
+                      <span class="font-extrabold text-[15px] text-gray-900 shrink-0">
+                        ₹{{ split.total_amount % 1 === 0 ? (split.total_amount | number: '1.0-0') : (split.total_amount | number: '1.2-2') }}
+                      </span>
+                    </div>
+                    
+                    <div class="flex justify-between items-center">
+                      <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-0.5 truncate">
+                        {{ split.date | date: 'MMM d, h:mm a' }} • Paid by {{ split.payer_id === currentUser().id ? 'You' : getFriendName(split.payer_id) }}
+                      </span>
+                    </div>
+                    
+                    @if (getExpenseBalances(split).length > 0) {
+                      <div class="w-full flex flex-col gap-2 mt-3">
+                        @for (bal of getExpenseBalances(split); track bal.participantId) {
+                          <div class="flex items-center justify-between w-full bg-slate-50/70 rounded-xl px-3 py-2 border border-slate-100">
+                            <div class="flex items-center gap-2">
+                              @if (bal.pending) {
+                                <div class="w-1.5 h-1.5 rounded-full bg-orange-400"></div>
+                              }
+                              <span class="text-[12px] font-extrabold" [ngClass]="bal.type === 'owed' ? 'text-emerald-600' : 'text-red-600'">
+                                {{ bal.type === 'owed' ? 'You get' : 'You owe' }} ₹{{ bal.amount % 1 === 0 ? (bal.amount | number: '1.0-0') : (bal.amount | number: '1.2-2') }}
+                              </span>
+                            </div>
+                            
+                            <!-- Actions -->
+                            <div class="flex items-center gap-2 shrink-0">
+                              @if (bal.pending) {
+                                @if (bal.type === 'owed') {
+                                  <button (click)="confirmSettlement($event, split.id, bal.participantId)" [disabled]="processingIds().has('confirm_' + split.id + '_' + bal.participantId)" class="active:scale-[0.98] transition-all duration-200 bg-emerald-500 text-white border border-emerald-500 px-3 py-1 rounded-full text-[11px] font-extrabold tracking-wide shadow-sm transition-colors disabled:opacity-50 flex items-center gap-1">
+                                  @if (processingIds().has('confirm_' + split.id + '_' + bal.participantId)) {
+                                    <svg class="animate-spin h-3 w-3 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                  }
+                                  Confirm
+                                </button>
+                                } @else {
+                                  <button (click)="cancelSettlement($event, split.id)" class="active:scale-[0.98] transition-all duration-200 bg-white text-gray-700 border border-slate-200 px-3 py-1 rounded-full text-[11px] font-extrabold tracking-wide shadow-sm transition-colors">
+                                    Cancel
+                                  </button>
+                                }
+                              } @else {
+                                <button (click)="settleIndividualSplit($event, split, bal)" class="active:scale-[0.98] transition-all duration-200 bg-white text-gray-700 border border-slate-200 px-3 py-1 rounded-full text-[11px] font-extrabold tracking-wide shadow-sm transition-colors">
+                                  Settle
+                                </button>
+                              }
+                            </div>
+                          </div>
+                        }
+                      </div>
+                    } @else if (isExpenseFullySettled(split)) {
+                      <div class="flex mt-1">
+                        <span class="text-xs font-bold text-gray-500 uppercase tracking-wider border border-slate-100 px-2 py-0.5 rounded-md">Settled</span>
+                      </div>
+                    }
+                  </div>
+                </button>
+              }
+            </div>
+          } @else {
             <div class="mt-8 flex flex-col items-center justify-center text-center px-4">
               <!-- Custom illustration placeholder for empty state -->
               <div class="w-40 h-40 bg-slate-50 rounded-full flex items-center justify-center mb-6 border-8 border-white shadow-sm overflow-hidden">
@@ -143,6 +147,7 @@ import { IconService } from '../../../core/services/icon.service';
               </p>
             </div>
           }
+        }
       </main>
     </div>
   `,
@@ -161,6 +166,7 @@ export class GroupExpenses implements OnInit, OnDestroy {
   currentUser = this.authService.userProfile;
   groupId = signal<string>('');
   processingIds = signal<Set<string>>(new Set());
+  isInitialLoading = computed(() => this.splitService.isLoadingData());
 
   group = computed(() => this.splitService.groups().find((g) => g.id === this.groupId()));
   groupExpenses = computed(() =>
@@ -203,8 +209,18 @@ export class GroupExpenses implements OnInit, OnDestroy {
     return friend ? friend.profile.name.split(' ')[0] : id;
   }
 
+  isGuest(id: string): boolean {
+    const friend = this.friendService.acceptedFriends().find((f) => f.profile.id === id);
+    return friend ? !!friend.profile.isGuest : false;
+  }
+
   addExpense() {
     this.splitService.openAddSplitSheet({ group_id: this.groupId() } as any);
+  }
+
+  isExpenseFullySettled(split: any): boolean {
+    if (!split.participants || split.participants.length === 0) return true;
+    return split.participants.every((p: any) => p.userId === split.payer_id || p.status === 'settled');
   }
 
   getExpenseBalances(
@@ -316,10 +332,23 @@ export class GroupExpenses implements OnInit, OnDestroy {
     return balances;
   }
 
+  getMonthLabel(monthString: string): string {
+    if (!monthString) return '';
+    const [year, month] = monthString.split('-');
+    const date = new Date(parseInt(year), parseInt(month) - 1, 1);
+    return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  }
+
   settleUp() {
+    const month = this.splitService.activeMonth();
+    const title = month ? `Settle ${this.getMonthLabel(month)} Group Expenses` : 'Settle Group Expenses';
+    const message = month 
+      ? `Are you sure you want to settle all your expenses for ${this.getMonthLabel(month)} with everyone in this group?`
+      : 'Are you sure you want to settle all your expenses with everyone in this group?';
+
     this.confirmService.open({
-      title: 'Settle Group Expenses',
-      message: 'Are you sure you want to settle all your expenses with everyone in this group?',
+      title: title,
+      message: message,
       confirmText: 'Settle All',
       cancelText: 'Cancel',
       onConfirm: async () => {
@@ -382,23 +411,27 @@ export class GroupExpenses implements OnInit, OnDestroy {
         const settleAmount = amount ?? bal.amount;
         const isFullSettlement = settleAmount >= bal.amount;
         const myId = this.currentUser()!.id;
+        const targetIsGuest = this.isGuest(targetId);
 
         if (isFullSettlement) {
           const updatedSplit = { ...split };
           if (!isOwed) {
             updatedSplit.participants = updatedSplit.participants.map((p: any) =>
-              p.userId === myId ? { ...p, status: 'pending' } : p,
+              p.userId === myId ? { ...p, status: targetIsGuest ? 'settled' : 'pending' } : p,
             );
-            await this.splitService.updateSplit(updatedSplit as any, true, true);
-            this.toastService.showSuccess('Settlement request sent. Waiting for confirmation.');
+            const success = await this.splitService.updateSplit(updatedSplit as any, true, true);
+            if (success) {
+              if (targetIsGuest) this.toastService.showSuccess('Expense settled successfully.');
+              else this.toastService.showSuccess('Settlement request sent. Waiting for confirmation.');
+            }
           } else {
             updatedSplit.participants = updatedSplit.participants.map((p: any) =>
               (targetId === 'all' ? p.userId !== myId && p.amountOwed > 0 : p.userId === targetId)
                 ? { ...p, status: 'settled' }
                 : p,
             );
-            await this.splitService.updateSplit(updatedSplit as any, true, true);
-            this.toastService.showSuccess('Expense settled successfully.');
+            const success = await this.splitService.updateSplit(updatedSplit as any, true, true);
+            if (success) this.toastService.showSuccess('Expense settled successfully.');
           }
         } else {
           // Partial Settlement
@@ -429,7 +462,7 @@ export class GroupExpenses implements OnInit, OnDestroy {
             ],
             participant_ids: [participantId, payerId],
             date: new Date().toISOString(),
-            category: isOwed ? 'Settlement' : 'Pending Settlement',
+            category: isOwed ? 'Settlement' : (targetIsGuest ? 'Settlement' : 'Pending Settlement'),
             group_id: split.group_id || null,
             parent_expense_id: split.id,
           };
@@ -514,10 +547,14 @@ export class GroupExpenses implements OnInit, OnDestroy {
 
   editSplit(split: SplitExpense) {
     if (split.category === 'Settlement' || split.category === 'Pending Settlement') return;
-    if (split.payer_id !== this.currentUser()?.id) {
-      this.toastService.showError('You can only edit expenses you created.');
+
+    // Permission check
+    const currentUserId = this.currentUser()?.id;
+    if (currentUserId && split.payer_id !== currentUserId && split.created_by !== currentUserId) {
+      this.toastService.showError("You can only edit splits you paid for or created.");
       return;
     }
+
     this.splitService.openAddSplitSheet(split);
   }
 }

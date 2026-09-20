@@ -13,17 +13,17 @@ export class AutofocusDirective implements AfterViewInit {
     const shouldFocus = this.appAutofocus() !== false && this.appAutofocus() !== 'false';
     if (!shouldFocus) return;
 
-    // Focus immediately
-    this.el.nativeElement.focus();
+    // Focus immediately with preventScroll to stop background UI jumping during sheet animation
+    this.el.nativeElement.focus({ preventScroll: true });
 
     // Focus again after animation to ensure focus is not lost and page doesn't scroll weirdly.
     // iOS will allow this async focus transfer because the dummy input in SplitService already opened the keyboard!
     setTimeout(() => {
-      this.el.nativeElement.focus();
+      this.el.nativeElement.focus({ preventScroll: true });
     }, 50);
 
     setTimeout(() => {
-      this.el.nativeElement.focus();
+      this.el.nativeElement.focus({ preventScroll: true });
     }, 400);
   }
 }

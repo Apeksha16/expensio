@@ -104,7 +104,7 @@ import { IconService } from '../../../core/services/icon.service';
           }
         </div>
 
-        <div class="p-6 bg-white flex-1 overflow-y-auto overscroll-none pb-6" style="scrollbar-width: none;">
+        <div class="p-6 bg-white flex-1 overflow-y-auto scroll-smooth overscroll-none pb-6" style="scrollbar-width: none;">
           @if (goalService.editingGoal()?.id) {
             <div class="flex justify-center mb-5">
               <div class="relative inline-flex items-center justify-center group">
@@ -112,7 +112,7 @@ import { IconService } from '../../../core/services/icon.service';
                   type="datetime-local" 
                   [value]="getDatetimeLocal(selectedDate())"
                   (change)="onDateChange($event)"
-                  class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                  class="absolute inset-0 w-full h-full opacity-[0.01] cursor-pointer z-10"
                 />
                 <span class="text-[10px] font-bold tracking-wide uppercase text-goals-dark bg-goals-surface px-3 py-1 rounded-full border border-goals-primary/10 flex items-center gap-1 group-active:scale-95 transition-transform">
                   <svg class="w-3 h-3 text-goals-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -133,7 +133,7 @@ import { IconService } from '../../../core/services/icon.service';
                   type="datetime-local" 
                   [value]="getDatetimeLocal(selectedDate())"
                   (change)="onDateChange($event)"
-                  class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                  class="absolute inset-0 w-full h-full opacity-[0.01] cursor-pointer z-10"
                 />
                 <span class="text-[10px] font-bold tracking-wide uppercase text-goals-dark bg-goals-surface px-3 py-1 rounded-full border border-goals-primary/10 flex items-center gap-1 group-active:scale-95 transition-transform">
                   <svg class="w-3 h-3 text-goals-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -343,7 +343,7 @@ import { IconService } from '../../../core/services/icon.service';
                 <div class="border-t border-goals-primary/10 bg-white/50 p-4 flex flex-col gap-3">
                   <h4 class="text-[10px] font-bold text-goals-dark/60 uppercase tracking-wider mb-1">Installments Made ({{ goalInstallments().length }})</h4>
                   @if (goalInstallments().length > 0) {
-                    <div class="max-h-40 overflow-y-auto pr-1 flex flex-col gap-2">
+                    <div class="max-h-40 overflow-y-auto scroll-smooth pr-1 flex flex-col gap-2">
                       @for (installment of goalInstallments(); track installment.id) {
                         <div class="flex justify-between items-center text-sm border-b border-goals-primary/5 pb-2 last:border-0 last:pb-0">
                           <div class="flex flex-col">

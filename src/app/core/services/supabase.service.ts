@@ -45,11 +45,16 @@ export class SupabaseService {
           init.signal.addEventListener('abort', () => controller.abort());
         }
 
+        // Bypass CORS/Adblocker PATCH restrictions using POST with Method-Override
+        const finalInit = { ...init, signal: controller.signal as any };
+        if (finalInit.method === 'PATCH') {
+          finalInit.method = 'POST';
+          finalInit.headers = new Headers(finalInit.headers || {});
+          (finalInit.headers as Headers).set('X-HTTP-Method-Override', 'PATCH');
+        }
+
         try {
-          response = await fetch(input, {
-            ...init,
-            signal: controller.signal as any
-          });
+          response = await fetch(input, finalInit);
           clearTimeout(timeoutId);
           break; // Success
         } catch (err: any) {

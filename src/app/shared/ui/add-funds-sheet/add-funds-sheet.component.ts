@@ -84,7 +84,7 @@ import { AutofocusDirective } from '../autofocus.directive';
         </div>
 
 
-        <div class="p-6 bg-white flex-1 overflow-y-auto overscroll-none pb-6" style="scrollbar-width: none;">
+        <div class="p-6 bg-white flex-1 overflow-y-auto scroll-smooth overscroll-none pb-6" style="scrollbar-width: none;">
           <div class="mb-5 text-center">
             <h3 class="text-xl font-black tracking-tight text-goals-dark">
               {{ goalService.activeGoalForFunds()?.name }}

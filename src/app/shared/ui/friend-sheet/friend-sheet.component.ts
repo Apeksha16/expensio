@@ -13,6 +13,8 @@ import { FormsModule } from '@angular/forms';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { FriendService, FriendData } from '../../../core/services/friend.service';
 import { UserProfile } from '../../../core/services/auth.service';
+import { SplitService } from '../../../core/services/split.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { Subject, Subscription, of, timer, from } from 'rxjs';
 import {
   debounceTime,
@@ -85,7 +87,7 @@ import { AutofocusDirective } from '../autofocus.directive';
             {{ isAddMode ? 'Add Friend' : 'Remove Friend' }}
           </h2>
         </div>
-        <div class="p-6 flex flex-col gap-6 overflow-y-auto overscroll-none bg-white flex-1 overflow-y-auto overscroll-none pb-6" style="scrollbar-width: none;">
+        <div class="p-6 flex flex-col gap-6 overflow-y-auto scroll-smooth overscroll-none bg-white flex-1 overflow-y-auto scroll-smooth overscroll-none pb-6" style="scrollbar-width: none;">
           <!-- ADD MODE -->
           @if (isAddMode) {
             <div class="flex bg-slate-100 p-1 rounded-2xl mb-4 shrink-0">
@@ -130,7 +132,7 @@ import { AutofocusDirective } from '../autofocus.directive';
                     </div>
                   </div>
                   <!-- Search Results -->
-                  <div class="flex flex-col gap-2 flex-1 min-h-[150px] max-h-[40vh] overflow-y-auto pr-2 relative">
+                  <div class="flex flex-col gap-2 flex-1 min-h-[150px] max-h-[40vh] overflow-y-auto scroll-smooth pr-2 relative">
                     @if (isSearching) {
                       <div class="text-center p-4 flex justify-center items-center gap-2">
                         <svg class="animate-spin h-5 w-5 text-friends-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -283,6 +285,8 @@ export class FriendSheetComponent implements OnInit, OnDestroy {
   friendService = inject(FriendService);
   cdr = inject(ChangeDetectorRef);
   haptic = inject(HapticService);
+  splitService = inject(SplitService);
+  toastService = inject(ToastService);
 
   isVisible = signal(false);
 
@@ -386,6 +390,28 @@ export class FriendSheetComponent implements OnInit, OnDestroy {
 
   confirmRemove() {
     if (this.targetFriend) {
+      const friendId = this.targetFriend.profile.id;
+      const allSplits = this.splitService.splits();
+      
+      // Check for any pending actions in the Splits module
+      const hasPendingSplits = allSplits.some(split => {
+        // Is this friend the payer and someone else owes them?
+        if (split.payer_id === friendId) {
+          return split.participants.some(p => p.userId !== friendId && p.status !== 'settled' && p.amountOwed > 0);
+        }
+        // Does this friend owe someone?
+        else {
+          const p = split.participants.find(p => p.userId === friendId);
+          return p && p.status !== 'settled' && p.amountOwed > 0;
+        }
+      });
+
+      if (hasPendingSplits) {
+        this.toastService.showError(`Action pending in Splits module for this user. Cannot remove friend.`);
+        this.close();
+        return;
+      }
+
       this.friendService.removeFriend(this.targetFriend.id);
       this.close();
     }

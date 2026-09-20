@@ -24,11 +24,13 @@ import { AuthService } from '../../../core/services/auth.service';
 import { SupabaseService } from '../../../core/services/supabase.service';
 import { IconService } from '../../../core/services/icon.service';
 import { HapticService } from '../../../core/services/haptic.service';
+import { ExpenseService } from '../../../core/services/expense.service';
 
 import { SwipeToCloseDirective } from '../swipe-to-close.directive';
 import { AmountInputDirective } from '../amount-input.directive';
 import { AutofocusDirective } from '../autofocus.directive';
 import { SafeInputDirective } from '../safe-input.directive';
+import { DatePickerComponent } from '../date-picker/date-picker.component';
 
 
 @Component({
@@ -41,6 +43,7 @@ import { SafeInputDirective } from '../safe-input.directive';
     AmountInputDirective,
     AutofocusDirective,
     SafeInputDirective,
+    DatePickerComponent,
   ],
   animations: [
     trigger('slideUp', [
@@ -79,7 +82,7 @@ import { SafeInputDirective } from '../safe-input.directive';
       >
         <!-- Header -->
         <div class="flex justify-between items-center py-4 px-6 text-white bg-splits-primary rounded-t-[32px] sticky top-0 z-10 shrink-0 shadow-sm">
-          <h2 class="text-lg font-bold tracking-wide">
+          <h2 class="text-lg font-bold tracking-wide truncate pr-4 flex-1">
             {{ splitService.editingSplit()?.id ? 'Edit Split' : 'Add Split' }}
           </h2>
           @if (splitService.editingSplit()?.id) {
@@ -87,7 +90,7 @@ import { SafeInputDirective } from '../safe-input.directive';
               type="button"
               (click)="onDelete()"
               [disabled]="isDeleting()"
-              class="w-8 h-8 text-white/80 hover:text-white bg-black/10 hover:bg-black/20 transition-all rounded-full flex items-center justify-center disabled:opacity-50 active:scale-95"
+              class="w-8 h-8 text-white/80 hover:text-white bg-black/10 hover:bg-black/20 transition-all rounded-full flex items-center justify-center disabled:opacity-50 active:scale-95 shrink-0"
             >
               @if (isDeleting()) {
                 <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -102,17 +105,11 @@ import { SafeInputDirective } from '../safe-input.directive';
             </button>
           }
         </div>
-        <div class="p-6 bg-white flex-1 overflow-y-auto overscroll-none pb-6" style="scrollbar-width: none;">
+        <div id="split-scroll-container" class="p-6 bg-white flex-1 overflow-y-auto overscroll-none pb-6 scroll-smooth" style="scrollbar-width: none;">
           <div class="flex justify-center mb-5">
-            <div class="relative inline-flex items-center justify-center group">
-              <input 
-                type="datetime-local" 
-                [value]="getDatetimeLocal(selectedDate())"
-                (change)="onDateChange($event)"
-                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-              />
+            <div class="relative inline-flex items-center justify-center group" (click)="isDatePickerOpen = true">
               <span
-                class="text-[10px] font-bold tracking-wide uppercase text-splits-dark bg-splits-surface px-3 py-1 rounded-full border border-splits-primary/10 flex items-center gap-1 group-active:scale-95 transition-transform"
+                class="text-[10px] cursor-pointer font-bold tracking-wide uppercase text-splits-dark bg-splits-surface px-3 py-1 rounded-full border border-splits-primary/10 flex items-center gap-1 group-active:scale-95 transition-transform"
               >
                 <svg class="w-3 h-3 text-splits-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -129,7 +126,7 @@ import { SafeInputDirective } from '../safe-input.directive';
               </span>
             </div>
           </div>
-          @if (friendService.acceptedFriends().length > 0) {
+          @if (availableFriends().length > 0) {
             <form [formGroup]="splitForm" (ngSubmit)="onSubmit()" class="space-y-4">
               <div class="flex flex-col gap-1">
                 <label class="text-[13px] font-extrabold text-gray-800">What was the expense?</label>
@@ -212,7 +209,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                           </svg>
                         }
                       </button>
-                      @for (friend of friendService.acceptedFriends(); track friend.id) {
+                      @for (friend of availableFriends(); track friend.id) {
                         <button
                           type="button"
                           (click)="selectPayer(friend.profile.id)"
@@ -245,17 +242,26 @@ import { SafeInputDirective } from '../safe-input.directive';
                 }
               </div>
               <div class="flex flex-col gap-2 mt-4">
-                <label class="text-[13px] font-extrabold text-gray-800">Split with</label>
+                <div class="flex justify-between items-center">
+                  <label class="text-[13px] font-extrabold text-gray-800">Split with</label>
+                  <label class="flex items-center gap-2 cursor-pointer touch-manipulation">
+                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Include Payer</span>
+                    <div class="relative w-8 h-4 rounded-full transition-colors duration-200" [ngClass]="isPayerIncluded() ? 'bg-splits-primary' : 'bg-slate-300'">
+                      <div class="absolute top-0.5 w-3 h-3 bg-white rounded-full transition-transform duration-200 shadow-sm" [ngClass]="isPayerIncluded() ? 'left-4' : 'left-0.5'"></div>
+                    </div>
+                    <input type="checkbox" [checked]="isPayerIncluded()" (change)="isPayerIncluded.set(!isPayerIncluded())" class="hidden" />
+                  </label>
+                </div>
                 <div class="flex flex-col gap-2">
-                  @for (friend of friendService.acceptedFriends(); track friend.id) {
+                  @for (opt of splitParticipantsOptions; track opt.id) {
                     <div
-                      (click)="toggleParticipant(friend.profile.id)"
+                      (click)="toggleParticipant(opt.id)"
                       class="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all shadow-sm active:scale-[0.98]"
-                      [ngClass]="isParticipant(friend.profile.id) ? 'bg-splits-primary/5 border-2 border-splits-primary/30' : 'bg-white border-2 border-slate-100'"
+                      [ngClass]="isParticipant(opt.id) ? 'bg-splits-primary/5 border-2 border-splits-primary/30' : 'bg-white border-2 border-slate-100'"
                     >
                       <div 
                         class="w-5 h-5 rounded-md border flex items-center justify-center transition-colors shrink-0"
-                        [ngClass]="isParticipant(friend.profile.id) ? 'bg-splits-primary border-splits-primary text-white' : 'bg-white border-slate-300 text-transparent'"
+                        [ngClass]="isParticipant(opt.id) ? 'bg-splits-primary border-splits-primary text-white' : 'bg-white border-slate-300 text-transparent'"
                       >
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
@@ -263,61 +269,65 @@ import { SafeInputDirective } from '../safe-input.directive';
                       </div>
                       <div
                         class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0 transition-colors overflow-hidden"
-                        [ngClass]="isParticipant(friend.profile.id) ? 'bg-splits-primary text-white' : 'bg-slate-100 text-slate-600'"
+                        [ngClass]="isParticipant(opt.id) ? 'bg-splits-primary text-white' : 'bg-slate-100 text-slate-600'"
                       >
-                         <img [src]="authService.getAvatarUrl(friend.profile.avatarId)" alt="Avatar" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                         <img [src]="authService.getAvatarUrl(opt.avatarId)" alt="Avatar" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
                          <div style="display: none;" class="w-full h-full items-center justify-center font-bold text-sm uppercase">
-                           {{ friend.profile.name.charAt(0) }}
+                           {{ opt.name.charAt(0) }}
                          </div>
                       </div>
                       <div class="flex flex-col flex-1 min-w-0">
                         <span class="font-bold text-sm text-gray-900 truncate">{{
-                          friend.profile.name
+                          opt.name
                         }}</span>
-                        <span class="text-[10px] font-semibold text-gray-500 truncate">{{
-                          '@' + friend.profile.username
-                        }}</span>
+                        @if (opt.username) {
+                          <span class="text-[10px] font-semibold text-gray-500 truncate">{{
+                            '@' + opt.username
+                          }}</span>
+                        }
                       </div>
                     </div>
                   }
                 </div>
               </div>
-              @if (selectedParticipants().length > 0) {
-                <div class="flex flex-col gap-1.5">
-                  <label
-                    class="text-[11px] font-bold text-gray-500 tracking-wider uppercase"
-                    >Split Strategy</label
-                  >
-                  <div class="flex gap-2">
-                    <button
-                      type="button"
-                      (click)="setStrategy('EQUAL')"
-                      class="flex-1 font-bold rounded-xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-2.5 text-xs uppercase cursor-pointer border shadow-sm"
-                      [ngClass]="
-                        splitStrategy() === 'EQUAL'
-                          ? 'bg-splits-primary text-white border-splits-primary shadow-md shadow-splits-primary/25'
-                          : 'bg-white text-gray-700 border-gray-100'
-                      "
-                    >
-                      Equally
-                    </button>
-                    <button
-                      type="button"
-                      (click)="setStrategy('CUSTOM')"
-                      class="flex-1 font-bold rounded-xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-2.5 text-xs uppercase cursor-pointer border shadow-sm"
-                      [ngClass]="
-                        splitStrategy() === 'CUSTOM'
-                          ? 'bg-splits-primary text-white border-splits-primary shadow-md shadow-splits-primary/25'
-                          : 'bg-white text-gray-700 border-gray-100'
-                      "
-                    >
-                      Custom
-                    </button>
+              <div 
+                class="grid transition-all duration-400 ease-[cubic-bezier(0.4,0,0.2,1)]"
+                [ngClass]="selectedParticipants().length > 0 ? 'grid-rows-[1fr] opacity-100 mt-4' : 'grid-rows-[0fr] opacity-0 mt-0 pointer-events-none'"
+              >
+                <div class="overflow-hidden flex flex-col gap-4">
+                  <!-- Strategy Toggle -->
+                  <div class="flex flex-col gap-1.5 pt-1">
+                    <label class="text-[11px] font-bold text-gray-500 tracking-wider uppercase">Split Strategy</label>
+                    <div class="flex gap-2">
+                      <button
+                        type="button"
+                        (click)="setStrategy('EQUAL')"
+                        class="flex-1 font-bold rounded-xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-2.5 text-xs uppercase cursor-pointer border shadow-sm"
+                        [ngClass]="
+                          splitStrategy() === 'EQUAL'
+                            ? 'bg-splits-primary text-white border-splits-primary shadow-md shadow-splits-primary/25'
+                            : 'bg-white text-gray-700 border-gray-100'
+                        "
+                      >
+                        Equally
+                      </button>
+                      <button
+                        type="button"
+                        (click)="setStrategy('CUSTOM')"
+                        class="flex-1 font-bold rounded-xl transition-all active:scale-95 flex justify-center items-center gap-2 touch-manipulation px-4 py-2.5 text-xs uppercase cursor-pointer border shadow-sm"
+                        [ngClass]="
+                          splitStrategy() === 'CUSTOM'
+                            ? 'bg-splits-primary text-white border-splits-primary shadow-md shadow-splits-primary/25'
+                            : 'bg-white text-gray-700 border-gray-100'
+                        "
+                      >
+                        Custom
+                      </button>
+                    </div>
                   </div>
-                </div>
-              }
-              @if (selectedParticipants().length > 0) {
-                <div class="flex flex-col gap-2 bg-splits-surface border border-splits-primary/20 rounded-xl p-4 shadow-sm">
+
+                  <!-- Participants Amounts -->
+                  <div class="flex flex-col gap-2 bg-splits-surface border border-splits-primary/20 rounded-xl p-4 shadow-sm mb-2">
                   @for (p of selectedParticipants(); track p) {
                     <div class="flex justify-between items-center gap-2">
                       <span class="font-bold text-xs text-splits-dark truncate max-w-[45%]">{{
@@ -355,7 +365,7 @@ import { SafeInputDirective } from '../safe-input.directive';
                     >
                       <span
                         class="text-[10px] font-bold text-splits-dark tracking-wider uppercase"
-                        >My Share</span
+                        >{{ getPayerShareName() }} Share</span
                       >
                       <span
                         class="font-black text-xs"
@@ -366,7 +376,8 @@ import { SafeInputDirective } from '../safe-input.directive';
                     </div>
                   }
                 </div>
-              }
+              </div>
+            </div>
               <div class="mt-6 flex gap-3">
                 <button
                   type="button"
@@ -440,6 +451,15 @@ import { SafeInputDirective } from '../safe-input.directive';
             </div>
           }
         </div>
+    
+        <!-- Global Date Picker for Form -->
+        <app-date-picker
+          [isOpen]="isDatePickerOpen"
+          [initialDate]="selectedDate()"
+          (dateSelected)="onDateSelected($event)"
+          (closed)="isDatePickerOpen = false"
+        >
+        </app-date-picker>
       </div>
     }
   `,
@@ -451,14 +471,62 @@ export class SplitSheetComponent implements OnInit {
   authService = inject(AuthService);
   iconService = inject(IconService);
   confirmService = inject(ConfirmService);
+  expenseService = inject(ExpenseService);
   fb = inject(FormBuilder);
 
   currentUser = computed(() => this.authService.userProfile());
+
+  availableFriends = computed(() => {
+    const friends = this.friendService.acceptedFriends();
+    const splitContext = this.splitService.editingSplit();
+    if (splitContext?.group_id) {
+      const group = this.splitService.groups().find(g => g.id === splitContext.group_id);
+      if (group) {
+        return friends.filter((f: any) => group.members.includes(f.profile.id));
+      }
+    }
+    return friends;
+  });
+
+  get splitParticipantsOptions() {
+    const friends = this.availableFriends();
+    const currentUser = this.currentUser();
+    const payerId = this.splitForm?.value?.payerId;
+
+    const options: any[] = [];
+    
+    if (currentUser && payerId !== currentUser.id) {
+      options.push({
+        id: currentUser.id,
+        name: 'Me',
+        username: currentUser.name?.split(' ')[0] || 'me',
+        avatarId: currentUser.avatarId,
+        isGuest: false
+      });
+    }
+
+    friends.forEach((f: any) => {
+      if (f.profile.id !== payerId) {
+        options.push({
+          id: f.profile.id,
+          name: f.profile.name,
+          username: f.profile.username,
+          avatarId: f.profile.avatarId,
+          isGuest: f.profile.isGuest
+        });
+      }
+    });
+
+    return options;
+  }
 
   splitForm!: FormGroup;
 
   isSaving = signal(false);
   isDeleting = signal(false);
+
+  isDatePickerOpen = false;
+  isPayerIncluded = signal(true);
 
   splitStrategy = signal<'EQUAL' | 'CUSTOM'>('EQUAL');
   selectedParticipants = signal<string[]>([]);
@@ -536,8 +604,23 @@ export class SplitSheetComponent implements OnInit {
           );
           this.selectedParticipants.set(friendsInvolved.map((p) => p.userId));
 
-          const equalAmt = split.total_amount / split.participants.length;
-          const isEqual = split.participants.every((p) => Math.abs(p.amountOwed - equalAmt) <= 1);
+          const payerParticipant = split.participants.find(p => p.userId === split.payer_id);
+          const payerOwed = payerParticipant?.amountOwed || 0;
+          
+          this.isPayerIncluded.set(payerOwed > 0.01 || split.total_amount === 0);
+
+          let participantCountForEqual = split.participants.length;
+          if (!this.isPayerIncluded()) {
+             participantCountForEqual -= 1;
+          }
+
+          const equalAmt = participantCountForEqual > 0 ? split.total_amount / participantCountForEqual : 0;
+          const isEqual = split.participants.every((p) => {
+            if (p.userId === split.payer_id && !this.isPayerIncluded()) {
+              return p.amountOwed <= 0.01;
+            }
+            return Math.abs(p.amountOwed - equalAmt) <= 1;
+          });
 
           friendsInvolved.forEach((p) => {
             this.customAmounts[p.userId] = new FormControl(Math.round(p.amountOwed));
@@ -559,6 +642,7 @@ export class SplitSheetComponent implements OnInit {
             paid_via: 'UPI',
           });
           this.selectedDate.set(new Date().toISOString());
+          this.isPayerIncluded.set(true);
           this.selectedParticipants.set([]);
           this.customAmounts = {};
           this.splitStrategy.set('EQUAL');
@@ -619,6 +703,11 @@ export class SplitSheetComponent implements OnInit {
 
   selectPayer(id: string) {
     this.splitForm.patchValue({ payerId: id });
+    const current = this.selectedParticipants();
+    if (current.includes(id)) {
+      this.selectedParticipants.set(current.filter((u) => u !== id));
+      delete this.customAmounts[id];
+    }
     this.isDropdownOpen.set(false);
   }
 
@@ -630,6 +719,12 @@ export class SplitSheetComponent implements OnInit {
     } else {
       this.selectedParticipants.set([...current, id]);
       this.customAmounts[id] = new FormControl(null);
+      setTimeout(() => {
+        const el = document.getElementById('split-scroll-container');
+        if (el) {
+          el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+        }
+      }, 300);
     }
   }
 
@@ -645,7 +740,8 @@ export class SplitSheetComponent implements OnInit {
     const total = this.splitForm.value.totalAmount || 0;
     const count = this.selectedParticipants().length;
     if (count === 0) return 0;
-    return Math.round((total / (count + 1)) * 100) / 100;
+    const denominator = this.isPayerIncluded() ? count + 1 : count;
+    return Math.round((total / denominator) * 100) / 100;
   }
 
   getCustomControl(id: string): FormControl {
@@ -669,7 +765,15 @@ export class SplitSheetComponent implements OnInit {
     return Math.round((total - assigned) * 100) / 100;
   }
 
+  getPayerShareName(): string {
+    const payerId = this.splitForm?.get('payerId')?.value;
+    if (!payerId || payerId === this.currentUser()?.id) return 'My';
+    const f = this.friendService.acceptedFriends().find((x: any) => x.profile.id === payerId);
+    return f ? f.profile.name.split(' ')[0] + "'s" : "Payer's";
+  }
+
   getFriendName(id: string): string {
+    if (id === this.currentUser()?.id) return 'Me';
     const f = this.friendService.acceptedFriends().find((x: any) => x.profile.id === id);
     return f ? f.profile.name.split(' ')[0] : id;
   }
@@ -696,10 +800,15 @@ export class SplitSheetComponent implements OnInit {
     return new Date(d.getTime() - tzoffset).toISOString().slice(0, 16);
   }
 
-  onDateChange(event: any) {
-    const val = event.target.value;
-    if (val) {
-      this.selectedDate.set(new Date(val).toISOString());
+  onDateSelected(dateStr: string) {
+    const existingDateVal = this.selectedDate();
+    const dateObj = existingDateVal ? new Date(existingDateVal) : new Date();
+
+    // dateStr is YYYY-MM-DD
+    const [year, month, day] = dateStr.split('-');
+    if (year && month && day) {
+      dateObj.setFullYear(parseInt(year, 10), parseInt(month, 10) - 1, parseInt(day, 10));
+      this.selectedDate.set(dateObj.toISOString());
     }
   }
 
@@ -720,8 +829,19 @@ export class SplitSheetComponent implements OnInit {
       return { userId: p, amountOwed: amount };
     });
 
-    let myAmount = this.getLeftToAssign();
-    participants.push({ userId: this.currentUser().id, amountOwed: myAmount });
+    let payerAmount = this.getLeftToAssign();
+    
+    // If payer is excluded in EQUAL mode, they should owe EXACTLY 0.
+    // Any rounding remainder (e.g., 0.01) is added to the first participant instead.
+    if (this.splitStrategy() === 'EQUAL' && !this.isPayerIncluded()) {
+      const remainder = payerAmount;
+      payerAmount = 0;
+      if (participants.length > 0 && Math.abs(remainder) > 0) {
+        participants[0].amountOwed = Math.round((participants[0].amountOwed + remainder) * 100) / 100;
+      }
+    }
+
+    participants.push({ userId: v.payerId, amountOwed: payerAmount });
 
     const splitContext = this.splitService.editingSplit();
     const isEditing = splitContext && !!splitContext.id;
