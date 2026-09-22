@@ -28,7 +28,7 @@
 }
 
 <!-- Global hidden input for iOS keyboard hack -->
-<input #globalHiddenInput type="text" class="fixed opacity-0 pointer-events-none -z-50 -left-[9999px] -top-[9999px]" />
+<input #globalHiddenInput type="text" class="fixed z-[-1] left-0 top-0 w-[1px] h-[1px] bg-transparent text-transparent border-none outline-none opacity-[0.01] pointer-events-none" style="font-size: 16px;" />
 
 <!-- Offline Overlay -->
 @if (pwaService.isOffline()) {

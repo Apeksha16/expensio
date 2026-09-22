@@ -8,6 +8,7 @@ import {
   AfterViewInit,
   OnInit,
   ChangeDetectionStrategy,
+  effect,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { KeyboardService } from '../services/keyboard.service';
@@ -22,7 +23,7 @@ import { CommonModule, DOCUMENT, Location } from '@angular/common';
 import { slideInAnimation } from '../animations/route-animations';
 import { AuthService } from '../services/auth.service';
 import { PwaService } from '../services/pwa.service';
-import { DomSanitizer } from '@angular/platform-browser';
+import { DomSanitizer, Meta } from '@angular/platform-browser';
 import { BottomSheetComponent } from '../../shared/ui/bottom-sheet/bottom-sheet.component';
 import { ConfirmSheetComponent } from '../../shared/ui/confirm-sheet/confirm-sheet.component';
 import { BudgetSheetComponent } from '../../shared/ui/budget-sheet/budget-sheet.component';
@@ -85,7 +86,7 @@ import { BalancePromptService } from '../services/balance-prompt.service';
       <input
         #globalHiddenInput
         type="text"
-        class="fixed opacity-0 pointer-events-none -z-50 -left-[9999px] -top-[9999px]"
+        class="fixed z-[-1] left-0 top-0 w-[1px] h-[1px] bg-transparent text-transparent border-none outline-none opacity-[0.01] pointer-events-none" style="font-size: 16px;"
       />
 
       <!-- Top Header -->
@@ -365,7 +366,7 @@ import { BalancePromptService } from '../services/balance-prompt.service';
       }
 
       <!-- Global Floating Action Button -->
-      @if (!isProfilePage() && !isDashboardPage()) {
+      @if (!isProfilePage() && !isDashboardPage() && !isReportsPage()) {
         <button
           (click)="handleFabClick()"
           class="fixed right-5 w-14 h-14 text-white rounded-full flex items-center justify-center z-40 shadow-xl transition-all duration-200 active:scale-90"
@@ -411,6 +412,7 @@ export class Layout implements AfterViewInit, OnInit {
   router = inject(Router);
   private location = inject(Location);
   private sanitizer = inject(DomSanitizer);
+  private meta = inject(Meta);
   expenseService = inject(ExpenseService);
   budgetService = inject(BudgetService);
   friendService = inject(FriendService);
@@ -433,6 +435,7 @@ export class Layout implements AfterViewInit, OnInit {
   isDashboardPage = computed(
     () => this.currentUrl().includes('/dashboard') || this.currentUrl() === '/',
   );
+  isReportsPage = computed(() => this.currentUrl().includes('/reports'));
   isGroupExpensesPage = computed(() => this.currentUrl().includes('/splits/group/'));
   isBudgetExpensesPage = computed(() => this.currentUrl().match(/\/budgets\/.+/) !== null);
   isGoalTransactionsPage = computed(() => this.currentUrl().match(/\/goals\/.+/) !== null);
@@ -523,11 +526,35 @@ export class Layout implements AfterViewInit, OnInit {
   }
 
   constructor() {
+    effect(() => {
+      const url = this.currentUrl();
+      this.updateThemeColor(url);
+    });
+
     this.router.events.pipe(takeUntilDestroyed()).subscribe((event) => {
       if (event instanceof NavigationEnd) {
         this.currentUrl.set(event.urlAfterRedirects);
       }
     });
+  }
+
+  updateThemeColor(url: string) {
+    const route = url.split('?')[0].split('/')[1] || 'dashboard';
+    let hexColor = '#ffffff';
+    switch (route) {
+      case 'expenses': hexColor = '#7c3aed'; break;
+      case 'budgets': hexColor = '#059669'; break;
+      case 'friends': hexColor = '#d946ef'; break;
+      case 'splits': hexColor = '#ea580c'; break;
+      case 'subscriptions': hexColor = '#d946ef'; break;
+      case 'goals': hexColor = '#0d9488'; break;
+      case 'ledger': hexColor = '#2563eb'; break;
+      case 'tracker': hexColor = '#d97706'; break;
+      case 'profile': hexColor = '#0891b2'; break;
+      case 'dashboard': hexColor = '#0f172a'; break;
+    }
+    this.meta.updateTag({ name: 'theme-color', content: hexColor });
+    this.document.body.style.backgroundColor = hexColor;
   }
 
   ngOnInit() {
@@ -681,7 +708,7 @@ export class Layout implements AfterViewInit, OnInit {
   }
 
   getThemeClasses() {
-    const route = this.currentUrl().split('/')[1] || 'dashboard';
+    const route = this.currentUrl().split('?')[0].split('/')[1] || 'dashboard';
     switch (route) {
       case 'expenses':
         return { bg: 'bg-expense-primary', border: 'border-expense-primary', text: 'text-expense-primary' };

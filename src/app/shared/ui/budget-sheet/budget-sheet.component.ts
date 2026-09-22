@@ -105,23 +105,6 @@ import { IconService } from '../../../core/services/icon.service';
                 </span>
               </div>
             </div>
-          } @else {
-            <div class="flex justify-center mb-5">
-              <div class="relative inline-flex items-center justify-center group">
-                <input 
-                  type="datetime-local" 
-                  [value]="getDatetimeLocal(selectedDate())"
-                  (change)="onDateChange($event)"
-                  class="absolute inset-0 w-full h-full opacity-[0.01] cursor-pointer z-10"
-                />
-                <span class="text-[10px] font-bold tracking-wide uppercase text-budget-dark bg-budget-surface px-3 py-1 rounded-full border border-budget-primary/10 flex items-center gap-1 group-active:scale-95 transition-transform">
-                  <svg class="w-3 h-3 text-budget-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  Adding at {{ selectedDate() | date: 'medium' }}
-                </span>
-              </div>
-            </div>
           }
           <form [formGroup]="budgetForm" (ngSubmit)="onSubmit()" class="space-y-4 text-left">
             <app-icon-suggester
@@ -345,6 +328,7 @@ export class BudgetSheetComponent implements AfterViewInit {
 
     const data = {
       ...formValue,
+      icon_path: assignedIcon?.svg || 'M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4',
       amount: Number(formValue.amount),
       created_at: this.selectedDate()
     };

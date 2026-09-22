@@ -87,8 +87,48 @@ serve(async (req: Request) => {
       const totalSplits = userSplitExpenses.reduce((sum, se) => sum + (Number(se.total_amount) || 0), 0);
       const grandTotal = totalPersonal + totalSplits;
 
+      const daysInWindow = type === 'twice_daily' || type === 'test' ? 0.5 : (type === 'weekly' ? 7 : 30);
+      const dailyAverage = grandTotal / Math.max(1, daysInWindow);
+      
+      const largestPersonal = expenses?.reduce((max, e) => Math.max(max, Number(e.amount) || 0), 0) || 0;
+      const largestSplit = userSplitExpenses.reduce((max, se) => Math.max(max, Number(se.total_amount) || 0), 0);
+      const largestSpend = Math.max(largestPersonal, largestSplit);
+
+      const categoryTotals: Record<string, number> = {};
+      expenses?.forEach(e => {
+        const cat = e.category || 'General';
+        categoryTotals[cat] = (categoryTotals[cat] || 0) + (Number(e.amount) || 0);
+      });
+      userSplitExpenses.forEach(se => {
+        categoryTotals['Split'] = (categoryTotals['Split'] || 0) + (Number(se.total_amount) || 0);
+      });
+      let highestCategory = 'None';
+      let highestCatAmount = 0;
+      Object.entries(categoryTotals).forEach(([cat, amt]) => {
+        if (amt > highestCatAmount) {
+          highestCatAmount = amt;
+          highestCategory = cat;
+        }
+      });
+
+      const paymentTotals: Record<string, number> = {};
+      expenses?.forEach(e => {
+        const p = e.paid_via || 'UPI';
+        paymentTotals[p] = (paymentTotals[p] || 0) + (Number(e.amount) || 0);
+      });
+      let topPaymentMethod = 'None';
+      let highestPayAmount = 0;
+      Object.entries(paymentTotals).forEach(([p, amt]) => {
+        if (amt > highestPayAmount) {
+          highestPayAmount = amt;
+          topPaymentMethod = p;
+        }
+      });
+
+      const totalTransactions = (expenses?.length || 0) + userSplitExpenses.length;
+
       const reportTitle = type === 'twice_daily' ? '12-Hour Expense & Split Summary' : (type === 'weekly' ? 'Weekly Report' : 'Monthly Report');
-      const timeWindowText = type === 'twice_daily' ? 'past 12 hours (10 AM / 10 PM Report)' : (type === 'weekly' ? 'past 7 days' : 'past month');
+      const timeWindowText = type === 'twice_daily' || type === 'test' ? 'past 12 hours (10 AM / 10 PM Report)' : (type === 'weekly' ? 'past 7 days' : 'past month');
 
       // Personal Expenses List HTML
       const personalHtml = (expenses || []).map(exp => `
@@ -126,34 +166,58 @@ serve(async (req: Request) => {
         <div style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9fafb; padding: 32px 16px;">
           <div style="background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);">
             
-            <div style="background: linear-gradient(135deg, #0284c7, #0369a1); padding: 36px 32px; text-align: center; color: white;">
-              <h1 style="font-weight: 900; margin: 0; font-size: 28px; letter-spacing: -0.5px;">Expensio</h1>
-              <p style="margin: 8px 0 0; font-size: 14px; font-weight: 600; opacity: 0.9;">${reportTitle}</p>
+            <div style="border-bottom: 1px solid #e5e7eb; padding: 32px; text-align: left; background-color: #FAFAFA;">
+              <h1 style="font-weight: 700; margin: 0; font-size: 24px; color: #111827;">Expensio Report</h1>
+              <p style="margin: 8px 0 0; font-size: 14px; color: #6b7280;">Generated for: ${timeWindowText}</p>
             </div>
             
-            <div style="padding: 32px;">
-              <p style="font-weight: 700; font-size: 18px; color: #111827; margin-top: 0;">Hello ${user.user_metadata?.full_name || 'there'},</p>
-              <p style="font-size: 14px; line-height: 1.6; color: #4b5563; margin-bottom: 24px;">Here is your personal and split expense activity summary for the ${timeWindowText}:</p>
+            <div style="padding: 32px; background-color: #FAFAFA;">
               
               <!-- Total Card -->
-              <div style="background-color: #0f172a; color: white; border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 28px;">
-                <p style="margin: 0; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #94a3b8;">Total Spending Activity</p>
-                <h2 style="margin: 8px 0 0; font-size: 40px; font-weight: 900; color: #38bdf8;">₹${grandTotal.toLocaleString('en-IN')}</h2>
+              <div style="background-color: #e11d48; color: white; border-radius: 24px; padding: 24px; margin-bottom: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);">
+                <p style="margin: 0; font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.8); margin-bottom: 8px;">Total Spent</p>
+                <h2 style="margin: 0; font-size: 36px; font-weight: 700;">₹${grandTotal.toLocaleString('en-IN')}</h2>
+              </div>
+
+              <!-- 4 Insights boxes -->
+              <div style="display: flex; flex-wrap: wrap; margin-bottom: 16px;">
+                <div style="width: calc(50% - 8px); margin-right: 16px; margin-bottom: 16px; background-color: #ffffff; border-radius: 24px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); border: 1px solid #f3f4f6; box-sizing: border-box;">
+                  <p style="margin: 0 0 8px 0; font-size: 12px; font-weight: 500; color: #6b7280;">Daily Average</p>
+                  <p style="margin: 0; font-size: 20px; font-weight: 700; color: #111827;">₹${dailyAverage.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</p>
+                </div>
+                <div style="width: calc(50% - 8px); margin-bottom: 16px; background-color: #ffffff; border-radius: 24px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); border: 1px solid #f3f4f6; box-sizing: border-box;">
+                  <p style="margin: 0 0 8px 0; font-size: 12px; font-weight: 500; color: #6b7280;">Largest Spend</p>
+                  <p style="margin: 0; font-size: 20px; font-weight: 700; color: #111827;">₹${largestSpend.toLocaleString('en-IN')}</p>
+                </div>
+                <div style="width: calc(50% - 8px); margin-right: 16px; background-color: #ffffff; border-radius: 24px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); border: 1px solid #f3f4f6; box-sizing: border-box;">
+                  <p style="margin: 0 0 8px 0; font-size: 12px; font-weight: 500; color: #6b7280;">Top Category</p>
+                  <p style="margin: 0; font-size: 16px; font-weight: 700; color: #111827;">${highestCategory}</p>
+                </div>
+                <div style="width: calc(50% - 8px); background-color: #ffffff; border-radius: 24px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); border: 1px solid #f3f4f6; box-sizing: border-box;">
+                  <p style="margin: 0 0 8px 0; font-size: 12px; font-weight: 500; color: #6b7280;">Top Payment</p>
+                  <p style="margin: 0; font-size: 16px; font-weight: 700; color: #111827;">${topPaymentMethod}</p>
+                </div>
+              </div>
+
+              <!-- Total Transactions -->
+              <div style="background-color: #ffffff; border-radius: 24px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); border: 1px solid #f3f4f6; display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <p style="margin: 0; font-size: 14px; font-weight: 500; color: #6b7280;">Total Transactions</p>
+                <p style="margin: 0; font-size: 20px; font-weight: 700; color: #111827;">${totalTransactions}</p>
               </div>
 
               <!-- Personal Expenses Section -->
-              <div style="margin-bottom: 28px;">
-                <h3 style="font-weight: 800; color: #111827; font-size: 15px; margin-bottom: 12px; text-transform: uppercase;">💳 Personal Expenses (${expenses?.length || 0})</h3>
-                <div style="background-color: #f8fafc; padding: 16px; border-radius: 12px; border: 1px solid #e2e8f0;">
-                  ${personalHtml || '<div style="font-size: 13px; color: #94a3b8; text-align: center; padding: 8px 0;">No personal expenses added in this 12-hour window.</div>'}
+              <div style="margin-bottom: 28px; background-color: white; padding: 20px; border-radius: 16px; border: 1px solid #e5e7eb;">
+                <h3 style="font-weight: 700; color: #111827; font-size: 16px; margin-top: 0; margin-bottom: 16px;">💳 Personal Expenses</h3>
+                <div>
+                  ${personalHtml || '<div style="font-size: 13px; color: #94a3b8; padding: 8px 0;">No personal expenses added in this period.</div>'}
                 </div>
               </div>
 
               <!-- Split Expenses Section -->
-              <div style="margin-bottom: 28px;">
-                <h3 style="font-weight: 800; color: #111827; font-size: 15px; margin-bottom: 12px; text-transform: uppercase;">🤝 Split Expenses (${userSplitExpenses.length})</h3>
-                <div style="background-color: #f8fafc; padding: 16px; border-radius: 12px; border: 1px solid #e2e8f0;">
-                  ${splitHtml || '<div style="font-size: 13px; color: #94a3b8; text-align: center; padding: 8px 0;">No split expenses involving you in this 12-hour window.</div>'}
+              <div style="margin-bottom: 12px; background-color: white; padding: 20px; border-radius: 16px; border: 1px solid #e5e7eb;">
+                <h3 style="font-weight: 700; color: #111827; font-size: 16px; margin-top: 0; margin-bottom: 16px;">🤝 Split Expenses</h3>
+                <div>
+                  ${splitHtml || '<div style="font-size: 13px; color: #94a3b8; padding: 8px 0;">No split expenses involving you in this period.</div>'}
                 </div>
               </div>
 

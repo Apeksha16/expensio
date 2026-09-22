@@ -656,7 +656,7 @@ export class Splits {
       this.toastService.showError("You can only edit splits you paid for or created.");
       return;
     }
-
+    this.keyboardService.openKeyboardSync();
     this.splitService.openAddSplitSheet(split);
   }
 
