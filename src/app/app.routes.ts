@@ -95,6 +95,11 @@ export const routes: Routes = [
         data: { animationIndex: 5.8 }
       },
       {
+        path: 'emis',
+        loadComponent: () => import('./features/emis/emis.component').then(m => m.EmisComponent),
+        data: { animationIndex: 5.85 }
+      },
+      {
         path: 'goals',
         loadComponent: () => import('./features/goals/goals.component').then(m => m.GoalsComponent),
         data: { animationIndex: 5.9 }

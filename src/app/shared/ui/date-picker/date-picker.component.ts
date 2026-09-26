@@ -198,6 +198,16 @@ export class DatePickerComponent {
           hoverDarkBg: '',
           darkBg: 'bg-ledger-dark',
         };
+      case 'emis':
+        return {
+          bg: 'bg-emis-primary',
+          border: 'border-emis-primary',
+          hoverBg: '',
+          hoverBorder: '',
+          text: 'text-emis-primary',
+          hoverDarkBg: '',
+          darkBg: 'bg-emis-dark',
+        };
       default:
         return {
           bg: 'bg-tracker-primary',

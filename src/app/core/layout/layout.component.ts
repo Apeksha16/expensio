@@ -50,6 +50,8 @@ import { LedgerSheetComponent } from '../../shared/ui/ledger-sheet/ledger-sheet.
 import { LedgerSubSheetComponent } from '../../shared/ui/ledger-sub-sheet/ledger-sub-sheet.component';
 import { AccountSheetComponent } from '../../shared/ui/account-sheet/account-sheet.component';
 import { AccountTrackerService } from '../services/account-tracker.service';
+import { EmiService } from '../services/emi.service';
+import { EmiSheetComponent } from '../../shared/ui/emi-sheet/emi-sheet.component';
 import { MonthPickerService } from '../services/month-picker.service';
 import { BalancePromptComponent } from '../../shared/ui/balance-prompt/balance-prompt.component';
 import { BalancePromptService } from '../services/balance-prompt.service';
@@ -77,6 +79,7 @@ import { BalancePromptService } from '../services/balance-prompt.service';
     LedgerSubSheetComponent,
     AccountSheetComponent,
     BalancePromptComponent,
+    EmiSheetComponent,
   ],
   animations: [slideInAnimation],
   changeDetection: ChangeDetectionStrategy.Default,
@@ -402,6 +405,7 @@ import { BalancePromptService } from '../services/balance-prompt.service';
       <app-ledger-sub-sheet></app-ledger-sub-sheet>
       <app-account-sheet></app-account-sheet>
       <app-balance-prompt></app-balance-prompt>
+      <app-emi-sheet></app-emi-sheet>
     </div>
   `,
 })
@@ -426,6 +430,7 @@ export class Layout implements AfterViewInit, OnInit {
   goalService = inject(GoalService);
   ledgerService = inject(LedgerService);
   accountTrackerService = inject(AccountTrackerService);
+  emiService = inject(EmiService);
   monthPicker = inject(MonthPickerService);
   balancePromptService = inject(BalancePromptService);
 
@@ -440,6 +445,7 @@ export class Layout implements AfterViewInit, OnInit {
   isBudgetExpensesPage = computed(() => this.currentUrl().match(/\/budgets\/.+/) !== null);
   isGoalTransactionsPage = computed(() => this.currentUrl().match(/\/goals\/.+/) !== null);
   isLedgerDetailsPage = computed(() => this.currentUrl().match(/\/ledger\/.+/) !== null);
+  isEmisPage = computed(() => this.currentUrl().includes('/emis'));
 
   isExpensesPage = computed(() => this.currentUrl().includes('/expenses'));
   isBudgetsPage = computed(() => this.currentUrl().includes('/budgets') && !this.isBudgetExpensesPage());
@@ -512,6 +518,7 @@ export class Layout implements AfterViewInit, OnInit {
     if (url.includes('/goals')) return 'Goals';
     if (url.includes('/ledger')) return 'Ledger';
     if (url.includes('/tracker')) return 'Accounts Tracker';
+    if (url.includes('/emis')) return 'EMIs';
 
     if (url.includes('/profile')) return 'Profile';
     return 'Dashboard';
@@ -526,35 +533,11 @@ export class Layout implements AfterViewInit, OnInit {
   }
 
   constructor() {
-    effect(() => {
-      const url = this.currentUrl();
-      this.updateThemeColor(url);
-    });
-
     this.router.events.pipe(takeUntilDestroyed()).subscribe((event) => {
       if (event instanceof NavigationEnd) {
         this.currentUrl.set(event.urlAfterRedirects);
       }
     });
-  }
-
-  updateThemeColor(url: string) {
-    const route = url.split('?')[0].split('/')[1] || 'dashboard';
-    let hexColor = '#ffffff';
-    switch (route) {
-      case 'expenses': hexColor = '#7c3aed'; break;
-      case 'budgets': hexColor = '#059669'; break;
-      case 'friends': hexColor = '#d946ef'; break;
-      case 'splits': hexColor = '#ea580c'; break;
-      case 'subscriptions': hexColor = '#d946ef'; break;
-      case 'goals': hexColor = '#0d9488'; break;
-      case 'ledger': hexColor = '#2563eb'; break;
-      case 'tracker': hexColor = '#d97706'; break;
-      case 'profile': hexColor = '#0891b2'; break;
-      case 'dashboard': hexColor = '#0f172a'; break;
-    }
-    this.meta.updateTag({ name: 'theme-color', content: hexColor });
-    this.document.body.style.backgroundColor = hexColor;
   }
 
   ngOnInit() {
@@ -641,6 +624,8 @@ export class Layout implements AfterViewInit, OnInit {
       }
     } else if (this.currentUrl().includes('/goals')) {
       this.goalService.openBottomSheet();
+    } else if (this.currentUrl().includes('/emis')) {
+      this.emiService.openBottomSheet();
     } else if (this.currentUrl().includes('/ledger')) {
       this.ledgerService.openBottomSheet();
     } else {
@@ -727,6 +712,8 @@ export class Layout implements AfterViewInit, OnInit {
 
       case 'tracker':
         return { bg: 'bg-tracker-primary', border: 'border-tracker-primary', text: 'text-tracker-primary' };
+      case 'emis':
+        return { bg: 'bg-emis-primary', border: 'border-emis-primary', text: 'text-emis-primary' };
       case 'profile':
         return { bg: 'bg-profile-primary', border: 'border-profile-primary', text: 'text-profile-primary' };
       case 'dashboard':

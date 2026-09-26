@@ -61,6 +61,12 @@
   --color-goals-light: #14b8a6;
   --color-goals-surface: #f0fdfa;
 
+  /* EMIs Module - Zinc (Unique Dark Theme) */
+  --color-emis-primary: #27272a;
+  --color-emis-dark: #09090b;
+  --color-emis-light: #52525b;
+  --color-emis-surface: #f4f4f5;
+
   /* Ledger Module - Blue (Formerly Goals) */
   --color-ledger-primary: #2563eb;
   --color-ledger-dark: #1d4ed8;

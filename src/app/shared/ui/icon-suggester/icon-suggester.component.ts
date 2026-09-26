@@ -57,7 +57,7 @@ export class IconSuggesterComponent {
 
   inputText = input<string>('');
   selectedIconId = input<string | null | undefined>(null);
-  themeColor = input<'subscriptions' | 'goals' | 'expenses' | 'splits' | 'budgets'>('subscriptions');
+  themeColor = input<'subscriptions' | 'goals' | 'expenses' | 'splits' | 'budgets' | 'emis'>('subscriptions');
   
   iconSelected = output<string>();
   iconCleared = output<void>();
@@ -115,6 +115,11 @@ export class IconSuggesterComponent {
         return {
           clearText: 'text-budget-primary',
           activeBtn: 'bg-budget-primary text-white border border-transparent shadow-md shadow-budget-primary/30'
+        };
+      case 'emis':
+        return {
+          clearText: 'text-emis-primary',
+          activeBtn: 'bg-emis-primary text-white border border-transparent shadow-md shadow-emis-primary/30'
         };
       case 'subscriptions':
       default:

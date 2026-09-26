@@ -8,297 +8,689 @@ export interface IconData {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class IconService {
-  
-  // A curated dictionary of modern, premium icons (SVG paths for 24x24 viewport, stroke width 2)
+  public readonly DEFAULT_ICON: IconData = {
+    id: 'default',
+    name: 'General',
+    keywords: [],
+    svg: 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+  };
+
   public readonly ICONS: IconData[] = [
-    {
-      id: 'food',
-      name: 'Food & Dining',
-      keywords: ['food', 'dining', 'restaurant', 'burger', 'pizza', 'mcdonalds', 'kfc', 'subway', 'swiggy', 'zomato', 'eat', 'meal', 'lunch', 'dinner', 'breakfast', 'chai', 'samosa', 'biryani', 'dosa', 'paneer', 'thali', 'snack'],
-      svg: 'M3 13h18M5 13a7 7 0 0 1 14 0M12 21v-8' // Generic food dome/cloche (simplified)
-    },
-    {
-      id: 'coffee',
-      name: 'Coffee',
-      keywords: ['coffee', 'tea', 'cafe', 'starbucks', 'beverage', 'drink', 'latte', 'espresso', 'chai'],
-      svg: 'M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z M6 1v3 M10 1v3 M14 1v3' // Coffee cup
-    },
-    {
-      id: 'tv',
-      name: 'Entertainment & TV',
-      keywords: ['tv', 'television', 'netflix', 'prime', 'hulu', 'disney', 'hotstar', 'movies', 'cinema', 'entertainment', 'video', 'streaming', 'jio cinema', 'bookmyshow', 'pvr', 'inox', 'movie', 'show'],
-      svg: 'M4 7h16v13H4z M20 7l-8-5-8 5 M12 11v5 M9 13h6' // TV with antenna
-    },
-    {
-      id: 'music',
-      name: 'Music & Audio',
-      keywords: ['music', 'spotify', 'apple music', 'audio', 'podcast', 'songs', 'concert', 'youtube music', 'gana', 'jiosaavn', 'wynk'],
-      svg: 'M9 18V5l12-2v13 M9 9l12-2 M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0z M21 16a3 3 0 1 1-6 0 3 3 0 0 1 6 0z' // Music note
-    },
-    {
-      id: 'gym',
-      name: 'Fitness & Gym',
-      keywords: ['gym', 'fitness', 'workout', 'health', 'cult', 'exercise', 'yoga', 'sports', 'cultfit', 'curefit'],
-      svg: 'M6.5 6.5l11 11 M3 3l3.5 3.5 M17.5 17.5L21 21 M5 9l-2-2 2-2 2 2 M19 15l2 2-2 2-2-2' // Dumbbell (simplified)
-    },
-    {
-      id: 'shopping',
-      name: 'Shopping',
-      keywords: ['shopping', 'amazon', 'flipkart', 'myntra', 'clothes', 'shoes', 'apparel', 'fashion', 'mall', 'buy', 'retail', 'grocery', 'blinkit', 'zepto', 'instamart', 'meesho', 'ajio', 'dmart', 'reliance', 'bigbasket'],
-      svg: 'M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.2 9.3a1 1 0 0 0 1 .7h10.4a1 1 0 0 0 1-.7L17 13 M9 18h6' // Shopping cart
-    },
-    {
-      id: 'bag',
-      name: 'Bag',
-      keywords: ['bag', 'accessories', 'purse', 'handbag', 'luggage', 'shopping bag'],
-      svg: 'M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z M3 6h18 M16 10a4 4 0 0 1-8 0' // Shopping bag
-    },
-    {
-      id: 'car',
-      name: 'Transport & Car',
-      keywords: ['car', 'transport', 'uber', 'ola', 'rapido', 'taxi', 'drive', 'fuel', 'petrol', 'diesel', 'vehicle', 'auto', 'cab', 'cng', 'rickshaw', 'toll', 'fastag', 'parking'],
-      svg: 'M3 10h18l-2-4H5l-2 4z M3 10v6a2 2 0 0 0 2 2h1 M18 18h1a2 2 0 0 0 2-2v-6 M6 18v2 M18 18v2 M6 14h.01 M18 14h.01' // Car
-    },
-    {
-      id: 'plane',
-      name: 'Travel & Flight',
-      keywords: ['flight', 'plane', 'travel', 'trip', 'vacation', 'holiday', 'indigo', 'vistara', 'air', 'airport', 'booking', 'make my trip', 'mmt', 'goibibo', 'cleartrip', 'train', 'irctc', 'bus', 'redbus'],
-      svg: 'M17.8 19.2L16 11l3.5-3.5a2.1 2.1 0 1 0-3-3L13 8 4.8 6.2 3 8l6 4.3L5.5 16 3 15.5 2 17l4 2 2 4 1.5-1-1.5-2.5L11.8 15l4.3 6 1.8-1.8z' // Airplane
-    },
-    {
-      id: 'home',
-      name: 'Housing & Rent',
-      keywords: ['home', 'house', 'rent', 'mortgage', 'maintenance', 'housing', 'apartment', 'pg', 'hostel', 'living', 'maid', 'cook', 'bai', 'society', 'brokerage'],
-      svg: 'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10' // House
-    },
-    {
-      id: 'utility',
-      name: 'Utilities',
-      keywords: ['utility', 'electricity', 'water', 'gas', 'internet', 'broadband', 'wifi', 'jio', 'airtel', 'bill', 'recharge', 'phone', 'mobile', 'bijli', 'pani', 'cylinder', 'vi'],
-      svg: 'M13 2L3 14h9l-1 8 10-12h-9l1-8z' // Lightning bolt
-    },
-    {
-      id: 'medical',
-      name: 'Health & Medical',
-      keywords: ['health', 'medical', 'doctor', 'pharmacy', 'medicine', 'hospital', 'clinic', 'apolo', 'pharmeasy', 'netmeds', 'health insurance', '1mg', 'practo', 'dawai', 'test', 'lab'],
-      svg: 'M22 12h-4l-3 9L9 3l-3 9H2' // Activity / Heartbeat
-    },
-    {
-      id: 'education',
-      name: 'Education',
-      keywords: ['education', 'school', 'college', 'course', 'udemy', 'coursera', 'tuition', 'books', 'learning', 'class', 'fees', 'exam', 'stationary', 'pen', 'notebook'],
-      svg: 'M22 10v6M2 10l10-5 10 5-10 5z M6 12v5c0 2 3 3 6 3s6-1 6-3v-5' // Graduation cap
-    },
-    {
-      id: 'gift',
-      name: 'Gifts & Donations',
-      keywords: ['gift', 'present', 'donation', 'charity', 'birthday', 'anniversary', 'wedding', 'festival', 'diwali', 'christmas', 'holi', 'rakhi', 'eid'],
-      svg: 'M20 12v8H4v-8 M12 22V7 M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z M2 12h20v-5H2z' // Gift box
-    },
-    {
-      id: 'bank',
-      name: 'Banking & Finance',
-      keywords: ['bank', 'finance', 'invest', 'mutual fund', 'stocks', 'zerodha', 'groww', 'savings', 'loan', 'emi', 'tax', 'insurance', 'crypto', 'upstox', 'sip', 'paytm', 'phonepe', 'gpay', 'bhim', 'upi'],
-      svg: 'M3 21h18 M3 10h18 M5 6l7-3 7 3 M4 10v11 M20 10v11 M8 14v3 M12 14v3 M16 14v3' // Bank building
-    },
-    {
-      id: 'credit-card',
-      name: 'Credit Card',
-      keywords: ['credit card', 'debit card', 'card', 'visa', 'mastercard', 'amex', 'payment', 'bill'],
-      svg: 'M2 6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2z M2 10h20' // Credit card
-    },
-    {
-      id: 'wallet',
-      name: 'Wallet',
-      keywords: ['wallet', 'cash', 'money', 'pocket', 'salary', 'income', 'rokar'],
-      svg: 'M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4 M4 6v12c0 1.1.9 2 2 2h14v-4H10a2 2 0 0 1 0-4h10 M16 14h.01' // Wallet
-    },
-    {
-      id: 'gamepad',
-      name: 'Gaming',
-      keywords: ['game', 'gaming', 'playstation', 'xbox', 'nintendo', 'steam', 'epic', 'pubg', 'bgmi', 'valorant', 'hobby'],
-      svg: 'M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z' // Message/Chat (placeholder) -- Let's use a gamepad
-    },
-    {
-      id: 'game',
-      name: 'Gaming',
-      keywords: ['game', 'gaming', 'playstation', 'xbox', 'nintendo', 'steam', 'epic', 'pubg', 'bgmi', 'valorant', 'hobby', 'toy', 'arcade'],
-      svg: 'M21 12a9 9 0 0 1-9 9H8a9 9 0 0 1-9-9V8a9 9 0 0 1 9-9h4a9 9 0 0 1 9 9v4z M6 12h4 M8 10v4 M15 13h.01 M18 11h.01' // Gamepad controller
-    },
-    {
-      id: 'pet',
-      name: 'Pets',
-      keywords: ['pet', 'dog', 'cat', 'vet', 'animal', 'food', 'grooming', 'kutta', 'billi'],
-      svg: 'M12 2C8.69 2 6 4.69 6 8c0 5.25 6 13 6 13s6-7.75 6-13c0-3.31-2.69-6-6-6z M12 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6z' // Map pin / paw placeholder - let's use paw
-    },
-    {
-      id: 'paw',
-      name: 'Pets',
-      keywords: ['pet', 'dog', 'cat', 'vet', 'animal', 'grooming', 'paw'],
-      svg: 'M12 5a3 3 0 1 0 0-6 3 3 0 0 0 0 6z M6.5 8.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z M17.5 8.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z M12 24c-5 0-8-3-8-8s3-7 8-7 8 2 8 7-3 8-8 8z' // Paw print
-    },
-    {
-      id: 'haircut',
-      name: 'Personal Care',
-      keywords: ['haircut', 'salon', 'spa', 'beauty', 'makeup', 'skincare', 'cosmetics', 'grooming', 'barber', 'massage', 'parlour'],
-      svg: 'M7 4V2 M17 4V2 M2 20v-2c0-1.1.9-2 2-2h16a2 2 0 0 1 2 2v2 M12 16v-6 M8 16V8a4 4 0 0 1 8 0v8' // Comb / Mirror / Scissors proxy
-    },
-    {
-      id: 'scissors',
-      name: 'Personal Care',
-      keywords: ['haircut', 'salon', 'spa', 'beauty', 'makeup', 'skincare', 'cosmetics', 'grooming', 'barber', 'massage', 'scissor', 'parlour'],
-      svg: 'M14.8 9.2l4.8 4.8 M14.8 14.8l4.8-4.8 M6 9a3 3 0 1 1 0-6 3 3 0 0 1 0 6z M6 21a3 3 0 1 1 0-6 3 3 0 0 1 0 6z M8.1 6.9L12 12l-3.9 5.1' // Scissors
-    },
-    {
-      id: 'party',
-      name: 'Party & Events',
-      keywords: ['party', 'event', 'club', 'pub', 'drinks', 'alcohol', 'bar', 'beer', 'wine', 'celebration', 'wedding', 'marriage', 'shadi', 'daaru'],
-      svg: 'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4 M16 17l5-5-5-5 M21 12H9' // Glass / Cheers proxy
-    },
-    {
-      id: 'glass',
-      name: 'Drinks & Bar',
-      keywords: ['party', 'event', 'club', 'pub', 'drinks', 'alcohol', 'bar', 'beer', 'wine', 'cocktail', 'celebration', 'daaru', 'liquor'],
-      svg: 'M8 22h8 M12 15v7 M5 3l7 12 7-12H5z' // Cocktail glass
-    },
-    {
-      id: 'software',
-      name: 'Software & Tools',
-      keywords: ['software', 'app', 'tool', 'subscription', 'github', 'aws', 'cloud', 'hosting', 'domain', 'chatgpt', 'ai', 'adobe', 'figma'],
-      svg: 'M2 9a3 3 0 0 1 0-6v2a1 1 0 0 0 0 2v2z M22 9a3 3 0 0 0 0-6v2a1 1 0 0 1 0 2v2z M12 22a3 3 0 0 0 3-3H9a3 3 0 0 0 3 3z M4.5 12h15a2.5 2.5 0 0 1 2.5 2.5v1.5a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3v-1.5A2.5 2.5 0 0 1 4.5 12z M12 2v2' // Code / Bot proxy
-    },
-    {
-      id: 'terminal',
-      name: 'Software & Tools',
-      keywords: ['software', 'app', 'tool', 'subscription', 'github', 'aws', 'cloud', 'hosting', 'domain', 'chatgpt', 'ai', 'adobe', 'figma', 'notion', 'code', 'dev', 'server'],
-      svg: 'M4 17l6-6-6-6 M12 19h8' // Terminal / Code
-    },
-    {
-      id: 'smartphone',
-      name: 'Electronics',
-      keywords: ['phone', 'mobile', 'smartphone', 'laptop', 'macbook', 'ipad', 'tablet', 'electronics', 'gadget', 'device', 'apple', 'samsung', 'iphone'],
-      svg: 'M5 2h14a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z M12 18h.01' // Smartphone
-    },
-    {
-      id: 'laptop',
-      name: 'Electronics',
-      keywords: ['laptop', 'macbook', 'computer', 'pc', 'electronics', 'hardware', 'keyboard', 'mouse'],
-      svg: 'M20 16V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12 M2 20h20 M12 16v4' // Laptop/Monitor
-    },
-    {
-      id: 'wifi',
-      name: 'Internet & WiFi',
-      keywords: ['wifi', 'internet', 'broadband', 'jio', 'airtel', 'bsnl', 'act', 'router', 'connection', 'network', 'recharge', 'data'],
-      svg: 'M5 12.55a11 11 0 0 1 14.08 0 M1.42 9a16 16 0 0 1 21.16 0 M8.53 16.11a6 6 0 0 1 6.95 0 M12 20h.01' // Wifi
-    },
-    {
-      id: 'invoice',
-      name: 'Bills & Invoices',
-      keywords: ['bill', 'invoice', 'receipt', 'challan', 'tax', 'emi', 'installment', 'fee', 'fine', 'ticket', 'chalan', 'penalty'],
-      svg: 'M4 2v20l2-2 2 2 2-2 2 2 2-2 2 2 2-2 2 2V2z M8 6h8 M8 10h8 M8 14h4' // Receipt
-    },
-    {
-      id: 'fuel',
-      name: 'Fuel & Gas',
-      keywords: ['fuel', 'petrol', 'diesel', 'gas', 'cng', 'pump', 'indian oil', 'hp', 'bharat petroleum', 'shell', 'vehicle', 'filling'],
-      svg: 'M3 22h12 M5 22V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v16 M15 6h5a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2 M18 10v4a2 2 0 0 1-2 2 M7 10h4' // Gas Pump
-    },
-    {
-      id: 'chart',
-      name: 'Investments',
-      keywords: ['invest', 'stocks', 'mutual fund', 'trading', 'groww', 'zerodha', 'upstox', 'angel one', 'sip', 'portfolio', 'market', 'share', 'equity', 'gold'],
-      svg: 'M3 3v18h18 M18 9l-5-5-4 4-6-6 M18 9h-4 M18 9v4' // Chart
-    },
-    {
-      id: 'shirt',
-      name: 'Apparel',
-      keywords: ['shirt', 'clothes', 'fashion', 'apparel', 'myntra', 'ajio', 'zudio', 'max', 'zara', 'h&m', 'clothing', 'wear', 'tailor', 'boutique', 'darzi'],
-      svg: 'M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l1.58 9.2a2 2 0 0 0 2 1.66h.14L6 22a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l0-5.45.14 0a2 2 0 0 0 2-1.66l1.58-9.2a2 2 0 0 0-1.34-2.23z' // Shirt
-    },
-    {
-      id: 'shield',
-      name: 'Insurance',
-      keywords: ['insurance', 'lic', 'policy', 'premium', 'term plan', 'health insurance', 'star health', 'hdfc ergo', 'secure', 'protection', 'cover'],
-      svg: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z M12 8v4 M12 16h.01' // Shield
-    },
-    {
-      id: 'book',
-      name: 'Books & Study',
-      keywords: ['book', 'reading', 'library', 'notebook', 'stationary', 'kindle', 'novel', 'story', 'publication', 'study', 'exam', 'notes'],
-      svg: 'M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20' // Book
-    },
-    {
-      id: 'bear',
-      name: 'Baby & Kids',
-      keywords: ['baby', 'kids', 'toys', 'diapers', 'firstcry', 'school', 'childcare', 'nanny', 'creche', 'child', 'infant', 'kid'],
-      svg: 'M17.5 5.5A2.5 2.5 0 1 0 15 8h-6A2.5 2.5 0 1 0 6.5 5.5 M12 12m-5 0a5 5 0 1 0 10 0a5 5 0 1 0 -10 0 M9 11h.01 M15 11h.01 M12 14v1' // Bear
-    },
-    {
-      id: 'laundry',
-      name: 'Laundry',
-      keywords: ['laundry', 'washing', 'dry clean', 'iron', 'dhobi', 'clothes', 'surf excel', 'tide', 'detergent', 'machine'],
-      svg: 'M5 2h14a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z M5 8h14 M12 18a4 4 0 1 0 0-8 4 4 0 0 0 0 8z' // Washing Machine
-    },
-    {
-      id: 'tool',
-      name: 'Hardware & Repair',
-      keywords: ['tool', 'hardware', 'repair', 'mechanic', 'plumber', 'electrician', 'carpenter', 'fixing', 'maintenance', 'service'],
-      svg: 'M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z' // Wrench
-    },
     {
       id: 'default',
       name: 'General',
-      keywords: ['general', 'other', 'misc', 'miscellaneous', 'expense', 'cost', 'spend', 'kharcha'],
-      svg: 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z M12 16v-4 M12 8h.01' // Info circle
-    }
+      keywords: [],
+      svg: 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+    },
+    {
+      id: 'truck',
+      name: 'Truck / Commercial',
+      keywords: ['truck', 'commercial', 'vehicle', 'lorry', 'transport', 'cargo'],
+      svg: 'M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12',
+    },
+    {
+      id: 'education',
+      name: 'Education / Student',
+      keywords: [
+        'education',
+        'student',
+        'school',
+        'college',
+        'university',
+        'degree',
+        'tuition',
+        'fee',
+      ],
+      svg: 'M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5',
+    },
+    {
+      id: 'home',
+      name: 'Home / Mortgage',
+      keywords: [
+        'home',
+        'house',
+        'mortgage',
+        'property',
+        'real estate',
+        'flat',
+        'apartment',
+        'villa',
+        'rent',
+      ],
+      svg: 'M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25',
+    },
+    {
+      id: 'business',
+      name: 'Business / Commercial',
+      keywords: [
+        'business',
+        'commercial',
+        'office',
+        'startup',
+        'enterprise',
+        'corporate',
+        'company',
+      ],
+      svg: 'M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25v.894m7.5 0a48.667 48.667 0 00-7.5 0M12 12.75h.008v.008H12v-.008z',
+    },
+    {
+      id: 'computer',
+      name: 'Computer / Monitor',
+      keywords: ['computer', 'monitor', 'desktop', 'pc', 'imac', 'workstation'],
+      svg: 'M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25',
+    },
+    {
+      id: 'phone',
+      name: 'Smartphone / Mobile',
+      keywords: [
+        'smartphone',
+        'mobile',
+        'phone',
+        'iphone',
+        'samsung',
+        'oneplus',
+        'vivo',
+        'oppo',
+        'mi',
+        'cellular',
+      ],
+      svg: 'M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3',
+    },
+    {
+      id: 'tv',
+      name: 'TV / Appliance',
+      keywords: [
+        'tv',
+        'television',
+        'appliance',
+        'fridge',
+        'refrigerator',
+        'washing machine',
+        'ac',
+        'air conditioner',
+        'microwave',
+        'kitchen',
+      ],
+      svg: 'M6 20.25h12m-7.5-3v3m3-3v3m-10.125-3h17.25c.621 0 1.125-.504 1.125-1.125V4.875c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125z',
+    },
+    {
+      id: 'tools',
+      name: 'Tools / Hardware',
+      keywords: ['tools', 'hardware', 'equipment', 'machinery', 'drill', 'wrench'],
+      svg: 'M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437l1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008z',
+    },
+    {
+      id: 'solar',
+      name: 'Solar / Energy',
+      keywords: ['solar', 'energy', 'panel', 'electricity', 'power', 'green', 'renewable'],
+      svg: 'M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z',
+    },
+    {
+      id: 'legal',
+      name: 'Legal / Tax',
+      keywords: ['legal', 'tax', 'lawyer', 'court', 'case', 'fee', 'penalty', 'fine'],
+      svg: 'M12 3v17.25m0 0c-1.472 0-2.882.265-4.185.75M12 20.25c1.472 0 2.882.265 4.185.75M18.75 4.97A48.416 48.416 0 0012 4.5c-2.291 0-4.545.16-6.75.47m13.5 0c1.01.143 2.01.317 3 .52m-3-.52l2.62 10.726c.122.499-.106 1.028-.589 1.202a5.988 5.988 0 01-2.031.352 5.988 5.988 0 01-2.031-.352c-.483-.174-.711-.703-.59-1.202L18.75 4.971zm-16.5.52c.99-.203 1.99-.377 3-.52m0 0l2.62 10.726c.122.499-.106 1.028-.589 1.202a5.989 5.989 0 01-2.031.352 5.989 5.989 0 01-2.031-.352c-.483-.174-.711-.703-.59-1.202L5.25 4.971z',
+    },
+    {
+      id: 'gift',
+      name: 'Gift / Present',
+      keywords: ['gift', 'present', 'birthday', 'anniversary', 'surprise', 'donation'],
+      svg: 'M21 11.25v8.25a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 109.375 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 1114.625 7.5H12m0 0V21m-8.625-9.75h18c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125h-18c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z',
+    },
+    {
+      id: 'ticket',
+      name: 'Tickets / Events',
+      keywords: ['ticket', 'event', 'movie', 'show', 'concert', 'match', 'sports', 'stadium'],
+      svg: 'M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 010 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 010-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375z',
+    },
+    {
+      id: 'building',
+      name: 'Building / Apartment',
+      keywords: ['building', 'apartment', 'flat', 'office', 'complex', 'tower'],
+      svg: 'M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z',
+    },
+    {
+      id: 'store',
+      name: 'Store / Shop',
+      keywords: ['store', 'shop', 'retail', 'outlet', 'market', 'boutique'],
+      svg: 'M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.65V9.35m0 0a3.001 3.001 0 003.75-.615A2.993 2.993 0 009.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 002.25 1.016c.896 0 1.7-.393 2.25-1.016a3.001 3.001 0 003.75.614m-16.5 0a3.004 3.004 0 01-.621-4.72L4.318 3.44A1.5 1.5 0 015.378 3h13.243a1.5 1.5 0 011.06.44l1.19 1.189a3 3 0 01-.621 4.72m-13.5 8.65h3.75a.75.75 0 00.75-.75V13.5a.75.75 0 00-.75-.75H6.75a.75.75 0 00-.75.75v3.75c0 .415.336.75.75.75z',
+    },
+    {
+      id: 'landmark',
+      name: 'Landmark / Bank',
+      keywords: ['landmark', 'bank', 'government', 'institution', 'museum', 'monument', 'temple'],
+      svg: 'M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z',
+    },
+    {
+      id: 'clothes',
+      name: 'Clothes / Apparel',
+      keywords: [
+        'clothes',
+        'apparel',
+        'shopping',
+        'shirt',
+        'tshirt',
+        'jeans',
+        'fashion',
+        'wardrobe',
+        'wear',
+      ],
+      svg: 'M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z',
+    },
+    {
+      id: 'marriage',
+      name: 'Marriage / Wedding / Jewelry',
+      keywords: [
+        'marriage',
+        'wedding',
+        'ring',
+        'jewelry',
+        'jewellery',
+        'jewel',
+        'necklace',
+        'diamond',
+        'gold',
+        'silver',
+        'party',
+        'function',
+        'dowry',
+      ],
+      svg: 'M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z',
+    },
+    {
+      id: 'personalloan',
+      name: 'Personal Loan / Cash',
+      keywords: [
+        'personal',
+        'loan',
+        'cash',
+        'money',
+        'finance',
+        'borrow',
+        'lending',
+        'credit',
+        'currency',
+        'rupee',
+      ],
+      svg: 'M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z',
+    },
+    {
+      id: 'insurance',
+      name: 'Insurance / Security',
+      keywords: [
+        'insurance',
+        'shield',
+        'secure',
+        'health',
+        'life',
+        'term',
+        'policy',
+        'lic',
+        'cover',
+      ],
+      svg: 'M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z',
+    },
+    {
+      id: 'medical',
+      name: 'Medical / Health',
+      keywords: [
+        'medical',
+        'health',
+        'hospital',
+        'doctor',
+        'surgery',
+        'treatment',
+        'medicine',
+        'pharmacy',
+        'clinic',
+      ],
+      svg: 'M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z',
+    },
+    {
+      id: 'travel',
+      name: 'Travel / Vacation',
+      keywords: [
+        'travel',
+        'vacation',
+        'trip',
+        'flight',
+        'holiday',
+        'tour',
+        'abroad',
+        'ticket',
+        'booking',
+        'makemytrip',
+      ],
+      svg: 'M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5',
+    },
+    {
+      id: 'camera',
+      name: 'Camera / Photography',
+      keywords: [
+        'camera',
+        'photography',
+        'lens',
+        'dslr',
+        'mirrorless',
+        'sony',
+        'canon',
+        'nikon',
+        'gopro',
+      ],
+      svg: 'M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z',
+    },
+    {
+      id: 'book',
+      name: 'Books / Study',
+      keywords: ['book', 'study', 'novel', 'magazine', 'stationery', 'library'],
+      svg: 'M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25',
+    },
+    {
+      id: 'music',
+      name: 'Music / Instrument',
+      keywords: ['music', 'instrument', 'guitar', 'piano', 'keyboard', 'drums', 'audio', 'sound'],
+      svg: 'M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 11-.99-3.467l2.31-.66a2.25 2.25 0 001.632-2.163zm0 0V2.25L9 5.25v10.303m0 0v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 01-.99-3.467l2.31-.66A2.25 2.25 0 009 15.553z',
+    },
+    {
+      id: 'mic',
+      name: 'Microphone / Podcast',
+      keywords: ['mic', 'microphone', 'podcast', 'recording', 'studio', 'voice'],
+      svg: 'M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z',
+    },
+    {
+      id: 'shopping',
+      name: 'Shopping / Groceries',
+      keywords: ['shopping', 'cart', 'groceries', 'supermarket', 'mall', 'mart', 'retail'],
+      svg: 'M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z',
+    },
+    {
+      id: 'flame',
+      name: 'Flame / Fire',
+      keywords: ['flame', 'fire', 'heat', 'gas', 'burn', 'warmth'],
+      svg: 'M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z M12 18a3.75 3.75 0 00.495-7.467 5.99 5.99 0 00-1.925 3.546 5.974 5.974 0 01-2.133-1A3.75 3.75 0 0012 18z',
+    },
+    {
+      id: 'zap',
+      name: 'Zap / Electricity',
+      keywords: ['zap', 'electricity', 'lightning', 'power', 'energy', 'volt', 'charge'],
+      svg: 'M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z',
+    },
+    {
+      id: 'wifi',
+      name: 'Wifi / Internet',
+      keywords: [
+        'wifi',
+        'internet',
+        'network',
+        'connection',
+        'broadband',
+        'router',
+        'jio',
+        'airtel',
+      ],
+      svg: 'M8.288 15.038a5.25 5.25 0 017.424 0M5.106 11.856c3.807-3.808 9.98-3.808 13.788 0M1.924 8.674c5.565-5.565 14.587-5.565 20.152 0M12.53 18.22l-.53.53-.53-.53a.75.75 0 011.06 0z',
+    },
+    {
+      id: 'scissors',
+      name: 'Scissors / Haircut',
+      keywords: ['scissors', 'haircut', 'salon', 'barber', 'cut', 'craft', 'tailor'],
+      svg: 'M7.848 8.25l1.536.887M7.848 8.25a3 3 0 11-5.196-3 3 3 0 015.196 3zm1.536.887a2.165 2.165 0 011.083 1.839c.005.351.054.695.14 1.024M9.384 9.137l2.077 1.199M7.848 15.75l1.536-.887m-1.536.887a3 3 0 11-5.196 3 3 3 0 015.196-3zm1.536-.887a2.165 2.165 0 001.083-1.838c.005-.352.054-.695.14-1.025m-1.223 2.863l2.077-1.199m0-3.328a4.323 4.323 0 012.068-1.379l5.325-1.628a4.5 4.5 0 012.48-.044l.803.215-7.794 4.5m-2.882-1.664A4.331 4.331 0 0010.607 12m3.736 0l7.794 4.5-.802.215a4.5 4.5 0 01-2.48-.043l-5.326-1.629a4.324 4.324 0 01-2.068-1.379M14.343 12l-2.882 1.664',
+    },
+    {
+      id: 'game',
+      name: 'Gaming / Console',
+      keywords: [
+        'game',
+        'gaming',
+        'playstation',
+        'xbox',
+        'nintendo',
+        'console',
+        'pc',
+        'videogame',
+        'controller',
+      ],
+      svg: 'M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 01-.657.643 48.39 48.39 0 01-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 01-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 00-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 01-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 00.657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 01-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.4.604-.4.959v0c0 .333.277.599.61.58a48.1 48.1 0 005.427-.63 48.05 48.05 0 00.582-4.717.532.532 0 00-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283.215.604.401.96.401v0a.656.656 0 00.658-.663 48.422 48.422 0 00-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 01-.61-.58v0z',
+    },
+    {
+      id: 'watch',
+      name: 'Watch / Luxury',
+      keywords: [
+        'watch',
+        'clock',
+        'luxury',
+        'rolex',
+        'smartwatch',
+        'apple watch',
+        'fossil',
+        'casio',
+        'titan',
+      ],
+      svg: 'M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z',
+    },
+    {
+      id: 'cake',
+      name: 'Cake / Bakery',
+      keywords: ['cake', 'birthday', 'bakery', 'food', 'pastry', 'sweet', 'dessert'],
+      svg: 'M12 8.25v-1.5m0 1.5c-1.355 0-2.697.056-4.024.166C6.845 8.51 6 9.473 6 10.608v2.513m6-4.87c1.355 0 2.697.055 4.024.165C17.155 8.51 18 9.473 18 10.608v2.513m-3-4.87v-1.5m-6 1.5v-1.5m12 9.75l-1.5.75a3.354 3.354 0 01-3 0 3.354 3.354 0 00-3 0 3.354 3.354 0 01-3 0 3.354 3.354 0 00-3 0 3.354 3.354 0 01-3 0L3 16.5m15-3.38a48.474 48.474 0 00-6-.37c-2.032 0-4.034.125-6 .37m12 0c.39.049.777.102 1.163.16 1.07.16 1.837 1.094 1.837 2.175v5.17c0 .62-.504 1.124-1.125 1.124H4.125A1.125 1.125 0 013 20.625v-5.17c0-1.08.768-2.014 1.837-2.174A47.78 47.78 0 016 13.12M12.265 3.11a.375.375 0 11-.53 0L12 2.845l.265.265zm-3 0a.375.375 0 11-.53 0L9 2.845l.265.265zm6 0a.375.375 0 11-.53 0L15 2.845l.265.265z',
+    },
+    {
+      id: 'calculator',
+      name: 'Calculator / Accounting',
+      keywords: ['calculator', 'accounting', 'math', 'tax', 'audit', 'finance'],
+      svg: 'M15.75 15.75V18m-7.5-6.75h.008v.008H8.25v-.008zm0 2.25h.008v.008H8.25V13.5zm0 2.25h.008v.008H8.25v-.008zm0 2.25h.008v.008H8.25V18zm2.498-6.75h.007v.008h-.007v-.008zm0 2.25h.007v.008h-.007V13.5zm0 2.25h.007v.008h-.007v-.008zm0 2.25h.007v.008h-.007V18zm2.504-6.75h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V13.5zm0 2.25h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V18zm2.498-6.75h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V13.5zM8.25 6h7.5v2.25h-7.5V6zM12 2.25c-1.892 0-3.758.11-5.593.322C5.307 2.7 4.5 3.65 4.5 4.757V19.5a2.25 2.25 0 002.25 2.25h10.5a2.25 2.25 0 002.25-2.25V4.757c0-1.108-.806-2.057-1.907-2.185A48.507 48.507 0 0012 2.25z',
+    },
+    {
+      id: 'investment',
+      name: 'Investment / Stocks',
+      keywords: [
+        'investment',
+        'stocks',
+        'mutual funds',
+        'trading',
+        'crypto',
+        'shares',
+        'equity',
+        'zerodha',
+        'groww',
+      ],
+      svg: 'M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z',
+    },
+    {
+      id: 'coins',
+      name: 'Coins / Database',
+      keywords: ['database', 'server', 'crypto', 'coins', 'gold coin', 'silver coin'],
+      svg: 'M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125',
+    },
+    {
+      id: 'contract',
+      name: 'Contract / Agreement',
+      keywords: ['contract', 'agreement', 'document', 'paper', 'lease', 'registry'],
+      svg: 'M8.25 7.5V6.108c0-1.135.845-2.098 1.976-2.192.373-.03.748-.057 1.123-.08M15.75 18H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08M15.75 18.75v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5A3.375 3.375 0 006.375 7.5H5.25m11.9-3.664A2.251 2.251 0 0015 2.25h-1.5a2.251 2.251 0 00-2.15 1.586m5.8 0c.065.21.1.433.1.664v.75h-6V4.5c0-.231.035-.454.1-.664M6.75 7.5H4.875c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V16.5a9 9 0 00-9-9z',
+    },
+    {
+      id: 'chip',
+      name: 'Processor / Electronics',
+      keywords: ['processor', 'electronics', 'chip', 'semiconductor', 'computer parts', 'hardware'],
+      svg: 'M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 002.25-2.25V6.75a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 6.75v10.5a2.25 2.25 0 002.25 2.25zm.75-12h9v9h-9v-9z',
+    },
+    {
+      id: 'creditcard',
+      name: 'Credit Card / EMI',
+      keywords: ['credit card', 'emi', 'finance', 'card', 'swipe', 'visa', 'mastercard', 'amex'],
+      svg: 'M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z',
+    },
+    {
+      id: 'rupee',
+      name: 'Rupee / Investment',
+      keywords: ['rupee', 'cash', 'money', 'investment', 'currency', 'inr', 'funds', 'sip'],
+      svg: 'M15 8.25H9m6 3H9m3 6l-3-3h1.5a3 3 0 100-6M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+    },
+    {
+      id: 'tablet',
+      name: 'Tablet / iPad',
+      keywords: ['tablet', 'ipad', 'kindle', 'tab', 'samsung tab', 'electronics'],
+      svg: 'M10.5 19.5h3m-6.75 2.25h10.5a2.25 2.25 0 002.25-2.25v-15a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 4.5v15a2.25 2.25 0 002.25 2.25z',
+    },
+    {
+      id: 'movie',
+      name: 'Movie / Cinema',
+      keywords: ['movie', 'film', 'cinema', 'theater', 'pvr', 'inox', 'entertainment', 'video'],
+      svg: 'M3.375 19.5h17.25m-17.25 0a1.125 1.125 0 01-1.125-1.125M3.375 19.5h1.5C5.496 19.5 6 18.996 6 18.375m-3.75 0V5.625m0 12.75v-1.5c0-.621.504-1.125 1.125-1.125m18.375 2.625V5.625m0 12.75c0 .621-.504 1.125-1.125 1.125m1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125m0 3.75h-1.5A1.125 1.125 0 0118 18.375M20.625 4.5H3.375m17.25 0c.621 0 1.125.504 1.125 1.125M20.625 4.5h-1.5C18.504 4.5 18 5.004 18 5.625m3.75 0v1.5c0 .621-.504 1.125-1.125 1.125M3.375 4.5c-.621 0-1.125.504-1.125 1.125M3.375 4.5h1.5C5.496 4.5 6 5.004 6 5.625m-3.75 0v1.5c0 .621.504 1.125 1.125 1.125m0 0h1.5m-1.5 0c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125m1.5-3.75C5.496 8.25 6 7.746 6 7.125v-1.5M4.875 8.25C5.496 8.25 6 8.754 6 9.375v1.5m0-5.25v5.25m0-5.25C6 5.004 6.504 4.5 7.125 4.5h9.75c.621 0 1.125.504 1.125 1.125m1.125 2.625h1.5m-1.5 0A1.125 1.125 0 0118 7.125v-1.5m1.125 2.625c-.621 0-1.125.504-1.125 1.125v1.5m2.625-2.625c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125M18 5.625v5.25M7.125 12h9.75m-9.75 0A1.125 1.125 0 016 10.875M7.125 12C6.504 12 6 12.504 6 13.125m0-2.25C6 11.496 5.496 12 4.875 12M18 10.875c0 .621-.504 1.125-1.125 1.125M18 10.875c0 .621.504 1.125 1.125 1.125m-2.25 0c.621 0 1.125.504 1.125 1.125m-12 5.25v-5.25m0 5.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125m-12 0v-1.5c0-.621-.504-1.125-1.125-1.125M18 18.375v-5.25m0 5.25v-1.5c0-.621.504-1.125 1.125-1.125M18 13.125v1.5c0 .621.504 1.125 1.125 1.125M18 13.125c0-.621.504-1.125 1.125-1.125M6 13.125v1.5c0 .621-.504 1.125-1.125 1.125M6 13.125C6 12.504 5.496 12 4.875 12m-1.5 0h1.5m-1.5 0c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125M19.125 12h1.5m0 0c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125m-17.25 0h1.5m14.25 0h1.5',
+    },
+    {
+      id: 'globe',
+      name: 'Globe / Internet',
+      keywords: ['travel', 'world', 'domain', 'internet', 'web', 'hosting', 'site'],
+      svg: 'M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418',
+    },
+    {
+      id: 'villa',
+      name: 'Villa / Estate',
+      keywords: ['villa', 'estate', 'modern house', 'luxury', 'property', 'bungalow', 'mansion'],
+      svg: 'M8.25 21v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21m0 0h4.5V3.545M12.75 21h7.5V10.75M2.25 21h1.5m18 0h-18M2.25 9l4.5-1.636M18.75 3l-1.5.545m0 6.205l3 1m1.5.5l-1.5-.5M6.75 7.364V3h-3v18m3-13.636l10.5-3.819',
+    },
+    {
+      id: 'id',
+      name: 'ID / Passport',
+      keywords: ['id', 'license', 'passport', 'visa', 'document', 'identity', 'dl'],
+      svg: 'M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5zm6-10.125a1.875 1.875 0 11-3.75 0 1.875 1.875 0 013.75 0zm1.294 6.336a6.721 6.721 0 01-3.17.789 6.721 6.721 0 01-3.168-.789 3.376 3.376 0 016.338 0z',
+    },
+    {
+      id: 'key',
+      name: 'Key / Locker',
+      keywords: ['key', 'keys', 'lock', 'security', 'rent', 'locker', 'safe', 'deposit'],
+      svg: 'M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z',
+    },
+    {
+      id: 'charity',
+      name: 'Charity / Donation',
+      keywords: ['help', 'rescue', 'charity', 'donation', 'ngo', 'support'],
+      svg: 'M16.712 4.33a9.027 9.027 0 011.652 1.306c.51.51.944 1.064 1.306 1.652M16.712 4.33l-3.448 4.138m3.448-4.138a9.014 9.014 0 00-9.424 0M19.67 7.288l-4.138 3.448m4.138-3.448a9.014 9.014 0 010 9.424m-4.138-5.976a3.736 3.736 0 00-.88-1.388 3.737 3.737 0 00-1.388-.88m2.268 2.268a3.765 3.765 0 010 2.528m-2.268-4.796a3.765 3.765 0 00-2.528 0m4.796 4.796c-.181.506-.475.982-.88 1.388a3.736 3.736 0 01-1.388.88m2.268-2.268l4.138 3.448m0 0a9.027 9.027 0 01-1.306 1.652c-.51.51-1.064.944-1.652 1.306m0 0l-3.448-4.138m3.448 4.138a9.014 9.014 0 01-9.424 0m5.976-4.138a3.765 3.765 0 01-2.528 0m0 0a3.736 3.736 0 01-1.388-.88 3.737 3.737 0 01-.88-1.388m2.268 2.268L7.288 19.67m0 0a9.024 9.024 0 01-1.652-1.306 9.027 9.027 0 01-1.306-1.652m0 0l4.138-3.448M4.33 16.712a9.014 9.014 0 010-9.424m4.138 5.976a3.765 3.765 0 010-2.528m0 0c.181-.506.475-.982.88-1.388a3.736 3.736 0 011.388-.88m-2.268 2.268L4.33 7.288m6.406 1.18L7.288 4.33m0 0a9.024 9.024 0 00-1.652 1.306A9.025 9.025 0 004.33 7.288',
+    },
+    {
+      id: 'bulb',
+      name: 'Electricity / Idea',
+      keywords: ['idea', 'electricity', 'bill', 'bulb', 'energy', 'power', 'light'],
+      svg: 'M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18',
+    },
+    {
+      id: 'map',
+      name: 'Map / Real Estate',
+      keywords: ['map', 'real estate', 'land', 'plot', 'geography', 'location', 'farm', 'acre'],
+      svg: 'M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z',
+    },
+    {
+      id: 'marketing',
+      name: 'Marketing / Ads',
+      keywords: ['marketing', 'advertising', 'speaker', 'promotion', 'ads', 'campaign'],
+      svg: 'M10.34 15.84c-.688-.06-1.386-.09-2.09-.09H7.5a4.5 4.5 0 110-9h.75c.704 0 1.402-.03 2.09-.09m0 9.18c.253.962.584 1.892.985 2.783.247.55.06 1.21-.463 1.511l-.657.38c-.551.318-1.26.117-1.527-.461a20.845 20.845 0 01-1.44-4.282m3.102.069a18.03 18.03 0 01-.59-4.59c0-1.586.205-3.124.59-4.59m0 9.18a23.848 23.848 0 018.835 2.535M10.34 6.66a23.847 23.847 0 008.835-2.535m0 0A23.74 23.74 0 0018.795 3m.38 1.125a23.91 23.91 0 011.014 5.395m-1.014 8.855c-.118.38-.245.754-.38 1.125m.38-1.125a23.91 23.91 0 001.014-5.395m0-3.46c.495.413.811 1.035.811 1.73 0 .695-.316 1.317-.811 1.73m0-3.46a24.347 24.347 0 010 3.46',
+    },
+    {
+      id: 'news',
+      name: 'News / Magazine',
+      keywords: ['news', 'paper', 'magazine', 'subscription', 'journal', 'media'],
+      svg: 'M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z',
+    },
+    {
+      id: 'paint',
+      name: 'Paint / Renovation',
+      keywords: [
+        'art',
+        'design',
+        'painting',
+        'renovation',
+        'interior',
+        'paint',
+        'decor',
+        'contractor',
+      ],
+      svg: 'M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.764-4.648l3.876-5.814a1.151 1.151 0 00-1.597-1.597L14.146 6.32a15.996 15.996 0 00-4.649 4.763m3.42 3.42a6.776 6.776 0 00-3.42-3.42',
+    },
+    {
+      id: 'stationery',
+      name: 'Stationery / Pen',
+      keywords: ['stationery', 'pen', 'write', 'drawing', 'pencil', 'art supplies'],
+      svg: 'M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125',
+    },
+    {
+      id: 'telephone',
+      name: 'Telephone / Bill',
+      keywords: ['call', 'telephone', 'bill', 'recharge', 'telecom', 'landline', 'bsnl'],
+      svg: 'M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z',
+    },
+    {
+      id: 'gallery',
+      name: 'Gallery / Framing',
+      keywords: ['gallery', 'photo', 'image', 'portrait', 'framing', 'art', 'picture'],
+      svg: 'M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z',
+    },
+    {
+      id: 'presentation',
+      name: 'Presentation / Sales',
+      keywords: ['business', 'presentation', 'chart', 'sales', 'meeting', 'corporate'],
+      svg: 'M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6',
+    },
+    {
+      id: 'printer',
+      name: 'Printer / Office',
+      keywords: ['print', 'printer', 'ink', 'office', 'xerox', 'cartridge', 'scanner'],
+      svg: 'M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5zm-3 0h.008v.008H15V10.5z',
+    },
+    {
+      id: 'radio',
+      name: 'Radio / Stereo',
+      keywords: ['radio', 'fm', 'broadcast', 'stereo', 'boombox', 'audio'],
+      svg: 'M3.75 7.5l16.5-4.125M12 6.75c-2.708 0-5.363.224-7.948.655C2.999 7.58 2.25 8.507 2.25 9.574v9.176A2.25 2.25 0 004.5 21h15a2.25 2.25 0 002.25-2.25V9.574c0-1.067-.75-1.994-1.802-2.169A48.329 48.329 0 0012 6.75zm-1.683 6.443l-.005.005-.006-.005.006-.005.005.005zm-.005 2.127l-.005-.006.005-.005.005.005-.005.005zm-2.116-.006l-.005.006-.006-.006.005-.005.006.005zm-.005-2.116l-.006-.005.006-.005.005.005-.005.005zM9.255 10.5v.008h-.008V10.5h.008zm3.249 1.88l-.007.004-.003-.007.006-.003.004.006zm-1.38 5.126l-.003-.006.006-.004.004.007-.006.003zm.007-6.501l-.003.006-.007-.003.004-.007.006.004zm1.37 5.129l-.007-.004.004-.006.006.003-.004.007zm.504-1.877h-.008v-.007h.008v.007zM9.255 18v.008h-.008V18h.008zm-3.246-1.87l-.007.004L6 16.127l.006-.003.004.006zm1.366-5.119l-.004-.006.006-.004.004.007-.006.003zM7.38 17.5l-.003.006-.007-.003.004-.007.006.004zm-1.376-5.116L6 12.38l.003-.007.007.004-.004.007zm-.5 1.873h-.008v-.007h.008v.007zM17.25 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zm0 4.5a.75.75 0 110-1.5.75.75 0 010 1.5z',
+    },
+    {
+      id: 'invoice',
+      name: 'Invoice / GST',
+      keywords: ['discount', 'tax', 'receipt', 'invoice', 'gst', 'bill', 'challan'],
+      svg: 'M9 14.25l6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0c1.1.128 1.907 1.077 1.907 2.185zM9.75 9h.008v.008H9.75V9zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm4.125 4.5h.008v.008h-.008V13.5zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z',
+    },
+    {
+      id: 'startup',
+      name: 'Startup / Rocket',
+      keywords: ['startup', 'rocket', 'boost', 'business', 'launch'],
+      svg: 'M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z',
+    },
+    {
+      id: 'server',
+      name: 'Server / Cloud',
+      keywords: ['server', 'hosting', 'database', 'cloud', 'aws', 'azure', 'gcp', 'vps'],
+      svg: 'M21.75 17.25v-.228a4.5 4.5 0 00-.12-1.03l-2.268-9.64a3.375 3.375 0 00-3.285-2.602H7.923a3.375 3.375 0 00-3.285 2.602l-2.268 9.64a4.5 4.5 0 00-.12 1.03v.228m19.5 0a3 3 0 01-3 3H5.25a3 3 0 01-3-3m19.5 0a3 3 0 00-3-3H5.25a3 3 0 00-3 3m16.5 0h.008v.008h-.008v-.008zm-3 0h.008v.008h-.008v-.008z',
+    },
+    {
+      id: 'signal',
+      name: 'Network / Data',
+      keywords: ['network', 'mobile', 'data', 'recharge', 'wifi', 'broadband', 'cellular'],
+      svg: 'M9.348 14.651a3.75 3.75 0 010-5.303m5.304 0a3.75 3.75 0 010 5.303m-7.425 2.122a6.75 6.75 0 010-9.546m9.546 0a6.75 6.75 0 010 9.546M5.106 18.894c-3.808-3.808-3.808-9.98 0-13.789m13.788 0c3.808 3.808 3.808 9.981 0 13.79M12 12h.008v.007H12V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z',
+    },
+    {
+      id: 'speaker',
+      name: 'Speaker / Audio',
+      keywords: ['speaker', 'audio', 'concert', 'music', 'sound', 'hometheater', 'jbl', 'bose'],
+      svg: 'M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z',
+    },
+    {
+      id: 'star',
+      name: 'Premium / VIP',
+      keywords: ['premium', 'star', 'rating', 'vip', 'exclusive', 'subscription'],
+      svg: 'M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z',
+    },
+    {
+      id: 'fabric',
+      name: 'Fabric / Tailor',
+      keywords: ['color', 'palette', 'fabric', 'cloth', 'tailor', 'stitching', 'boutique'],
+      svg: 'M4.098 19.902a3.75 3.75 0 005.304 0l6.401-6.402M6.75 21A3.75 3.75 0 013 17.25V4.125C3 3.504 3.504 3 4.125 3h5.25c.621 0 1.125.504 1.125 1.125v4.072M6.75 21a3.75 3.75 0 003.75-3.75V8.197M6.75 21h13.125c.621 0 1.125-.504 1.125-1.125v-5.25c0-.621-.504-1.125-1.125-1.125h-4.072M10.5 8.197l2.88-2.88c.438-.439 1.15-.439 1.59 0l3.712 3.713c.44.44.44 1.152 0 1.59l-2.879 2.88M6.75 17.25h.008v.008H6.75v-.008z',
+    },
+    {
+      id: 'tag',
+      name: 'Tag / Fashion',
+      keywords: ['tag', 'offer', 'label', 'fashion', 'brand', 'clothing', 'shopping'],
+      svg: 'M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z M6 6h.008v.008H6V6z',
+    },
+    {
+      id: 'sports',
+      name: 'Sports / Tournament',
+      keywords: [
+        'sports',
+        'match',
+        'win',
+        'award',
+        'tournament',
+        'cricket',
+        'football',
+        'tennis',
+        'badminton',
+      ],
+      svg: 'M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 01-.982-3.172M9.497 14.25a7.454 7.454 0 00.981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 007.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 002.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 012.916.52 6.003 6.003 0 01-5.395 4.972m0 0a6.726 6.726 0 01-2.749 1.35m0 0a6.772 6.772 0 01-3.044 0',
+    },
+    {
+      id: 'family',
+      name: 'Family / Group',
+      keywords: ['family', 'group', 'team', 'club', 'association', 'society', 'community'],
+      svg: 'M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z',
+    },
+    {
+      id: 'cctv',
+      name: 'CCTV / Video',
+      keywords: ['video', 'vlog', 'cctv', 'security camera', 'surveillance', 'camcorder'],
+      svg: 'M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z',
+    },
+    {
+      id: 'wallet',
+      name: 'Wallet / Leather',
+      keywords: ['wallet', 'purse', 'leather', 'pouch', 'bag', 'handbag', 'accessories'],
+      svg: 'M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9m18 0V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v3',
+    },
+    {
+      id: 'repair',
+      name: 'Repair / Garage',
+      keywords: ['tools', 'repair', 'service', 'mechanic', 'garage', 'maintenance', 'fixing'],
+      svg: 'M21.75 6.75a4.5 4.5 0 01-4.884 4.484c-1.076-.091-2.264.071-2.95.904l-7.152 8.684a2.548 2.548 0 11-3.586-3.586l8.684-7.152c.833-.686.995-1.874.904-2.95a4.5 4.5 0 016.336-4.486l-3.276 3.276a3.004 3.004 0 002.25 2.25l3.276-3.276c.256.565.398 1.192.398 1.852z M4.867 19.125h.008v.008h-.008v-.008z',
+    },
+    {
+      id: 'pest',
+      name: 'Pest Control',
+      keywords: ['pest control', 'bug', 'cleaning', 'fumigation', 'hygiene', 'termite'],
+      svg: 'M12 12.75c1.148 0 2.278.08 3.383.237 1.037.146 1.866.966 1.866 2.013 0 3.728-2.35 6.75-5.25 6.75S6.75 18.728 6.75 15c0-1.046.83-1.867 1.866-2.013A24.204 24.204 0 0112 12.75zm0 0c2.883 0 5.647.508 8.207 1.44a23.91 23.91 0 01-1.152 6.06M12 12.75c-2.883 0-5.647.508-8.208 1.44.125 2.104.52 4.136 1.153 6.06M12 12.75a2.25 2.25 0 002.248-2.354M12 12.75a2.25 2.25 0 01-2.248-2.354M12 8.25c.995 0 1.971-.08 2.922-.236.403-.066.74-.358.795-.762a3.778 3.778 0 00-.399-2.25M12 8.25c-.995 0-1.97-.08-2.922-.236-.402-.066-.74-.358-.795-.762a3.734 3.734 0 01.4-2.253M12 8.25a2.25 2.25 0 00-2.248 2.146M12 8.25a2.25 2.25 0 012.248 2.146M8.683 5a6.032 6.032 0 01-1.155-1.002c.07-.63.27-1.222.574-1.747m.581 2.749A3.75 3.75 0 0115.318 5m0 0c.427-.283.815-.62 1.155-.999a4.471 4.471 0 00-.575-1.752M4.921 6a24.048 24.048 0 00-.392 3.314c1.668.546 3.416.914 5.223 1.082M19.08 6c.205 1.08.337 2.187.392 3.314a23.882 23.882 0 01-5.223 1.082',
+    },
+    {
+      id: 'storage',
+      name: 'Storage / Moving',
+      keywords: ['storage', 'box', 'moving', 'packers', 'movers', 'archive', 'carton'],
+      svg: 'M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z',
+    },
+    {
+      id: 'parcel',
+      name: 'Parcel / Package',
+      keywords: ['parcel', 'package', 'box', 'courier', 'delivery', 'shipping'],
+      svg: 'M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9',
+    },
+    {
+      id: 'ev',
+      name: 'EV / Battery',
+      keywords: [
+        'battery',
+        'charging',
+        'power',
+        'device',
+        'ev',
+        'electric vehicle',
+        'scooter',
+        'ola',
+        'ather',
+      ],
+      svg: 'M21 10.5h.375c.621 0 1.125.504 1.125 1.125v2.25c0 .621-.504 1.125-1.125 1.125H21M4.5 10.5H18V15H4.5v-4.5zM3.75 18h15A2.25 2.25 0 0021 15.75v-6a2.25 2.25 0 00-2.25-2.25h-15A2.25 2.25 0 001.5 9.75v6A2.25 2.25 0 003.75 18z',
+    },
   ];
 
-  public readonly DEFAULT_ICON = this.ICONS.find(i => i.id === 'default')!;
+  getSuggestedIcons(keyword: string, limit: number = 6): IconData[] {
+    const term = keyword.toLowerCase().trim();
+    const results: IconData[] = [];
 
-  getSuggestedIcons(text: string, limit: number = 5): IconData[] {
-    if (!text || text.trim() === '') {
-      return this.ICONS.slice(0, limit);
-    }
-
-    const query = text.toLowerCase().trim();
-    
-    // Score each icon based on keyword matches
-    const scoredIcons = this.ICONS.map(icon => {
-      let score = 0;
-      
-      // Direct exact match
-      if (icon.name.toLowerCase() === query) score += 100;
-      
-      // Keyword match
-      for (const keyword of icon.keywords) {
-        if (query === keyword) {
-          score += 50;
-        } else if (query.includes(keyword) || keyword.includes(query)) {
-          score += 10;
+    if (term) {
+      for (const icon of this.ICONS) {
+        if (
+          icon.id.includes(term) ||
+          icon.name.toLowerCase().includes(term) ||
+          icon.keywords.some((k) => k.toLowerCase().includes(term))
+        ) {
+          if (!results.find((r) => r.id === icon.id)) {
+            results.push(icon);
+          }
         }
       }
-
-      return { icon, score };
-    });
-
-    // Sort by score descending
-    scoredIcons.sort((a, b) => b.score - a.score);
-
-    // If there are top matches, return them, else return defaults
-    const topMatches = scoredIcons.filter(s => s.score > 0).map(s => s.icon);
-    
-    if (topMatches.length === 0) {
-      return this.ICONS.slice(0, limit);
     }
 
-    // Pad with other generic icons if we have less than limit
-    const results = [...topMatches];
     for (const icon of this.ICONS) {
       if (results.length >= limit) break;
-      if (!results.find(r => r.id === icon.id)) {
+      if (!results.find((r) => r.id === icon.id)) {
         results.push(icon);
       }
     }
@@ -306,7 +698,8 @@ export class IconService {
     return results.slice(0, limit);
   }
 
-  getIconById(id: string): IconData {
-    return this.ICONS.find(i => i.id === id) || this.DEFAULT_ICON;
+  getIconById(id: string | undefined | null): IconData {
+    if (!id) return this.DEFAULT_ICON;
+    return this.ICONS.find((i) => i.id === id) || this.DEFAULT_ICON;
   }
 }
