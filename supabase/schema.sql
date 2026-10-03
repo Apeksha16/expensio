@@ -27,7 +27,8 @@ drop policy if exists "Users can update own profile." on public.profiles;
 -- Policy: Users can update their own profile.
 create policy "Users can update own profile."
   on public.profiles for update
-  using ( auth.uid() = id );
+  using ( auth.uid() = id )
+  with check ( auth.uid() = id );
 
 drop policy if exists "Profiles are viewable by everyone." on public.profiles;
 -- Policy: Anyone can read profiles (useful for deduplication and friends list).
@@ -60,7 +61,8 @@ create policy "Users can insert own expenses."
 drop policy if exists "Users can update own expenses." on public.expenses;
 create policy "Users can update own expenses."
   on public.expenses for update
-  using ( auth.uid() = user_id );
+  using ( auth.uid() = user_id )
+  with check ( auth.uid() = user_id );
 
 -- Policy: Users can delete their own expenses.
 drop policy if exists "Users can delete own expenses." on public.expenses;
@@ -100,7 +102,8 @@ create policy "Users can insert own budgets."
 drop policy if exists "Users can update own budgets." on public.budgets;
 create policy "Users can update own budgets."
   on public.budgets for update
-  using ( auth.uid() = user_id );
+  using ( auth.uid() = user_id )
+  with check ( auth.uid() = user_id );
 
 -- Policy: Users can delete their own budgets.
 drop policy if exists "Users can delete own budgets." on public.budgets;
@@ -144,7 +147,8 @@ create policy "Users can insert friendships as requester"
 drop policy if exists "Users can update their own friendships" on public.friends;
 create policy "Users can update their own friendships"
   on public.friends for update
-  using (auth.uid() = requester_id or auth.uid() = addressee_id);
+  using (auth.uid() = requester_id or auth.uid() = addressee_id)
+  with check (auth.uid() = requester_id or auth.uid() = addressee_id);
 
 -- Policy: Users can delete their own friendships
 drop policy if exists "Users can delete their own friendships" on public.friends;
@@ -234,7 +238,8 @@ create policy "Users can create groups"
 drop policy if exists "Users can update groups they are a member of" on public.split_groups;
 create policy "Users can update groups they are a member of"
   on public.split_groups for update
-  using (auth.uid() = any(members));
+  using (auth.uid() = any(members))
+  with check (auth.uid() = any(members));
 
 -- Users can delete groups if they are the creator
 drop policy if exists "Users can delete their own groups" on public.split_groups;
@@ -276,7 +281,8 @@ create policy "Users can create split expenses"
 drop policy if exists "Users can update split expenses they are part of" on public.split_expenses;
 create policy "Users can update split expenses they are part of"
   on public.split_expenses for update
-  using (auth.uid() = any(participant_ids) or auth.uid() = payer_id);
+  using (auth.uid() = any(participant_ids) or auth.uid() = payer_id)
+  with check (auth.uid() = any(participant_ids) or auth.uid() = payer_id);
 
 -- Users can delete expenses if they are the payer
 drop policy if exists "Users can delete split expenses they created" on public.split_expenses;
@@ -526,7 +532,8 @@ create policy "Users can insert own subscriptions."
 drop policy if exists "Users can update own subscriptions." on public.subscriptions;
 create policy "Users can update own subscriptions."
   on public.subscriptions for update
-  using ( auth.uid() = user_id );
+  using ( auth.uid() = user_id )
+  with check ( auth.uid() = user_id );
 
 -- Policy: Users can delete their own subscriptions.
 drop policy if exists "Users can delete own subscriptions." on public.subscriptions;
@@ -613,7 +620,8 @@ create policy "Users can insert own ledger entries."
 
 create policy "Users can update own ledger entries."
   on public.ledger_entries for update
-  using ( auth.uid() = user_id );
+  using ( auth.uid() = user_id )
+  with check ( auth.uid() = user_id );
 
 create policy "Users can delete own ledger entries."
   on public.ledger_entries for delete
@@ -651,6 +659,12 @@ create policy "Users can insert own ledger sub-transactions."
 create policy "Users can update own ledger sub-transactions."
   on public.ledger_sub_transactions for update
   using ( 
+    exists (
+      select 1 from public.ledger_entries 
+      where id = ledger_id and user_id = auth.uid()
+    )
+  )
+  with check ( 
     exists (
       select 1 from public.ledger_entries 
       where id = ledger_id and user_id = auth.uid()
@@ -803,7 +817,8 @@ create policy "Users can insert own accounts."
 
 create policy "Users can update own accounts."
   on public.user_accounts for update
-  using ( auth.uid() = user_id );
+  using ( auth.uid() = user_id )
+  with check ( auth.uid() = user_id );
 
 create policy "Users can delete own accounts."
   on public.user_accounts for delete
@@ -835,7 +850,8 @@ create policy "Users can insert own account transactions."
 
 create policy "Users can update own account transactions."
   on public.account_transactions for update
-  using ( auth.uid() = user_id );
+  using ( auth.uid() = user_id )
+  with check ( auth.uid() = user_id );
 
 create policy "Users can delete own account transactions."
   on public.account_transactions for delete
@@ -864,7 +880,8 @@ create policy "Users can insert own account rollovers."
 
 create policy "Users can update own account rollovers."
   on public.account_rollovers for update
-  using ( auth.uid() = user_id );
+  using ( auth.uid() = user_id )
+  with check ( auth.uid() = user_id );
 
 -- Enable Realtime
 alter publication supabase_realtime add table public.user_accounts;
