@@ -238,20 +238,16 @@ export class MpinFlowComponent implements OnInit {
         this.mpinError.set('Please enter your 4-digit MPIN.');
         return;
       }
-      this.keyboardService.openKeyboardSync();
       await this.handleLogin();
     } else if (s === 'forgot') {
-      this.keyboardService.openKeyboardSync();
       await this.handleForgot();
     } else if (s === 'reset') {
-      this.keyboardService.openKeyboardSync();
       await this.handleReset();
     } else if (s === 'set-mpin') {
       if (!this.pin1() || this.pin1().length < 4) {
         this.mpinError.set('Please enter a 4-digit MPIN.');
         return;
       }
-      this.keyboardService.openKeyboardSync();
       this.state.mpin.set(this.pin1());
       this.router.navigate(['/confirm-mpin']);
     } else if (s === 'confirm-mpin') {
@@ -263,7 +259,6 @@ export class MpinFlowComponent implements OnInit {
         this.mpinError.set('MPINs do not match.');
         return;
       }
-      this.keyboardService.openKeyboardSync();
       this.router.navigate(['/onboarding-profile']);
     }
   }
@@ -353,7 +348,6 @@ export class MpinFlowComponent implements OnInit {
   }
 
   async startForgotMpin() {
-    this.keyboardService.openKeyboardSync();
     this.isLoading.set(true);
     try {
       await this.supabaseService.sendMpinResetOtp(this.email());

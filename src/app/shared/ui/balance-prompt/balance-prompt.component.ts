@@ -7,6 +7,7 @@ import { BalancePromptService } from '../../../core/services/balance-prompt.serv
 import { AccountTrackerService, AccountType, UserAccount } from '../../../core/services/account-tracker.service';
 import { HapticService } from '../../../core/services/haptic.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { AutofocusDirective } from '../autofocus.directive';
 
 @Component({
@@ -37,7 +38,6 @@ import { AutofocusDirective } from '../autofocus.directive';
       <!-- Backdrop -->
       <div
         @fadeIn
-        (click)="snooze()"
         class="fixed inset-0 bg-black/60 z-[100] backdrop-blur-sm"
       ></div>
 
@@ -116,10 +116,18 @@ import { AutofocusDirective } from '../autofocus.directive';
             </button>
             <button
               (click)="snooze()"
-              [disabled]="isUpdating()"
+              [disabled]="isUpdating() || isSnoozing()"
               class="w-full font-bold rounded-2xl transition-all active:scale-95 px-4 py-4 text-sm bg-slate-100 text-slate-700 flex items-center justify-center disabled:opacity-70 disabled:active:scale-100"
             >
-              Snooze
+              @if (isSnoozing()) {
+                <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-slate-500" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Snoozing...
+              } @else {
+                Snooze
+              }
             </button>
           </div>
         </div>
@@ -133,9 +141,11 @@ export class BalancePromptComponent {
   haptic = inject(HapticService);
   router = inject(Router);
   toastService = inject(ToastService);
+  authService = inject(AuthService);
 
   editedBalances = signal<Record<string, number>>({});
   isUpdating = signal(false);
+  isSnoozing = signal(false);
 
   async markCompleted() {
     this.isUpdating.set(true);
@@ -164,7 +174,10 @@ export class BalancePromptComponent {
       }
       const now = new Date();
       const currentMonth = `${now.getFullYear()}-${now.getMonth()}`;
-      localStorage.setItem('lastBalancePromptMonth', currentMonth);
+      await this.authService.updateProfile({ 
+        balancePromptLastUpdatedMonth: currentMonth,
+        balancePromptSnoozedUntil: 0 // clear any existing snooze
+      });
       this.balancePromptService.close();
     }
     this.isUpdating.set(false);
@@ -195,11 +208,27 @@ export class BalancePromptComponent {
   }
 
   async snooze() {
-    this.isUpdating.set(true);
+    this.isSnoozing.set(true);
     this.haptic.impactLight();
-    // Simulate brief network delay for snooze to show spinner
-    await new Promise(resolve => setTimeout(resolve, 300));
+    const now = new Date();
+    
+    // Check days remaining in the current month
+    // Month is 0-indexed in JS. Month + 1, day 0 gives last day of current month.
+    const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    const daysRemaining = (lastDayOfMonth.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
+    
+    let snoozeMs: number;
+    if (daysRemaining < 7) {
+      // Less than 7 days remaining, snooze for 1 day
+      snoozeMs = 24 * 60 * 60 * 1000;
+    } else {
+      // Snooze for 7 days
+      snoozeMs = 7 * 24 * 60 * 60 * 1000;
+    }
+    
+    const nextSnooze = Date.now() + snoozeMs;
+    await this.authService.updateProfile({ balancePromptSnoozedUntil: nextSnooze });
     this.balancePromptService.close();
-    this.isUpdating.set(false);
+    this.isSnoozing.set(false);
   }
 }

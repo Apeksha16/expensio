@@ -803,11 +803,17 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
     const today = new Date().getDate();
 
     const subs = this.subscriptionService.upcomingSubscriptions().map((s) => {
-      let diff = s.billing_day - today;
+      const d = new Date();
+      const daysInCurrentMonth = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+      const actualBillingDayThisMonth = Math.min(s.billing_day, daysInCurrentMonth);
+      
+      let diff = actualBillingDayThisMonth - today;
+      
       if (diff < -15) {
-        const d = new Date();
-        const daysInMonth = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
-        diff = daysInMonth - today + s.billing_day;
+        // If it passed >15 days ago, it means we are calculating for next month's instance.
+        const daysInNextMonth = new Date(d.getFullYear(), d.getMonth() + 2, 0).getDate();
+        const actualBillingDayNextMonth = Math.min(s.billing_day, daysInNextMonth);
+        diff = daysInCurrentMonth - today + actualBillingDayNextMonth;
       }
       return {
         id: 'sub_' + s.id,
@@ -826,11 +832,8 @@ export class Dashboard implements OnInit, AfterViewInit, OnDestroy {
       
       const dueDay = parseInt(emi.due_date.split('-')[2]);
       let diff = dueDay - today;
-      if (diff < 0) {
-        const d = new Date();
-        const daysInMonth = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
-        diff = daysInMonth - today + dueDay;
-      }
+      // Note: We don't wrap EMIs to the next month because they are specific instances for the current month.
+      // If diff < 0, it is genuinely overdue and should be displayed as such.
       
       return {
         id: 'goal_emi_' + emi.id,

@@ -16,6 +16,8 @@ export interface UserProfile {
   createdBy?: string;
   quickActions?: string[];
   emailReportFrequency?: 'none' | 'twice_daily' | 'weekly' | 'monthly';
+  balancePromptLastUpdatedMonth?: string;
+  balancePromptSnoozedUntil?: number;
 }
 
 @Injectable({
@@ -79,9 +81,11 @@ export class AuthService {
     avatarId: 1,
     maskValues: false,
     quickActions: ['expenses', 'splits', 'friends', 'budgets'],
-    emailReportFrequency: 'none'
+    emailReportFrequency: 'none',
+    balancePromptLastUpdatedMonth: '',
+    balancePromptSnoozedUntil: 0
   }, {
-    equal: (a, b) => a.name === b.name && a.username === b.username && a.salary === b.salary && a.avatarId === b.avatarId && a.email === b.email && a.maskValues === b.maskValues && JSON.stringify(a.quickActions) === JSON.stringify(b.quickActions) && a.emailReportFrequency === b.emailReportFrequency
+    equal: (a, b) => a.name === b.name && a.username === b.username && a.salary === b.salary && a.avatarId === b.avatarId && a.email === b.email && a.maskValues === b.maskValues && JSON.stringify(a.quickActions) === JSON.stringify(b.quickActions) && a.emailReportFrequency === b.emailReportFrequency && a.balancePromptLastUpdatedMonth === b.balancePromptLastUpdatedMonth && a.balancePromptSnoozedUntil === b.balancePromptSnoozedUntil
   });
 
   constructor() {
@@ -120,7 +124,9 @@ export class AuthService {
           avatarId: metadata['avatar_id'] || 1,
           maskValues: metadata['mask_values'] === true,
           quickActions: metadata['quick_actions'] || ['expenses', 'splits', 'friends', 'budgets'],
-          emailReportFrequency: metadata['email_report_frequency'] || 'none'
+          emailReportFrequency: metadata['email_report_frequency'] || 'none',
+          balancePromptLastUpdatedMonth: metadata['balance_prompt_last_updated_month'] || '',
+          balancePromptSnoozedUntil: metadata['balance_prompt_snoozed_until'] || 0
         });
 
         // Always onboarded since onboarding happens pre-signup now
@@ -168,7 +174,9 @@ export class AuthService {
         avatar_id: profile.avatarId,
         mask_values: profile.maskValues,
         quick_actions: profile.quickActions,
-        email_report_frequency: profile.emailReportFrequency
+        email_report_frequency: profile.emailReportFrequency,
+        balance_prompt_last_updated_month: profile.balancePromptLastUpdatedMonth,
+        balance_prompt_snoozed_until: profile.balancePromptSnoozedUntil
       }
     });
 

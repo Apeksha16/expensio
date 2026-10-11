@@ -295,7 +295,7 @@ import { BalancePromptService } from '../services/balance-prompt.service';
         <div class="px-6 py-5 mt-auto flex items-center justify-between relative z-10">
           <div class="absolute top-0 left-6 right-6 h-px bg-gray-100"></div>
           <span class="text-[12px] font-semibold tracking-wider text-gray-500">
-            v1.0.27
+            v1.0.31
           </span>
           <div class="flex gap-3">
             <button
@@ -538,24 +538,45 @@ export class Layout implements AfterViewInit, OnInit {
         this.currentUrl.set(event.urlAfterRedirects);
       }
     });
-  }
 
-  ngOnInit() {
     this.checkMonthlyBalancePrompt();
   }
 
-  private checkMonthlyBalancePrompt() {
-    setTimeout(() => {
-      const now = new Date();
-      const currentMonth = `${now.getFullYear()}-${now.getMonth()}`;
-      
-      const lastPromptMonth = localStorage.getItem('lastBalancePromptMonth');
-      if (lastPromptMonth === currentMonth) {
-        return;
-      }
+  ngOnInit() {
+  }
 
-      this.balancePromptService.open();
-    }, 1500); // Small delay to let the app finish loading
+  private promptEffectRef: any;
+
+  private checkMonthlyBalancePrompt() {
+    this.promptEffectRef = effect(() => {
+      // Only run when auth is fully initialized and we have user metadata
+      if (this.authService.isInitialized() && this.authService.isAuthenticated()) {
+        const now = new Date();
+        const currentMonth = `${now.getFullYear()}-${now.getMonth()}`;
+        
+        const profile = this.authService.userProfile();
+        
+        // If updated this month, never show
+        if (profile.balancePromptLastUpdatedMonth === currentMonth) {
+          setTimeout(() => this.promptEffectRef?.destroy(), 0);
+          return;
+        }
+        
+        // If snoozed until a future date, don't show
+        const snoozedUntil = profile.balancePromptSnoozedUntil || 0;
+        if (Date.now() < snoozedUntil) {
+          setTimeout(() => this.promptEffectRef?.destroy(), 0);
+          return;
+        }
+
+        // Delay slightly for smooth UI
+        setTimeout(() => {
+          this.balancePromptService.open();
+        }, 500);
+
+        setTimeout(() => this.promptEffectRef?.destroy(), 0);
+      }
+    });
   }
 
   toggleSidebar(open: boolean) {

@@ -212,7 +212,7 @@ export class EnterEmailComponent implements OnInit {
   }
 
   onCachedLogin() {
-    this.keyboardService.openKeyboardSync();
+    this.keyboardService.closeKeyboard();
     this.state.email.set(this.email());
     this.router.navigate(['/mpin']);
   }
@@ -231,9 +231,8 @@ export class EnterEmailComponent implements OnInit {
       return;
     }
 
-    // Call openKeyboardSync right before we start awaiting, to satisfy iOS,
-    // but only if validation passes
-    this.keyboardService.openKeyboardSync();
+    // Close keyboard while processing
+    this.keyboardService.closeKeyboard();
 
     if (!finalEmail.includes('@')) {
       // First, attempt to map the username to an email using our new backend RPC

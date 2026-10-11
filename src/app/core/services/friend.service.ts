@@ -180,16 +180,11 @@ export class FriendService {
   }
 
   async acceptRequest(friendshipId: string) {
-    const { data, error } = await this.supabaseService.client
-      .from('friends')
-      .update({ status: 'accepted' })
-      .eq('id', friendshipId)
-      .select();
+    const { error } = await this.supabaseService.client
+      .rpc('accept_friend_request', { p_friendship_id: friendshipId });
       
     if (error) {
       console.error('Error accepting friend request:', error);
-    } else if (!data || data.length === 0) {
-      console.error('No friend request updated. It may not exist or you lack permission.');
     } else {
       this.fetchFriends();
     }

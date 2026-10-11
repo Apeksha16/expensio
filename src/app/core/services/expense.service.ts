@@ -118,6 +118,8 @@ export class ExpenseService {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'expenses', filter: `user_id=eq.${user.id}` }, () => {
         if (this.fetchDebounceTimeout) clearTimeout(this.fetchDebounceTimeout);
         this.fetchDebounceTimeout = setTimeout(() => {
+          // Invalidate the entire cache so other months get fresh data if affected
+          this.monthlyCache.clear();
           this.fetchExpenses(this.activeMonth(), true, true);
         }, 150);
       })
@@ -278,13 +280,20 @@ export class ExpenseService {
 
     if (!error && data) {
       const currentMonth = this.activeMonth();
-      const exps = this.allExpenses();
-      const updated = [data as Expense, ...exps];
-      updated.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      const expenseMonth = new Date(data.date).getFullYear() + '-' + (new Date(data.date).getMonth() + 1).toString().padStart(2, '0');
       
-      this.allExpenses.set(updated);
-      this.monthlyCache.set(currentMonth, updated); // Specific cache update
-      this.applyFilterAndPagination();
+      if (expenseMonth === currentMonth) {
+        const exps = this.allExpenses();
+        const updated = [data as Expense, ...exps];
+        updated.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        
+        this.allExpenses.set(updated);
+        this.monthlyCache.set(currentMonth, updated);
+        this.applyFilterAndPagination();
+      } else {
+        // If added to a different month, invalidate that month's cache
+        this.monthlyCache.delete(expenseMonth);
+      }
 
       if (!silent) {
         this.toastService.showSuccess('Expense added successfully.');
@@ -322,13 +331,22 @@ export class ExpenseService {
 
     if (!error) {
       const currentMonth = this.activeMonth();
-      const exps = this.allExpenses();
-      const updated = exps.map(exp => exp.id === id ? { ...exp, ...data } : exp);
-      updated.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      const expenseMonth = new Date(data.date).getFullYear() + '-' + (new Date(data.date).getMonth() + 1).toString().padStart(2, '0');
       
-      this.allExpenses.set(updated);
-      this.monthlyCache.set(currentMonth, updated); // Specific cache update
-      this.applyFilterAndPagination();
+      if (expenseMonth === currentMonth) {
+        const exps = this.allExpenses();
+        const updated = exps.map(exp => exp.id === id ? { ...exp, ...data } : exp);
+        updated.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        
+        this.allExpenses.set(updated);
+        this.monthlyCache.set(currentMonth, updated);
+        this.applyFilterAndPagination();
+      } else {
+        // If moved to a different month, fetch current month to remove it, and invalidate the target month
+        this.monthlyCache.delete(expenseMonth);
+        this.monthlyCache.delete(currentMonth);
+        this.fetchExpenses(currentMonth, true, true);
+      }
 
       // Goal Progress Sync is now handled atomically by the trg_sync_goal_progress Postgres trigger
 
