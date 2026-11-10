@@ -361,7 +361,7 @@ import { DatePickerComponent } from '../date-picker/date-picker.component';
                             [formControl]="getCustomControl(p)"
                             placeholder="0"
                             (keydown)="preventE($event)"
-                            (input)="onCustomAmountInput(p)"
+                            (input)="onCustomAmountInput(p, $event)"
                             class="w-full bg-white border-2 border-gray-100 text-slate-900 font-semibold text-sm rounded-xl pl-8 pr-3 py-3 text-right outline-none transition-all touch-manipulation shadow-sm placeholder-slate-400 focus:border-splits-primary focus:ring-4 focus:ring-splits-primary/15"
                           />
                         </div>
@@ -554,6 +554,7 @@ export class SplitSheetComponent implements OnInit {
   splitStrategy = signal<'EQUAL' | 'CUSTOM'>('EQUAL');
   selectedParticipants = signal<string[]>([]);
   customAmounts: Record<string, FormControl> = {};
+  manuallyEdited = new Set<string>();
   selectedDate = signal<string>(new Date().toISOString());
 
   isDropdownOpen = signal(false);
@@ -629,8 +630,10 @@ export class SplitSheetComponent implements OnInit {
             return Math.abs(p.amountOwed - equalAmt) <= 1;
           });
 
+          this.manuallyEdited.clear();
           participantsInvolved.forEach((p) => {
             this.customAmounts[p.userId] = new FormControl(Math.round(p.amountOwed));
+            this.manuallyEdited.add(p.userId);
           });
 
           if (isEqual) {
@@ -653,6 +656,7 @@ export class SplitSheetComponent implements OnInit {
           this.selectedParticipants.set(this.splitParticipantsOptions.map(opt => opt.id));
           
           this.customAmounts = {};
+          this.manuallyEdited.clear();
           this.splitStrategy.set('EQUAL');
         }
       }
@@ -731,6 +735,7 @@ export class SplitSheetComponent implements OnInit {
     const current = this.selectedParticipants();
     if (current.includes(id)) {
       this.selectedParticipants.set(current.filter((u) => u !== id));
+      this.manuallyEdited.delete(id);
       delete this.customAmounts[id];
     } else {
       this.selectedParticipants.set([...current, id]);
@@ -750,6 +755,9 @@ export class SplitSheetComponent implements OnInit {
 
   setStrategy(strategy: 'EQUAL' | 'CUSTOM') {
     this.splitStrategy.set(strategy);
+    if (strategy === 'CUSTOM') {
+      this.manuallyEdited.clear();
+    }
     setTimeout(() => {
       const el = document.getElementById('split-scroll-container');
       if (el) {
@@ -774,35 +782,92 @@ export class SplitSheetComponent implements OnInit {
 
   isAutoFilling = false;
 
-  onCustomAmountInput(editingId: string) {
+  onCustomAmountInput(editingId: string, event?: Event) {
     if (this.isAutoFilling) return;
-    
+
+    // Get the latest numeric value from either the input element or the FormControl
+    let val: number | null = null;
+    if (event?.target) {
+      const rawStr = (event.target as HTMLInputElement).value.replace(/[^0-9.]/g, '');
+      val = rawStr !== '' ? parseFloat(rawStr) : null;
+    }
+    if (val === null) {
+      const ctrlVal = this.customAmounts[editingId]?.value;
+      val = (ctrlVal !== null && ctrlVal !== '' && !isNaN(Number(ctrlVal))) ? Number(ctrlVal) : null;
+    }
+
+    if (this.customAmounts[editingId] && this.customAmounts[editingId].value !== val) {
+      this.customAmounts[editingId].setValue(val, { emitEvent: false });
+    }
+
+    if (val !== null && val > 0) {
+      this.manuallyEdited.add(editingId);
+    } else {
+      this.manuallyEdited.delete(editingId);
+    }
+
     const participants = this.selectedParticipants();
     if (participants.length <= 1) return;
 
-    let emptyCount = 0;
-    let emptyId: string | null = null;
-    let assigned = 0;
+    const total = Number(this.splitForm.value.totalAmount) || 0;
 
-    for (const p of participants) {
-      const val = this.customAmounts[p]?.value;
-      if (val === null || val === '' || val === undefined) {
-        emptyCount++;
-        emptyId = p;
-      } else {
-        assigned += Number(val);
+    // 1. Two participants: direct complementary auto-calculation
+    if (participants.length === 2) {
+      const otherId = participants.find(p => p !== editingId);
+      if (otherId) {
+        if (val === null) {
+          this.isAutoFilling = true;
+          this.getCustomControl(otherId).setValue(null, { emitEvent: false });
+          this.isAutoFilling = false;
+        } else {
+          const remaining = Math.max(0, Math.round((total - val) * 100) / 100);
+          this.isAutoFilling = true;
+          this.getCustomControl(otherId).setValue(remaining, { emitEvent: false });
+          this.isAutoFilling = false;
+        }
       }
+      return;
     }
 
-    if (emptyCount === 1 && emptyId && emptyId !== editingId) {
-      const total = this.splitForm.value.totalAmount || 0;
-      const remaining = Math.round((total - assigned) * 100) / 100;
-      if (remaining >= 0) {
-        this.isAutoFilling = true;
-        this.getCustomControl(emptyId).setValue(remaining, { emitEvent: false });
-        this.isAutoFilling = false;
+    // 2. Three or more participants
+    const otherManuallyEdited = participants.filter(
+      p => p !== editingId && this.manuallyEdited.has(p) && this.customAmounts[p]?.value !== null && this.customAmounts[p]?.value !== ''
+    );
+    const uneditedTargets = participants.filter(
+      p => p !== editingId && !otherManuallyEdited.includes(p)
+    );
+
+    if (uneditedTargets.length === 0) {
+      return;
+    }
+
+    let sumEdited = val || 0;
+    for (const p of otherManuallyEdited) {
+      sumEdited += Number(this.customAmounts[p]?.value || 0);
+    }
+
+    const remaining = Math.max(0, Math.round((total - sumEdited) * 100) / 100);
+
+    this.isAutoFilling = true;
+    if (remaining <= 0) {
+      for (const target of uneditedTargets) {
+        this.getCustomControl(target).setValue(0, { emitEvent: false });
+      }
+    } else {
+      let sumDistributed = 0;
+      for (let i = 0; i < uneditedTargets.length; i++) {
+        const target = uneditedTargets[i];
+        if (i === uneditedTargets.length - 1) {
+          const lastAmt = Math.round((remaining - sumDistributed) * 100) / 100;
+          this.getCustomControl(target).setValue(Math.max(0, lastAmt), { emitEvent: false });
+        } else {
+          const share = Math.round((remaining / uneditedTargets.length) * 100) / 100;
+          sumDistributed += share;
+          this.getCustomControl(target).setValue(Math.max(0, share), { emitEvent: false });
+        }
       }
     }
+    this.isAutoFilling = false;
   }
 
   getLeftToAssign(): number {
@@ -938,6 +1003,7 @@ export class SplitSheetComponent implements OnInit {
     this.splitForm.reset({ payerId: this.currentUser().id });
     this.selectedParticipants.set([]);
     this.customAmounts = {};
+    this.manuallyEdited.clear();
     this.splitStrategy.set('EQUAL');
     this.isSaving.set(false);
     this.close();

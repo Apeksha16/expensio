@@ -729,7 +729,7 @@ $$;
 -- ==========================================
 -- VIEW: monthly_summaries
 -- ==========================================
-CREATE OR REPLACE VIEW public.monthly_summaries AS
+CREATE OR REPLACE VIEW public.monthly_summaries WITH (security_invoker = true) AS
 WITH all_expenses AS (
     SELECT 
         user_id,

@@ -295,7 +295,7 @@ import { BalancePromptService } from '../services/balance-prompt.service';
         <div class="px-6 py-5 mt-auto flex items-center justify-between relative z-10">
           <div class="absolute top-0 left-6 right-6 h-px bg-gray-100"></div>
           <span class="text-[12px] font-semibold tracking-wider text-gray-500">
-            v1.0.31
+            v1.0.32
           </span>
           <div class="flex gap-3">
             <button
